@@ -1,0 +1,29 @@
+apply plugin: 'android-library'
+
+dependencies {
+    compile('com.android.support:support-v4:18.0.+')
+    compile('com.actionbarsherlock:actionbarsherlock:4.4.+@aar')
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.1.0"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 18
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            aidl.srcDirs = ['src']
+            assets.srcDirs = ['assets']
+            resources.srcDirs = ['src']
+        }
+    }
+
+}
+
