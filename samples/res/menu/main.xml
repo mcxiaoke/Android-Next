@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@id/menu_share"
+        android:title="@string/menu_share"
+        android:icon="@drawable/ic_actionbar_share"
+        android:actionProviderClass="com.douban.ui.widget.AdvancedShareActionProvider"
+        android:showAsAction="always" />
+
+</menu>
