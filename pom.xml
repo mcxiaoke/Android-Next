@@ -26,6 +26,19 @@
         <sherlock.version>4.4.0</sherlock.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>Douban</id>
+            <name>Douban.com Repository</name>
+            <url>http://qaci.intra.douban.com/nexus/content/repositories/douban</url>
+        </repository>
+        <snapshotRepository>
+            <id>Douban-snapshot</id>
+            <name>Snapshot.douban.com Repository</name>
+            <url>http://qaci.intra.douban.com/nexus/content/repositories/douban-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

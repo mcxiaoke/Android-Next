@@ -10,6 +10,10 @@ buildscript {
     }
 }
 
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
+
 allprojects {
     group = 'com.douban.ui'
     version = '1.0.0'
