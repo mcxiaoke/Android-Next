@@ -5,6 +5,7 @@ dependencies {
     compile('com.android.support:support-v4:18.0.+')
     compile('com.actionbarsherlock:actionbarsherlock:4.4.+@aar')
     compile('com.jakewharton:butterknife:3.0.+')
+    compile('natalya:natalya-core:1.0.5')
 }
 
 android {

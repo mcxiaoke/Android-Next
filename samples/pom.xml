@@ -51,6 +51,12 @@
             <type>apklib</type>
         </dependency>
 
+        <dependency>
+            <groupId>natalya</groupId>
+            <artifactId>natalya-core</artifactId>
+            <version>1.0.5</version>
+        </dependency>
+
     </dependencies>
 
     <build>

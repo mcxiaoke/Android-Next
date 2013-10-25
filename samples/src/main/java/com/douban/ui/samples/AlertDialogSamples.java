@@ -17,7 +17,7 @@ import com.douban.ui.dialog.AlertDialogFragment;
  */
 
 /**
- * AlertDialogSamples使用示例
+ * AlertDialogFragment使用示例
  */
 public class AlertDialogSamples extends BaseActivity {
     public static final String TAG = AlertDialogSamples.class.getSimpleName();

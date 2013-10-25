@@ -52,17 +52,15 @@ public class Samples extends BaseActivity {
     private void initSamples() {
         mSampleListData = new ArrayList<SampleInfo>();
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
     }
 
     private void initListView() {
