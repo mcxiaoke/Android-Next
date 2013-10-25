@@ -7,9 +7,12 @@ import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListAdapter;
+
+import java.util.Arrays;
 
 /**
  * 一个自定义的DialogFragment
@@ -21,6 +24,7 @@ import android.widget.ListAdapter;
  */
 public class AlertDialogFragment extends DialogFragment {
     public static final String TAG = AlertDialogFragment.class.getSimpleName();
+    public static final boolean DEBUG = true;
 
     public static AlertDialogFragment create(Context context, CharSequence title, CharSequence message) {
         Builder builder = new Builder(context);
@@ -69,6 +73,10 @@ public class AlertDialogFragment extends DialogFragment {
         mParams.mCancelable = cancelable;
     }
 
+    public void setCanceledOnTouchOutside(boolean canceledOnTouchOutside) {
+        mParams.mCanceledOnTouchOutside = canceledOnTouchOutside;
+    }
+
     public void setOnCancelListener(DialogInterface.OnCancelListener onCancelListener) {
         mParams.mOnCancelListener = onCancelListener;
     }
@@ -98,15 +106,21 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (DEBUG) {
+            Log.v(TAG, "onCreate()");
+        }
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle sis) {
+    public Dialog onCreateDialog(Bundle bundle) {
+        if (DEBUG) {
+            Log.v(TAG, "onCreateDialog() mParams="+mParams);
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (mParams.mIconId > 0) {
             builder.setIcon(mParams.mIconId);
         } else if (mParams.mIcon != null) {
-            builder.setIcon(mParams.mIconId);
+            builder.setIcon(mParams.mIcon);
         }
         if (mParams.mTitle != null) {
             builder.setTitle(mParams.mTitle);
@@ -121,10 +135,10 @@ public class AlertDialogFragment extends DialogFragment {
             builder.setPositiveButton(mParams.mPositiveButtonText, mParams.mPositiveButtonListener);
         }
         if (mParams.mNegativeButtonText != null) {
-            builder.setPositiveButton(mParams.mNegativeButtonText, mParams.mNegativeButtonListener);
+            builder.setNegativeButton(mParams.mNegativeButtonText, mParams.mNegativeButtonListener);
         }
         if (mParams.mNeutralButtonText != null) {
-            builder.setPositiveButton(mParams.mNeutralButtonText, mParams.mNeutralButtonListener);
+            builder.setNeutralButton(mParams.mNeutralButtonText, mParams.mNeutralButtonListener);
         }
         if (mParams.mItems != null) {
             builder.setItems(mParams.mItems, mParams.mOnClickListener);
@@ -135,14 +149,16 @@ public class AlertDialogFragment extends DialogFragment {
         if (mParams.mView != null) {
             builder.setView(mParams.mView);
         }
-        builder.setCancelable(mParams.mCancelable);
 
+        builder.setCancelable(mParams.mCancelable);
+        builder.setOnKeyListener(mParams.mOnKeyListener);
+        builder.setOnCancelListener(mParams.mOnCancelListener);
         AlertDialog dialog = builder.create();
         if (mParams.mWindowNoTitle) {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
-        dialog.setOnKeyListener(mParams.mOnKeyListener);
-        dialog.setOnCancelListener(mParams.mOnCancelListener);
+        dialog.setCanceledOnTouchOutside(mParams.mCanceledOnTouchOutside);
+        // must put it here, builder.setOnDismissListener() require api 17
         dialog.setOnDismissListener(mParams.mOnDismissListener);
         return dialog;
     }
@@ -150,11 +166,23 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
+        if (DEBUG) {
+            Log.v(TAG, "onDismiss()");
+        }
+        if (mParams.mOnDismissListener != null) {
+            mParams.mOnDismissListener.onDismiss(dialog);
+        }
     }
 
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
+        if (DEBUG) {
+            Log.v(TAG, "onCancel()");
+        }
+        if (mParams.mOnCancelListener != null) {
+            mParams.mOnCancelListener.onCancel(dialog);
+        }
     }
 
     @Override
@@ -173,27 +201,77 @@ public class AlertDialogFragment extends DialogFragment {
     }
 
     static class Params {
+        // 主题
         public int mTheme;
+        // 是否隐藏标题栏
         public boolean mWindowNoTitle;
-        public int mIconId = 0;
+        // 图标
+        public int mIconId;
+        // 图标
         public Drawable mIcon;
+        // 标题
         public CharSequence mTitle;
+        // 自定义标题栏
         public View mCustomTitleView;
+        // 内容
         public CharSequence mMessage;
+        // 按钮
         public CharSequence mPositiveButtonText;
         public DialogInterface.OnClickListener mPositiveButtonListener;
+        // 按钮
         public CharSequence mNegativeButtonText;
         public DialogInterface.OnClickListener mNegativeButtonListener;
+
+        // 按钮
         public CharSequence mNeutralButtonText;
         public DialogInterface.OnClickListener mNeutralButtonListener;
-        public boolean mCancelable;
+
+        // 是否可以Cancel，默认为true
+        public boolean mCancelable=true;
+
+        // 是否触摸对话框意外区域Cancel
+        public boolean mCanceledOnTouchOutside;
+
+        // 几个Listener
         public DialogInterface.OnCancelListener mOnCancelListener;
         public DialogInterface.OnDismissListener mOnDismissListener;
         public DialogInterface.OnKeyListener mOnKeyListener;
+
+        // 列表项
         public CharSequence[] mItems;
         public ListAdapter mAdapter;
         public DialogInterface.OnClickListener mOnClickListener;
+
+        // 自定义View
         public View mView;
+
+        @Override
+        public String toString() {
+            return "Params{" +
+                    "mTheme=" + mTheme +
+                    ", mWindowNoTitle=" + mWindowNoTitle +
+                    ", mIconId=" + mIconId +
+                    ", mIcon=" + mIcon +
+                    ", mTitle=" + mTitle +
+                    ", mCustomTitleView=" + mCustomTitleView +
+                    ", mMessage=" + mMessage +
+                    ", mPositiveButtonText=" + mPositiveButtonText +
+                    ", mPositiveButtonListener=" + mPositiveButtonListener +
+                    ", mNegativeButtonText=" + mNegativeButtonText +
+                    ", mNegativeButtonListener=" + mNegativeButtonListener +
+                    ", mNeutralButtonText=" + mNeutralButtonText +
+                    ", mNeutralButtonListener=" + mNeutralButtonListener +
+                    ", mCancelable=" + mCancelable +
+                    ", mCanceledOnTouchOutside=" + mCanceledOnTouchOutside +
+                    ", mOnCancelListener=" + mOnCancelListener +
+                    ", mOnDismissListener=" + mOnDismissListener +
+                    ", mOnKeyListener=" + mOnKeyListener +
+                    ", mItems=" + Arrays.toString(mItems) +
+                    ", mAdapter=" + mAdapter +
+                    ", mOnClickListener=" + mOnClickListener +
+                    ", mView=" + mView +
+                    '}';
+        }
     }
 
     public static class Builder {
@@ -309,6 +387,11 @@ public class AlertDialogFragment extends DialogFragment {
 
         public Builder setCancelable(boolean cancelable) {
             mParams.mCancelable = cancelable;
+            return this;
+        }
+
+        public Builder setCanceledOnTouchOutside(boolean canceledOnTouchOutside) {
+            mParams.mCanceledOnTouchOutside = canceledOnTouchOutside;
             return this;
         }
 
