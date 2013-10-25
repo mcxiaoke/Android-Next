@@ -17,8 +17,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.douban.ui.dialog.AlertDialogFragment;
 import com.douban.ui.widget.AdvancedShareActionProvider;
 
-public class MainActivity extends SherlockFragmentActivity {
-    public static final String TAG = MainActivity.class.getSimpleName();
+public class Samples extends SherlockFragmentActivity {
+    public static final String TAG = Samples.class.getSimpleName();
 
     @InjectView(android.R.id.text1)
     TextView mTextView;

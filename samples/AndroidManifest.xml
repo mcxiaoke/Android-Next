@@ -23,7 +23,7 @@
         android:theme="@style/UITheme">
 
         <activity
-            android:name="com.douban.ui.samples.MainActivity"
+            android:name=".Samples"
             android:label="@string/app_name"
             android:launchMode="singleTop">
             <intent-filter>
