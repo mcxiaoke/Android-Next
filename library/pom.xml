@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>library</artifactId>
+    <artifactId>library-apklib</artifactId>
     <packaging>apklib</packaging>
     <name>CommonUI - Library</name>
 

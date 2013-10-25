@@ -32,6 +32,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.jakewharton</groupId>
+            <artifactId>butterknife</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.actionbarsherlock</groupId>
             <artifactId>actionbarsherlock</artifactId>
             <version>${sherlock.version}</version>
@@ -40,7 +46,7 @@
 
         <dependency>
             <groupId>com.douban.ui</groupId>
-            <artifactId>library</artifactId>
+            <artifactId>library-apklib</artifactId>
             <version>1.0.0</version>
             <type>apklib</type>
         </dependency>
