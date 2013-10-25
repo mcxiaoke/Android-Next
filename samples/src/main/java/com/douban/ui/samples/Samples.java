@@ -1,33 +1,42 @@
 package com.douban.ui.samples;
 
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import butterknife.InjectView;
 import butterknife.Views;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.douban.ui.dialog.AlertDialogFragment;
+import com.douban.ui.adapter.ArrayAdapterCompat;
 import com.douban.ui.widget.AdvancedShareActionProvider;
 
-public class Samples extends SherlockFragmentActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * User: mcxiaoke
+ * Date: 13-10-25
+ * Time: 下午3:50
+ */
+
+/**
+ * Samples主界面，同时也是AdvancedShareActionProvider的使用示例
+ */
+public class Samples extends BaseActivity {
     public static final String TAG = Samples.class.getSimpleName();
 
-    @InjectView(android.R.id.text1)
-    TextView mTextView;
-    @InjectView(android.R.id.button1)
-    Button mButton1;
-    @InjectView(android.R.id.button2)
-    Button mButton2;
-    @InjectView(android.R.id.button3)
-    Button mButton3;
+    @InjectView(android.R.id.list)
+    ListView mListView;
+
+    private List<SampleInfo> mSampleListData;
+    private SampleListAdapter mSampleListAdapter;
+
 
     private AdvancedShareActionProvider mShareActionProvider;
 
@@ -36,127 +45,39 @@ public class Samples extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Views.inject(this);
-
-        mButton1.setText("简单对话框");
-        mButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAlertDialog(false);
-            }
-        });
-        mButton2.setText("列表对话框");
-        mButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAlertDialog(true);
-            }
-        });
-        mButton3.setText("自定义对话框");
-        mButton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCustomDialog();
-            }
-        });
+        initSamples();
+        initListView();
     }
 
-    private void showAlertDialog(boolean list) {
-        AlertDialogFragment.Builder builder = new AlertDialogFragment.Builder(this);
-        builder.setTitle(list ? "列表对话框" : "简单对话框");
-        if (list) {
-            String[] items = new String[10];
-            for (int i = 0; i < 10; i++) {
-                items[i] = "List Item " + i;
-            }
-            builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    showToast("List Item Clicked: " + which);
+    private void initSamples() {
+        mSampleListData = new ArrayList<SampleInfo>();
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+    }
+
+    private void initListView() {
+        mSampleListAdapter = new SampleListAdapter(this, mSampleListData);
+        mListView.setAdapter(mSampleListAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final SampleInfo sample = (SampleInfo) parent.getItemAtPosition(position);
+                if (sample != null) {
+                    Intent intent = new Intent(getActivity(), sample.target);
+                    startActivity(intent);
                 }
-            });
-        } else {
-            builder.setMessage("江上春风留客舟，无穷归思满东流。与君尽日闲临水，贪看飞花忘却愁。你确定要关闭对话框？");
-        }
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-//                showToast("Positive Button Clicked!");
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-//                showToast("Negative Button Clicked!");
-            }
-        });
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                showToast("AlertDialogFragment is dismissed!");
-            }
-        });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                showToast("AlertDialogFragment is cancelled!");
-            }
-        });
-        builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-//                showToast("onKey() keyCode=" + keyCode);
-                return false;
-            }
-        });
-        builder.setCancelable(true);
-        builder.setCanceledOnTouchOutside(false);
-        AlertDialogFragment dialog = builder.create();
-        dialog.show(getSupportFragmentManager(), AlertDialogFragment.TAG);
-    }
-
-    private void showCustomDialog() {
-        AlertDialogFragment.Builder builder = new AlertDialogFragment.Builder(this);
-        builder.setCustomTitle(LayoutInflater.from(this).inflate(R.layout.dialog_custom_title, null));
-        builder.setView(LayoutInflater.from(this).inflate(R.layout.dialog_custom, null));
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-//                showToast("Positive Button Clicked!");
-            }
-        });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-//                showToast("Negative Button Clicked!");
-            }
-        });
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                showToast("AlertDialogFragment is dismissed!");
-            }
-        });
-        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                showToast("AlertDialogFragment is cancelled!");
-            }
-        });
-        builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-//                showToast("onKey() keyCode=" + keyCode);
-                return false;
-            }
-        });
-        builder.setCancelable(true);
-        builder.setCanceledOnTouchOutside(false);
-        AlertDialogFragment dialog = builder.create();
-        dialog.show(getSupportFragmentManager(), AlertDialogFragment.TAG);
-    }
-
-    private void showToast(CharSequence text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -170,11 +91,12 @@ public class Samples extends SherlockFragmentActivity {
             String action = intent.getAction();
             String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
             String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-            mTextView.getEditableText().clear();
-            mTextView.append("Received Intent:\n");
-            mTextView.append("Action: " + action + "\n");
-            mTextView.append("Extra Text: " + text + "\n");
-            mTextView.append("Extra subject: " + subject + "\n");
+            StringBuilder builder = new StringBuilder();
+            builder.append("Received Intent:\n");
+            builder.append("Action: ").append(action).append("\n");
+            builder.append("Extra Text: ").append(text).append("\n");
+            builder.append("Extra subject: ").append(subject).append("\n");
+            showToast(builder.toString());
         }
     }
 
@@ -205,5 +127,40 @@ public class Samples extends SherlockFragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+
+    static class SampleInfo {
+        public String name;
+        public Class<?> target;
+
+        public SampleInfo(String name, Class<?> target) {
+            this.name = name;
+            this.target = target;
+        }
+    }
+
+    static class SampleListAdapter extends ArrayAdapterCompat<SampleInfo> {
+        private LayoutInflater mInflater;
+
+        public SampleListAdapter(Context context, List<SampleInfo> objects) {
+            super(context, objects);
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            }
+
+            final SampleInfo sample = getItem(position);
+            if (sample != null) {
+                TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
+                textView.setText(sample.name);
+            }
+
+            return convertView;
+        }
     }
 }
