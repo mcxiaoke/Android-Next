@@ -68,7 +68,7 @@ public class MainActivity extends SherlockFragmentActivity {
             for (int i = 0; i < 10; i++) {
                 items[i] = "List Item " + i;
             }
-            builder.setItems(items, new DialogInterface.OnClickListener() {
+            builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     showToast("List Item Clicked: " + which);

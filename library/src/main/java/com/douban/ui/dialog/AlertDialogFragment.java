@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 
 import java.util.Arrays;
@@ -114,7 +115,7 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle bundle) {
         if (DEBUG) {
-            Log.v(TAG, "onCreateDialog() mParams="+mParams);
+            Log.v(TAG, "onCreateDialog() mParams=" + mParams);
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (mParams.mIconId > 0) {
@@ -125,12 +126,10 @@ public class AlertDialogFragment extends DialogFragment {
         if (mParams.mTitle != null) {
             builder.setTitle(mParams.mTitle);
         }
-        if (mParams.mCustomTitleView != null) {
-            builder.setCustomTitle(mParams.mCustomTitleView);
-        }
         if (mParams.mMessage != null) {
             builder.setMessage(mParams.mMessage);
         }
+
         if (mParams.mPositiveButtonText != null) {
             builder.setPositiveButton(mParams.mPositiveButtonText, mParams.mPositiveButtonListener);
         }
@@ -140,19 +139,37 @@ public class AlertDialogFragment extends DialogFragment {
         if (mParams.mNeutralButtonText != null) {
             builder.setNeutralButton(mParams.mNeutralButtonText, mParams.mNeutralButtonListener);
         }
-        if (mParams.mItems != null) {
-            builder.setItems(mParams.mItems, mParams.mOnClickListener);
+
+        if (mParams.mCustomTitleView != null) {
+            builder.setCustomTitle(mParams.mCustomTitleView);
         }
-        if (mParams.mAdapter != null) {
-            builder.setAdapter(mParams.mAdapter, mParams.mOnClickListener);
-        }
+
         if (mParams.mView != null) {
             builder.setView(mParams.mView);
+        }
+
+        if (mParams.mIsSingleChoice) {
+            if (mParams.mItems != null) {
+                builder.setSingleChoiceItems(mParams.mItems, mParams.mCheckedItem, mParams.mOnClickListener);
+            } else if (mParams.mAdapter != null) {
+                builder.setSingleChoiceItems(mParams.mAdapter, mParams.mCheckedItem, mParams.mOnClickListener);
+            }
+        } else if (mParams.mIsMultiChoice) {
+            if (mParams.mItems != null) {
+                builder.setMultiChoiceItems(mParams.mItems, mParams.mCheckedItems, mParams.mOnCheckboxClickListener);
+            }
+        } else {
+            if (mParams.mItems != null) {
+                builder.setItems(mParams.mItems, mParams.mOnClickListener);
+            } else if (mParams.mAdapter != null) {
+                builder.setAdapter(mParams.mAdapter, mParams.mOnClickListener);
+            }
         }
 
         builder.setCancelable(mParams.mCancelable);
         builder.setOnKeyListener(mParams.mOnKeyListener);
         builder.setOnCancelListener(mParams.mOnCancelListener);
+
         AlertDialog dialog = builder.create();
         if (mParams.mWindowNoTitle) {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -227,7 +244,7 @@ public class AlertDialogFragment extends DialogFragment {
         public DialogInterface.OnClickListener mNeutralButtonListener;
 
         // 是否可以Cancel，默认为true
-        public boolean mCancelable=true;
+        public boolean mCancelable = true;
 
         // 是否触摸对话框意外区域Cancel
         public boolean mCanceledOnTouchOutside;
@@ -237,10 +254,20 @@ public class AlertDialogFragment extends DialogFragment {
         public DialogInterface.OnDismissListener mOnDismissListener;
         public DialogInterface.OnKeyListener mOnKeyListener;
 
-        // 列表项
+        // 列表数据源
         public CharSequence[] mItems;
         public ListAdapter mAdapter;
+        public boolean[] mCheckedItems;
+
+        // 列表属性
+        public boolean mIsMultiChoice;
+        public boolean mIsSingleChoice;
+        public int mCheckedItem = -1;
+
+        // 列表Listener
         public DialogInterface.OnClickListener mOnClickListener;
+        public DialogInterface.OnMultiChoiceClickListener mOnCheckboxClickListener;
+        public AdapterView.OnItemSelectedListener mOnItemSelectedListener;
 
         // 自定义View
         public View mView;
@@ -425,6 +452,54 @@ public class AlertDialogFragment extends DialogFragment {
         public Builder setAdapter(final ListAdapter adapter, final DialogInterface.OnClickListener listener) {
             mParams.mAdapter = adapter;
             mParams.mOnClickListener = listener;
+            return this;
+        }
+
+        public Builder setMultiChoiceItems(int itemsId, boolean[] checkedItems,
+                                           final DialogInterface.OnMultiChoiceClickListener listener) {
+            mParams.mItems = mContext.getResources().getTextArray(itemsId);
+            mParams.mOnCheckboxClickListener = listener;
+            mParams.mCheckedItems = checkedItems;
+            mParams.mIsMultiChoice = true;
+            return this;
+        }
+
+        public Builder setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems,
+                                           final DialogInterface.OnMultiChoiceClickListener listener) {
+            mParams.mItems = items;
+            mParams.mOnCheckboxClickListener = listener;
+            mParams.mCheckedItems = checkedItems;
+            mParams.mIsMultiChoice = true;
+            return this;
+        }
+
+        public Builder setSingleChoiceItems(int itemsId, int checkedItem,
+                                            final DialogInterface.OnClickListener listener) {
+            mParams.mItems = mContext.getResources().getTextArray(itemsId);
+            mParams.mOnClickListener = listener;
+            mParams.mCheckedItem = checkedItem;
+            mParams.mIsSingleChoice = true;
+            return this;
+        }
+
+        public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem, final DialogInterface.OnClickListener listener) {
+            mParams.mItems = items;
+            mParams.mOnClickListener = listener;
+            mParams.mCheckedItem = checkedItem;
+            mParams.mIsSingleChoice = true;
+            return this;
+        }
+
+        public Builder setSingleChoiceItems(ListAdapter adapter, int checkedItem, final DialogInterface.OnClickListener listener) {
+            mParams.mAdapter = adapter;
+            mParams.mOnClickListener = listener;
+            mParams.mCheckedItem = checkedItem;
+            mParams.mIsSingleChoice = true;
+            return this;
+        }
+
+        public Builder setOnItemSelectedListener(final AdapterView.OnItemSelectedListener listener) {
+            mParams.mOnItemSelectedListener = listener;
             return this;
         }
 
