@@ -1,4 +1,4 @@
-package com.douban.ui.widget;
+package com.douban.ui.abs;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +14,7 @@ import com.actionbarsherlock.view.ActionProvider;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
-import com.douban.ui.BuildConfig;
+import com.douban.ui.abs.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;

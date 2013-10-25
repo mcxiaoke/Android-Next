@@ -1,2 +1,2 @@
-include ':library'
+include ':library', ':extra-abs'
 include ':samples'

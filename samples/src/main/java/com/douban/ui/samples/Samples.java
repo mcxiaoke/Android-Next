@@ -14,7 +14,7 @@ import butterknife.Views;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.douban.ui.adapter.ArrayAdapterCompat;
-import com.douban.ui.widget.AdvancedShareActionProvider;
+import com.douban.ui.abs.AdvancedShareActionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
