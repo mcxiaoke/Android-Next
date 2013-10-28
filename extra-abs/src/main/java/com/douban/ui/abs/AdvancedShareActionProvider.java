@@ -14,7 +14,6 @@ import com.actionbarsherlock.view.ActionProvider;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
-import com.douban.ui.abs.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -137,8 +136,17 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
      * @param subject Intent.EXTRA_SUBJECT
      * @param text    Intent.EXTRA_TEXT
      */
-    public void addIntentExtras(String subject, String text) {
-        addIntentExtras(subject, text, null);
+    public void setIntentExtras(String subject, String text) {
+        setIntentExtras(subject, text, null);
+    }
+
+    /**
+     * 添加额外的参数到Intent
+     *
+     * @param imageUri Intent.EXTRA_STREAM
+     */
+    public void setIntentExtras(Uri imageUri) {
+        setIntentExtras(null, null, imageUri);
     }
 
     /**
@@ -148,7 +156,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
      * @param text     Intent.EXTRA_TEXT
      * @param imageUri Intent.EXTRA_STREAM
      */
-    public void addIntentExtras(String subject, String text, Uri imageUri) {
+    public void setIntentExtras(String subject, String text, Uri imageUri) {
         if (DEBUG) {
             Log.v(TAG, "setIntentExtras() subject=" + subject);
             Log.v(TAG, "setIntentExtras() text=" + text);

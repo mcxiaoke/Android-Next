@@ -118,7 +118,7 @@ public class Samples extends BaseActivity {
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, "I am some text for sharing!");
             mShareActionProvider.setShareIntent(intent);
-//            mShareActionProvider.addIntentExtras("I am subject.", "I am some text for sharing!");
+//            mShareActionProvider.setIntentExtras("I am subject.", "I am some text for sharing!");
         }
     }
 
