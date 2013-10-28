@@ -14,8 +14,8 @@ Android公共UI组件库
   6. 添加UI组件使用示例
 
 * **1.0.0** 20131028
-  1. 修改添加AdvancedShareActionProvider接口
-  2. 添加并完善ProgressDialogFragment
+  1. 修改AdvancedShareActionProvider接口
+  2. 添加ProgressDialogFragment
   3. 添加AspectRatioImageView
   4. 添加SquaredImageView
   5. 添加NoPressStateLinearLayout
