@@ -9,6 +9,7 @@ import android.widget.Button;
 import butterknife.InjectView;
 import butterknife.Views;
 import com.douban.ui.dialog.AlertDialogFragment;
+import com.douban.ui.dialog.ProgressDialogFragment;
 
 /**
  * User: mcxiaoke
@@ -28,6 +29,10 @@ public class AlertDialogSamples extends BaseActivity {
     Button mButton2;
     @InjectView(android.R.id.button3)
     Button mButton3;
+    @InjectView(R.id.button4)
+    Button mButton4;
+    @InjectView(R.id.button5)
+    Button mButton5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,13 @@ public class AlertDialogSamples extends BaseActivity {
             @Override
             public void onClick(View v) {
                 showCustomDialog();
+            }
+        });
+        mButton4.setText("进度对话框");
+        mButton4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showProgressDialog();
             }
         });
     }
@@ -153,5 +165,10 @@ public class AlertDialogSamples extends BaseActivity {
         builder.setCanceledOnTouchOutside(false);
         AlertDialogFragment dialog = builder.create();
         dialog.show(getSupportFragmentManager(), AlertDialogFragment.TAG);
+    }
+
+    private void showProgressDialog() {
+        ProgressDialogFragment dialog = ProgressDialogFragment.create("ProgressDialog", "Sending...", true);
+        dialog.show(getSupportFragmentManager());
     }
 }
