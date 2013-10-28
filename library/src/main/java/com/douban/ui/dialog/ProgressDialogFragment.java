@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,15 +22,8 @@ public class ProgressDialogFragment extends DialogFragment {
     private CharSequence mMessage;
     private boolean mActivityReady = false;
     private Dialog mOldDialog;
-    private final Handler mHandler = new Handler();
     private boolean mCalledSuperDismiss = false;
     private boolean mAllowStateLoss;
-    private final Runnable mDismisser = new Runnable() {
-        @Override
-        public void run() {
-            superDismiss();
-        }
-    };
 
     /**
      * Creates and shows an indeterminate progress dialog.  Once the progress dialog is shown, it
@@ -153,18 +145,13 @@ public class ProgressDialogFragment extends DialogFragment {
     @Override
     public void dismiss() {
         mAllowStateLoss = false;
-        dismissWhenReady();
+        superDismiss();
     }
 
     @Override
     public void dismissAllowingStateLoss() {
         mAllowStateLoss = true;
-        dismissWhenReady();
-    }
-
-    private void dismissWhenReady() {
-        // dismiss immediately
-        mHandler.post(mDismisser);
+        superDismiss();
     }
 
     private void superDismiss() {
@@ -178,13 +165,5 @@ public class ProgressDialogFragment extends DialogFragment {
                 super.dismiss();
             }
         }
-        // If mActivityReady is false, then this dialog fragment has already passed the onStop
-        // state. This can happen if the user hit the 'home' button before this dialog fragment was
-        // dismissed or if there is a configuration change.
-        // In the event that this dialog fragment is re-attached and reaches onStart (e.g.,
-        // because the user returns to this fragment's activity or the device configuration change
-        // has re-attached this dialog fragment), because the mCalledSuperDismiss flag was set to
-        // true, this dialog fragment will be dismissed within onStart.  So, there's nothing else
-        // that needs to be done.
     }
 }
