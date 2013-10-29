@@ -12,7 +12,7 @@ Android公共UI组件库
 
 
 ###版本更新
-```
+
 * 0.9.0 20131025
   1. 创建公共UI组件库项目
   2. 添加AdvancedShareActionProvider
@@ -20,9 +20,8 @@ Android公共UI组件库
   4. 添加EndlessListView
   5. 完善Maven和Gradle构建
   6. 添加UI组件使用示例
-```
 
-```
+
 * 1.0.0 20131028
   1. 修改AdvancedShareActionProvider接口
   2. 添加ProgressDialogFragment
@@ -31,7 +30,6 @@ Android公共UI组件库
   5. 添加NoPressStateLinearLayout
   6. 添加并修改TwoDirectionListView
   7. 添加CheckableLinearLayout系列组件
-```
 
 ###Maven和Gradle使用
 
