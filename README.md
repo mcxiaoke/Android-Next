@@ -34,11 +34,9 @@ Android公共UI组件库
 
 ###Maven和Gradle使用
 
-  注意：同时维护Maven和Gradle两套构建系统比较麻烦，目前不直接支持Maven，这个项目里大部分都是独立的模块（类），使用Maven的项目可以直接复制使用
-```
-* **Gradle使用方法**
+  注意：同时维护Maven和Gradle两套构建系统比较麻烦，目前不直接支持Maven，这个项目里大部分都是独立的模块（类），使用Maven的项目可以直接复制使用，Gradle使用方法：
 
-  ```
+```
 dependencies {
     compile('com.douban.ui:library:1.0.+')
 }
