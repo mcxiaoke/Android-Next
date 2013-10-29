@@ -45,6 +45,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     private Intent mIntent;
     private int mDefaultLength = DEFAULT_LIST_LENGTH;
     private CharSequence mExpandLabel = "See all…";
+    private MenuItem.OnMenuItemClickListener mOnMenuItemClickListener;
 
     private List<ResolveInfo> mActivities = new ArrayList<ResolveInfo>();
     private List<String> mCustomPackages = new ArrayList<String>();
@@ -53,6 +54,15 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         super(context);
         mContext = context;
         mPackageManager = context.getPackageManager();
+    }
+
+    /**
+     * 设置MenuItem的点击事件
+     *
+     * @param listener
+     */
+    public void setOnMenuItemClickListener(MenuItem.OnMenuItemClickListener listener) {
+        mOnMenuItemClickListener = listener;
     }
 
     /**
@@ -300,6 +310,13 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        boolean handled = false;
+        if (mOnMenuItemClickListener != null) {
+            handled = mOnMenuItemClickListener.onMenuItemClick(item);
+        }
+        if (handled) {
+            return true;
+        }
         ResolveInfo resolveInfo = mActivities.get(item.getItemId());
         ComponentName chosenName = null;
         if (resolveInfo.activityInfo != null) {
