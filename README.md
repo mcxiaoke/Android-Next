@@ -2,6 +2,15 @@ Android公共UI组件库
 ===========================================
 ####Android Common UI Components: Views, Widgets, Utils
 
+
+###项目结构
+
+分为三个模块：
+* library 仅依赖support-v4的公用模块
+* extra-abs 依赖ActionBarSherlock的公用模块
+* samples 使用示例
+
+
 ###版本更新
 
 * **0.9.0** 20131025
