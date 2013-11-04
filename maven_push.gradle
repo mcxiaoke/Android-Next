@@ -7,13 +7,13 @@ configurations {
     }
 }
 
-def sonatypeRepositoryUrl
+def doubanRepositoryUrl
 if (isReleaseBuild()) {
     println 'RELEASE BUILD'
-    sonatypeRepositoryUrl = "http://qaci.intra.douban.com/nexus/content/repositories/douban"
+    doubanRepositoryUrl = "http://qaci.intra.douban.com/nexus/content/repositories/douban"
 } else {
     println 'DEBUG BUILD'
-    sonatypeRepositoryUrl = "http://qaci.intra.douban.com/nexus/content/repositories/douban-snapshot"
+    doubanRepositoryUrl = "http://qaci.intra.douban.com/nexus/content/repositories/douban-snapshot"
 }
 
 afterEvaluate { project ->
@@ -22,8 +22,8 @@ afterEvaluate { project ->
             mavenDeployer {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                repository(url: sonatypeRepositoryUrl) {
-                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                repository(url: doubanRepositoryUrl) {
+                    authentication(userName: doubanUsername, password: doubanPassword)
                 }
 
                 pom.project {
