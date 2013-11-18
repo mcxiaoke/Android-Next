@@ -329,7 +329,10 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         if (DEBUG) {
             Log.v(TAG, "onMenuItemClick() target=" + chosenName);
         }
-        mContext.startActivity(intent);
+        try {
+            mContext.startActivity(intent);
+        } catch (Exception ignored) {
+        }
         return true;
     }
 }
