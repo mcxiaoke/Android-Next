@@ -3,7 +3,6 @@ package com.douban.ui.view.endless;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -218,6 +217,9 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
+        if (mOnScrollListener != null) {
+            mOnScrollListener.onScrollStateChanged(view, scrollState);
+        }
         mScrollState = scrollState;
         if (DEBUG) {
             Log.v(TAG, "onScrollStateChanged() scrollState=" + scrollState);
@@ -225,27 +227,21 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
         if (SCROLL_STATE_IDLE == mScrollState) {
             checkRefresh();
         }
-        if (mOnScrollListener != null) {
-            mOnScrollListener.onScrollStateChanged(view, scrollState);
-        }
     }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        mFirstVisibleItem = firstVisibleItem;
-        mVisibleItemCount = visibleItemCount;
-        mTotalItemCount = totalItemCount;
         if (mOnScrollListener != null) {
             mOnScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
         }
+        mFirstVisibleItem = firstVisibleItem;
+        mVisibleItemCount = visibleItemCount;
+        mTotalItemCount = totalItemCount;
     }
-
-    private GestureDetector mGestureDetector;
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         return super.onInterceptTouchEvent(ev);
-//        return mGestureDetector.onTouchEvent(ev) && super.onInterceptTouchEvent(ev);
     }
 
     @Override
