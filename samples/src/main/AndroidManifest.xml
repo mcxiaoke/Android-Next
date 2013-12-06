@@ -49,5 +49,9 @@
             android:name=".EndlessListViewSamples"
             android:label="@string/app_name" />
 
+        <activity
+            android:name=".StickyHeaderSamples"
+            android:label="@string/app_name" />
+
     </application>
 </manifest> 
