@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item type="id" name="endless_view" />
+    <item type="id" name="endless_text" />
+    <item type="id" name="endless_progress" />
+    <item type="id" name="endless_progress_bar" />
+    <item type="id" name="endless_progress_text" />
+
+    <color name="endless_text_primary">#ff000000</color>
+    <color name="endless_text_secondary">#ff666666</color>
+
+    <dimen name="endless_footer_padding">8dp</dimen>
+    <dimen name="endless_footer_prefered_height">48dp</dimen>
+    <dimen name="endless_footer_font_size">16sp</dimen>
+
+    <string name="endless_footer_load_more">点击加载更多</string>
+    <string name="endless_footer_loading">正在加载…</string>
+</resources>

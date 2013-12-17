@@ -1,0 +1,22 @@
+apply plugin: 'android-library'
+
+dependencies {
+    compile "com.android.support:support-v4:[18.0,)"
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.1.0"
+
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 18
+    }
+
+    sourceSets {
+    }
+
+}
+
+apply from: '../maven_push.gradle'
+

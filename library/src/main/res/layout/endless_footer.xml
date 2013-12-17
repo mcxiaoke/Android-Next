@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/endless_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_weight="1.0"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/endless_footer_prefered_height"
+    android:padding="@dimen/endless_footer_padding">
+
+    <TextView
+        android:id="@id/endless_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="@dimen/endless_footer_font_size"
+        android:textColor="@color/endless_text_secondary"
+        android:padding="@dimen/endless_footer_padding"
+        android:visibility="gone"
+        android:text="@string/endless_footer_load_more" />
+
+    <LinearLayout
+        android:id="@id/endless_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@id/endless_progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@id/endless_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/endless_footer_padding"
+            android:text="@string/endless_footer_loading"
+            android:textSize="@dimen/endless_footer_font_size" />
+    </LinearLayout>
+
+</LinearLayout>
