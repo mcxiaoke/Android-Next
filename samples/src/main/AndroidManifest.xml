@@ -24,7 +24,7 @@
 
         <activity
             android:name=".Samples"
-            android:label="@string/app_name"
+            android:label="@string/app_name_short"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -3,6 +3,7 @@ package com.douban.ui.samples;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,9 @@ import butterknife.InjectView;
 import butterknife.Views;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.douban.ui.adapter.ArrayAdapterCompat;
 import com.douban.ui.abs.AdvancedShareActionProvider;
+import com.douban.ui.abs.ShareTarget;
+import com.douban.ui.adapter.ArrayAdapterCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,10 +112,21 @@ public class Samples extends BaseActivity {
 
     private void updateShareIntent() {
         if (mShareActionProvider != null) {
+            final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    Log.v(TAG, "Share Target, onMenuItemClicked");
+                    return true;
+                }
+            };
+            ShareTarget target = new ShareTarget("ShareTarget",
+                    getResources().getDrawable(R.drawable.abs__ic_search), listener);
+            mShareActionProvider.addShareTarget(target);
             final String pkg = getPackageName();
             mShareActionProvider.addCustomPackage("com.douban.shuo");
             mShareActionProvider.addCustomPackage(pkg);
             mShareActionProvider.addCustomPackage("com.twitter.android");
+            mShareActionProvider.removePackage("com.google.android.apps.plus");
             mShareActionProvider.setDefaultLength(3);
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
