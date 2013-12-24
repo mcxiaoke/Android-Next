@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ExtraABS</string>
+    <string name="share_action_provider_expand_label">See all…</string>
 </resources>
