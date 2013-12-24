@@ -1,5 +1,6 @@
 package com.douban.ui.abs;
 
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 import com.actionbarsherlock.view.ActionProvider;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -82,6 +84,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加自定义的分享目标（不会重新排序）
+     * 注意：必须在setShareIntent之前调用
      *
      * @param pkg 包名
      */
@@ -93,6 +96,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加自定义的分享目标（不会重新排序）
+     * 注意：必须在setShareIntent之前调用
      *
      * @param pkgs 包名集合
      */
@@ -109,10 +113,23 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         mExtraPackages.clear();
     }
 
+    /**
+     * 从分享列表移除指定的app
+     * 注意：必须在setShareIntent之前调用
+     *
+     * @param pkg
+     */
     public void removePackage(String pkg) {
+
         mToRemovePackages.add(pkg);
     }
 
+    /**
+     * 添加自定义的分享目标t
+     * 注意：必须在setShareIntent之前调用
+     *
+     * @param target
+     */
     public void addShareTarget(ShareTarget target) {
         target.weight = --mWeightCounter;
         mExtraTargets.add(target);
@@ -148,6 +165,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 设置Intent Extras
+     * 注意：必须在setShareIntent之后调用
      *
      * @param extras Bundle
      */
@@ -157,6 +175,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加额外的参数到Intent
+     * 注意：必须在setShareIntent之后调用
      *
      * @param extras Bundle
      */
@@ -166,6 +185,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加额外的参数到Intent
+     * 注意：必须在setShareIntent之后调用
      *
      * @param subject Intent.EXTRA_SUBJECT
      * @param text    Intent.EXTRA_TEXT
@@ -176,6 +196,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加额外的参数到Intent
+     * 注意：必须在setShareIntent之后调用
      *
      * @param imageUri Intent.EXTRA_STREAM
      */
@@ -185,6 +206,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
 
     /**
      * 添加额外的参数到Intent
+     * 注意：必须在setShareIntent之后调用
      *
      * @param subject  Intent.EXTRA_SUBJECT
      * @param text     Intent.EXTRA_TEXT
@@ -253,20 +275,26 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     }
 
     /**
-     * 根据报名查找某个ActivityInfo
+     * 根据报名查找某个ShareTarget
      *
      * @param pkg 包名
      * @return index
      */
     private ShareTarget findShareTarget(String pkg) {
         for (ShareTarget target : mShareTargets) {
-            if (target.packageName.equals(pkg)) {
+            if (pkg.equals(target.packageName)) {
                 return target;
             }
         }
         return null;
     }
 
+    /**
+     * 根据ResolveInfo生成ShareTarget
+     *
+     * @param resolveInfo ResolveInfo
+     * @return ShareTarget
+     */
     private ShareTarget toShareTarget(ResolveInfo resolveInfo) {
         if (resolveInfo == null || resolveInfo.activityInfo == null) {
             return null;
@@ -321,11 +349,19 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
     }
 
+    /**
+     * 按顺序处理，如果某一阶段返回true，忽略后续的处理
+     *
+     * @param item
+     * @return
+     */
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         boolean handled = false;
 
         ShareTarget target = mShareTargets.get(item.getItemId());
+
+        // 首先响应target自带的listener
         if (target.listener != null) {
             handled = target.listener.onMenuItemClick(item);
         }
@@ -334,6 +370,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
             return true;
         }
 
+        // 其次响应外部设置的listener
         if (mOnMenuItemClickListener != null) {
             handled = mOnMenuItemClickListener.onMenuItemClick(item);
         }
@@ -345,6 +382,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
             return true;
         }
 
+        // 最后响应默认的intent
         ComponentName chosenName = new ComponentName(
                 target.packageName,
                 target.className);
@@ -355,7 +393,9 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
         try {
             mContext.startActivity(intent);
-        } catch (Exception ignored) {
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "onMenuItemClick() error: " + e);
+            Toast.makeText(mContext, R.string.share_action_provider_target_not_found, Toast.LENGTH_SHORT).show();
         }
         return true;
     }
