@@ -30,14 +30,19 @@ Android公共UI组件库
   5. 添加NoPressStateLinearLayout
   6. 添加并修改TwoDirectionListView
   7. 添加CheckableLinearLayout系列组件
+  
+* 1.0.2 20131224
+  1. 给ShareActionProvider添加高级自定义选项
+  2. 更新ShareActionProvider的例子
 
 ###Maven和Gradle使用
 
   注意：同时维护Maven和Gradle两套构建系统比较麻烦，目前不直接支持Maven，这个项目里大部分都是独立的模块（类），使用Maven的项目可以直接复制使用，Gradle使用方法：
 
 ```
-dependencies {
-    compile('com.douban.ui:library:1.0.+')
+compile('com.douban.ui:library:1.0.+')
+compile('com.douban.ui:extra-abs:1.0.+') {
+    exclude group: 'com.actionbarsherlock', module: 'actionbarsherlock'
 }
 ```
 
