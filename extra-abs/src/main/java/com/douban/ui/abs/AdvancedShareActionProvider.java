@@ -387,6 +387,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
                 target.packageName,
                 target.className);
         Intent intent = new Intent(mIntent);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setComponent(chosenName);
         if (DEBUG) {
             Log.v(TAG, "onMenuItemClick() target=" + chosenName);
