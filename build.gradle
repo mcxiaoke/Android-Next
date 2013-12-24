@@ -16,7 +16,7 @@ def isReleaseBuild() {
 
 allprojects {
     group = 'com.douban.ui'
-    version = '1.0.0'
+    version = '1.0.2'
 
     repositories {
         maven { url 'http://qaci.intra.douban.com/nexus/content/repositories/central' }
