@@ -16,6 +16,11 @@ android {
     sourceSets {
     }
 
+    lintOptions {
+        quiet true
+        abortOnError false
+    }
+
 }
 
 apply from: '../maven_push.gradle'
