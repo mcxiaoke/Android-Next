@@ -7,7 +7,6 @@ import android.widget.ImageView;
 /**
  * An image view which always remains square with respect to its width.
  * <p/>
- * Project: DoubanApp
  * User: mcxiaoke
  * Date: 13-10-8
  * Time: 上午11:59

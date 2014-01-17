@@ -15,13 +15,12 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
- * Project: com.douban.radio
  * User: mcxiaoke
  * Date: 13-5-3
  * Time: 上午10:06

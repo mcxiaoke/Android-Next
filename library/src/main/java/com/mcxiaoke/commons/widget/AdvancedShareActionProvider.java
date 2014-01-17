@@ -17,8 +17,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
-import com.douban.ui.BuildConfig;
-import com.douban.ui.R;
+import com.mcxiaoke.commons.BuildConfig;
+import com.mcxiaoke.commons.R;
 
 import java.util.ArrayList;
 import java.util.Collection;

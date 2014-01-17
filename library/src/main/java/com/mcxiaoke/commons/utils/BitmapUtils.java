@@ -24,7 +24,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -6,7 +6,6 @@ import android.widget.LinearLayout;
 
 /**
  * LinearLayout that not duplicate parent state to child views
- * Project: DoubanApp
  * User: mcxiaoke
  * Date: 13-10-9
  * Time: 下午12:09

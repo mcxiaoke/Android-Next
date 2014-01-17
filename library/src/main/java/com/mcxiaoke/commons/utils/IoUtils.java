@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Project: DoubanShuo
  * User: mcxiaoke
  * Date: 13-7-5
  * Time: 下午4:38

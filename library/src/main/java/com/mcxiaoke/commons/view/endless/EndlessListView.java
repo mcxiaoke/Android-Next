@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 /**
  * User: mcxiaoke

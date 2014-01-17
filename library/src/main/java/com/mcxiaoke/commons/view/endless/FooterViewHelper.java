@@ -6,10 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.douban.ui.R;
+import com.mcxiaoke.commons.R;
 
 /**
- * Project: DoubanShuo
  * User: mcxiaoke
  * Date: 13-8-15
  * Time: 下午12:02

@@ -5,12 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-import com.douban.ui.R;
+import com.mcxiaoke.commons.R;
 
 import java.lang.reflect.Field;
 
 /**
- * Project: DoubanShuo
  * User: mcxiaoke
  * Date: 13-7-29
  * Time: 下午4:10

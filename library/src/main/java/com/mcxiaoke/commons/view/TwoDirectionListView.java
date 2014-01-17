@@ -43,8 +43,8 @@ import android.widget.AdapterView;
 import android.widget.Checkable;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
-import com.douban.ui.BuildConfig;
-import com.douban.ui.R;
+import com.mcxiaoke.commons.BuildConfig;
+import com.mcxiaoke.commons.R;
 
 import java.util.ArrayList;
 import java.util.List;

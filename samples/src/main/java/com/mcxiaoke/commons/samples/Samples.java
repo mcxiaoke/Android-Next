@@ -123,7 +123,7 @@ public class Samples extends BaseActivity {
                     getResources().getDrawable(android.R.drawable.ic_menu_share), listener);
             mShareActionProvider.addShareTarget(target);
             final String pkg = getPackageName();
-            mShareActionProvider.addCustomPackage("com.douban.shuo");
+            mShareActionProvider.addCustomPackage("com.twitter.android");
             mShareActionProvider.addCustomPackage(pkg);
             mShareActionProvider.addCustomPackage("com.twitter.android");
             mShareActionProvider.removePackage("com.google.android.apps.plus");

@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,7 +24,6 @@ import java.util.Map;
 
 /**
  * 日志工具类，支持记录到文件，支持针对单个TAG设定日志级别
- * Project: DoubanApp
  * User: mcxiaoke
  * Date: 13-9-10
  * Time: 下午1:14

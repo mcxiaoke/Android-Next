@@ -1,6 +1,6 @@
 package com.mcxiaoke.commons.utils;
 
-import com.douban.ui.BuildConfig;
+import com.mcxiaoke.commons.BuildConfig;
 
 import java.text.DateFormat;
 import java.text.ParsePosition;
