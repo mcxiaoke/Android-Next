@@ -2,11 +2,13 @@ Android公共组件库
 ===========================================
 ####Android Common Components: Views, Widgets, Utils
 
+已经部署到Maven Central，Maven和Gradle可以直接使用
+
 
 ###项目结构
 
-分为三个模块：
-* library 仅依赖support-v4的公用模块
+分为两个模块：
+* library 公用模块
 * samples 使用示例
 
 
@@ -21,7 +23,7 @@ Android公共组件库
   6. 添加UI组件使用示例
 
 
-* 1.0.0 20131028
+* 0.9.5 20131028
   1. 修改AdvancedShareActionProvider接口
   2. 添加ProgressDialogFragment
   3. 添加AspectRatioImageView
@@ -30,9 +32,15 @@ Android公共组件库
   6. 添加并修改TwoDirectionListView
   7. 添加CheckableLinearLayout系列组件
   
-* 1.0.2 20131224
+* 0.9.9 20131224
   1. 给ShareActionProvider添加高级自定义选项
   2. 更新ShareActionProvider的例子
+  
+* 1.0.0 20140116
+  1. 添加各种Utils，位于com.mcxiaoke.commons.utils包
+  2. 添加异步任务管理类TaskExecutor
+  3. 整理代码，更改包名为com.mcxiaoke.commons
+  
 
 ###Maven和Gradle使用
 
@@ -45,24 +53,31 @@ compile('com.mcxiaoke.commons:library:1.0.+')
 
 ###已有组件
 
+* **AlertDialogFragment** 一个自定义的DialogFragment，接口和功能基本等同于系统的AlertDialog
 
-* **AlertDialogFragment** 一个自定义的DialogFragment，接口和功能基本等同于系统的AlertDialog [20131025] (使用案例：广播项目中目前所有的确认对话框都是使用此控件)
+* **AdvancedShareActionProvider** 高级版的ShareActionProvider，支持自定义分享目标
 
-* **AdvancedShareActionProvider** 高级版的ShareActionProvider，支持自定义优先显示的分享目标 [20131025] (使用案例：广播项目中所有的ActionBar分享都是使用此控件)
+* **EndlessListView** 对ListView做了一层轻封装，支持底部点击加载更多和滚动到底部自动加载等模式，支持ListFooter的自定义文本显示，使用方法和正常的ListView基本一样
 
-* **EndlessListView** 对ListView做了一层轻封装，支持底部点击加载更多和滚动到底部自动加载等模式，支持ListFooter的自定义文本显示，使用方法和正常的ListView基本一样 [20131025] (使用案例：广播项目中所有的时间线和回应列表分享都是使用此控件)
+* **AspectRatioImageView** 显示时保持图片长宽比的ImageView
 
-* **ProgressDialogFragment** ProgressDialog的Fragment版，接口基本一致 [20131028] (使用案例：广播项目中所有的Progress显示都是使用此控件)
+* **SquaredImageView** 显示时保持长宽一致的正方形ImageView
 
-* **AspectRatioImageView** 显示时保持图片长宽比的ImageView [20131028] (使用案例：广播项目中时间线大图显示使用了此控件)
+* **NoPressStateLinearLayout** 阻止PRESS和FOCUS状态传递到子View的LinearLayout
 
-* **SquaredImageView** 显示时保持长宽一致的正方形ImageView [20131028] (使用案例：广播项目中时间线横向滚动缩略图列表，相册缩略图网格，本地图片选择使用了此控件)
+* **TwoDirectionListView** 支持横向和竖向两种方向的ListView
 
-* **NoPressStateLinearLayout** 阻止PRESS和FOCUS状态传递到子View的LinearLayout [20131028] (使用案例：广播项目中时间线广播Item外层布局使用了此控件，用于修复小米1S点击Item会触发所有子View PRESS状态的BUG)
+* **CheckableLinearLayout** 一系列实现了Checkable接口的Layout
 
-* **TwoDirectionListView** 支持横向和竖向两种方向的ListView [20131028] (使用案例：广播项目中时间线横向滚动缩略图列表，个人主页最近照片列表使用了此控件)
+* **TaskExecutor** 异步任务执行管理，支持Caller检测
 
-* **CheckableLinearLayout** 一系列实现了Checkable接口的Layout [20131028] (使用案例：广播项目中照片上传本地图片多选界面使用了此控件)
+* **ArrayAdapterCompat** 扩展ArrayAdapter，添加了一些数据删除/添加方法
+
+* **AlertDialogFragment** Fragment版本的AlertDialog，接口基本一致
+
+* **ProgressDialogFragment** Fragment版本的ProgressDialog，接口基本一致
+
+* **Utils** 各种工具类，StringUtils/MimeUtils/BitmapUtils/CryptoUtils等
 
 
 ###其它说明
