@@ -1,13 +1,12 @@
-Android公共UI组件库
+Android公共组件库
 ===========================================
-####Android Common UI Components: Views, Widgets, Utils
+####Android Common Components: Views, Widgets, Utils
 
 
 ###项目结构
 
 分为三个模块：
 * library 仅依赖support-v4的公用模块
-* extra-abs 依赖ActionBarSherlock的公用模块
 * samples 使用示例
 
 
@@ -37,13 +36,10 @@ Android公共UI组件库
 
 ###Maven和Gradle使用
 
-  注意：同时维护Maven和Gradle两套构建系统比较麻烦，目前不直接支持Maven，这个项目里大部分都是独立的模块（类），使用Maven的项目可以直接复制使用，Gradle使用方法：
+  注意：使用Maven的项目可以直接复制使用，Gradle使用方法：
 
 ```
-compile('com.douban.ui:library:1.0.+')
-compile('com.douban.ui:extra-abs:1.0.+') {
-    exclude group: 'com.actionbarsherlock', module: 'actionbarsherlock'
-}
+compile('com.mcxiaoke.commons:library:1.0.+')
 ```
 
 
@@ -71,7 +67,7 @@ compile('com.douban.ui:extra-abs:1.0.+') {
 
 ###其它说明
 
-发现任何问题可以提issue，大家可以把各自发现的/写的对项目开发有帮助的一些UI小模块共享出来
+发现任何问题可以提issue
 
 
 
