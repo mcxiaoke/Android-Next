@@ -2,23 +2,17 @@ apply plugin: 'android'
 
 dependencies {
     compile project(":library")
-    compile project(":extra-abs")
-    compile('com.android.support:support-v4:18.0.+')
-    compile('com.actionbarsherlock:actionbarsherlock:4.4.+@aar')
-    compile('com.jakewharton:butterknife:3.0.+')
-    compile('natalya:natalya-core:1.0.5')
+    compile "com.android.support:support-v4:[18.0,)"
+    compile 'com.jakewharton:butterknife:4.0.+'
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19"
+    compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
+    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 19
-    }
-
-    sourceSets {
+        minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
 
     buildTypes {

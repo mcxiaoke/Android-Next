@@ -1,7 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        maven { url 'http://qaci.intra.douban.com/nexus/content/repositories/central' }
         mavenCentral()
     }
 
@@ -15,13 +14,12 @@ def isReleaseBuild() {
 }
 
 allprojects {
-    group = 'com.douban.ui'
-    version = '1.0.2'
+
+    group project.GROUP
+    version project.VERSION_NAME
+
 
     repositories {
-        maven { url 'http://qaci.intra.douban.com/nexus/content/repositories/central' }
-        maven { url 'http://qaci.intra.douban.com/nexus/content/repositories/douban' }
-        maven { url 'http://qaci.intra.douban.com/nexus/content/repositories/douban-snapshot' }
         mavenCentral()
     }
 
@@ -31,6 +29,6 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.9'
 }
 

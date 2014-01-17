@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.douban.ui.samples"
+    package="com.mcxiaoke.commons.samples"
     android:versionCode="1"
     android:versionName="1.0.0">
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
 
     <supports-screens
         android:anyDensity="true"
@@ -19,11 +19,11 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:name="com.douban.ui.samples.SamplesApp"
+        android:name="com.mcxiaoke.commons.samples.SamplesApp"
         android:theme="@style/UITheme">
 
         <activity
-            android:name=".Samples"
+            android:name="com.mcxiaoke.commons.samples.Samples"
             android:label="@string/app_name_short"
             android:launchMode="singleTop">
             <intent-filter>
@@ -42,15 +42,15 @@
         </activity>
 
         <activity
-            android:name=".AlertDialogSamples"
+            android:name="com.mcxiaoke.commons.samples.AlertDialogSamples"
             android:label="@string/app_name" />
 
         <activity
-            android:name=".EndlessListViewSamples"
+            android:name="com.mcxiaoke.commons.samples.EndlessListViewSamples"
             android:label="@string/app_name" />
 
         <activity
-            android:name=".StickyHeaderSamples"
+            android:name="com.mcxiaoke.commons.samples.StickyHeaderSamples"
             android:label="@string/app_name" />
 
     </application>

@@ -11,12 +11,12 @@ local.properties
 /.project
 .idea/
 .settings/
-Douban-Timeline-Android.iml
 gen-external-apklibs/
 target
 classes/
 ./gitignore
 project.properties
+signing.properties
 *.iml
 .DS_Store
 out/
