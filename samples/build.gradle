@@ -15,10 +15,26 @@ android {
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
     }
 
+    signingConfigs {
+        release {
+        }
+    }
+
     buildTypes {
+        release {
+            zipAlign true
+            signingConfig signingConfigs.release
+        }
+
+        beta {
+            signingConfig signingConfigs.release
+            versionNameSuffix "-beta"
+            debuggable true
+        }
 
         debug {
             packageNameSuffix null
+            versionNameSuffix "-dev"
         }
     }
 
@@ -27,5 +43,29 @@ android {
         abortOnError false
     }
 
+}
+
+def Properties props = new Properties()
+def propFile = new File('signing.properties')
+if (propFile.canRead()) {
+    props.load(new FileInputStream(propFile))
+
+    if (props != null
+            && props.containsKey('storeFile')
+            && props.containsKey('storePassword')
+            && props.containsKey('keyAlias')
+            && props.containsKey('keyPassword')) {
+        println 'signing.properties found and is valid.'
+        android.signingConfigs.release.storeFile = file(props['storeFile'])
+        android.signingConfigs.release.storePassword = props['storePassword']
+        android.signingConfigs.release.keyAlias = props['keyAlias']
+        android.signingConfigs.release.keyPassword = props['keyPassword']
+    } else {
+        println 'signing.properties found but some entries are missing'
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    println 'signing.properties not found'
+    android.buildTypes.release.signingConfig = null
 }
 
