@@ -6,6 +6,8 @@ dependencies {
     compile 'com.jakewharton:butterknife:4.0.+'
 }
 
+loadProperties("signing.properties")
+
 android {
     compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
     buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
@@ -17,6 +19,10 @@ android {
 
     signingConfigs {
         release {
+            storeFile file("mcxiaoke.keystore")
+            storePassword project.ext.get("storePassword")
+            keyAlias project.ext.get("keyAlias")
+            keyPassword project.ext.get("keyPassword")
         }
     }
 
@@ -45,27 +51,16 @@ android {
 
 }
 
-def Properties props = new Properties()
-def propFile = new File('signing.properties')
-if (propFile.canRead()) {
-    props.load(new FileInputStream(propFile))
-
-    if (props != null
-            && props.containsKey('storeFile')
-            && props.containsKey('storePassword')
-            && props.containsKey('keyAlias')
-            && props.containsKey('keyPassword')) {
-        println 'signing.properties found and is valid.'
-        android.signingConfigs.release.storeFile = file(props['storeFile'])
-        android.signingConfigs.release.storePassword = props['storePassword']
-        android.signingConfigs.release.keyAlias = props['keyAlias']
-        android.signingConfigs.release.keyPassword = props['keyPassword']
-    } else {
-        println 'signing.properties found but some entries are missing'
-        android.buildTypes.release.signingConfig = null
+def loadProperties(String fileName) {
+    def config = new Properties()
+    def propFile = file(fileName)
+    System.err.println("load property file: " + propFile.absolutePath)
+    if (propFile.canRead()) {
+        config.load(new FileInputStream(propFile))
+        for (Map.Entry property in config) {
+            System.out.println("property " + property.key + ":" + property.value)
+            project.ext[property.key] = property.value;
+        }
     }
-} else {
-    println 'signing.properties not found'
-    android.buildTypes.release.signingConfig = null
 }
 
