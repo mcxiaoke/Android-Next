@@ -8,13 +8,13 @@ import com.mcxiaoke.commons.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -51,8 +51,8 @@ public final class TaskExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "TaskExecutor()");
         }
-        mTasks = Collections.synchronizedMap(new WeakHashMap<String, ExtendedRunnable>());
-        mFutures = Collections.synchronizedMap(new WeakHashMap<String, Future<?>>());
+        mTasks = new ConcurrentHashMap<String, ExtendedRunnable>();
+        mFutures = new ConcurrentHashMap<String, Future<?>>();
         ensureHandler();
         ensureExecutor();
     }
@@ -205,7 +205,7 @@ public final class TaskExecutor {
      * @param filterTags 过滤TAG列表
      */
     // for循环不能修改内容，多线程时会有问题，故使用Iterator
-    private void cancelRunnablesByTags(List<String> filterTags) {
+    private void cancelRunnablesByTags(Collection<String> filterTags) {
         if (filterTags == null || filterTags.isEmpty()) {
             return;
         }
@@ -229,7 +229,7 @@ public final class TaskExecutor {
      *
      * @param filterTags 过滤TAG列表
      */
-    private void cancelFuturesByTags(List<String> filterTags) {
+    private void cancelFuturesByTags(Collection<String> filterTags) {
         if (filterTags == null || filterTags.isEmpty()) {
             return;
         }
@@ -269,6 +269,21 @@ public final class TaskExecutor {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 取消TAGS对应的任务列表
+     *
+     * @param tags TAGS
+     * @return 任务数量
+     */
+    public int cancelByTags(Collection<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return 0;
+        }
+        cancelRunnablesByTags(tags);
+        cancelFuturesByTags(tags);
+        return tags.size();
     }
 
     /**
@@ -385,17 +400,15 @@ public final class TaskExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskComplete() result=" + result + " callback=" + callback);
         }
-        if (mUiHandler != null) {
-            if (callback != null) {
-                mUiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onTaskSuccess(result, null, null);
-                    }
-                });
-            }
+        if (callback != null) {
+            ensureHandler();
+            mUiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onTaskSuccess(result, null, null);
+                }
+            });
         }
-
     }
 
     /**
@@ -410,17 +423,15 @@ public final class TaskExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskComplete() exception=" + exception + " callback=" + callback);
         }
-        if (mUiHandler != null) {
-            if (callback != null) {
-                mUiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onTaskFailure(exception, null);
-                    }
-                });
-            }
+        if (callback != null) {
+            ensureHandler();
+            mUiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onTaskFailure(exception, null);
+                }
+            });
         }
-
     }
 
     /**
@@ -434,16 +445,15 @@ public final class TaskExecutor {
             LogUtils.v(TAG, "onFinally() tag=" + tag);
         }
 
-        if (mUiHandler != null) {
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (mLock) {
-                        remove(tag);
-                    }
+        ensureHandler();
+        mUiHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mLock) {
+                    remove(tag);
                 }
-            });
-        }
+            }
+        });
     }
 
     /**
