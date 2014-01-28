@@ -8,8 +8,9 @@ import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.dialog.AlertDialogFragment;
-import com.mcxiaoke.commons.dialog.ProgressDialogFragment;
+import com.mcxiaoke.commons.samples.R;
+import com.mcxiaoke.commons.ui.dialog.AlertDialogFragment;
+import com.mcxiaoke.commons.ui.dialog.ProgressDialogFragment;
 
 /**
  * User: mcxiaoke

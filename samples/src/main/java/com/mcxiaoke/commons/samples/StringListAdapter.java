@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.mcxiaoke.commons.adapter.ArrayAdapterCompat;
+import com.mcxiaoke.commons.ui.widget.ArrayAdapterCompat;
 
 import java.util.List;
 

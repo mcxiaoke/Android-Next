@@ -1,1 +1,5 @@
-include ':library', ':samples'
+include ':core'
+include ':ui'
+include ':extras-abs'
+include ':extras-abc'
+include ':samples'

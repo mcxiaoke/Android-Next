@@ -19,11 +19,11 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:name="com.mcxiaoke.commons.samples.SamplesApp"
+        android:name=".SamplesApp"
         android:theme="@style/UITheme">
 
         <activity
-            android:name="com.mcxiaoke.commons.samples.Samples"
+            android:name=".Samples"
             android:label="@string/app_name_short"
             android:launchMode="singleTop">
             <intent-filter>
@@ -42,15 +42,15 @@
         </activity>
 
         <activity
-            android:name="com.mcxiaoke.commons.samples.AlertDialogSamples"
+            android:name=".AlertDialogSamples"
             android:label="@string/app_name" />
 
         <activity
-            android:name="com.mcxiaoke.commons.samples.EndlessListViewSamples"
+            android:name=".EndlessListViewSamples"
             android:label="@string/app_name" />
 
         <activity
-            android:name="com.mcxiaoke.commons.samples.StickyHeaderSamples"
+            android:name=".StickyHeaderSamples"
             android:label="@string/app_name" />
 
     </application>

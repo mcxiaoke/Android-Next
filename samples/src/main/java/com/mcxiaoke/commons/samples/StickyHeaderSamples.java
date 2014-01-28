@@ -11,7 +11,8 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.view.endless.EndlessListView;
+import com.mcxiaoke.commons.samples.R;
+import com.mcxiaoke.commons.ui.endless.EndlessListView;
 
 /**
  * User: mcxiaoke

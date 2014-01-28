@@ -1,8 +1,9 @@
 apply plugin: 'android'
 
 dependencies {
-    compile project(":library")
-    compile "com.android.support:support-v4:[18.0,)"
+    compile project(":core")
+    compile project(":ui")
+    compile "com.android.support:support-v4:+"
     compile 'com.jakewharton:butterknife:4.0.+'
 }
 
@@ -63,4 +64,6 @@ def loadProperties(String fileName) {
         }
     }
 }
+
+apply from: 'https://raw.github.com/mcxiaoke/gradle-mvn-push/master/gradle-mvn-push.gradle'
 

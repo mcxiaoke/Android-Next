@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.AbsListView;
-import com.mcxiaoke.commons.view.endless.EndlessListView;
+import com.mcxiaoke.commons.ui.endless.EndlessListView;
 
 /**
  * User: mcxiaoke

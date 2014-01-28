@@ -4,7 +4,7 @@ import android.os.Bundle;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.mcxiaoke.commons.os.TaskExecutor;
-import com.mcxiaoke.commons.view.endless.EndlessListView;
+import com.mcxiaoke.commons.ui.endless.EndlessListView;
 
 import java.util.ArrayList;
 import java.util.List;

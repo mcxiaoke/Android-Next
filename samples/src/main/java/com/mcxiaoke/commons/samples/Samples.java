@@ -14,9 +14,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.adapter.ArrayAdapterCompat;
-import com.mcxiaoke.commons.widget.AdvancedShareActionProvider;
-import com.mcxiaoke.commons.widget.ShareTarget;
+import com.mcxiaoke.commons.ui.widget.ArrayAdapterCompat;
+import com.mcxiaoke.commons.ui.widget.AdvancedShareActionProvider;
+import com.mcxiaoke.commons.ui.widget.ShareTarget;
+
+import com.mcxiaoke.commons.samples.R;
+import com.mcxiaoke.commons.samples.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.List;
