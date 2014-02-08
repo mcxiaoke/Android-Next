@@ -7,13 +7,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.params.HttpParams;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.Proxy.Type;
-import java.net.URL;
 
 /**
  * @author mcxiaoke
@@ -204,91 +200,4 @@ public final class NetworkUtils {
                 && info.getType() == ConnectivityManager.TYPE_MOBILE;
     }
 
-    /**
-     * @param originalUrl 链接地址
-     * @return URL的域名部分
-     */
-    public static String getHost(String originalUrl) throws MalformedURLException {
-        if (originalUrl == null || originalUrl.length() == 0) {
-            return null;
-        }
-        URL url = new URL(originalUrl);
-        return url.getHost();
-    }
-
-    /**
-     * @param originalUrl 链接地址
-     * @return URL的相对链接地址(不包含域名)
-     */
-    public static String getUrlNoDomain(String originalUrl) throws MalformedURLException {
-        if (originalUrl == null || originalUrl.length() == 0) {
-            return null;
-        }
-        URL url = new URL(originalUrl);
-        String path = url.getPath();
-        String query = url.getQuery();
-        return path + "?" + query;
-    }
-
-    /**
-     * 根据URL获取Connection对象
-     *
-     * @param url 远程URL
-     * @return 返回HttpURLConnection对象
-     * @throws java.io.IOException
-     */
-    public static HttpURLConnection getHttpConnection(String url)
-            throws IOException {
-        debug("==getConnection() initialize url: " + url);
-        URL downUrl = new URL(url);
-        HttpURLConnection conn = (HttpURLConnection) downUrl.openConnection();
-        conn.setDoInput(true);
-        conn.setRequestProperty("Charset", "UTF-8");
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept", "*/*");
-        conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
-        conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
-        conn.setInstanceFollowRedirects(true);
-        return conn;
-    }
-
-    /**
-     * 根据URL获取Connection对象，根据运营商自动设置代理
-     *
-     * @param context Context参数
-     * @param url     远程URL
-     * @return 返回HttpURLConnection对象
-     * @throws java.io.IOException
-     */
-    public static HttpURLConnection getHttpConnection(Context context, String url)
-            throws IOException {
-        debug("==getConnection() initialize url: " + url);
-        HttpURLConnection conn = null;
-        URL downUrl;
-        String domain = getHost(url);
-        ApnType type = getApnType(context);
-        debug("==getConnection() == " + type.name());
-        boolean isCtwap = ApnType.CTWAP.equals(type);
-        boolean isWap = ApnType.WAP.equals(type);
-        if (isCtwap || isWap) {
-            String proxy = isCtwap ? "http://10.0.0.200:80/" : "http://10.0.0.172:80/";
-            url = proxy + getUrlNoDomain(url);
-            downUrl = new URL(url);
-            conn = (HttpURLConnection) downUrl.openConnection();
-            conn.setRequestProperty("X-Online-Host", domain);
-            conn.setRequestProperty("Host", domain);
-        } else {
-            downUrl = new URL(url);
-            conn = (HttpURLConnection) downUrl.openConnection();
-        }
-        conn.setDoInput(true);
-//        conn.setRequestProperty("User-Agent", "");
-        conn.setRequestProperty("Charset", "UTF-8");
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept", "*/*");
-        conn.setConnectTimeout(DEFAULT_CONNECT_TIMEOUT);
-        conn.setReadTimeout(DEFAULT_READ_TIMEOUT);
-        conn.setInstanceFollowRedirects(true);
-        return conn;
-    }
 }

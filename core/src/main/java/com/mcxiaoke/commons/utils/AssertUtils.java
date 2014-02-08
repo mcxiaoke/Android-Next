@@ -275,7 +275,7 @@ public abstract class AssertUtils {
      * @throws IllegalArgumentException if the object array is <code>null</code> or has no elements
      */
     public static void notEmpty(Object[] array, String message) {
-        if (ObjectUtils.isEmpty(array)) {
+        if ((array == null || array.length == 0)) {
             throw new IllegalArgumentException(message);
         }
     }

@@ -416,13 +416,13 @@ public final class BitmapUtils {
         // I called it Stack Blur because this describes best how this
         // filter works internally: it creates a kind of moving stack
         // of colors whilst scanning through the image. Thereby it
-        // just has to add one new block of color to the right side
+        // just has to addPart one new block of color to the right side
         // of the stack and remove the leftmost color. The remaining
         // colors on the topmost layer of the stack are either added on
         // or reduced by one, depending on if they are on the right or
         // on the left side of the stack.
         //
-        // If you are using this algorithm in your code please add
+        // If you are using this algorithm in your code please addPart
         // the following line:
         //
         // Stack Blur Algorithm by Mario Klingemann <mario@quasimondo.com>
@@ -650,7 +650,7 @@ public final class BitmapUtils {
             bitmap.recycle();
             return new File(dest);
         } finally {
-            IoUtils.forceClose(fos);
+            IOUtils.closeQuietly(fos);
         }
     }
 
@@ -730,7 +730,7 @@ public final class BitmapUtils {
             }
             return null;
         } finally {
-            IoUtils.forceClose(is);
+            IOUtils.closeQuietly(is);
         }
 
         final int origWidth = options.outWidth;
@@ -763,7 +763,7 @@ public final class BitmapUtils {
                 e.printStackTrace();
             }
         } finally {
-            IoUtils.forceClose(is);
+            IOUtils.closeQuietly(is);
         }
 
         if (null != bitmap) {
