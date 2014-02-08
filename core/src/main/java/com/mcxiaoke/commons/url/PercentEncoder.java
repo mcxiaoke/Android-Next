@@ -24,7 +24,7 @@ import static java.lang.Character.isLowSurrogate;
 public final class PercentEncoder {
 
     /**
-     * Amount to add to a lowercase ascii alpha char to make it an uppercase. Used for hex encoding.
+     * Amount to addPart to a lowercase ascii alpha char to make it an uppercase. Used for hex encoding.
      */
     private static final int UPPER_CASE_DIFF = 'a' - 'A';
 

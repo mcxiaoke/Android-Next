@@ -121,7 +121,7 @@ public final class UrlPercentEncoders {
     /**
      * Add codepoints for 'unreserved' chars
      *
-     * @param bs bitset to add codepoints to
+     * @param bs bitset to addPart codepoints to
      */
     private static void addUnreserved(BitSet bs) {
 
@@ -143,7 +143,7 @@ public final class UrlPercentEncoders {
     /**
      * Add codepoints for 'sub-delims' chars
      *
-     * @param bs bitset to add codepoints to
+     * @param bs bitset to addPart codepoints to
      */
     private static void addSubdelims(BitSet bs) {
         bs.set((int) '!');

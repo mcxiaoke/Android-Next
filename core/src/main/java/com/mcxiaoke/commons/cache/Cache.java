@@ -95,7 +95,7 @@ public interface Cache {
         public long softTtl;
 
         /**
-         * Immutable response headers as received from server; must be non-null.
+         * Immutable response setHeaders as received from server; must be non-null.
          */
         public Map<String, String> responseHeaders = Collections.emptyMap();
 

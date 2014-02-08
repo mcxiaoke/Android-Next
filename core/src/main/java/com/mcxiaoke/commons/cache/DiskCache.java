@@ -343,7 +343,7 @@ public class DiskCache implements Cache {
     }
 
     /**
-     * Handles holding onto the cache headers for an entry.
+     * Handles holding onto the cache setHeaders for an entry.
      */
     // Visible for testing.
     static class CacheHeader {
@@ -492,7 +492,7 @@ public class DiskCache implements Cache {
 
     /*
      * Homebrewed simple serialization system used for reading and writing cache
-     * headers on disk. Once upon a time, this used the standard Java
+     * setHeaders on disk. Once upon a time, this used the standard Java
      * Object{Input,Output}Stream, but the default implementation relies heavily
      * on reflection (even for standard types) and generates a ton of garbage.
      */
