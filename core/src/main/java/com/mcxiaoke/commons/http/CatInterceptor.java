@@ -5,6 +5,6 @@ package com.mcxiaoke.commons.http;
  * Date: 14-2-8
  * Time: 11:22
  */
-public interface RequestInterceptor {
-    void intercept(HttpRequest request);
+public interface CatInterceptor {
+    void intercept(CatRequest request);
 }

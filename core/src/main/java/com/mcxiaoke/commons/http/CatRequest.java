@@ -37,7 +37,7 @@ import java.util.zip.GZIPInputStream;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class HttpRequest implements HttpConsts {
+public class CatRequest implements HttpConsts {
 
     public enum Method {
         GET, POST, PUT, DELETE, HEAD
@@ -45,7 +45,7 @@ public class HttpRequest implements HttpConsts {
 
     private final String url;
     private final Method method;
-    private HttpParams params;
+    private CatParams params;
     private Map<String, String> headers;
     private HttpURLConnection connection;
     private String charset;
@@ -58,7 +58,7 @@ public class HttpRequest implements HttpConsts {
     private int readTimeout;
     private Proxy proxy;
     private CookieManager cookieManager;
-    private RequestInterceptor interceptor;
+    private CatInterceptor interceptor;
 
     private HttpEntity httpEntity;
 
@@ -67,47 +67,47 @@ public class HttpRequest implements HttpConsts {
     private static HostnameVerifier TRUSTED_VERIFIER;
 
 
-    public static HttpRequest head(String url) {
-        return new HttpRequest(Method.HEAD, url);
+    public static CatRequest head(String url) {
+        return new CatRequest(Method.HEAD, url);
     }
 
-    public static HttpRequest get(String url) {
-        return new HttpRequest(Method.GET, url);
+    public static CatRequest get(String url) {
+        return new CatRequest(Method.GET, url);
     }
 
-    public static HttpRequest get(String url, Map<String, String> params) {
-        HttpRequest request = new HttpRequest(Method.GET, url);
-        request.addParameters(params);
+    public static CatRequest get(String url, Map<String, String> params) {
+        CatRequest request = new CatRequest(Method.GET, url);
+        request.addParams(params);
         return request;
     }
 
-    public static HttpRequest delete(String url) {
-        return new HttpRequest(Method.DELETE, url);
+    public static CatRequest delete(String url) {
+        return new CatRequest(Method.DELETE, url);
     }
 
-    public static HttpRequest delete(String url, Map<String, String> params) {
-        HttpRequest request = new HttpRequest(Method.DELETE, url);
-        request.addParameters(params);
+    public static CatRequest delete(String url, Map<String, String> params) {
+        CatRequest request = new CatRequest(Method.DELETE, url);
+        request.addParams(params);
         return request;
     }
 
-    public static HttpRequest post(String url) {
-        return new HttpRequest(Method.POST, url);
+    public static CatRequest post(String url) {
+        return new CatRequest(Method.POST, url);
     }
 
-    public static HttpRequest post(String url, Map<String, String> params) {
-        HttpRequest request = new HttpRequest(Method.POST, url);
-        request.addParameters(params);
+    public static CatRequest post(String url, Map<String, String> params) {
+        CatRequest request = new CatRequest(Method.POST, url);
+        request.addParams(params);
         return request;
     }
 
-    public static HttpRequest put(String url) {
-        return new HttpRequest(Method.PUT, url);
+    public static CatRequest put(String url) {
+        return new CatRequest(Method.PUT, url);
     }
 
-    public static HttpRequest put(String url, Map<String, String> params) {
-        HttpRequest request = new HttpRequest(Method.PUT, url);
-        request.addParameters(params);
+    public static CatRequest put(String url, Map<String, String> params) {
+        CatRequest request = new CatRequest(Method.PUT, url);
+        request.addParams(params);
         return request;
     }
 
@@ -118,7 +118,7 @@ public class HttpRequest implements HttpConsts {
      * @param method Http method (GET, POST, etc)
      * @param url    url with optional queryString parameters.
      */
-    public HttpRequest(Method method, String url) {
+    public CatRequest(Method method, String url) {
         this.method = method;
         this.url = url;
         initDefaults();
@@ -136,7 +136,7 @@ public class HttpRequest implements HttpConsts {
         this.proxy = Proxy.NO_PROXY;
         this.keepAlive = false;
         this.headers = new HashMap<String, String>();
-        this.params = new HttpParams();
+        this.params = new CatParams();
 
     }
 
@@ -207,16 +207,28 @@ public class HttpRequest implements HttpConsts {
     }
 
     /**
-     * Execute the request and return a {@link HttpResponse}
+     * Execute the request and return a {@link CatResponse}
      *
      * @return Http Response
      * @throws RuntimeException if the connection cannot be created.
      */
-    public HttpResponse execute() throws IOException {
+    public CatResponse execute() throws IOException {
         return doExecute();
     }
 
-    private HttpResponse doExecute() throws IOException {
+    public InputStream asStream() throws IOException {
+        return execute().getAsStream();
+    }
+
+    public byte[] asBytes() throws IOException {
+        return execute().getAsBytes();
+    }
+
+    public String asString() throws IOException {
+        return execute().getAsAsString();
+    }
+
+    private CatResponse doExecute() throws IOException {
         CookieHandler.setDefault(cookieManager);
 
         HttpURLConnection conn = getConnection();
@@ -246,7 +258,7 @@ public class HttpRequest implements HttpConsts {
 
     }
 
-    private HttpResponse handleResponse(HttpURLConnection conn) throws IOException {
+    private CatResponse handleResponse(HttpURLConnection conn) throws IOException {
         int code = conn.getResponseCode();
         String message = conn.getResponseMessage();
         int contentLength = conn.getContentLength();
@@ -275,7 +287,7 @@ public class HttpRequest implements HttpConsts {
             stream = httpStream;
         }
 
-        HttpResponse response = HttpResponse.create(code, message);
+        CatResponse response = CatResponse.create(code, message);
         response.setContentLength(contentLength).setContentType(contentType);
         response.setHeaders(rawHeaders).setStream(stream);
         return response;
@@ -332,44 +344,49 @@ public class HttpRequest implements HttpConsts {
      * @param key   the header name
      * @param value the header value
      */
-    public HttpRequest addHeader(String key, String value) {
+    public CatRequest addHeader(String key, String value) {
         if (!headers.containsKey(key)) {
             this.headers.put(key, value);
         }
         return this;
     }
 
-    public HttpRequest addParam(String key, String value) {
+    public CatRequest addHeaders(Map<String, String> map) {
+        this.headers.putAll(map);
+        return this;
+    }
+
+    public CatRequest addParam(String key, String value) {
         this.params.put(key, value);
         return this;
     }
 
-    public HttpRequest addParameters(Map<String, String> map) {
+    public CatRequest addParams(Map<String, String> map) {
         this.params.put(map);
         return this;
     }
 
-    public HttpRequest addPart(String key, File file, String contentType) throws FileNotFoundException {
+    public CatRequest addBody(String key, File file, String contentType) throws FileNotFoundException {
         this.params.put(key, file, contentType);
         return this;
     }
 
-    public HttpRequest addPart(String key, byte[] bytes, String contentType) {
+    public CatRequest addBody(String key, byte[] bytes, String contentType) {
         this.params.put(key, bytes, contentType);
         return this;
     }
 
-    public HttpRequest addPart(String key, byte[] bytes, String fileName, String contentType) {
+    public CatRequest addBody(String key, byte[] bytes, String fileName, String contentType) {
         this.params.put(key, bytes, contentType, fileName);
         return this;
     }
 
-    public HttpRequest addPart(String key, InputStream stream, String contentType) {
+    public CatRequest addBody(String key, InputStream stream, String contentType) {
         this.params.put(key, stream, contentType);
         return this;
     }
 
-    public HttpRequest addPart(String key, InputStream stream, String contentType, String fileName) {
+    public CatRequest addBody(String key, InputStream stream, String contentType, String fileName) {
         this.params.put(key, stream, contentType, fileName);
         return this;
     }
@@ -448,7 +465,7 @@ public class HttpRequest implements HttpConsts {
         this.charset = charsetName;
     }
 
-    public HttpRequest setUseCaches(boolean useCaches) {
+    public CatRequest setUseCaches(boolean useCaches) {
         this.useCaches = useCaches;
         return this;
     }
@@ -456,7 +473,7 @@ public class HttpRequest implements HttpConsts {
     /**
      * Sets whether the underlying Http Connection is persistent or not.
      */
-    public HttpRequest setKeepAlive(boolean keepAlive) {
+    public CatRequest setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
     }
@@ -468,45 +485,45 @@ public class HttpRequest implements HttpConsts {
         this.connection = connection;
     }
 
-    public HttpRequest setProxy(String host, int port) {
+    public CatRequest setProxy(String host, int port) {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
         setProxy(proxy);
         return this;
     }
 
-    public HttpRequest setProxy(Proxy proxy) {
+    public CatRequest setProxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
-    public HttpRequest setCookieStore(CookieStore cookieStore) {
+    public CatRequest setCookieStore(CookieStore cookieStore) {
         this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         return this;
     }
 
-    public HttpRequest setInterceptor(RequestInterceptor interceptor) {
+    public CatRequest setInterceptor(CatInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
 
-    public HttpRequest acceptGzipEncoding() {
+    public CatRequest acceptGzipEncoding() {
         addHeader(ACCEPT_ENCODING, ENCODING_GZIP);
         return this;
     }
 
-    public HttpRequest setFollowRedirects(final boolean value) {
+    public CatRequest setFollowRedirects(final boolean value) {
         followRedirects = value;
         return this;
     }
 
-    public HttpRequest setUserAgent(final String userAgent) {
+    public CatRequest setUserAgent(final String userAgent) {
         if (userAgent != null) {
             addHeader(USER_AGENT, userAgent);
         }
         return this;
     }
 
-    public HttpRequest setReferer(final String referer) {
+    public CatRequest setReferer(final String referer) {
         addHeader(REFERER, referer);
         return this;
     }
@@ -516,7 +533,7 @@ public class HttpRequest implements HttpConsts {
      *
      * @return
      */
-    public HttpRequest setTrustAllCerts(boolean enable) {
+    public CatRequest setTrustAllCerts(boolean enable) {
         trustAllCerts = true;
         return this;
     }
@@ -526,12 +543,12 @@ public class HttpRequest implements HttpConsts {
      *
      * @return
      */
-    public HttpRequest setTrustAllHosts() {
+    public CatRequest setTrustAllHosts() {
         trustAllHosts = true;
         return this;
     }
 
-    public HttpRequest setHttpEntity(HttpEntity entity) {
+    public CatRequest setHttpEntity(HttpEntity entity) {
         httpEntity = entity;
         return this;
     }

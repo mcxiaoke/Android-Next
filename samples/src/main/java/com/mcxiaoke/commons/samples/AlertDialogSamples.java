@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.http.HttpRequest;
-import com.mcxiaoke.commons.http.HttpResponse;
+import com.mcxiaoke.commons.http.CatRequest;
+import com.mcxiaoke.commons.http.CatResponse;
 import com.mcxiaoke.commons.os.TaskExecutor;
 import com.mcxiaoke.commons.ui.dialog.AlertDialogFragment;
 import com.mcxiaoke.commons.ui.dialog.ProgressDialogFragment;
@@ -89,10 +89,10 @@ public class AlertDialogSamples extends BaseActivity {
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                HttpRequest request = HttpRequest.get("http://www.baidu.com/");
+                CatRequest request = CatRequest.get("http://www.baidu.com/");
                 request.addParam("fdf", "我是中文");
                 Log.w(TAG, request.getCompleteUrl());
-                HttpResponse response = request.execute();
+                CatResponse response = request.execute();
                 return response.toString();
             }
         };

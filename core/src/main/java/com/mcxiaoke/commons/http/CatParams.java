@@ -19,57 +19,57 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-class HttpParams implements HttpConsts {
+class CatParams implements HttpConsts {
 
     private Map<String, String> params;
     private Map<String, StreamPart> streams;
 
-    public HttpParams() {
+    public CatParams() {
         params = new HashMap<String, String>();
         streams = new HashMap<String, StreamPart>();
     }
 
-    public HttpParams(String key, String value) {
+    public CatParams(String key, String value) {
         this();
         put(key, value);
     }
 
-    public HttpParams(Map<String, String> map) {
+    public CatParams(Map<String, String> map) {
         this();
         put(map);
     }
 
-    public HttpParams put(String key, File file, String contentType) throws FileNotFoundException {
+    public CatParams put(String key, File file, String contentType) throws FileNotFoundException {
         StreamPart part = new StreamPart(file, contentType);
         return put(key, part);
     }
 
-    public HttpParams put(String key, byte[] bytes, String contentType) {
+    public CatParams put(String key, byte[] bytes, String contentType) {
         StreamPart part = new StreamPart(bytes, contentType);
         return put(key, part);
     }
 
-    public HttpParams put(String key, byte[] bytes, String contentType, String fileName) {
+    public CatParams put(String key, byte[] bytes, String contentType, String fileName) {
         StreamPart part = new StreamPart(bytes, contentType, fileName);
         return put(key, part);
     }
 
-    public HttpParams put(String key, InputStream stream, String contentType) {
+    public CatParams put(String key, InputStream stream, String contentType) {
         StreamPart part = new StreamPart(stream, contentType);
         return put(key, part);
     }
 
-    public HttpParams put(String key, InputStream stream, String contentType, String fileName) {
+    public CatParams put(String key, InputStream stream, String contentType, String fileName) {
         StreamPart part = new StreamPart(stream, contentType, fileName);
         return put(key, part);
     }
 
-    public HttpParams put(String key, String value) {
+    public CatParams put(String key, String value) {
         this.params.put(key, value);
         return this;
     }
 
-    public HttpParams put(Map<String, String> map) {
+    public CatParams put(Map<String, String> map) {
         this.params.putAll(map);
         return this;
     }
@@ -91,7 +91,7 @@ class HttpParams implements HttpConsts {
     }
 
 
-    private HttpParams put(String key, final StreamPart part) {
+    private CatParams put(String key, final StreamPart part) {
         this.streams.put(key, part);
         return this;
     }

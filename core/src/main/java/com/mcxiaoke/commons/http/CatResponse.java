@@ -17,7 +17,7 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class HttpResponse implements Closeable {
+public class CatResponse implements Closeable {
     private final int code;
     private final String message;
     private int contentLength;
@@ -27,31 +27,31 @@ public class HttpResponse implements Closeable {
     private Map<String, List<String>> headers;
     private byte[] content;
 
-    public static HttpResponse create(int code, String message) {
-        return new HttpResponse(code, message);
+    public static CatResponse create(int code, String message) {
+        return new CatResponse(code, message);
     }
 
-    private HttpResponse(int code, String message) {
+    private CatResponse(int code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public HttpResponse setContentType(String contentType) {
+    public CatResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public HttpResponse setContentLength(int contentLength) {
+    public CatResponse setContentLength(int contentLength) {
         this.contentLength = contentLength;
         return this;
     }
 
-    public HttpResponse setStream(InputStream stream) {
+    public CatResponse setStream(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
         return this;
     }
 
-    public HttpResponse setHeaders(Map<String, List<String>> headers) {
+    public CatResponse setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         return this;
     }
