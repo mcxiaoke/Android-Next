@@ -2,15 +2,20 @@ package com.mcxiaoke.commons.samples;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.samples.R;
+import com.mcxiaoke.commons.http.HttpRequest;
+import com.mcxiaoke.commons.http.HttpResponse;
+import com.mcxiaoke.commons.os.TaskExecutor;
 import com.mcxiaoke.commons.ui.dialog.AlertDialogFragment;
 import com.mcxiaoke.commons.ui.dialog.ProgressDialogFragment;
+
+import java.util.concurrent.Callable;
 
 /**
  * User: mcxiaoke
@@ -71,6 +76,40 @@ public class AlertDialogSamples extends BaseActivity {
                 showProgressDialog();
             }
         });
+        mButton5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                testRequest();
+            }
+        });
+    }
+
+    private void testRequest() {
+        TaskExecutor.getInstance().setDebug(true);
+        final Callable<String> callable = new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                HttpRequest request = HttpRequest.get("http://www.baidu.com/");
+                request.addParam("fdf", "我是中文");
+                Log.w(TAG, request.getCompleteUrl());
+                HttpResponse response = request.execute();
+                return response.toString();
+            }
+        };
+        final TaskExecutor.TaskCallback<String> callback = new TaskExecutor.SimpleTaskCallback<String>() {
+            @Override
+            public void onTaskSuccess(String s, Bundle extras, Object object) {
+                super.onTaskSuccess(s, extras, object);
+                Log.w(TAG, s);
+            }
+
+            @Override
+            public void onTaskFailure(Throwable e, Bundle extras) {
+                super.onTaskFailure(e, extras);
+                Log.e(TAG, e.toString());
+            }
+        };
+        TaskExecutor.getInstance().execute(callable, callback, this);
     }
 
     private void showAlertDialog(boolean list) {
