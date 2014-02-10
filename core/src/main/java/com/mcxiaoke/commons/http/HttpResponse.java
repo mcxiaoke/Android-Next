@@ -11,13 +11,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: mcxiaoke
  * Date: 14-2-8
  * Time: 11:22
  */
-public class CatResponse implements Closeable {
+public class HttpResponse implements Closeable {
     private final int code;
     private final String message;
     private int contentLength;
@@ -27,31 +28,31 @@ public class CatResponse implements Closeable {
     private Map<String, List<String>> headers;
     private byte[] content;
 
-    public static CatResponse create(int code, String message) {
-        return new CatResponse(code, message);
+    public static HttpResponse create(int code, String message) {
+        return new HttpResponse(code, message);
     }
 
-    private CatResponse(int code, String message) {
+    private HttpResponse(int code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public CatResponse setContentType(String contentType) {
+    public HttpResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public CatResponse setContentLength(int contentLength) {
+    public HttpResponse setContentLength(int contentLength) {
         this.contentLength = contentLength;
         return this;
     }
 
-    public CatResponse setStream(InputStream stream) {
+    public HttpResponse setStream(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
         return this;
     }
 
-    public CatResponse setHeaders(Map<String, List<String>> headers) {
+    public HttpResponse setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         return this;
     }
@@ -118,7 +119,7 @@ public class CatResponse implements Closeable {
         IOUtils.closeQuietly(stream);
     }
 
-    private String getPrintString() {
+    private String dumpContent() {
         try {
             return StringUtils.safeSubString(getAsAsString(), 256);
         } catch (IOException e) {
@@ -126,14 +127,30 @@ public class CatResponse implements Closeable {
         }
     }
 
+    private String dumpHeaders() {
+        Map<String, List<String>> headers = getHeaders();
+        if (headers == null || headers.isEmpty()) {
+            return HttpConsts.EMPTY_STRING;
+        }
+        StringBuilder builder = new StringBuilder();
+        Set<String> keySet = headers.keySet();
+        for (String key : keySet) {
+            if (key != null) {
+                builder.append(key).append(":").append(headers.get(key).get(0)).append("; ");
+            }
+        }
+        return builder.toString();
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("HttpResponse{");
         sb.append("code=").append(code);
-        sb.append(", message='").append(message).append('\'');
+        sb.append(", message='").append(message);
         sb.append(", contentLength=").append(contentLength);
-        sb.append(", contentType='").append(contentType).append('\'');
-        sb.append(", content=[").append(getPrintString()).append("]");
+        sb.append(", contentType='").append(contentType);
+        sb.append(", headers=['").append(dumpHeaders()).append(']');
+        sb.append(", content=[").append(dumpContent()).append("]");
         sb.append(", consumed=").append(consumed);
         sb.append('}');
         return sb.toString();

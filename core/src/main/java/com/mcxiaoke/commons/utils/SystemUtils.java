@@ -409,7 +409,7 @@ public final class SystemUtils {
             String value = String.valueOf(object);
             map.put(key, value);
         }
-        return StringUtils.getPrintString(map, "\n");
+        return StringUtils.toString(map, "\n");
     }
 
     public static String dumpIntent(Intent intent) {
@@ -419,7 +419,7 @@ public final class SystemUtils {
             builder.append("Intent: {\n");
             builder.append("Action=").append(intent.getAction()).append("\n");
             builder.append("Data=").append(intent.getData()).append("\n");
-            String categories = StringUtils.getPrintString(intent.getCategories());
+            String categories = StringUtils.toString(intent.getCategories());
             builder.append("Categories=[").append(categories).append("]\n");
             builder.append("Component=").append(intent.getComponent()).append("\n");
             builder.append("Type=").append(intent.getType()).append("\n");

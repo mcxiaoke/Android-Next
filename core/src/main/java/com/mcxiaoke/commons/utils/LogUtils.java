@@ -39,7 +39,7 @@ public final class LogUtils {
     private static Map<String, Integer> sTagLoggingLevelMap = new HashMap<String, Integer>();
     private static FileLogger sFileLogger;
     private static File mFileLogDir;
-    private static int sLoggingLevel = Log.ASSERT;
+    private static int sLoggingLevel = DEBUG ? Log.VERBOSE : Log.ASSERT;
     private static int sFileLoggingLevel = Log.ASSERT;
 
     private LogUtils() {

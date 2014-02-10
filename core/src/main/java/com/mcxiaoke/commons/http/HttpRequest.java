@@ -1,7 +1,13 @@
 package com.mcxiaoke.commons.http;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+import com.mcxiaoke.commons.utils.IOUtils;
 import com.mcxiaoke.commons.utils.StringUtils;
 import org.apache.http.HttpEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -13,6 +19,8 @@ import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.CookieHandler;
@@ -37,15 +45,17 @@ import java.util.zip.GZIPInputStream;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class CatRequest implements HttpConsts {
+public class HttpRequest implements HttpConsts {
+    public static final String TAG = HttpRequest.class.getSimpleName();
 
     public enum Method {
         GET, POST, PUT, DELETE, HEAD
     }
 
+    private boolean debug;
     private final String url;
     private final Method method;
-    private CatParams params;
+    private HttpParams params;
     private Map<String, String> headers;
     private HttpURLConnection connection;
     private String charset;
@@ -58,57 +68,54 @@ public class CatRequest implements HttpConsts {
     private int readTimeout;
     private Proxy proxy;
     private CookieManager cookieManager;
-    private CatInterceptor interceptor;
+    private RequestInterceptor interceptor;
 
     private HttpEntity httpEntity;
+    private HttpResponse response;
 
     private static SSLSocketFactory TRUSTED_FACTORY;
 
     private static HostnameVerifier TRUSTED_VERIFIER;
 
 
-    public static CatRequest head(String url) {
-        return new CatRequest(Method.HEAD, url);
+    public static HttpRequest head(String url) {
+        return create(url, Method.HEAD);
     }
 
-    public static CatRequest get(String url) {
-        return new CatRequest(Method.GET, url);
+    public static HttpRequest get(String url) {
+        return create(url, Method.GET);
     }
 
-    public static CatRequest get(String url, Map<String, String> params) {
-        CatRequest request = new CatRequest(Method.GET, url);
-        request.addParams(params);
-        return request;
+    public static HttpRequest get(String url, Map<String, String> params) {
+        return get(url).addParams(params);
     }
 
-    public static CatRequest delete(String url) {
-        return new CatRequest(Method.DELETE, url);
+    public static HttpRequest delete(String url) {
+        return create(url, Method.DELETE);
     }
 
-    public static CatRequest delete(String url, Map<String, String> params) {
-        CatRequest request = new CatRequest(Method.DELETE, url);
-        request.addParams(params);
-        return request;
+    public static HttpRequest delete(String url, Map<String, String> params) {
+        return delete(url).addParams(params);
     }
 
-    public static CatRequest post(String url) {
-        return new CatRequest(Method.POST, url);
+    public static HttpRequest post(String url) {
+        return create(url, Method.POST);
     }
 
-    public static CatRequest post(String url, Map<String, String> params) {
-        CatRequest request = new CatRequest(Method.POST, url);
-        request.addParams(params);
-        return request;
+    public static HttpRequest post(String url, Map<String, String> params) {
+        return post(url).addParams(params);
     }
 
-    public static CatRequest put(String url) {
-        return new CatRequest(Method.PUT, url);
+    public static HttpRequest put(String url) {
+        return create(url, Method.PUT);
     }
 
-    public static CatRequest put(String url, Map<String, String> params) {
-        CatRequest request = new CatRequest(Method.PUT, url);
-        request.addParams(params);
-        return request;
+    public static HttpRequest put(String url, Map<String, String> params) {
+        return put(url).addParams(params);
+    }
+
+    public static HttpRequest create(String url, Method method) {
+        return new HttpRequest(url, method);
     }
 
 
@@ -118,9 +125,9 @@ public class CatRequest implements HttpConsts {
      * @param method Http method (GET, POST, etc)
      * @param url    url with optional queryString parameters.
      */
-    public CatRequest(Method method, String url) {
-        this.method = method;
+    public HttpRequest(String url, Method method) {
         this.url = url;
+        this.method = method;
         initDefaults();
     }
 
@@ -136,7 +143,7 @@ public class CatRequest implements HttpConsts {
         this.proxy = Proxy.NO_PROXY;
         this.keepAlive = false;
         this.headers = new HashMap<String, String>();
-        this.params = new CatParams();
+        this.params = new HttpParams();
 
     }
 
@@ -207,28 +214,73 @@ public class CatRequest implements HttpConsts {
     }
 
     /**
-     * Execute the request and return a {@link CatResponse}
+     * Execute the request and return a {@link HttpResponse}
      *
      * @return Http Response
      * @throws RuntimeException if the connection cannot be created.
      */
-    public CatResponse execute() throws IOException {
-        return doExecute();
+    public HttpResponse getResponse() throws IOException {
+        if (response == null) {
+            response = execute();
+        }
+        return response;
+    }
+
+    public int getCode() throws IOException {
+        return getResponse().getCode();
+    }
+
+    public String getMessage() throws IOException {
+        return getResponse().getMessage();
     }
 
     public InputStream asStream() throws IOException {
-        return execute().getAsStream();
+        return getResponse().getAsStream();
     }
 
     public byte[] asBytes() throws IOException {
-        return execute().getAsBytes();
+        return getResponse().getAsBytes();
     }
 
     public String asString() throws IOException {
-        return execute().getAsAsString();
+        return getResponse().getAsAsString();
     }
 
-    private CatResponse doExecute() throws IOException {
+    public File asBinaryFile(File file) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            IOUtils.copy(asStream(), fos);
+        } finally {
+            IOUtils.closeQuietly(fos);
+        }
+        return file;
+    }
+
+    public File asTextFile(File file, String encoding) throws IOException {
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(file);
+            IOUtils.copy(asStream(), writer, encoding);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
+        return file;
+    }
+
+    public Bitmap asBitmap() throws IOException {
+        return BitmapFactory.decodeStream(asStream());
+    }
+
+    public JSONObject asJSONObject() throws IOException, JSONException {
+        return new JSONObject(asString());
+    }
+
+    public <T> T as(ResponseHandler<T> handler) throws IOException {
+        return handler.process(getResponse());
+    }
+
+    private HttpResponse execute() throws IOException {
         CookieHandler.setDefault(cookieManager);
 
         HttpURLConnection conn = getConnection();
@@ -251,14 +303,20 @@ public class CatRequest implements HttpConsts {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
 
+
         intercept();
+
+        if (debug) {
+            Log.v(TAG, "[Request] " + toString());
+        }
+
         checkWriteBody(conn);
         conn.connect();
         return handleResponse(conn);
 
     }
 
-    private CatResponse handleResponse(HttpURLConnection conn) throws IOException {
+    private HttpResponse handleResponse(HttpURLConnection conn) throws IOException {
         int code = conn.getResponseCode();
         String message = conn.getResponseMessage();
         int contentLength = conn.getContentLength();
@@ -287,9 +345,14 @@ public class CatRequest implements HttpConsts {
             stream = httpStream;
         }
 
-        CatResponse response = CatResponse.create(code, message);
+        HttpResponse response = HttpResponse.create(code, message);
         response.setContentLength(contentLength).setContentType(contentType);
         response.setHeaders(rawHeaders).setStream(stream);
+
+        if (debug) {
+            Log.v(TAG, "[Response] " + response);
+        }
+
         return response;
     }
 
@@ -344,49 +407,49 @@ public class CatRequest implements HttpConsts {
      * @param key   the header name
      * @param value the header value
      */
-    public CatRequest addHeader(String key, String value) {
+    public HttpRequest addHeader(String key, String value) {
         if (!headers.containsKey(key)) {
             this.headers.put(key, value);
         }
         return this;
     }
 
-    public CatRequest addHeaders(Map<String, String> map) {
+    public HttpRequest addHeaders(Map<String, String> map) {
         this.headers.putAll(map);
         return this;
     }
 
-    public CatRequest addParam(String key, String value) {
+    public HttpRequest addParam(String key, String value) {
         this.params.put(key, value);
         return this;
     }
 
-    public CatRequest addParams(Map<String, String> map) {
+    public HttpRequest addParams(Map<String, String> map) {
         this.params.put(map);
         return this;
     }
 
-    public CatRequest addBody(String key, File file, String contentType) throws FileNotFoundException {
+    public HttpRequest addBody(String key, File file, String contentType) throws FileNotFoundException {
         this.params.put(key, file, contentType);
         return this;
     }
 
-    public CatRequest addBody(String key, byte[] bytes, String contentType) {
+    public HttpRequest addBody(String key, byte[] bytes, String contentType) {
         this.params.put(key, bytes, contentType);
         return this;
     }
 
-    public CatRequest addBody(String key, byte[] bytes, String fileName, String contentType) {
+    public HttpRequest addBody(String key, byte[] bytes, String fileName, String contentType) {
         this.params.put(key, bytes, contentType, fileName);
         return this;
     }
 
-    public CatRequest addBody(String key, InputStream stream, String contentType) {
+    public HttpRequest addBody(String key, InputStream stream, String contentType) {
         this.params.put(key, stream, contentType);
         return this;
     }
 
-    public CatRequest addBody(String key, InputStream stream, String contentType, String fileName) {
+    public HttpRequest addBody(String key, InputStream stream, String contentType, String fileName) {
         this.params.put(key, stream, contentType, fileName);
         return this;
     }
@@ -436,14 +499,20 @@ public class CatRequest implements HttpConsts {
         return charset == null ? Charset.defaultCharset().name() : charset;
     }
 
+    public HttpRequest setDebug(boolean debug) {
+        this.debug = debug;
+        return this;
+    }
+
     /**
-     * Sets the doExecute timeout for the underlying {@link java.net.HttpURLConnection}
+     * Sets the execute timeout for the underlying {@link java.net.HttpURLConnection}
      *
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public void setConnectTimeout(int millis) {
+    public HttpRequest setConnectTimeout(int millis) {
         this.connectTimeout = millis;
+        return this;
     }
 
     /**
@@ -452,8 +521,9 @@ public class CatRequest implements HttpConsts {
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public void setReadTimeout(int millis) {
+    public HttpRequest setReadTimeout(int millis) {
         this.readTimeout = millis;
+        return this;
     }
 
     /**
@@ -461,11 +531,12 @@ public class CatRequest implements HttpConsts {
      *
      * @param charsetName name of the charset of the request
      */
-    public void setCharset(String charsetName) {
+    public HttpRequest setCharset(String charsetName) {
         this.charset = charsetName;
+        return this;
     }
 
-    public CatRequest setUseCaches(boolean useCaches) {
+    public HttpRequest setUseCaches(boolean useCaches) {
         this.useCaches = useCaches;
         return this;
     }
@@ -473,7 +544,7 @@ public class CatRequest implements HttpConsts {
     /**
      * Sets whether the underlying Http Connection is persistent or not.
      */
-    public CatRequest setKeepAlive(boolean keepAlive) {
+    public HttpRequest setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
     }
@@ -485,45 +556,45 @@ public class CatRequest implements HttpConsts {
         this.connection = connection;
     }
 
-    public CatRequest setProxy(String host, int port) {
+    public HttpRequest setProxy(String host, int port) {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
         setProxy(proxy);
         return this;
     }
 
-    public CatRequest setProxy(Proxy proxy) {
+    public HttpRequest setProxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
-    public CatRequest setCookieStore(CookieStore cookieStore) {
+    public HttpRequest setCookieStore(CookieStore cookieStore) {
         this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         return this;
     }
 
-    public CatRequest setInterceptor(CatInterceptor interceptor) {
+    public HttpRequest setInterceptor(RequestInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
 
-    public CatRequest acceptGzipEncoding() {
+    public HttpRequest acceptGzipEncoding() {
         addHeader(ACCEPT_ENCODING, ENCODING_GZIP);
         return this;
     }
 
-    public CatRequest setFollowRedirects(final boolean value) {
+    public HttpRequest setFollowRedirects(final boolean value) {
         followRedirects = value;
         return this;
     }
 
-    public CatRequest setUserAgent(final String userAgent) {
+    public HttpRequest setUserAgent(final String userAgent) {
         if (userAgent != null) {
             addHeader(USER_AGENT, userAgent);
         }
         return this;
     }
 
-    public CatRequest setReferer(final String referer) {
+    public HttpRequest setReferer(final String referer) {
         addHeader(REFERER, referer);
         return this;
     }
@@ -533,7 +604,7 @@ public class CatRequest implements HttpConsts {
      *
      * @return
      */
-    public CatRequest setTrustAllCerts(boolean enable) {
+    public HttpRequest setTrustAllCerts(boolean enable) {
         trustAllCerts = true;
         return this;
     }
@@ -543,12 +614,12 @@ public class CatRequest implements HttpConsts {
      *
      * @return
      */
-    public CatRequest setTrustAllHosts() {
+    public HttpRequest setTrustAllHosts() {
         trustAllHosts = true;
         return this;
     }
 
-    public CatRequest setHttpEntity(HttpEntity entity) {
+    public HttpRequest setHttpEntity(HttpEntity entity) {
         httpEntity = entity;
         return this;
     }
@@ -559,7 +630,7 @@ public class CatRequest implements HttpConsts {
         sb.append("url='").append(url).append('\'');
         sb.append(", method=").append(method);
         sb.append(", params=").append(params);
-        sb.append(", headers=").append(StringUtils.getPrintString(headers));
+        sb.append(", headers=").append(StringUtils.toString(headers));
         sb.append(", charset='").append(charset).append('\'');
         sb.append(", proxy=").append(proxy);
         sb.append('}');

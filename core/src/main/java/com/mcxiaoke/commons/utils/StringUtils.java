@@ -725,7 +725,7 @@ public abstract class StringUtils {
         }
 
         return prefix
-                + getPrintString(pathElements, FOLDER_SEPARATOR);
+                + toString(pathElements, FOLDER_SEPARATOR);
     }
 
     /**
@@ -743,10 +743,10 @@ public abstract class StringUtils {
      * Parse the given <code>localeString</code> value into a {@link java.util.Locale}.
      * <p/>
      * This is the inverse operation of {@link java.util.Locale#toString Locale's
-     * getPrintString}.
+     * toString}.
      *
      * @param localeString the locale string, following <code>Locale's</code>
-     *                     <code>getPrintString()</code> format ("en", "en_UK", etc); also
+     *                     <code>toString()</code> format ("en", "en_UK", etc); also
      *                     accepts spaces as separators, as an alternative to underscores
      * @return a corresponding <code>Locale</code> instance
      */
@@ -1190,7 +1190,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a Collection as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>getPrintString()</code> implementations.
+     * String. E.g. useful for <code>toString()</code> implementations.
      *
      * @param coll   the Collection to display
      * @param delim  the delimiter to use (probably a ",")
@@ -1198,8 +1198,8 @@ public abstract class StringUtils {
      * @param suffix the String to end each element with
      * @return the delimited String
      */
-    public static String getPrintString(Collection<?> coll,
-                                        String delim, String prefix, String suffix) {
+    public static String toString(Collection<?> coll,
+                                  String delim, String prefix, String suffix) {
         if (coll == null || coll.isEmpty()) {
             return "";
         }
@@ -1214,8 +1214,8 @@ public abstract class StringUtils {
         return sb.toString();
     }
 
-    public static <K, V> String getPrintString(Map<K, V> map,
-                                               String delim, String prefix, String suffix) {
+    public static <K, V> String toString(Map<K, V> map,
+                                         String delim, String prefix, String suffix) {
         if (map == null || map.isEmpty()) {
             return "";
         }
@@ -1234,46 +1234,46 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a Collection as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>getPrintString()</code> implementations.
+     * String. E.g. useful for <code>toString()</code> implementations.
      *
      * @param coll  the Collection to display
      * @param delim the delimiter to use (probably a ",")
      * @return the delimited String
      */
-    public static String getPrintString(Collection<?> coll,
-                                        String delim) {
-        return getPrintString(coll, delim, "", "");
+    public static String toString(Collection<?> coll,
+                                  String delim) {
+        return toString(coll, delim, "", "");
     }
 
-    public static <K, V> String getPrintString(Map<K, V> map,
-                                               String delim) {
-        return getPrintString(map, delim, "", "");
+    public static <K, V> String toString(Map<K, V> map,
+                                         String delim) {
+        return toString(map, delim, "", "");
     }
 
     /**
      * Convenience method to return a Collection as a CSV String. E.g. useful
-     * for <code>getPrintString()</code> implementations.
+     * for <code>toString()</code> implementations.
      *
      * @param coll the Collection to display
      * @return the delimited String
      */
-    public static String getPrintString(Collection<?> coll) {
-        return getPrintString(coll, ",");
+    public static String toString(Collection<?> coll) {
+        return toString(coll, ",");
     }
 
-    public static <K, V> String getPrintString(Map<K, V> map) {
-        return getPrintString(map, ",");
+    public static <K, V> String toString(Map<K, V> map) {
+        return toString(map, ",");
     }
 
     /**
      * Convenience method to return a String array as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>getPrintString()</code> implementations.
+     * String. E.g. useful for <code>toString()</code> implementations.
      *
      * @param arr   the array to display
      * @param delim the delimiter to use (probably a ",")
      * @return the delimited String
      */
-    public static String getPrintString(Object[] arr, String delim) {
+    public static String toString(Object[] arr, String delim) {
         if (isEmpty(arr)) {
             return "";
         }
@@ -1292,13 +1292,13 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a String array as a CSV String. E.g. useful
-     * for <code>getPrintString()</code> implementations.
+     * for <code>toString()</code> implementations.
      *
      * @param arr the array to display
      * @return the delimited String
      */
-    public static String getPrintString(Object[] arr) {
-        return getPrintString(arr, ",");
+    public static String toString(Object[] arr) {
+        return toString(arr, ",");
     }
 
     /**
