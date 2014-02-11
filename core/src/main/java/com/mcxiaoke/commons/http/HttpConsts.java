@@ -1,5 +1,7 @@
 package com.mcxiaoke.commons.http;
 
+import com.mcxiaoke.commons.Charsets;
+
 /**
  * User: mcxiaoke
  * Date: 14-2-8
@@ -7,7 +9,7 @@ package com.mcxiaoke.commons.http;
  */
 interface HttpConsts {
 
-    public static final String ENCODING_UTF8 = "UTF-8";
+    public static final String ENCODING_UTF8 = Charsets.ENCODING_UTF_8;
 
     public static final int BUFFER_SIZE = 8196;
 

@@ -90,7 +90,6 @@ class HttpParams implements HttpConsts {
         return Encoder.appendQueryString(url, params);
     }
 
-
     private HttpParams put(String key, final StreamPart part) {
         this.streams.put(key, part);
         return this;

@@ -2,5 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mcxiaoke.commons">
 
+    <uses-sdk android:minSdkVersion="10" />
+
     <application />
 </manifest>
