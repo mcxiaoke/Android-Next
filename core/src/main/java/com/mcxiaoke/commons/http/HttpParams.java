@@ -1,17 +1,22 @@
 package com.mcxiaoke.commons.http;
 
-import com.mcxiaoke.commons.utils.StringUtils;
+import com.mcxiaoke.commons.Charsets;
+import com.mcxiaoke.commons.http.entity.ContentType;
+import com.mcxiaoke.commons.http.entity.mime.HttpMultipartMode;
+import com.mcxiaoke.commons.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,12 +26,14 @@ import java.util.Map;
  */
 class HttpParams implements HttpConsts {
 
-    private Map<String, String> params;
-    private Map<String, StreamPart> streams;
+    public static final String DEFAULT_NAME = "nofilename";
+
+    private List<NameValuePair> params;
+    private List<StreamPart> parts;
 
     public HttpParams() {
-        params = new HashMap<String, String>();
-        streams = new HashMap<String, StreamPart>();
+        params = new ArrayList<NameValuePair>();
+        parts = new ArrayList<StreamPart>();
     }
 
     public HttpParams(String key, String value) {
@@ -39,170 +46,152 @@ class HttpParams implements HttpConsts {
         put(map);
     }
 
-    public HttpParams put(String key, File file, String contentType) throws FileNotFoundException {
-        StreamPart part = new StreamPart(file, contentType);
-        return put(key, part);
+    public HttpParams put(String key, File file, String contentType) {
+        StreamPart part = StreamPart.create(key, file, contentType);
+        return put(part);
+    }
+
+    public HttpParams put(String key, File file, String contentType, String fileName) {
+        StreamPart part = StreamPart.create(key, file, contentType, fileName);
+        return put(part);
     }
 
     public HttpParams put(String key, byte[] bytes, String contentType) {
-        StreamPart part = new StreamPart(bytes, contentType);
-        return put(key, part);
+        StreamPart part = StreamPart.create(key, bytes, contentType);
+        return put(part);
     }
 
     public HttpParams put(String key, byte[] bytes, String contentType, String fileName) {
-        StreamPart part = new StreamPart(bytes, contentType, fileName);
-        return put(key, part);
+        StreamPart part = StreamPart.create(key, bytes, contentType, fileName);
+        return put(part);
     }
 
     public HttpParams put(String key, InputStream stream, String contentType) {
-        StreamPart part = new StreamPart(stream, contentType);
-        return put(key, part);
+        StreamPart part = StreamPart.create(key, stream, contentType);
+        return put(part);
     }
 
     public HttpParams put(String key, InputStream stream, String contentType, String fileName) {
-        StreamPart part = new StreamPart(stream, contentType, fileName);
-        return put(key, part);
+        StreamPart part = new StreamPart(key, stream, contentType, fileName);
+        return put(part);
     }
 
     public HttpParams put(String key, String value) {
-        this.params.put(key, value);
+        this.params.add(new BasicNameValuePair(key, value));
         return this;
     }
 
     public HttpParams put(Map<String, String> map) {
-        this.params.putAll(map);
+        if (map != null) {
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                put(entry.getKey(), entry.getValue());
+            }
+        }
         return this;
     }
 
-    public Map<String, String> getParams() {
+    public List<NameValuePair> getParams() {
         return this.params;
-    }
-
-    public boolean hasStream() {
-        return this.streams.size() > 0;
-    }
-
-    public String getEncodedString() {
-        return Encoder.encode(params);
     }
 
     public String appendQueryString(String url) {
         return Encoder.appendQueryString(url, params);
     }
 
-    private HttpParams put(String key, final StreamPart part) {
-        this.streams.put(key, part);
+    private HttpParams put(final StreamPart part) {
+        this.parts.add(part);
         return this;
     }
 
-    private void writeMultiPartBody(HttpURLConnection conn) throws IOException {
-        if (streams.isEmpty()) {
-            return;
-        }
-        // 首先必须写入CONTENT_TYPE
-        SimpleMultiPart multiPart = new SimpleMultiPart();
-        for (Map.Entry<String, StreamPart> entry : streams.entrySet()) {
-            String key = entry.getKey();
-            StreamPart part = entry.getValue();
-            multiPart.addPart(key, part.fileName, part.inputStream, part.contentType);
-        }
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            multiPart.addPart(entry.getKey(), entry.getValue());
-        }
-        conn.setRequestProperty(CONTENT_TYPE, multiPart.getContentType());
-        conn.setRequestProperty(CONTENT_LENGTH, String.valueOf(multiPart.getContentLength()));
-        multiPart.writeTo(conn.getOutputStream());
-    }
-
-    private void writeFormEncodedBody(HttpURLConnection conn) throws IOException {
-        if (params.isEmpty()) {
-            return;
-        }
-        String body = getEncodedString();
-        byte[] data = body.getBytes(Encoder.ENCODING_UTF8);
-        int contentLength = data.length;
-        // 首先必须写入CONTENT_TYPE
-        conn.setRequestProperty(CONTENT_TYPE, DEFAULT_CONTENT_TYPE);
-        conn.setRequestProperty(CONTENT_LENGTH, String.valueOf(contentLength));
-        ByteArrayOutputStream bos = null;
-        try {
-            bos = new ByteArrayOutputStream();
-            bos.write(data);
-            bos.writeTo(conn.getOutputStream());
-            bos.flush();
-        } finally {
-            forceClose(bos);
-        }
-    }
-
-    void writeTo(HttpURLConnection conn) throws IOException {
-        if (hasStream()) {
-            writeMultiPartBody(conn);
-        } else {
-            writeFormEncodedBody(conn);
-        }
-    }
-
-    private static void forceClose(Closeable close) {
-        if (close != null) {
+    public HttpEntity getHttpEntity() {
+        HttpEntity entity = null;
+        if (hasParts()) {
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.setCharset(Charsets.UTF_8);
+            for (StreamPart part : parts) {
+                builder.addBinaryBody(part.getName(), part.getStream(), part.getContentType(), part.getFileName());
+            }
+            for (NameValuePair param : params) {
+                builder.addTextBody(param.getName(), param.getValue());
+            }
+            entity = builder.build();
+        } else if (hasParams()) {
             try {
-                close.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                entity = new UrlEncodedFormEntity(params, Charsets.ENCODING_UTF_8);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
             }
         }
+        return entity;
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("HttpParams{");
-        sb.append("params=[").append(StringUtils.toString(params)).append("]");
-        sb.append(", parts=").append(StringUtils.toString(streams)).append("]");
-        sb.append('}');
-        return sb.toString();
+    private boolean hasParts() {
+        return parts.size() > 0;
+    }
+
+    private boolean hasParams() {
+        return params.size() > 0;
     }
 
     static class StreamPart {
 
-        public static final String FILENAME_DEFAULT = "nofilename";
-        public String fileName;
-        public String contentType;
-        public InputStream inputStream;
+        private String name;
+        private ContentType contentType;
+        private InputStream stream;
+        private String fileName;
 
-        public StreamPart(File file, String contentType) throws FileNotFoundException {
-            this(new FileInputStream(file), contentType, file.getName());
+        public static StreamPart create(String name, File file, String mimeType) {
+            return create(name, file, mimeType, file.getName());
         }
 
-        public StreamPart(byte[] bytes, String contentType) {
-            this(new ByteArrayInputStream(bytes), contentType, FILENAME_DEFAULT);
+        public static StreamPart create(String name, File file, String mimeType, String fileName) {
+            try {
+                return new StreamPart(name, new FileInputStream(file), mimeType, fileName);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        public StreamPart(byte[] bytes, String fileName, String contentType) {
-            this(new ByteArrayInputStream(bytes), contentType, fileName);
+        public static StreamPart create(String name, byte[] bytes, String mimeType) {
+            return create(name, bytes, mimeType, DEFAULT_NAME);
         }
 
-        public StreamPart(InputStream stream, String contentType) {
-            this(stream, contentType, FILENAME_DEFAULT);
+        public static StreamPart create(String name, byte[] bytes, String mimeType, String fileName) {
+            return create(name, new ByteArrayInputStream(bytes), mimeType, fileName);
         }
 
-        public StreamPart(InputStream stream, String contentType, String fileName) {
-            initialize(stream, contentType, fileName);
+
+        public static StreamPart create(String name, InputStream stream, String mimeType) {
+            return create(name, stream, mimeType, DEFAULT_NAME);
         }
 
-        private void initialize(InputStream stream, String contentType, String fileName) {
-            this.inputStream = stream;
-            this.contentType = contentType;
+        public static StreamPart create(String name, InputStream stream, String mimeType, String fileName) {
+            return new StreamPart(name, stream, mimeType, fileName);
+        }
+
+        private StreamPart(String name, InputStream stream, String mimeType, String fileName) {
+            this.name = name;
+            this.stream = stream;
+            this.contentType = ContentType.create(mimeType);
             this.fileName = fileName;
         }
 
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("StreamPart{");
-            sb.append("fileName='").append(fileName).append('\'');
-            sb.append(", contentType='").append(contentType).append('\'');
-            sb.append(", inputStream=").append(inputStream);
-            sb.append('}');
-            return sb.toString();
+
+        public String getName() {
+            return name;
+        }
+
+        public ContentType getContentType() {
+            return contentType;
+        }
+
+        public InputStream getStream() {
+            return stream;
+        }
+
+        public String getFileName() {
+            return fileName;
         }
     }
 }

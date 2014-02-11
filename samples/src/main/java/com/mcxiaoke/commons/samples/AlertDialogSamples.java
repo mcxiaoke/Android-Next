@@ -89,11 +89,11 @@ public class AlertDialogSamples extends BaseActivity {
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                HttpRequest request = HttpRequest.get("http://www.douban.com/").setDebug(true);
+                HttpRequest request = HttpRequest.post("http://www.douban.com").setDebug(true);
                 request.addParam("fdf", "我是中文");
                 Log.w(TAG, request.getCompleteUrl());
                 HttpResponse response = request.getResponse();
-                return response.toString();
+                return response.getAsAsString();
             }
         };
         final TaskExecutor.TaskCallback<String> callback = new TaskExecutor.SimpleTaskCallback<String>() {

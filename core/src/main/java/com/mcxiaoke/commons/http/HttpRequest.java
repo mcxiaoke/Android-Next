@@ -6,6 +6,7 @@ import android.util.Log;
 import com.mcxiaoke.commons.utils.IOUtils;
 import com.mcxiaoke.commons.utils.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +19,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,10 +52,14 @@ public class HttpRequest implements HttpConsts {
         GET, POST, PUT, DELETE, HEAD
     }
 
+    public interface ProgressCallback{
+        void onProgress();
+    }
+
     private boolean debug;
     private final String url;
     private final Method method;
-    private HttpParams params;
+    private HttpParams httpParams;
     private Map<String, String> headers;
     private HttpURLConnection connection;
     private String charset;
@@ -143,7 +147,7 @@ public class HttpRequest implements HttpConsts {
         this.proxy = Proxy.NO_PROXY;
         this.keepAlive = false;
         this.headers = new HashMap<String, String>();
-        this.params = new HttpParams();
+        this.httpParams = new HttpParams();
 
     }
 
@@ -364,12 +368,23 @@ public class HttpRequest implements HttpConsts {
 
     private void writeBody(HttpURLConnection conn) throws IOException {
         conn.setDoOutput(true);
+        if (httpEntity == null) {
+            httpEntity = httpParams.getHttpEntity();
+        }
+
         if (httpEntity != null) {
-            conn.setRequestProperty(CONTENT_TYPE, httpEntity.getContentType().getValue());
-            conn.setRequestProperty(CONTENT_LENGTH, String.valueOf(httpEntity.getContentLength()));
+            String contentType = httpEntity.getContentType().getValue();
+            long contentLength = httpEntity.getContentLength();
+            if (contentType != null) {
+                conn.setRequestProperty(CONTENT_TYPE, contentType);
+            }
+            if (contentLength > 0) {
+                conn.setRequestProperty(CONTENT_LENGTH, String.valueOf(contentLength));
+                conn.setFixedLengthStreamingMode((int) contentLength);
+            } else {
+                conn.setChunkedStreamingMode(0);
+            }
             httpEntity.writeTo(conn.getOutputStream());
-        } else if (params != null) {
-            params.writeTo(conn);
         }
     }
 
@@ -398,7 +413,7 @@ public class HttpRequest implements HttpConsts {
     }
 
     private String appendTo(String url) {
-        return params.appendQueryString(url);
+        return httpParams.appendQueryString(url);
     }
 
     /**
@@ -420,37 +435,42 @@ public class HttpRequest implements HttpConsts {
     }
 
     public HttpRequest addParam(String key, String value) {
-        this.params.put(key, value);
+        this.httpParams.put(key, value);
         return this;
     }
 
     public HttpRequest addParams(Map<String, String> map) {
-        this.params.put(map);
+        this.httpParams.put(map);
         return this;
     }
 
-    public HttpRequest addBody(String key, File file, String contentType) throws FileNotFoundException {
-        this.params.put(key, file, contentType);
+    public HttpRequest addBody(String key, File file, String mimeType) {
+        this.httpParams.put(key, file, mimeType);
         return this;
     }
 
-    public HttpRequest addBody(String key, byte[] bytes, String contentType) {
-        this.params.put(key, bytes, contentType);
+    public HttpRequest addBody(String key, File file, String mimeType, String fileName) {
+        this.httpParams.put(key, file, mimeType, fileName);
         return this;
     }
 
-    public HttpRequest addBody(String key, byte[] bytes, String fileName, String contentType) {
-        this.params.put(key, bytes, contentType, fileName);
+    public HttpRequest addBody(String key, byte[] bytes, String mimeType) {
+        this.httpParams.put(key, bytes, mimeType);
         return this;
     }
 
-    public HttpRequest addBody(String key, InputStream stream, String contentType) {
-        this.params.put(key, stream, contentType);
+    public HttpRequest addBody(String key, byte[] bytes, String mimeType, String fileName) {
+        this.httpParams.put(key, bytes, mimeType, fileName);
         return this;
     }
 
-    public HttpRequest addBody(String key, InputStream stream, String contentType, String fileName) {
-        this.params.put(key, stream, contentType, fileName);
+    public HttpRequest addBody(String key, InputStream stream, String mimeType) {
+        this.httpParams.put(key, stream, mimeType);
+        return this;
+    }
+
+    public HttpRequest addBody(String key, InputStream stream, String mimeType, String fileName) {
+        this.httpParams.put(key, stream, mimeType, fileName);
         return this;
     }
 
@@ -459,16 +479,12 @@ public class HttpRequest implements HttpConsts {
      *
      * @return containing the body parameters.
      */
-    public Map<String, String> getParams() {
-        return this.params.getParams();
+    public List<NameValuePair> getHttpParams() {
+        return this.httpParams.getParams();
     }
 
     public Map<String, String> getHeaders() {
         return this.headers;
-    }
-
-    private boolean hasStream() {
-        return this.params.hasStream();
     }
 
     /**
@@ -629,7 +645,7 @@ public class HttpRequest implements HttpConsts {
         final StringBuilder sb = new StringBuilder("HttpRequest{");
         sb.append("url='").append(url).append('\'');
         sb.append(", method=").append(method);
-        sb.append(", params=").append(params);
+        sb.append(", httpParams=").append(httpParams);
         sb.append(", headers=").append(StringUtils.toString(headers));
         sb.append(", charset='").append(charset).append('\'');
         sb.append(", proxy=").append(proxy);

@@ -2,18 +2,15 @@ package com.mcxiaoke.commons.http;
 
 import com.mcxiaoke.commons.utils.AssertUtils;
 import com.mcxiaoke.commons.utils.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -56,20 +53,20 @@ final class Encoder {
         return encoded.replaceAll(Pattern.quote(toReplace), replacement);
     }
 
-    public static String encode(Map<String, String> params) {
+    public static String encode(List<NameValuePair> params) {
         if (params == null || params.size() == 0) {
             return HttpConsts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            String encodedParam = Encoder.encode(entry.getKey()).concat(HttpConsts.PAIR_SEPARATOR)
-                    .concat(Encoder.encode(entry.getValue()));
+        for (NameValuePair param : params) {
+            String encodedParam = Encoder.encode(param.getName()).concat(HttpConsts.PAIR_SEPARATOR)
+                    .concat(Encoder.encode(param.getValue()));
             builder.append(HttpConsts.PARAM_SEPARATOR).append(encodedParam);
         }
         return builder.toString().substring(1);
     }
 
-    public static String appendQueryString(String url, Map<String, String> params) {
+    public static String appendQueryString(String url, List<NameValuePair> params) {
         if (StringUtils.isEmpty(url)) {
             return url;
         }
@@ -89,49 +86,16 @@ final class Encoder {
         }
     }
 
-    public static String cleanUrl(String uriString) {
-        if (StringUtils.isEmpty(uriString)) {
-            return uriString;
+    public static List<NameValuePair> toNameValuePairs(Map<String, String> map) {
+        if (map == null || map.isEmpty()) {
+            return null;
         }
-        try {
-            URL url = new URL(uriString);
-            return new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getPath()).toString();
-        } catch (MalformedURLException e) {
-            return uriString;
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            BasicNameValuePair pair = new BasicNameValuePair(entry.getKey(), entry.getValue());
+            pairs.add(pair);
         }
-    }
-
-
-    public static String streamToString(InputStream is, String encoding) {
-        AssertUtils.notNull(is, "Cannot get String from a null object");
-        try {
-            final char[] buffer = new char[HttpConsts.BUFFER_SIZE];
-            StringBuilder out = new StringBuilder();
-            Reader in = new InputStreamReader(is, encoding);
-            int read;
-            do {
-                read = in.read(buffer, 0, buffer.length);
-                if (read > 0) {
-                    out.append(buffer, 0, read);
-                }
-            } while (read >= 0);
-            in.close();
-            return out.toString();
-        } catch (IOException ioe) {
-            throw new IllegalStateException(
-                    "Error while reading response body", ioe);
-        }
-    }
-
-    private byte[] readFully(InputStream inputStream)
-            throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[HttpConsts.BUFFER_SIZE];
-        int length = 0;
-        while ((length = inputStream.read(buffer)) != -1) {
-            baos.write(buffer, 0, length);
-        }
-        return baos.toByteArray();
+        return pairs;
     }
 
 }
