@@ -50,10 +50,10 @@ import java.util.regex.Pattern;
  * Date: 13-5-3
  * Time: 上午10:06
  */
-public final class SystemUtils {
+public final class AndroidUtils {
 
     public static final boolean DEBUG = BuildConfig.DEBUG;
-    public static final String TAG = SystemUtils.class.getSimpleName();
+    public static final String TAG = AndroidUtils.class.getSimpleName();
 
     public static final String PREFIX_IMAGE = "IMG_";
     public static final String EXTENSION_JPEG = ".jpg";
@@ -67,7 +67,7 @@ public final class SystemUtils {
     private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("[\\w%+,./=_-]+");
     public static final String ENCODING_UTF8 = "UTF-8";
 
-    private SystemUtils() {
+    private AndroidUtils() {
     }
 
     /**

@@ -308,6 +308,16 @@ public abstract class AssertUtils {
         }
     }
 
+    public static <T extends CharSequence> T notBlank(final T argument, final String name) {
+        if (argument == null) {
+            throw new IllegalArgumentException(name + " may not be null");
+        }
+        if (StringUtils.isBlank(argument)) {
+            throw new IllegalArgumentException(name + " may not be blank");
+        }
+        return argument;
+    }
+
     /**
      * Assert that an array has no null elements. Note: Does not complain if the
      * array is empty!

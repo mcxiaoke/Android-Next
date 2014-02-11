@@ -114,6 +114,34 @@ public abstract class StringUtils {
     }
 
     /**
+     * <p>Checks if a CharSequence is whitespace, empty ("") or null.</p>
+     * <p/>
+     * <pre>
+     * StringUtils.isBlank(null)      = true
+     * StringUtils.isBlank("")        = true
+     * StringUtils.isBlank(" ")       = true
+     * StringUtils.isBlank("bob")     = false
+     * StringUtils.isBlank("  bob  ") = false
+     * </pre>
+     *
+     * @param cs the CharSequence to check, may be null
+     * @return {@code true} if the CharSequence is null, empty or whitespace
+     * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
+     */
+    public static boolean isBlank(final CharSequence cs) {
+        int strLen;
+        if (cs == null || (strLen = cs.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Check whether the given CharSequence has actual text. More specifically,
      * returns <code>true</code> if the string not <code>null</code>, its length
      * is greater than 0, and it contains at least one non-whitespace character.
@@ -192,6 +220,42 @@ public abstract class StringUtils {
     public static boolean containsWhitespace(String str) {
         return containsWhitespace((CharSequence) str);
     }
+
+    // Delete
+    //-----------------------------------------------------------------------
+
+    /**
+     * <p>Deletes all whitespaces from a String as defined by
+     * {@link Character#isWhitespace(char)}.</p>
+     * <p/>
+     * <pre>
+     * StringUtils.deleteWhitespace(null)         = null
+     * StringUtils.deleteWhitespace("")           = ""
+     * StringUtils.deleteWhitespace("abc")        = "abc"
+     * StringUtils.deleteWhitespace("   ab  c  ") = "abc"
+     * </pre>
+     *
+     * @param str the String to delete whitespace from, may be null
+     * @return the String without whitespaces, {@code null} if null String input
+     */
+    public static String deleteWhitespace(final String str) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        final int sz = str.length();
+        final char[] chs = new char[sz];
+        int count = 0;
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                chs[count++] = str.charAt(i);
+            }
+        }
+        if (count == sz) {
+            return str;
+        }
+        return new String(chs, 0, count);
+    }
+
 
     /**
      * Trim leading and trailing whitespace from the given String.
