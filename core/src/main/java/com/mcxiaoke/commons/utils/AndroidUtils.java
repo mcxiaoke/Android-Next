@@ -344,18 +344,22 @@ public final class AndroidUtils {
         Toast.makeText(context, text, Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Execute an {@link AsyncTask} on a thread pool.
+     *
+     * @param task Task to execute.
+     * @param args Optional arguments to pass to {@link AsyncTask#execute(Object[])}.
+     * @param <T>  Task argument type.
+     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static <Params, Progress, Result> void execute(AsyncTask<Params, Progress, Result> task, Params... params) {
-        if (task != null) {
-            if (hasHoneycomb()) {
-                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-            } else {
-                task.execute(params);
-            }
+    public static <T> void execute(AsyncTask<T, ?, ?> task, T... args) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            task.execute(args);
+        } else {
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args);
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static boolean hasCamera(Context context) {
         PackageManager pm = context.getPackageManager();
         return pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)
