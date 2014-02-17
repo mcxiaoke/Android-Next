@@ -17,12 +17,14 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -48,14 +50,6 @@ import java.util.zip.GZIPInputStream;
 public class HttpRequest implements HttpConsts {
     public static final String TAG = HttpRequest.class.getSimpleName();
 
-    public enum Method {
-        GET, POST, PUT, DELETE, HEAD
-    }
-
-    public interface ProgressCallback{
-        void onProgress();
-    }
-
     private boolean debug;
     private final String url;
     private final Method method;
@@ -77,9 +71,13 @@ public class HttpRequest implements HttpConsts {
     private HttpEntity httpEntity;
     private HttpResponse response;
 
-    private static SSLSocketFactory TRUSTED_FACTORY;
+    private ProgressCallback progressCallback = ProgressCallback.DEFAULT;
 
-    private static HostnameVerifier TRUSTED_VERIFIER;
+    private static SSLSocketFactory sTrustedSocketFactory;
+
+    private static HostnameVerifier sTrustedHostnameVerifier;
+
+    private static ConnectionFactory sConnectionFactory = ConnectionFactory.DEFAULT;
 
 
     public static HttpRequest head(String url) {
@@ -153,7 +151,7 @@ public class HttpRequest implements HttpConsts {
 
     private static SSLSocketFactory getTrustedFactory()
             throws IOException {
-        if (TRUSTED_FACTORY == null) {
+        if (sTrustedSocketFactory == null) {
             final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
 
                 public X509Certificate[] getAcceptedIssuers() {
@@ -171,7 +169,7 @@ public class HttpRequest implements HttpConsts {
             try {
                 SSLContext context = SSLContext.getInstance("TLS");
                 context.init(null, trustAllCerts, new SecureRandom());
-                TRUSTED_FACTORY = context.getSocketFactory();
+                sTrustedSocketFactory = context.getSocketFactory();
             } catch (GeneralSecurityException e) {
                 IOException ioException = new IOException(
                         "Security exception configuring SSL context");
@@ -180,33 +178,38 @@ public class HttpRequest implements HttpConsts {
             }
         }
 
-        return TRUSTED_FACTORY;
+        return sTrustedSocketFactory;
     }
 
     private static HostnameVerifier getTrustedVerifier() {
-        if (TRUSTED_VERIFIER == null)
-            TRUSTED_VERIFIER = new HostnameVerifier() {
+        if (sTrustedHostnameVerifier == null)
+            sTrustedHostnameVerifier = new HostnameVerifier() {
 
                 public boolean verify(String hostname, SSLSession session) {
                     return true;
                 }
             };
 
-        return TRUSTED_VERIFIER;
+        return sTrustedHostnameVerifier;
+    }
+
+    public static void setConnectionFactory(final ConnectionFactory cf) {
+        if (cf == null) {
+            sConnectionFactory = ConnectionFactory.DEFAULT;
+        } else {
+            sConnectionFactory = cf;
+        }
     }
 
     private HttpURLConnection createConnection() throws IOException {
         String completeUrl = getCompleteUrl();
+        URL url = new URL(completeUrl);
         if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
-            connection = (HttpURLConnection) new URL(completeUrl)
-                    .openConnection();
+            connection = sConnectionFactory.create(url);
         } else {
-            connection = (HttpURLConnection) new URL(completeUrl)
-                    .openConnection(proxy);
+            connection = sConnectionFactory.create(url, proxy);
         }
-
         connection.setRequestMethod(this.method.name());
-
         return connection;
     }
 
@@ -285,14 +288,28 @@ public class HttpRequest implements HttpConsts {
     }
 
     private HttpResponse execute() throws IOException {
+        intercept();
         CookieHandler.setDefault(cookieManager);
-
         HttpURLConnection conn = getConnection();
+        checkConfig(conn);
+        checkHttps(conn);
+        checkHeaders(conn);
+        if (debug) {
+            Log.v(TAG, "[Request] " + toString());
+        }
+        checkWriteBody(conn);
+        conn.connect();
+        return handleResponse(conn);
+    }
+
+    private void checkConfig(HttpURLConnection conn) {
         conn.setUseCaches(useCaches);
         conn.setInstanceFollowRedirects(followRedirects);
         conn.setConnectTimeout(connectTimeout);
         conn.setReadTimeout(readTimeout);
+    }
 
+    private void checkHttps(HttpURLConnection conn) throws IOException {
         if (conn instanceof HttpsURLConnection) {
             HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
             if (trustAllCerts) {
@@ -302,22 +319,12 @@ public class HttpRequest implements HttpConsts {
                 httpsConn.setHostnameVerifier(getTrustedVerifier());
             }
         }
+    }
 
+    private void checkHeaders(HttpURLConnection conn) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             conn.setRequestProperty(entry.getKey(), entry.getValue());
         }
-
-
-        intercept();
-
-        if (debug) {
-            Log.v(TAG, "[Request] " + toString());
-        }
-
-        checkWriteBody(conn);
-        conn.connect();
-        return handleResponse(conn);
-
     }
 
     private HttpResponse handleResponse(HttpURLConnection conn) throws IOException {
@@ -367,7 +374,6 @@ public class HttpRequest implements HttpConsts {
     }
 
     private void writeBody(HttpURLConnection conn) throws IOException {
-        conn.setDoOutput(true);
         if (httpEntity == null) {
             httpEntity = httpParams.getHttpEntity();
         }
@@ -384,7 +390,23 @@ public class HttpRequest implements HttpConsts {
             } else {
                 conn.setChunkedStreamingMode(0);
             }
-            httpEntity.writeTo(conn.getOutputStream());
+
+            conn.setDoOutput(true);
+            final ProgressCallback proxyCallback = new ProgressCallback() {
+                @Override
+                public void onProgress(long currentSize, long totalSize) {
+                    Log.e(TAG, "Progress: " + currentSize + ", Total: " + totalSize);
+                    progressCallback.onProgress(currentSize, totalSize);
+                }
+            };
+            OutputStream outputStream = null;
+            try {
+                outputStream = new ProgressOutputStream(conn.getOutputStream(), proxyCallback, contentLength);
+                httpEntity.writeTo(outputStream);
+                outputStream.flush();
+            } finally {
+                IOUtils.closeQuietly(outputStream);
+            }
         }
     }
 
@@ -635,6 +657,14 @@ public class HttpRequest implements HttpConsts {
         return this;
     }
 
+    public void setProgressCallback(final ProgressCallback callback) {
+        if (callback == null) {
+            progressCallback = ProgressCallback.DEFAULT;
+        } else {
+            progressCallback = callback;
+        }
+    }
+
     public HttpRequest setHttpEntity(HttpEntity entity) {
         httpEntity = entity;
         return this;
@@ -652,4 +682,93 @@ public class HttpRequest implements HttpConsts {
         sb.append('}');
         return sb.toString();
     }
+
+
+    /*******************************************************************
+     *******************************************************************
+     *******************************************************************
+     *
+     * Interfaces,  Inter Classes
+     */
+
+
+    /**
+     * HTTP Method
+     */
+    public enum Method {
+        GET, POST, PUT, DELETE, HEAD
+    }
+
+    /**
+     * Creates {@link HttpURLConnection HTTP connections} for
+     * {@link URL urls}.
+     */
+    public interface ConnectionFactory {
+        /**
+         * Open an {@link HttpURLConnection} for the specified {@link URL}.
+         *
+         * @throws IOException
+         */
+        HttpURLConnection create(URL url) throws IOException;
+
+        /**
+         * Open an {@link HttpURLConnection} for the specified {@link URL}
+         * and {@link Proxy}.
+         *
+         * @throws IOException
+         */
+        HttpURLConnection create(URL url, Proxy proxy) throws IOException;
+
+        /**
+         * A {@link ConnectionFactory} which uses the built-in
+         * {@link URL#openConnection()}
+         */
+        ConnectionFactory DEFAULT = new ConnectionFactory() {
+            public HttpURLConnection create(URL url) throws IOException {
+                return (HttpURLConnection) url.openConnection();
+            }
+
+            public HttpURLConnection create(URL url, Proxy proxy) throws IOException {
+                return (HttpURLConnection) url.openConnection(proxy);
+            }
+        };
+    }
+
+    /**
+     * POST/PUT write data progress callback
+     */
+    public interface ProgressCallback {
+        void onProgress(long currentSize, long totalSize);
+
+        ProgressCallback DEFAULT = new ProgressCallback() {
+            @Override
+            public void onProgress(long currentSize, long totalSize) {
+
+            }
+        };
+    }
+
+    /**
+     * Progress OutputStream, internal use only.
+     */
+    static class ProgressOutputStream extends BufferedOutputStream {
+        private ProgressCallback callback;
+        private long totalSize;
+        private long currentSize;
+
+        public ProgressOutputStream(OutputStream out, ProgressCallback callback, long totalSize) {
+            super(out);
+            this.callback = callback;
+            this.totalSize = totalSize;
+        }
+
+        @Override
+        public synchronized void write(byte[] buffer, int offset, int length) throws IOException {
+            super.write(buffer, offset, length);
+            currentSize += length;
+            callback.onProgress(currentSize, totalSize);
+        }
+
+    }
+
 }
