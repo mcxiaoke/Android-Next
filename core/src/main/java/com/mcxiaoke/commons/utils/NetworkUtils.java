@@ -137,14 +137,6 @@ public final class NetworkUtils {
      * @return 代理
      */
     public static Proxy getProxy(final Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if (networkInfo == null
-                || networkInfo.getType() != ConnectivityManager.TYPE_MOBILE) {
-            return null;
-        }
-
         boolean isMobile = isMobile(context);
         if (isMobile) {
             String defaultProxyHost = android.net.Proxy.getDefaultHost();
@@ -201,14 +193,6 @@ public final class NetworkUtils {
      * @return 是否使用了代理
      */
     public static boolean setProxy(final Context context, HttpParams httpParams) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if (networkInfo == null
-                || networkInfo.getType() != ConnectivityManager.TYPE_MOBILE) {
-            return false;
-        }
-
         boolean isMobile = isMobile(context);
         boolean hasProxy = false;
         if (isMobile) {
