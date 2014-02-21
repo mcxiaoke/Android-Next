@@ -13,7 +13,7 @@ import android.widget.ImageView;
  */
 
 /**
- * 强制高宽相等的正方形ImageView
+ * 强制高宽相等的正方形ImageView，取高和宽的最小值
  */
 public class SquaredImageView extends ImageView {
     public SquaredImageView(Context context) {
@@ -31,6 +31,7 @@ public class SquaredImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth());
+        int size = Math.min(getMeasuredWidth(), getMeasuredHeight());
+        setMeasuredDimension(size, size);
     }
 }

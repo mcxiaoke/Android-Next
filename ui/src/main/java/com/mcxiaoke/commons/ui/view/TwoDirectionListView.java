@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2013 Lucas Rocha
+ *
+ * This code is based on bits and pieces of Android's AbsListView,
+ * Listview, and StaggeredGridView.
+ *
+ * Copyright (C) 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mcxiaoke.commons.ui.view;
 
 import android.annotation.TargetApi;
@@ -43,7 +64,6 @@ import android.widget.AdapterView;
 import android.widget.Checkable;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
-import com.mcxiaoke.commons.ui.BuildConfig;
 import com.mcxiaoke.commons.ui.R;
 
 import java.util.ArrayList;
@@ -64,18 +84,12 @@ import java.util.List;
  */
 
 /**
- *  支持水平和垂直两个方向的AdapterView，目前用于广播时间线的横向图片滚动显示
- *  from https://github.com/lucasr/twoway-view
- */
-
-/**
  * A view that shows items in a vertical or horizontal scrolling list.
  * The items come from the {@link android.widget.ListAdapter} associated with this view.
  */
-@SuppressWarnings({"UnusedDeclaration", "UnusedAssignment"})
 public class TwoDirectionListView extends AdapterView<ListAdapter> implements
         ViewTreeObserver.OnTouchModeChangeListener {
-    private static final String TAG = TwoDirectionListView.class.getSimpleName();
+    private static final String LOGTAG = "TwoWayView";
 
     private static final int NO_POSITION = -1;
     private static final int INVALID_POINTER = -1;
@@ -121,8 +135,10 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
 
     public static enum Orientation {
         HORIZONTAL,
-        VERTICAL
+        VERTICAL;
     }
+
+    ;
 
     private ListAdapter mAdapter;
 
@@ -481,6 +497,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      *
      * @param onTop If true, the selector will be drawn on the item it is highlighting. The default
      *              is false.
+     * @attr ref android.R.styleable#AbsListView_drawSelectorOnTop
      */
     public void setDrawSelectorOnTop(boolean drawSelectorOnTop) {
         mDrawSelectorOnTop = drawSelectorOnTop;
@@ -490,6 +507,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      * Set a Drawable that should be used to highlight the currently selected item.
      *
      * @param resID A Drawable resource to use as the selection highlight.
+     * @attr ref android.R.styleable#AbsListView_listSelector
      */
     public void setSelector(int resID) {
         setSelector(getResources().getDrawable(resID));
@@ -499,6 +517,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      * Set a Drawable that should be used to highlight the currently selected item.
      *
      * @param selector A Drawable to use as the selection highlight.
+     * @attr ref android.R.styleable#AbsListView_listSelector
      */
     public void setSelector(Drawable selector) {
         if (mSelector != null) {
@@ -1283,8 +1302,8 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
 
                 final int index = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                 if (index < 0) {
-                    Log.e(TAG, "onInterceptTouchEvent could not find pointer with id " +
-                            mActivePointerId + " - did TwoDirectionListView receive an inconsistent " +
+                    Log.e(LOGTAG, "onInterceptTouchEvent could not find pointer with id " +
+                            mActivePointerId + " - did TwoWayView receive an inconsistent " +
                             "event stream?");
                     return false;
                 }
@@ -1379,8 +1398,8 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
             case MotionEvent.ACTION_MOVE: {
                 final int index = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                 if (index < 0) {
-                    Log.e(TAG, "onInterceptTouchEvent could not find pointer with id " +
-                            mActivePointerId + " - did TwoDirectionListView receive an inconsistent " +
+                    Log.e(LOGTAG, "onInterceptTouchEvent could not find pointer with id " +
+                            mActivePointerId + " - did TwoWayView receive an inconsistent " +
                             "event stream?");
                     return false;
                 }
@@ -2027,7 +2046,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
     /**
      * Do an arrow scroll based on focus searching.  If a new view is
      * given focus, return the selection delta and amount to scroll via
-     * an {@link ArrowScrollFocusResult}, otherwise, return null.
+     * an {@link TwoDirectionListView.ArrowScrollFocusResult}, otherwise, return null.
      *
      * @param direction either {@link android.view.View#FOCUS_UP} or {@link android.view.View#FOCUS_DOWN} or
      *                  {@link android.view.View#FOCUS_LEFT} or {@link android.view.View#FOCUS_RIGHT} depending on the
@@ -2131,7 +2150,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      * @return The amount to preview next items when arrow scrolling.
      */
     private int getArrowScrollPreviewLength() {
-        // FIXME: TwoDirectionListView has no fading edge support just yet but using it
+        // FIXME: TwoWayView has no fading edge support just yet but using it
         // makes it convenient for defining the next item's previous length.
         int fadingEdgeLength =
                 (mIsVertical ? getVerticalFadingEdgeLength() : getHorizontalFadingEdgeLength());
@@ -3844,9 +3863,9 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
                 return;
             } else if (mItemCount != mAdapter.getCount()) {
                 throw new IllegalStateException("The content of the adapter has changed but "
-                        + "TwoDirectionListView did not receive a notification. Make sure the content of "
+                        + "TwoWayView did not receive a notification. Make sure the content of "
                         + "your adapter is not modified from a background thread, but only "
-                        + "from the UI thread. [in TwoDirectionListView(" + getId() + ", " + getClass()
+                        + "from the UI thread. [in TwoWayView(" + getId() + ", " + getClass()
                         + ") with Adapter(" + mAdapter.getClass() + ")]");
             }
 
@@ -4530,7 +4549,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
 
     /**
      * Measures the height of the given range of children (inclusive) and
-     * returns the height with this TwoDirectionListView's padding and item margin heights
+     * returns the height with this TwoWayView's padding and item margin heights
      * included. If maxHeight is provided, the measuring will stop when the
      * current height reaches maxHeight.
      *
@@ -4552,7 +4571,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      *                                     when even 2 children can not be completely shown, so a value
      *                                     of 2 (remember, inclusive) would be good (assuming
      *                                     startPosition is 0).
-     * @return The height of this TwoDirectionListView with the given children.
+     * @return The height of this TwoWayView with the given children.
      */
     private int measureHeightOfChildren(int widthMeasureSpec, int startPosition, int endPosition,
                                         final int maxHeight, int disallowPartialChildPosition) {
@@ -4621,7 +4640,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
 
     /**
      * Measures the width of the given range of children (inclusive) and
-     * returns the width with this TwoDirectionListView's padding and item margin widths
+     * returns the width with this TwoWayView's padding and item margin widths
      * included. If maxWidth is provided, the measuring will stop when the
      * current width reaches maxWidth.
      *
@@ -4643,7 +4662,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
      *                                     when even 2 children can not be completely shown, so a value
      *                                     of 2 (remember, inclusive) would be good (assuming
      *                                     startPosition is 0).
-     * @return The width of this TwoDirectionListView with the given children.
+     * @return The width of this TwoWayView with the given children.
      */
     private int measureWidthOfChildren(int heightMeasureSpec, int startPosition, int endPosition,
                                        final int maxWidth, int disallowPartialChildPosition) {
@@ -5390,7 +5409,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
             mSyncPosition = mFirstPosition;
 
             if (child != null) {
-                mSpecificStart = child.getTop();
+                mSpecificStart = (mIsVertical ? child.getTop() : child.getLeft());
             }
 
             mSyncMode = SYNC_FIRST_POSITION;
@@ -5658,7 +5677,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
         int scrappedFromPosition;
 
         /**
-         * When a TwoDirectionListView is measured with an AT_MOST measure spec, it needs
+         * When a TwoWayView is measured with an AT_MOST measure spec, it needs
          * to obtain children views to measure itself. When doing so, the children
          * are not attached to the window, but put in the recycler which assumes
          * they've been attached before. Setting this flag will force the reused
@@ -5671,20 +5690,16 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
             super(width, height);
 
             if (this.width == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Constructing LayoutParams with width FILL_PARENT " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Constructing LayoutParams with width FILL_PARENT " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.width = WRAP_CONTENT;
             }
 
             if (this.height == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Constructing LayoutParams with height FILL_PARENT " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Constructing LayoutParams with height FILL_PARENT " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.height = WRAP_CONTENT;
             }
         }
@@ -5693,20 +5708,16 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
             super(c, attrs);
 
             if (this.width == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Inflation setting LayoutParams width to MATCH_PARENT - " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Inflation setting LayoutParams width to MATCH_PARENT - " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.width = MATCH_PARENT;
             }
 
             if (this.height == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Inflation setting LayoutParams height to MATCH_PARENT - " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Inflation setting LayoutParams height to MATCH_PARENT - " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.height = WRAP_CONTENT;
             }
         }
@@ -5715,20 +5726,16 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
             super(other);
 
             if (this.width == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Constructing LayoutParams with width MATCH_PARENT - " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Constructing LayoutParams with width MATCH_PARENT - " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.width = WRAP_CONTENT;
             }
 
             if (this.height == MATCH_PARENT) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "Constructing LayoutParams with height MATCH_PARENT - " +
-                            "does not make much sense as the view might change orientation. " +
-                            "Falling back to WRAP_CONTENT");
-                }
+                Log.w(LOGTAG, "Constructing LayoutParams with height MATCH_PARENT - " +
+                        "does not make much sense as the view might change orientation. " +
+                        "Falling back to WRAP_CONTENT");
                 this.height = WRAP_CONTENT;
             }
         }
@@ -6232,7 +6239,7 @@ public class TwoDirectionListView extends AdapterView<ListAdapter> implements
 
         @Override
         public String toString() {
-            return "TwoDirectionListView.SavedState{"
+            return "TwoWayView.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
                     + " selectedId=" + selectedId
                     + " firstId=" + firstId

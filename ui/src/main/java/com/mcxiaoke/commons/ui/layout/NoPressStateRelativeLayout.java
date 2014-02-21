@@ -1,8 +1,8 @@
-package com.mcxiaoke.commons.ui.view;
+package com.mcxiaoke.commons.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * LinearLayout that not duplicate parent state to child views
@@ -12,15 +12,15 @@ import android.widget.LinearLayout;
  */
 
 /**
- * 不向子View传递PRESSED状态的LinearLayout
+ * 不向子View传递PRESSED状态的RelativeLayout
  */
-public class NoPressStateLinearLayout extends LinearLayout {
+public class NoPressStateRelativeLayout extends RelativeLayout {
 
-    public NoPressStateLinearLayout(Context context) {
+    public NoPressStateRelativeLayout(Context context) {
         super(context);
     }
 
-    public NoPressStateLinearLayout(Context context, AttributeSet attrs) {
+    public NoPressStateRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

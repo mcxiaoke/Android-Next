@@ -13,36 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mcxiaoke.commons.ui.checkable;
+package com.mcxiaoke.commons.ui.layout;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.Checkable;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 /**
  * User: mcxiaoke
  * Date: 13-10-28
  * Time: 下午5:58
  */
-public class CheckableLinearLayout extends LinearLayout implements Checkable {
+public class CheckableFrameLayout extends FrameLayout implements Checkable {
 
     private static final int[] CheckedStateSet = {android.R.attr.state_checked};
 
     private boolean mChecked = false;
 
-    public CheckableLinearLayout(Context context) {
+    public CheckableFrameLayout(Context context) {
         super(context);
     }
 
-    public CheckableLinearLayout(Context context, AttributeSet attrs) {
+    public CheckableFrameLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public CheckableLinearLayout(Context context, AttributeSet attrs, int defStyle) {
+    public CheckableFrameLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 

@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.mcxiaoke.commons.ui.checkable;
+package com.mcxiaoke.commons.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Checkable;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 /**
  * User: mcxiaoke
  * Date: 13-10-28
  * Time: 下午5:58
  */
-public class CheckableFrameLayout extends FrameLayout implements Checkable {
+public class CheckableImageView extends ImageView implements Checkable {
+
+    public CheckableImageView(Context context) {
+        super(context);
+    }
+
+    public CheckableImageView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public CheckableImageView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
 
     private static final int[] CheckedStateSet = {android.R.attr.state_checked};
 
     private boolean mChecked = false;
-
-    public CheckableFrameLayout(Context context) {
-        super(context);
-    }
-
-    public CheckableFrameLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public CheckableFrameLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
 
     public boolean isChecked() {
         return mChecked;
