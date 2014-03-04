@@ -22,17 +22,17 @@ Android公共组件库
   Gradle使用方法：
 
 ```
-    // core 核心库, 格式:jar
-    compile 'com.mcxiaoke.commons:core:1.+'
+    // core 核心库, 格式:jar和aar
+    compile 'com.mcxiaoke.next:core:1.+'
     
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.commons:ui:1.+'
+    compile 'com.mcxiaoke.next:ui:1.+'
     
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.commons:extra-abc:1.+'
+    compile 'com.mcxiaoke.next:extra-abc:1.+'
     
     // extra-abs 依赖ActionBarSherlock 格式:aar
-    compile 'com.mcxiaoke.commons:extra-abs:1.+'
+    compile 'com.mcxiaoke.next:extra-abs:1.+'
     
 ```
 
