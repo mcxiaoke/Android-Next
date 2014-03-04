@@ -21,64 +21,64 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-class HttpParams implements HttpConsts {
+class NextParams implements NextConsts {
 
     public static final String DEFAULT_NAME = "nofilename";
 
     private List<NameValuePair> params;
     private List<StreamPart> parts;
 
-    public HttpParams() {
+    public NextParams() {
         params = new ArrayList<NameValuePair>();
         parts = new ArrayList<StreamPart>();
     }
 
-    public HttpParams(String key, String value) {
+    public NextParams(String key, String value) {
         this();
         put(key, value);
     }
 
-    public HttpParams(Map<String, String> map) {
+    public NextParams(Map<String, String> map) {
         this();
         put(map);
     }
 
-    public HttpParams put(String key, File file, String contentType) {
+    public NextParams put(String key, File file, String contentType) {
         StreamPart part = StreamPart.create(key, file, contentType);
         return put(part);
     }
 
-    public HttpParams put(String key, File file, String contentType, String fileName) {
+    public NextParams put(String key, File file, String contentType, String fileName) {
         StreamPart part = StreamPart.create(key, file, contentType, fileName);
         return put(part);
     }
 
-    public HttpParams put(String key, byte[] bytes, String contentType) {
+    public NextParams put(String key, byte[] bytes, String contentType) {
         StreamPart part = StreamPart.create(key, bytes, contentType);
         return put(part);
     }
 
-    public HttpParams put(String key, byte[] bytes, String contentType, String fileName) {
+    public NextParams put(String key, byte[] bytes, String contentType, String fileName) {
         StreamPart part = StreamPart.create(key, bytes, contentType, fileName);
         return put(part);
     }
 
-    public HttpParams put(String key, InputStream stream, String contentType) {
+    public NextParams put(String key, InputStream stream, String contentType) {
         StreamPart part = StreamPart.create(key, stream, contentType);
         return put(part);
     }
 
-    public HttpParams put(String key, InputStream stream, String contentType, String fileName) {
+    public NextParams put(String key, InputStream stream, String contentType, String fileName) {
         StreamPart part = new StreamPart(key, stream, contentType, fileName);
         return put(part);
     }
 
-    public HttpParams put(String key, String value) {
+    public NextParams put(String key, String value) {
         this.params.add(new BasicNameValuePair(key, value));
         return this;
     }
 
-    public HttpParams put(Map<String, String> map) {
+    public NextParams put(Map<String, String> map) {
         if (map != null) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 put(entry.getKey(), entry.getValue());
@@ -95,7 +95,7 @@ class HttpParams implements HttpConsts {
         return Encoder.appendQueryString(url, params);
     }
 
-    private HttpParams put(final StreamPart part) {
+    private NextParams put(final StreamPart part) {
         this.parts.add(part);
         return this;
     }

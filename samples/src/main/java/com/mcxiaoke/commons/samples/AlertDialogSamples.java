@@ -9,9 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.http.HttpRequest;
-import com.mcxiaoke.commons.http.HttpResponse;
-import com.mcxiaoke.commons.os.TaskExecutor;
+import com.mcxiaoke.commons.http.NextRequest;
+import com.mcxiaoke.commons.http.NextResponse;
+import com.mcxiaoke.commons.os.NextExecutor;
 import com.mcxiaoke.commons.ui.dialog.AlertDialogFragment;
 import com.mcxiaoke.commons.ui.dialog.ProgressDialogFragment;
 
@@ -85,31 +85,31 @@ public class AlertDialogSamples extends BaseActivity {
     }
 
     private void testRequest() {
-        TaskExecutor.getInstance().setDebug(true);
+        NextExecutor.getDefault().setDebug(true);
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                HttpRequest request = HttpRequest.post("http://www.douban.com").setDebug(true);
+                NextRequest request = NextRequest.post("http://www.douban.com").setDebug(true);
                 request.addParam("fdf", "我是中文");
                 Log.w(TAG, request.getCompleteUrl());
-                HttpResponse response = request.getResponse();
+                NextResponse response = request.getResponse();
                 return response.getAsAsString();
             }
         };
-        final TaskExecutor.TaskCallback<String> callback = new TaskExecutor.SimpleTaskCallback<String>() {
+        final NextExecutor.ResultCallback<String> callback = new NextExecutor.SimpleResultCallback<String>() {
             @Override
-            public void onTaskSuccess(String s, Bundle extras, Object object) {
-                super.onTaskSuccess(s, extras, object);
+            public void onResultSuccess(String s, Bundle extras, Object object) {
+                super.onResultSuccess(s, extras, object);
                 Log.w(TAG, s);
             }
 
             @Override
-            public void onTaskFailure(Throwable e, Bundle extras) {
-                super.onTaskFailure(e, extras);
+            public void onResultFailure(Throwable e, Bundle extras) {
+                super.onResultFailure(e, extras);
                 Log.e(TAG, e.toString());
             }
         };
-        TaskExecutor.getInstance().execute(callable, callback, this);
+        NextExecutor.getDefault().add(callable, callback, this);
     }
 
     private void showAlertDialog(boolean list) {

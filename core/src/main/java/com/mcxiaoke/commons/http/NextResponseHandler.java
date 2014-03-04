@@ -5,7 +5,7 @@ package com.mcxiaoke.commons.http;
  * Date: 14-2-10
  * Time: 11:41
  */
-public interface ResponseHandler<T> {
+public interface NextResponseHandler<T> {
 
-    T process(HttpResponse response);
+    T process(NextResponse response);
 }

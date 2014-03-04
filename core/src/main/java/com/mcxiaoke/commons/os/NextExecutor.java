@@ -1,6 +1,5 @@
 package com.mcxiaoke.commons.os;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,8 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,39 +21,40 @@ import java.util.concurrent.Future;
 /**
  * 一个用于执行异步任务的类，单例，支持检查Caller，支持按照Caller和Tag取消对应的任务
  * User: mcxiaoke
- * Date: 2013-7-1 - 2013-7-25
- * Time: 下午10:24
+ * Date: 2013-7-1 2013-7-25 2014-03-04
  */
-public final class TaskExecutor {
-    public static final String SEPARATOR = "@@";
-    public static final String TAG = TaskExecutor.class.getSimpleName();
+public final class NextExecutor {
+    public static final String SEPARATOR = "$$$$";
+    public static final String TAG = NextExecutor.class.getSimpleName();
 
     private final Object mLock = new Object();
 
     private ExecutorService mExecutor;
     private Handler mUiHandler;
-    private Map<String, ExtendedRunnable> mTasks;
-    private Map<String, Future<?>> mFutures;
+    private Map<String, NextDispatcher> mDispatchers;
 
     private boolean mDebug;
 
     // 延迟加载
     private static final class SingletonHolder {
-        static final TaskExecutor INSTANCE = new TaskExecutor();
+        static final NextExecutor INSTANCE = new NextExecutor();
     }
 
-    public static TaskExecutor getInstance() {
+    public static NextExecutor getDefault() {
         return SingletonHolder.INSTANCE;
     }
 
-    private TaskExecutor() {
+    public NextExecutor() {
         if (mDebug) {
-            LogUtils.v(TAG, "TaskExecutor()");
+            LogUtils.v(TAG, "NextExecutor()");
         }
-        mTasks = new ConcurrentHashMap<String, ExtendedRunnable>();
-        mFutures = new ConcurrentHashMap<String, Future<?>>();
+        ensureData();
         ensureHandler();
         ensureExecutor();
+    }
+
+    private void ensureData() {
+        mDispatchers = new WeakHashMap<String, NextDispatcher>();
     }
 
 
@@ -77,32 +77,32 @@ public final class TaskExecutor {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的TAG，可用于取消任务
      */
-    public <Result, Caller> String execute(final Callable<Result> callable, final TaskCallback<Result> callback, final Caller caller) {
+    public <Result, Caller> String add(final Callable<Result> callable, final ResultCallback<Result> callback, final Caller caller) {
         checkArguments(callable, caller);
         // 保存Caller对象的WeakReference，用于后面检查Caller是否存在
         final WeakReference<Caller> weakTarget = new WeakReference<Caller>(caller);
         final String tag = buildTag(caller);
         if (mDebug) {
-            LogUtils.v(TAG, "execute() callable=" + callable + " callback=" + callback + " caller=" + caller);
+            LogUtils.v(TAG, "add() callable=" + callable + " callback=" + callback + " caller=" + caller);
         }
-        final ExtendedRunnable runnable = new ExtendedRunnable(tag) {
+        final NextDispatcher dispatcher = new NextDispatcher(tag) {
             @Override
             public void run() {
                 try {
                     if (mDebug) {
-                        LogUtils.v(TAG, "execute() start");
+                        LogUtils.v(TAG, "add() start");
                     }
                     Result result = callable.call();
 
                     if (isCancelled()) {
                         if (mDebug) {
-                            LogUtils.v(TAG, "execute() isCancelled, return");
+                            LogUtils.v(TAG, "add() isCancelled, return");
                         }
                         return;
                     }
                     if (isInterrupted()) {
                         if (mDebug) {
-                            LogUtils.v(TAG, "execute() isInterrupted, return");
+                            LogUtils.v(TAG, "add() isInterrupted, return");
                         }
                         return;
                     }
@@ -111,15 +111,15 @@ public final class TaskExecutor {
                     // 典型情况如View/Fragment/Activity已经销毁了
                     if (weakTarget.get() == null) {
                         if (mDebug) {
-                            LogUtils.v(TAG, "execute() caller is null, return");
+                            LogUtils.v(TAG, "add() caller is null, return");
                         }
                         return;
                     }
-                    onTaskSuccess(result, callback);
+                    dispatchTaskSuccess(result, callback);
                 } catch (Exception e) {
                     if (mDebug) {
                         e.printStackTrace();
-                        LogUtils.e(TAG, "execute() error: " + e);
+                        LogUtils.e(TAG, "add() error: " + e);
                     }
                     if (isCancelled()) {
                         return;
@@ -130,16 +130,70 @@ public final class TaskExecutor {
                     if (weakTarget.get() == null) {
                         return;
                     }
-                    onTaskFailure(e, callback);
+                    dispatchTaskFailure(e, callback);
                 } finally {
-                    onFinally(tag);
+                    handleFinally(tag);
                 }
                 if (mDebug) {
-                    LogUtils.v(TAG, "execute() end");
+                    LogUtils.v(TAG, "add() end");
                 }
             }
         };
-        return doExecute(tag, runnable);
+        return execute(tag, dispatcher);
+    }
+
+    /**
+     * 没有回调
+     *
+     * @param callable Callable
+     * @param caller   Caller
+     * @param <Result> Result
+     * @param <Caller> Caller
+     * @return Tag
+     */
+    public <Result, Caller> String add(final Callable<Result> callable, final Caller caller) {
+        return add(callable, new SimpleResultCallback<Result>() {
+        }, caller);
+    }
+
+    /**
+     * 没有回调
+     *
+     * @param runnable Runnable
+     * @param caller   Caller
+     * @param <Caller> Caller
+     * @return Tag
+     */
+    public <Caller> String add(final Runnable runnable, final Caller caller) {
+        final Callable<Object> callable = new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                runnable.run();
+                return null;
+            }
+        };
+        return add(callable, caller);
+    }
+
+    /**
+     * 不带Caller，无法终止
+     *
+     * @param callable Callable
+     * @param <Result> Result
+     * @return Future
+     */
+    public <Result> Future<Result> add(final Callable<Result> callable) {
+        return submit(callable);
+    }
+
+    /**
+     * 不带Caller，无法终止
+     *
+     * @param runnable Runnable
+     * @return Future
+     */
+    public Future<?> add(final Runnable runnable) {
+        return submit(runnable);
     }
 
 
@@ -149,9 +203,9 @@ public final class TaskExecutor {
      * @param tag 任务的TAG
      * @return 是否正在运行
      */
-    public boolean isRunning(String tag) {
-        Future<?> future = mFutures.get(tag);
-        return future != null && !future.isDone() && !future.isCancelled();
+    public boolean isActive(String tag) {
+        NextDispatcher nr = mDispatchers.get(tag);
+        return nr.isActive();
     }
 
     /**
@@ -161,41 +215,24 @@ public final class TaskExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "cancelAll()");
         }
-        cancelAllRunnables();
-        cancelAllFutures();
+        cancelAllInternal();
     }
 
     /**
      * 取消所有的Runnable对应的任务
      */
     // for循环不能修改内容，多线程时会有问题，故使用Iterator
-    private void cancelAllRunnables() {
-        Set<Map.Entry<String, ExtendedRunnable>> taskEntrySet = mTasks.entrySet();
-        Iterator<Map.Entry<String, ExtendedRunnable>> taskIterator = taskEntrySet.iterator();
-        while (taskIterator.hasNext()) {
-            Map.Entry<String, ExtendedRunnable> entry = taskIterator.next();
-            ExtendedRunnable runnable = entry.getValue();
+    private void cancelAllInternal() {
+        Set<Map.Entry<String, NextDispatcher>> taskEntrySet = mDispatchers.entrySet();
+        for (Map.Entry<String, NextDispatcher> entry : taskEntrySet) {
+            NextDispatcher runnable = entry.getValue();
             if (runnable != null) {
                 runnable.cancel();
             }
         }
-        mTasks.clear();
-    }
-
-    /**
-     * 取消所有的Future的对应的任务
-     */
-    private void cancelAllFutures() {
-        Set<Map.Entry<String, Future<?>>> futureEntrySet = mFutures.entrySet();
-        Iterator<Map.Entry<String, Future<?>>> futureIterator = futureEntrySet.iterator();
-        while (futureIterator.hasNext()) {
-            Map.Entry<String, Future<?>> entry = futureIterator.next();
-            Future<?> future = entry.getValue();
-            if (future != null) {
-                future.cancel(true);
-            }
+        synchronized (mLock) {
+            mDispatchers.clear();
         }
-        mFutures.clear();
     }
 
 
@@ -205,45 +242,21 @@ public final class TaskExecutor {
      * @param filterTags 过滤TAG列表
      */
     // for循环不能修改内容，多线程时会有问题，故使用Iterator
-    private void cancelRunnablesByTags(Collection<String> filterTags) {
+    private void cancelByTags(Collection<String> filterTags) {
         if (filterTags == null || filterTags.isEmpty()) {
             return;
         }
-        Set<Map.Entry<String, ExtendedRunnable>> taskEntrySet = mTasks.entrySet();
-        Iterator<Map.Entry<String, ExtendedRunnable>> taskIterator = taskEntrySet.iterator();
+        Set<Map.Entry<String, NextDispatcher>> taskEntrySet = mDispatchers.entrySet();
+        Iterator<Map.Entry<String, NextDispatcher>> taskIterator = taskEntrySet.iterator();
         while (taskIterator.hasNext()) {
-            Map.Entry<String, ExtendedRunnable> entry = taskIterator.next();
+            Map.Entry<String, NextDispatcher> entry = taskIterator.next();
             String tag = entry.getKey();
             if (filterTags.contains(tag)) {
-                ExtendedRunnable runnable = entry.getValue();
-                if (runnable != null) {
-                    runnable.cancel();
+                NextDispatcher dispatcher = entry.getValue();
+                if (dispatcher != null) {
+                    dispatcher.cancel();
                 }
                 taskIterator.remove();
-            }
-        }
-    }
-
-    /**
-     * 取消一组Future的对应的任务
-     *
-     * @param filterTags 过滤TAG列表
-     */
-    private void cancelFuturesByTags(Collection<String> filterTags) {
-        if (filterTags == null || filterTags.isEmpty()) {
-            return;
-        }
-        Set<Map.Entry<String, Future<?>>> futureEntrySet = mFutures.entrySet();
-        Iterator<Map.Entry<String, Future<?>>> futureIterator = futureEntrySet.iterator();
-        while (futureIterator.hasNext()) {
-            Map.Entry<String, Future<?>> entry = futureIterator.next();
-            String tag = entry.getKey();
-            if (filterTags.contains(tag)) {
-                Future<?> future = entry.getValue();
-                if (future != null) {
-                    future.cancel(true);
-                }
-                futureIterator.remove();
             }
         }
     }
@@ -255,35 +268,16 @@ public final class TaskExecutor {
      * @param tag 任务TAG
      * @return 任务是否存在
      */
-    public boolean cancelByTag(String tag) {
+    public boolean cancel(String tag) {
         if (mDebug) {
-            LogUtils.v(TAG, "cancelByCaller() tag=" + tag);
+            LogUtils.v(TAG, "cancelAll() tag=" + tag);
         }
-        ExtendedRunnable runnable = mTasks.remove(tag);
-        if (runnable != null) {
-            runnable.cancel();
-        }
-        Future<?> future = mFutures.remove(tag);
-        if (future != null) {
-            future.cancel(true);
+        NextDispatcher dispatcher = mDispatchers.remove(tag);
+        if (dispatcher != null) {
+            dispatcher.cancel();
             return true;
         }
         return false;
-    }
-
-    /**
-     * 取消TAGS对应的任务列表
-     *
-     * @param tags TAGS
-     * @return 任务数量
-     */
-    public int cancelByTags(Collection<String> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return 0;
-        }
-        cancelRunnablesByTags(tags);
-        cancelFuturesByTags(tags);
-        return tags.size();
     }
 
     /**
@@ -293,24 +287,21 @@ public final class TaskExecutor {
      * @param caller 任务调用方
      * @return 返回取消的数目
      */
-    public <Caller> int cancelByCaller(Caller caller) {
+    public <Caller> int cancelAll(Caller caller) {
         int cancelledCount = 0;
         String tagPrefix = buildTagPrefix(caller).toString();
         if (mDebug) {
-            LogUtils.v(TAG, "cancelByCaller() caller=" + caller);
+            LogUtils.v(TAG, "cancelAll() caller=" + caller);
         }
         List<String> filterTags = new ArrayList<String>();
-        Set<String> keySet = mFutures.keySet();
+        Set<String> keySet = mDispatchers.keySet();
         for (String tag : keySet) {
             if (tag.startsWith(tagPrefix)) {
                 filterTags.add(tag);
                 ++cancelledCount;
             }
         }
-
-        cancelRunnablesByTags(filterTags);
-        cancelFuturesByTags(filterTags);
-
+        cancelByTags(filterTags);
         return cancelledCount;
     }
 
@@ -344,10 +335,9 @@ public final class TaskExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
-        synchronized (mLock) {
-            mTasks.remove(tag);
-            mFutures.remove(tag);
-        }
+//        synchronized (mLock) {
+//            mDispatchers.remove(tag);
+//        }
     }
 
     /**
@@ -357,14 +347,14 @@ public final class TaskExecutor {
      * @param runnable 任务Runnable
      * @return 任务TAG
      */
-    private String doExecute(final String tag, final ExtendedRunnable runnable) {
+    private String execute(final String tag, final NextDispatcher runnable) {
         if (mDebug) {
-            LogUtils.v(TAG, "doExecute() tag=" + tag + " runnable=" + runnable);
+            LogUtils.v(TAG, "add() tag=" + tag + " runnable=" + runnable);
         }
         synchronized (mLock) {
-            Future<?> future = doSubmit(runnable);
-            mTasks.put(tag, runnable);
-            mFutures.put(tag, future);
+            Future<?> future = submit(runnable);
+            runnable.setFuture(future);
+            mDispatchers.put(tag, runnable);
         }
         return tag;
     }
@@ -375,17 +365,22 @@ public final class TaskExecutor {
      * @param runnable 任务Runnable
      * @return 返回任务对应的Future对象
      */
-    private Future<?> doSubmit(final Runnable runnable) {
-        if (mDebug) {
-            String name = "Runnable";
-            if (runnable instanceof ExtendedRunnable) {
-                name = ((ExtendedRunnable) runnable).getName();
-            }
-            LogUtils.v(TAG, "submit() name=" + name);
-        }
+    private Future<?> submit(final Runnable runnable) {
         ensureHandler();
         ensureExecutor();
         return mExecutor.submit(runnable);
+    }
+
+    /**
+     * 将任务添加到线程池执行
+     *
+     * @param runnable 任务Runnable
+     * @return 返回任务对应的Future对象
+     */
+    private <Result> Future<Result> submit(final Callable<Result> callable) {
+        ensureHandler();
+        ensureExecutor();
+        return mExecutor.submit(callable);
     }
 
     /**
@@ -396,19 +391,18 @@ public final class TaskExecutor {
      * @param callback 任务回调接口
      * @param <Result> 类型参数，任务结果类型
      */
-    private <Result> void onTaskSuccess(final Result result, final TaskCallback<Result> callback) {
+    private <Result> void dispatchTaskSuccess(final Result result, final ResultCallback<Result> callback) {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskComplete() result=" + result + " callback=" + callback);
+            LogUtils.v(TAG, "dispatchTaskSuccess() result=" + result + " callback=" + callback);
         }
-        if (callback != null) {
-            ensureHandler();
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onTaskSuccess(result, null, null);
+        dispatchOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (callback != null) {
+                    callback.onResultSuccess(result, null, null);
                 }
-            });
-        }
+            }
+        });
     }
 
     /**
@@ -419,19 +413,23 @@ public final class TaskExecutor {
      * @param callback  任务回调接口
      * @param <Result>  类型参数，任务结果类型
      */
-    private <Result> void onTaskFailure(final Exception exception, final TaskCallback<Result> callback) {
+    private <Result> void dispatchTaskFailure(final Exception exception, final ResultCallback<Result> callback) {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskComplete() exception=" + exception + " callback=" + callback);
+            LogUtils.v(TAG, "dispatchTaskFailure() exception=" + exception + " callback=" + callback);
         }
-        if (callback != null) {
-            ensureHandler();
-            mUiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onTaskFailure(exception, null);
+        dispatchOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (callback != null) {
+                    callback.onResultFailure(exception, null);
                 }
-            });
-        }
+            }
+        });
+    }
+
+    private void dispatchOnUiThread(final Runnable runnable) {
+        ensureHandler();
+        mUiHandler.post(runnable);
     }
 
     /**
@@ -440,18 +438,15 @@ public final class TaskExecutor {
      *
      * @param tag 任务TAG
      */
-    private void onFinally(final String tag) {
+    private void handleFinally(final String tag) {
         if (mDebug) {
-            LogUtils.v(TAG, "onFinally() tag=" + tag);
+            LogUtils.v(TAG, "handleFinally() tag=" + tag);
         }
 
-        ensureHandler();
-        mUiHandler.post(new Runnable() {
+        dispatchOnUiThread(new Runnable() {
             @Override
             public void run() {
-                synchronized (mLock) {
-                    remove(tag);
-                }
+//                    remove(tag);
             }
         });
     }
@@ -509,7 +504,7 @@ public final class TaskExecutor {
     }
 
     /**
-     * 根据Caller生成对应的TAG
+     * 根据Caller生成对应的TAG，完整类名+hashcode+timestamp
      *
      * @param caller 调用对象
      * @return 任务的TAG
@@ -547,37 +542,61 @@ public final class TaskExecutor {
         }
     }
 
-    /**
-     * 扩展版的Runnable类，添加了名字定义和cancelled标志
-     */
-    public static abstract class ExtendedRunnable implements Runnable {
-        public static final String TAG = ExtendedRunnable.class.getSimpleName();
+    abstract static class NextDispatcher implements Runnable {
+
+        public static final String TAG = NextDispatcher.class.getSimpleName();
+
         private String mName;
+        private Callable<?> mCallable;
+        private Future<?> mFuture;
+        private WeakReference<?> mWeakTarget;
         private boolean mCancelled;
 
-        public ExtendedRunnable() {
-            this(TAG);
+        public NextDispatcher() {
+            this(TAG + ":" + System.currentTimeMillis());
         }
 
-        public ExtendedRunnable(String name) {
-            mName = name;
-            mCancelled = false;
+        public NextDispatcher(String name) {
+            this.mName = name;
         }
 
-        public boolean isInterrupted() {
-            return Thread.currentThread().isInterrupted();
-        }
-
-        public void cancel() {
+        public boolean cancel() {
             mCancelled = true;
+            boolean result = false;
+            if (mFuture != null) {
+                result = mFuture.cancel(true);
+            }
+            return result;
+        }
+
+        public boolean isActive() {
+            return !isInactive();
+        }
+
+        private boolean isInactive() {
+            return mFuture == null ||
+                    mFuture.isCancelled() ||
+                    mFuture.isDone();
         }
 
         public boolean isCancelled() {
             return mCancelled;
         }
 
+        public boolean isInterrupted() {
+            return Thread.currentThread().isInterrupted();
+        }
+
         public String getName() {
             return mName;
+        }
+
+        public void setName(String mName) {
+            this.mName = mName;
+        }
+
+        public void setFuture(Future<?> mFuture) {
+            this.mFuture = mFuture;
         }
 
     }
@@ -587,7 +606,7 @@ public final class TaskExecutor {
      *
      * @param <Result> 类型参数，任务执行结果
      */
-    public static interface TaskCallback<Result> {
+    public static interface ResultCallback<Result> {
 
         /**
          * 回调，任务执行完成
@@ -596,7 +615,7 @@ public final class TaskExecutor {
          * @param extras 附加结果，需要返回多种结果时会用到
          * @param object 附加结果，需要返回多种结果时会用到
          */
-        public void onTaskSuccess(Result result, Bundle extras, Object object);
+        public void onResultSuccess(Result result, Bundle extras, Object object);
 
         /**
          * 回调，任务执行失败
@@ -604,7 +623,7 @@ public final class TaskExecutor {
          * @param e      失败原因，异常
          * @param extras 附加结果，需要返回额外的信息时会用到
          */
-        public void onTaskFailure(Throwable e, Bundle extras);
+        public void onResultFailure(Throwable e, Bundle extras);
 
     }
 
@@ -613,36 +632,15 @@ public final class TaskExecutor {
      *
      * @param <Result> 类型参数，执行结果类型
      */
-    public static abstract class SimpleTaskCallback<Result> implements TaskCallback<Result> {
+    public static abstract class SimpleResultCallback<Result> implements ResultCallback<Result> {
 
         @Override
-        public void onTaskSuccess(Result result, Bundle extras, Object object) {
+        public void onResultSuccess(Result result, Bundle extras, Object object) {
         }
 
         @Override
-        public void onTaskFailure(Throwable e, Bundle extras) {
+        public void onResultFailure(Throwable e, Bundle extras) {
         }
-
-    }
-
-    /**
-     * 辅助类，可直接使用
-     */
-    public static class BooleanTaskCallback extends SimpleTaskCallback<Boolean> {
-
-    }
-
-    /**
-     * 辅助类，可直接使用
-     */
-    public static class StringTaskCallback extends SimpleTaskCallback<String> {
-
-    }
-
-    /**
-     * 辅助类，可直接使用
-     */
-    public static class BitmapTaskCallback extends SimpleTaskCallback<Bitmap> {
 
     }
 

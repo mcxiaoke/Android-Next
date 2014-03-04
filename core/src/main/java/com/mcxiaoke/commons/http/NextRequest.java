@@ -47,13 +47,13 @@ import java.util.zip.GZIPInputStream;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class HttpRequest implements HttpConsts {
-    public static final String TAG = HttpRequest.class.getSimpleName();
+public class NextRequest implements NextConsts {
+    public static final String TAG = NextRequest.class.getSimpleName();
 
     private boolean debug;
     private final String url;
     private final Method method;
-    private HttpParams httpParams;
+    private NextParams httpParams;
     private Map<String, String> headers;
     private HttpURLConnection connection;
     private String charset;
@@ -66,10 +66,10 @@ public class HttpRequest implements HttpConsts {
     private int readTimeout;
     private Proxy proxy;
     private CookieManager cookieManager;
-    private RequestInterceptor interceptor;
+    private NextInterceptor interceptor;
 
     private HttpEntity httpEntity;
-    private HttpResponse response;
+    private NextResponse response;
 
     private ProgressCallback progressCallback = ProgressCallback.DEFAULT;
 
@@ -80,44 +80,44 @@ public class HttpRequest implements HttpConsts {
     private static ConnectionFactory sConnectionFactory = ConnectionFactory.DEFAULT;
 
 
-    public static HttpRequest head(String url) {
+    public static NextRequest head(String url) {
         return create(url, Method.HEAD);
     }
 
-    public static HttpRequest get(String url) {
+    public static NextRequest get(String url) {
         return create(url, Method.GET);
     }
 
-    public static HttpRequest get(String url, Map<String, String> params) {
+    public static NextRequest get(String url, Map<String, String> params) {
         return get(url).addParams(params);
     }
 
-    public static HttpRequest delete(String url) {
+    public static NextRequest delete(String url) {
         return create(url, Method.DELETE);
     }
 
-    public static HttpRequest delete(String url, Map<String, String> params) {
+    public static NextRequest delete(String url, Map<String, String> params) {
         return delete(url).addParams(params);
     }
 
-    public static HttpRequest post(String url) {
+    public static NextRequest post(String url) {
         return create(url, Method.POST);
     }
 
-    public static HttpRequest post(String url, Map<String, String> params) {
+    public static NextRequest post(String url, Map<String, String> params) {
         return post(url).addParams(params);
     }
 
-    public static HttpRequest put(String url) {
+    public static NextRequest put(String url) {
         return create(url, Method.PUT);
     }
 
-    public static HttpRequest put(String url, Map<String, String> params) {
+    public static NextRequest put(String url, Map<String, String> params) {
         return put(url).addParams(params);
     }
 
-    public static HttpRequest create(String url, Method method) {
-        return new HttpRequest(url, method);
+    public static NextRequest create(String url, Method method) {
+        return new NextRequest(url, method);
     }
 
 
@@ -127,7 +127,7 @@ public class HttpRequest implements HttpConsts {
      * @param method Http method (GET, POST, etc)
      * @param url    url with optional queryString parameters.
      */
-    public HttpRequest(String url, Method method) {
+    public NextRequest(String url, Method method) {
         this.url = url;
         this.method = method;
         initDefaults();
@@ -145,7 +145,7 @@ public class HttpRequest implements HttpConsts {
         this.proxy = Proxy.NO_PROXY;
         this.keepAlive = false;
         this.headers = new HashMap<String, String>();
-        this.httpParams = new HttpParams();
+        this.httpParams = new NextParams();
 
     }
 
@@ -221,12 +221,12 @@ public class HttpRequest implements HttpConsts {
     }
 
     /**
-     * Execute the request and return a {@link HttpResponse}
+     * Execute the request and return a {@link NextResponse}
      *
      * @return Http Response
      * @throws RuntimeException if the connection cannot be created.
      */
-    public HttpResponse getResponse() throws IOException {
+    public NextResponse getResponse() throws IOException {
         if (response == null) {
             response = execute();
         }
@@ -283,11 +283,11 @@ public class HttpRequest implements HttpConsts {
         return new JSONObject(asString());
     }
 
-    public <T> T as(ResponseHandler<T> handler) throws IOException {
+    public <T> T as(NextResponseHandler<T> handler) throws IOException {
         return handler.process(getResponse());
     }
 
-    private HttpResponse execute() throws IOException {
+    private NextResponse execute() throws IOException {
         intercept();
         CookieHandler.setDefault(cookieManager);
         HttpURLConnection conn = getConnection();
@@ -327,7 +327,7 @@ public class HttpRequest implements HttpConsts {
         }
     }
 
-    private HttpResponse handleResponse(HttpURLConnection conn) throws IOException {
+    private NextResponse handleResponse(HttpURLConnection conn) throws IOException {
         int code = conn.getResponseCode();
         String message = conn.getResponseMessage();
         int contentLength = conn.getContentLength();
@@ -356,7 +356,7 @@ public class HttpRequest implements HttpConsts {
             stream = httpStream;
         }
 
-        HttpResponse response = HttpResponse.create(code, message);
+        NextResponse response = NextResponse.create(code, message);
         response.setContentLength(contentLength).setContentType(contentType);
         response.setHeaders(rawHeaders).setStream(stream);
 
@@ -444,54 +444,54 @@ public class HttpRequest implements HttpConsts {
      * @param key   the header name
      * @param value the header value
      */
-    public HttpRequest addHeader(String key, String value) {
+    public NextRequest addHeader(String key, String value) {
         if (!headers.containsKey(key)) {
             this.headers.put(key, value);
         }
         return this;
     }
 
-    public HttpRequest addHeaders(Map<String, String> map) {
+    public NextRequest addHeaders(Map<String, String> map) {
         this.headers.putAll(map);
         return this;
     }
 
-    public HttpRequest addParam(String key, String value) {
+    public NextRequest addParam(String key, String value) {
         this.httpParams.put(key, value);
         return this;
     }
 
-    public HttpRequest addParams(Map<String, String> map) {
+    public NextRequest addParams(Map<String, String> map) {
         this.httpParams.put(map);
         return this;
     }
 
-    public HttpRequest addBody(String key, File file, String mimeType) {
+    public NextRequest addBody(String key, File file, String mimeType) {
         this.httpParams.put(key, file, mimeType);
         return this;
     }
 
-    public HttpRequest addBody(String key, File file, String mimeType, String fileName) {
+    public NextRequest addBody(String key, File file, String mimeType, String fileName) {
         this.httpParams.put(key, file, mimeType, fileName);
         return this;
     }
 
-    public HttpRequest addBody(String key, byte[] bytes, String mimeType) {
+    public NextRequest addBody(String key, byte[] bytes, String mimeType) {
         this.httpParams.put(key, bytes, mimeType);
         return this;
     }
 
-    public HttpRequest addBody(String key, byte[] bytes, String mimeType, String fileName) {
+    public NextRequest addBody(String key, byte[] bytes, String mimeType, String fileName) {
         this.httpParams.put(key, bytes, mimeType, fileName);
         return this;
     }
 
-    public HttpRequest addBody(String key, InputStream stream, String mimeType) {
+    public NextRequest addBody(String key, InputStream stream, String mimeType) {
         this.httpParams.put(key, stream, mimeType);
         return this;
     }
 
-    public HttpRequest addBody(String key, InputStream stream, String mimeType, String fileName) {
+    public NextRequest addBody(String key, InputStream stream, String mimeType, String fileName) {
         this.httpParams.put(key, stream, mimeType, fileName);
         return this;
     }
@@ -537,18 +537,18 @@ public class HttpRequest implements HttpConsts {
         return charset == null ? Charset.defaultCharset().name() : charset;
     }
 
-    public HttpRequest setDebug(boolean debug) {
+    public NextRequest setDebug(boolean debug) {
         this.debug = debug;
         return this;
     }
 
     /**
-     * Sets the execute timeout for the underlying {@link java.net.HttpURLConnection}
+     * Sets the add timeout for the underlying {@link java.net.HttpURLConnection}
      *
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public HttpRequest setConnectTimeout(int millis) {
+    public NextRequest setConnectTimeout(int millis) {
         this.connectTimeout = millis;
         return this;
     }
@@ -559,7 +559,7 @@ public class HttpRequest implements HttpConsts {
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public HttpRequest setReadTimeout(int millis) {
+    public NextRequest setReadTimeout(int millis) {
         this.readTimeout = millis;
         return this;
     }
@@ -569,12 +569,12 @@ public class HttpRequest implements HttpConsts {
      *
      * @param charsetName name of the charset of the request
      */
-    public HttpRequest setCharset(String charsetName) {
+    public NextRequest setCharset(String charsetName) {
         this.charset = charsetName;
         return this;
     }
 
-    public HttpRequest setUseCaches(boolean useCaches) {
+    public NextRequest setUseCaches(boolean useCaches) {
         this.useCaches = useCaches;
         return this;
     }
@@ -582,7 +582,7 @@ public class HttpRequest implements HttpConsts {
     /**
      * Sets whether the underlying Http Connection is persistent or not.
      */
-    public HttpRequest setKeepAlive(boolean keepAlive) {
+    public NextRequest setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
     }
@@ -594,45 +594,45 @@ public class HttpRequest implements HttpConsts {
         this.connection = connection;
     }
 
-    public HttpRequest setProxy(String host, int port) {
+    public NextRequest setProxy(String host, int port) {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
         setProxy(proxy);
         return this;
     }
 
-    public HttpRequest setProxy(Proxy proxy) {
+    public NextRequest setProxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
-    public HttpRequest setCookieStore(CookieStore cookieStore) {
+    public NextRequest setCookieStore(CookieStore cookieStore) {
         this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         return this;
     }
 
-    public HttpRequest setInterceptor(RequestInterceptor interceptor) {
+    public NextRequest setInterceptor(NextInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
 
-    public HttpRequest acceptGzipEncoding() {
+    public NextRequest acceptGzipEncoding() {
         addHeader(ACCEPT_ENCODING, ENCODING_GZIP);
         return this;
     }
 
-    public HttpRequest setFollowRedirects(final boolean value) {
+    public NextRequest setFollowRedirects(final boolean value) {
         followRedirects = value;
         return this;
     }
 
-    public HttpRequest setUserAgent(final String userAgent) {
+    public NextRequest setUserAgent(final String userAgent) {
         if (userAgent != null) {
             addHeader(USER_AGENT, userAgent);
         }
         return this;
     }
 
-    public HttpRequest setReferer(final String referer) {
+    public NextRequest setReferer(final String referer) {
         addHeader(REFERER, referer);
         return this;
     }
@@ -642,7 +642,7 @@ public class HttpRequest implements HttpConsts {
      *
      * @return
      */
-    public HttpRequest setTrustAllCerts(boolean enable) {
+    public NextRequest setTrustAllCerts(boolean enable) {
         trustAllCerts = true;
         return this;
     }
@@ -652,7 +652,7 @@ public class HttpRequest implements HttpConsts {
      *
      * @return
      */
-    public HttpRequest setTrustAllHosts() {
+    public NextRequest setTrustAllHosts() {
         trustAllHosts = true;
         return this;
     }
@@ -665,7 +665,7 @@ public class HttpRequest implements HttpConsts {
         }
     }
 
-    public HttpRequest setHttpEntity(HttpEntity entity) {
+    public NextRequest setHttpEntity(HttpEntity entity) {
         httpEntity = entity;
         return this;
     }

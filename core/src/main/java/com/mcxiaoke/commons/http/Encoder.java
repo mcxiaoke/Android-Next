@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 final class Encoder {
 
-    static final String ENCODING_UTF8 = HttpConsts.ENCODING_UTF8;
+    static final String ENCODING_UTF8 = NextConsts.ENCODING_UTF8;
 
     private static final Map<String, String> ENCODING_RULES;
 
@@ -55,15 +55,33 @@ final class Encoder {
 
     public static String encode(List<NameValuePair> params) {
         if (params == null || params.size() == 0) {
-            return HttpConsts.EMPTY_STRING;
+            return NextConsts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
         for (NameValuePair param : params) {
-            String encodedParam = Encoder.encode(param.getName()).concat(HttpConsts.PAIR_SEPARATOR)
+            String encodedParam = Encoder.encode(param.getName()).concat(NextConsts.PAIR_SEPARATOR)
                     .concat(Encoder.encode(param.getValue()));
-            builder.append(HttpConsts.PARAM_SEPARATOR).append(encodedParam);
+            builder.append(NextConsts.PARAM_SEPARATOR).append(encodedParam);
         }
         return builder.toString().substring(1);
+    }
+
+    private String encode(Map<String, String> params, String encoding) {
+        if (params == null || params.size() == 0) {
+            return NextConsts.EMPTY_STRING;
+        }
+        StringBuilder encodedParams = new StringBuilder();
+        try {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                encodedParams.append(URLEncoder.encode(entry.getKey(), encoding));
+                encodedParams.append(NextConsts.PAIR_SEPARATOR);
+                encodedParams.append(URLEncoder.encode(entry.getValue(), encoding));
+                encodedParams.append(NextConsts.PARAM_SEPARATOR);
+            }
+            return encodedParams.toString();
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("Encoding not supported: " + encoding, uee);
+        }
     }
 
     public static String appendQueryString(String url, List<NameValuePair> params) {
@@ -79,8 +97,8 @@ final class Encoder {
         } else {
             StringBuilder builder = new StringBuilder();
             builder.append(url);
-            boolean hasQuery = url.indexOf(HttpConsts.QUERY_STRING_SEPARATOR) != -1;
-            builder.append(hasQuery ? HttpConsts.PARAM_SEPARATOR : HttpConsts.QUERY_STRING_SEPARATOR);
+            boolean hasQuery = url.indexOf(NextConsts.QUERY_STRING_SEPARATOR) != -1;
+            builder.append(hasQuery ? NextConsts.PARAM_SEPARATOR : NextConsts.QUERY_STRING_SEPARATOR);
             builder.append(queryString);
             return builder.toString();
         }

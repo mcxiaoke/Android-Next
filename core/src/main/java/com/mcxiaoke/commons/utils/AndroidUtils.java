@@ -347,7 +347,7 @@ public final class AndroidUtils {
     /**
      * Execute an {@link AsyncTask} on a thread pool.
      *
-     * @param task Task to execute.
+     * @param task Task to add.
      * @param args Optional arguments to pass to {@link AsyncTask#execute(Object[])}.
      * @param <T>  Task argument type.
      */

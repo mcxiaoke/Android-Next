@@ -210,7 +210,7 @@ public class Data {
                             "what is his humility? Revenge. If a Christian" +
                             "wrong a Jew, what should his sufferance be by" +
                             "Christian example? Why, revenge. The villany you" +
-                            "teach me, I will execute, and it shall go hard but I" +
+                            "teach me, I will add, and it shall go hard but I" +
                             "will better the instruction.",
 
                     "Virtue! a fig! 'tis in ourselves that we are thus" +

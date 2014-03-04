@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-class HttpHeaders {
+class NextHeaders {
     private Date servedDate;
     private Date lastModified;
     private Date expires;
@@ -26,7 +26,7 @@ class HttpHeaders {
     private List<String> rawCookies;
     private final Map<String, List<String>> rawHeaders;
 
-    public HttpHeaders(Map<String, List<String>> rawHeaders) {
+    public NextHeaders(Map<String, List<String>> rawHeaders) {
         this.rawHeaders = rawHeaders;
 
         for (String key : rawHeaders.keySet()) {

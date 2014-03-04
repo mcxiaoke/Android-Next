@@ -18,7 +18,7 @@ import java.util.Set;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class HttpResponse implements Closeable {
+public class NextResponse implements Closeable {
     private final int code;
     private final String message;
     private int contentLength;
@@ -28,31 +28,31 @@ public class HttpResponse implements Closeable {
     private Map<String, List<String>> headers;
     private byte[] content;
 
-    public static HttpResponse create(int code, String message) {
-        return new HttpResponse(code, message);
+    public static NextResponse create(int code, String message) {
+        return new NextResponse(code, message);
     }
 
-    private HttpResponse(int code, String message) {
+    private NextResponse(int code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public HttpResponse setContentType(String contentType) {
+    public NextResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public HttpResponse setContentLength(int contentLength) {
+    public NextResponse setContentLength(int contentLength) {
         this.contentLength = contentLength;
         return this;
     }
 
-    public HttpResponse setStream(InputStream stream) {
+    public NextResponse setStream(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
         return this;
     }
 
-    public HttpResponse setHeaders(Map<String, List<String>> headers) {
+    public NextResponse setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         return this;
     }
@@ -108,7 +108,7 @@ public class HttpResponse implements Closeable {
     }
 
     public String getAsAsString() throws IOException {
-        return getAsAsString(HttpConsts.ENCODING_UTF8);
+        return getAsAsString(NextConsts.ENCODING_UTF8);
     }
 
     public String getAsAsString(String charsetName) throws IOException {
@@ -130,7 +130,7 @@ public class HttpResponse implements Closeable {
     private String dumpHeaders() {
         Map<String, List<String>> headers = getHeaders();
         if (headers == null || headers.isEmpty()) {
-            return HttpConsts.EMPTY_STRING;
+            return NextConsts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
         Set<String> keySet = headers.keySet();

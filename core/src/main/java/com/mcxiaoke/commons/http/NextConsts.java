@@ -7,7 +7,7 @@ import com.mcxiaoke.commons.Charsets;
  * Date: 14-2-8
  * Time: 11:56
  */
-interface HttpConsts {
+interface NextConsts {
 
     public static final String ENCODING_UTF8 = Charsets.ENCODING_UTF_8;
 
