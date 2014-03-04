@@ -6,10 +6,8 @@ import android.os.Looper;
 import com.mcxiaoke.commons.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -256,7 +254,9 @@ public final class NextExecutor {
                 if (dispatcher != null) {
                     dispatcher.cancel();
                 }
-                taskIterator.remove();
+                synchronized (mLock) {
+                    taskIterator.remove();
+                }
             }
         }
     }
@@ -293,15 +293,16 @@ public final class NextExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "cancelAll() caller=" + caller);
         }
-        List<String> filterTags = new ArrayList<String>();
+//        List<String> filterTags = new ArrayList<String>();
         Set<String> keySet = mDispatchers.keySet();
         for (String tag : keySet) {
             if (tag.startsWith(tagPrefix)) {
-                filterTags.add(tag);
+//                filterTags.add(tag);
+                cancel(tag);
                 ++cancelledCount;
             }
         }
-        cancelByTags(filterTags);
+//        cancelByTags(filterTags);
         return cancelledCount;
     }
 
@@ -335,9 +336,9 @@ public final class NextExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
-//        synchronized (mLock) {
-//            mDispatchers.remove(tag);
-//        }
+        synchronized (mLock) {
+            mDispatchers.remove(tag);
+        }
     }
 
     /**
@@ -446,7 +447,7 @@ public final class NextExecutor {
         dispatchOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                    remove(tag);
+                remove(tag);
             }
         });
     }
