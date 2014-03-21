@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
-import com.mcxiaoke.commons.BuildConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,25 +31,25 @@ public final class LogUtils {
 
     public static final String TAG_DEBUG = "DEBUG";
     public static final String TAG_TRACE = "TRACE";
-    private static final String FILE_LOG_DIR = "debug";
+    private static final String FILE_LOG_DIR = "logs";
+    public static final boolean DEBUG_FLAG_DEFAULT = true;
 
-    public static final boolean DEBUG = BuildConfig.DEBUG;
     private static Map<String, Long> sTraceMap = new HashMap<String, Long>();
     private static Map<String, Integer> sTagLoggingLevelMap = new HashMap<String, Integer>();
     private static FileLogger sFileLogger;
-    private static File mFileLogDir;
-    private static int sLoggingLevel = DEBUG ? Log.VERBOSE : Log.ASSERT;
+    private static int sLoggingLevel = Log.ERROR;
     private static int sFileLoggingLevel = Log.ASSERT;
+    private static boolean sEnable = DEBUG_FLAG_DEFAULT;
 
     private LogUtils() {
     }
 
     private static boolean isLoggable(int level) {
-        return level >= sLoggingLevel;
+        return sEnable && level >= sLoggingLevel;
     }
 
     private static boolean isFileLoggable(int level) {
-        return level >= sFileLoggingLevel;
+        return sEnable && level >= sFileLoggingLevel;
     }
 
     private static boolean isTagLoggable(String tag, int level) {
@@ -66,8 +65,8 @@ public final class LogUtils {
     }
 
     private static void openFileLogger(Context context) {
-        if (DEBUG) {
-            if (sFileLoggingLevel <= Log.ERROR) {
+        if (sEnable) {
+            if (sFileLoggingLevel < Log.ASSERT) {
                 sFileLogger = new FileLogger(TAG_DEBUG, createFileLogDir(context));
             }
         }
@@ -77,7 +76,6 @@ public final class LogUtils {
         File dir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             dir = new File(context.getExternalCacheDir(), FILE_LOG_DIR);
-
         } else {
             dir = new File(context.getCacheDir(), FILE_LOG_DIR);
         }
@@ -85,6 +83,25 @@ public final class LogUtils {
             dir.mkdirs();
         }
         return dir;
+    }
+
+    public void clearLogFiles(Context context) {
+        File logDir = createFileLogDir(context);
+        IOUtils.deleteFile(logDir.getPath());
+    }
+
+    public void clearLogFilesAsync(final Context context) {
+        new Thread() {
+            @Override
+            public void run() {
+                clearLogFiles(context);
+            }
+        }.start();
+    }
+
+    public static void setEnable(boolean enable) {
+        sEnable = enable;
+        sLoggingLevel = enable ? Log.VERBOSE : Log.ERROR;
     }
 
     public static void setLoggingLevel(int level) {
@@ -109,11 +126,6 @@ public final class LogUtils {
     public static void setTagLoggingLevel(Class<?> clz, int level) {
         final String tag = clz.getSimpleName();
         sTagLoggingLevelMap.put(tag, level);
-    }
-
-    public static void setDefault(Context context, boolean debug) {
-        setLoggingLevel(debug ? Log.VERBOSE : Log.ERROR);
-        setFileLoggingLevel(context, debug ? Log.ASSERT : Log.ASSERT);
     }
 
     public static void e(String tag, Throwable e) {
@@ -282,7 +294,6 @@ public final class LogUtils {
         Log.v(TAG_TRACE, "trace is cleared.");
     }
 
-
     private static class LogEntry {
         private static SimpleDateFormat dateFormat; // must always be used in the same thread
         private static Date mDate;
@@ -408,6 +419,7 @@ public final class LogUtils {
                     onMessageWrite(msg);
                     break;
                 case MSG_CLEAR:
+                    onMessageClear();
                     break;
             }
             return true;
