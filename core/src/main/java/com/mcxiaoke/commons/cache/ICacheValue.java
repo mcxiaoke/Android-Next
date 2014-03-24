@@ -12,5 +12,5 @@ public interface ICacheValue {
      *
      * @return the key
      */
-    Long getKey();
+    String getKey();
 }

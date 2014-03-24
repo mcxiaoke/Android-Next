@@ -1,15 +1,17 @@
 package com.mcxiaoke.commons.cache;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 /**
- * This singleton class is  to save, restore, remove and return your cached objects.
+ * This class is  to save, restore, remove and return your cached objects.
  */
-public class CacheStore {
+public class CacheStore implements ICache<String, ICacheValue> {
 
-    ICache<Long, ICacheValue> store;
+    ICache<String, ICacheValue> store;
 
     // Private constructor prevents instantiation from other classes
     private CacheStore() {
@@ -45,7 +47,7 @@ public class CacheStore {
      *
      * @return the Cache object.
      */
-    private ICache<Long, ICacheValue> getCache() {
+    private ICache<String, ICacheValue> getCache() {
         return store;
     }
 
@@ -60,7 +62,7 @@ public class CacheStore {
         ICacheValue ce = store.get(cacheable.getKey());
 
         if (ce == null) {
-            add(cacheable);
+            put(cacheable);
             ce = get(cacheable.getKey());
         }
         return ce;
@@ -72,7 +74,7 @@ public class CacheStore {
      * @param key The key value
      * @return The Cacheable object stored in the store
      */
-    public ICacheValue get(Long key) {
+    public ICacheValue get(String key) {
         return store.get(key);
     }
 
@@ -84,7 +86,7 @@ public class CacheStore {
      * @return The Object that which is stored in the store.
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(Long key, Class<T> clazz) {
+    public <T> T get(String key, Class<T> clazz) {
         return (T) store.get(key);
     }
 
@@ -101,7 +103,7 @@ public class CacheStore {
         T ce = (T) store.get(cacheable.getKey());
 
         if (ce == null) {
-            add(cacheable);
+            put(cacheable);
             ce = get(cacheable.getKey(), clazz);
         }
         return ce;
@@ -112,7 +114,7 @@ public class CacheStore {
      *
      * @param cache The new Cache
      */
-    private void setCache(ICache<Long, ICacheValue> cache) {
+    private void setCache(ICache<String, ICacheValue> cache) {
         this.store = cache;
     }
 
@@ -121,9 +123,9 @@ public class CacheStore {
      *
      * @param cacheables The Cacheable List
      */
-    public void add(List<ICacheValue> cacheables) {
+    public void put(List<ICacheValue> cacheables) {
         for (ICacheValue cacheable : cacheables) {
-            this.store.put(cacheable.getKey(), cacheable);
+            put(cacheable);
         }
     }
 
@@ -133,22 +135,8 @@ public class CacheStore {
      * @param cacheable Cache
      * @return The  key
      */
-    public long add(ICacheValue cacheable) {
-        this.store.put(cacheable.getKey(), cacheable);
-        return cacheable.getKey();
-    }
-
-    /**
-     * Adds a List of some class that you need to store. Typically the class will be your Pojo Class.
-     *
-     * @param cacheables The List to store in the store.
-     */
-    public <T> void addList(List<T> cacheables) {
-        for (T t : cacheables) {
-            if (t instanceof ICacheValue) {
-                this.store.put(((ICacheValue) t).getKey(), (ICacheValue) t);
-            }
-        }
+    public ICacheValue put(ICacheValue cacheable) {
+        return put(cacheable.getKey(), cacheable);
     }
 
     /**
@@ -157,7 +145,7 @@ public class CacheStore {
      * @param cacheables The List to store into store.
      * @return List<T> The List that you previously stored in the store.
      */
-    public <T> List<T> addAndReturnList(List<T> cacheables) {
+    public <T> List<T> putList(List<T> cacheables) {
         for (T t : cacheables) {
             if (t instanceof ICacheValue) {
                 this.store.put(((ICacheValue) t).getKey(), (ICacheValue) t);
@@ -171,8 +159,8 @@ public class CacheStore {
      *
      * @param cacheable The Cacheable Object.
      */
-    public void remove(ICacheValue cacheable) {
-        this.store.remove(cacheable.getKey());
+    public ICacheValue remove(ICacheValue cacheable) {
+        return this.store.remove(cacheable.getKey());
     }
 
     /**
@@ -181,7 +169,7 @@ public class CacheStore {
      * @param clazz The class which instances should be removed.
      */
     public <T> void removeAll(Class<T> clazz) {
-        List<T> list = toArray(clazz);
+        List<T> list = toList(clazz);
 
         for (T t : list) {
             if (t instanceof ICacheValue) {
@@ -195,8 +183,8 @@ public class CacheStore {
      *
      * @return The List of Cacheable objects.
      */
-    public List<ICacheValue> toArray() {
-        return (List<ICacheValue>) this.store.snapshot().values();
+    public Collection<ICacheValue> toList() {
+        return this.store.snapshot().values();
     }
 
     /**
@@ -206,7 +194,7 @@ public class CacheStore {
      * @return The List of stored objects.
      */
     @SuppressWarnings("unchecked")
-    public <T> List<T> toArray(Class<T> clazz) {
+    public <T> List<T> toList(Class<T> clazz) {
         List<T> list = new ArrayList<T>();
 
         for (ICacheValue cacheable : this.store.snapshot().values()) {
@@ -217,20 +205,33 @@ public class CacheStore {
         return list;
     }
 
-    /**
-     * Returns a COPY of all the stored Cacheable objects in primitive array.
-     *
-     * @return The array of stored objects.
-     */
-    public ICacheValue[] toPrimitiveArray() {
-        return (ICacheValue[]) this.store.snapshot().values().toArray();
+    @Override
+    public ICacheValue put(String key, ICacheValue value) {
+        return this.store.put(key, value);
     }
 
-    /**
-     * Clears all the store.
-     */
-    public void clearCache() {
+    @Override
+    public ICacheValue remove(String key) {
+        return this.store.remove(key);
+    }
+
+    @Override
+    public void clear() {
         this.store.clear();
     }
 
+    @Override
+    public int size() {
+        return this.store.size();
+    }
+
+    @Override
+    public int maxSize() {
+        return this.store.maxSize();
+    }
+
+    @Override
+    public Map<String, ICacheValue> snapshot() {
+        return this.store.snapshot();
+    }
 }
