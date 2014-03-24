@@ -372,6 +372,10 @@ public final class AndroidUtils {
         context.sendBroadcast(intent);
     }
 
+    public static boolean isMediaMounted() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
     // 魅族开发指南推荐的判断是否存在SmartBar的方法
     public static boolean hasSmartBar() {
         try {

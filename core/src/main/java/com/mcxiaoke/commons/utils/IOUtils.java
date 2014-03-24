@@ -83,7 +83,8 @@ public final class IOUtils {
     /**
      * The system line separator string.
      */
-    public static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    ;
 
     /**
      * The default buffer size ({@value}) to use for
@@ -190,6 +191,10 @@ public final class IOUtils {
 
     // read toByteArray
     //-----------------------------------------------------------------------
+
+    public static byte[] toByteArray(File file) throws IOException {
+        return toByteArray(new FileInputStream(file));
+    }
 
     /**
      * Get the contents of an <code>InputStream</code> as a <code>byte[]</code>.
@@ -865,7 +870,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(byte[] data, OutputStream output)
+    public static void writeTo(byte[] data, OutputStream output)
             throws IOException {
         if (data != null) {
             output.write(data);
@@ -885,8 +890,8 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(byte[] data, Writer output) throws IOException {
-        write(data, output, Charset.defaultCharset());
+    public static void writeTo(byte[] data, Writer output) throws IOException {
+        writeTo(data, output, Charset.defaultCharset());
     }
 
     /**
@@ -903,7 +908,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.3
      */
-    public static void write(byte[] data, Writer output, Charset encoding) throws IOException {
+    public static void writeTo(byte[] data, Writer output, Charset encoding) throws IOException {
         if (data != null) {
             output.write(new String(data, Charsets.toCharset(encoding)));
         }
@@ -928,8 +933,8 @@ public final class IOUtils {
      *                                                      supported.
      * @since 1.1
      */
-    public static void write(byte[] data, Writer output, String encoding) throws IOException {
-        write(data, output, Charsets.toCharset(encoding));
+    public static void writeTo(byte[] data, Writer output, String encoding) throws IOException {
+        writeTo(data, output, Charsets.toCharset(encoding));
     }
 
     // write char[]
@@ -946,7 +951,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(char[] data, Writer output) throws IOException {
+    public static void writeTo(char[] data, Writer output) throws IOException {
         if (data != null) {
             output.write(data);
         }
@@ -966,9 +971,9 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(char[] data, OutputStream output)
+    public static void writeTo(char[] data, OutputStream output)
             throws IOException {
-        write(data, output, Charset.defaultCharset());
+        writeTo(data, output, Charset.defaultCharset());
     }
 
     /**
@@ -986,7 +991,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.3
      */
-    public static void write(char[] data, OutputStream output, Charset encoding) throws IOException {
+    public static void writeTo(char[] data, OutputStream output, Charset encoding) throws IOException {
         if (data != null) {
             output.write(new String(data).getBytes(Charsets.toCharset(encoding)));
         }
@@ -1012,9 +1017,9 @@ public final class IOUtils {
      *                                                      supported.
      * @since 1.1
      */
-    public static void write(char[] data, OutputStream output, String encoding)
+    public static void writeTo(char[] data, OutputStream output, String encoding)
             throws IOException {
-        write(data, output, Charsets.toCharset(encoding));
+        writeTo(data, output, Charsets.toCharset(encoding));
     }
 
     // write CharSequence
@@ -1029,9 +1034,9 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.0
      */
-    public static void write(CharSequence data, Writer output) throws IOException {
+    public static void writeTo(CharSequence data, Writer output) throws IOException {
         if (data != null) {
-            write(data.toString(), output);
+            writeTo(data.toString(), output);
         }
     }
 
@@ -1048,9 +1053,9 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.0
      */
-    public static void write(CharSequence data, OutputStream output)
+    public static void writeTo(CharSequence data, OutputStream output)
             throws IOException {
-        write(data, output, Charset.defaultCharset());
+        writeTo(data, output, Charset.defaultCharset());
     }
 
     /**
@@ -1066,9 +1071,9 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.3
      */
-    public static void write(CharSequence data, OutputStream output, Charset encoding) throws IOException {
+    public static void writeTo(CharSequence data, OutputStream output, Charset encoding) throws IOException {
         if (data != null) {
-            write(data.toString(), output, encoding);
+            writeTo(data.toString(), output, encoding);
         }
     }
 
@@ -1090,8 +1095,8 @@ public final class IOUtils {
      *                                                      supported.
      * @since 2.0
      */
-    public static void write(CharSequence data, OutputStream output, String encoding) throws IOException {
-        write(data, output, Charsets.toCharset(encoding));
+    public static void writeTo(CharSequence data, OutputStream output, String encoding) throws IOException {
+        writeTo(data, output, Charsets.toCharset(encoding));
     }
 
     // write String
@@ -1106,7 +1111,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(String data, Writer output) throws IOException {
+    public static void writeTo(String data, Writer output) throws IOException {
         if (data != null) {
             output.write(data);
         }
@@ -1125,9 +1130,9 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 1.1
      */
-    public static void write(String data, OutputStream output)
+    public static void writeTo(String data, OutputStream output)
             throws IOException {
-        write(data, output, Charset.defaultCharset());
+        writeTo(data, output, Charset.defaultCharset());
     }
 
     /**
@@ -1143,7 +1148,7 @@ public final class IOUtils {
      * @throws java.io.IOException  if an I/O error occurs
      * @since 2.3
      */
-    public static void write(String data, OutputStream output, Charset encoding) throws IOException {
+    public static void writeTo(String data, OutputStream output, Charset encoding) throws IOException {
         if (data != null) {
             output.write(data.getBytes(Charsets.toCharset(encoding)));
         }
@@ -1167,76 +1172,9 @@ public final class IOUtils {
      *                                                      supported.
      * @since 1.1
      */
-    public static void write(String data, OutputStream output, String encoding)
+    public static void writeTo(String data, OutputStream output, String encoding)
             throws IOException {
-        write(data, output, Charsets.toCharset(encoding));
-    }
-
-    // write StringBuffer
-    //-----------------------------------------------------------------------
-
-    /**
-     * Writes chars from a <code>StringBuffer</code> to a <code>Writer</code>.
-     *
-     * @param data   the <code>StringBuffer</code> to write, null ignored
-     * @param output the <code>Writer</code> to write to
-     * @throws NullPointerException if output is null
-     * @throws java.io.IOException  if an I/O error occurs
-     * @since 1.1
-     * @deprecated replaced by write(CharSequence, Writer)
-     */
-    @Deprecated
-    public static void write(StringBuffer data, Writer output)
-            throws IOException {
-        if (data != null) {
-            output.write(data.toString());
-        }
-    }
-
-    /**
-     * Writes chars from a <code>StringBuffer</code> to bytes on an
-     * <code>OutputStream</code> using the default character encoding of the
-     * platform.
-     * <p/>
-     * This method uses {@link String#getBytes()}.
-     *
-     * @param data   the <code>StringBuffer</code> to write, null ignored
-     * @param output the <code>OutputStream</code> to write to
-     * @throws NullPointerException if output is null
-     * @throws java.io.IOException  if an I/O error occurs
-     * @since 1.1
-     * @deprecated replaced by write(CharSequence, OutputStream)
-     */
-    @Deprecated
-    public static void write(StringBuffer data, OutputStream output)
-            throws IOException {
-        write(data, output, (String) null);
-    }
-
-    /**
-     * Writes chars from a <code>StringBuffer</code> to bytes on an
-     * <code>OutputStream</code> using the specified character encoding.
-     * <p/>
-     * Character encoding names can be found at
-     * <a href="http://www.iana.org/assignments/character-sets">IANA</a>.
-     * <p/>
-     * This method uses {@link String#getBytes(String)}.
-     *
-     * @param data     the <code>StringBuffer</code> to write, null ignored
-     * @param output   the <code>OutputStream</code> to write to
-     * @param encoding the encoding to use, null means platform default
-     * @throws NullPointerException                         if output is null
-     * @throws java.io.IOException                          if an I/O error occurs
-     * @throws java.nio.charset.UnsupportedCharsetException thrown instead of {@link java.io.UnsupportedEncodingException} in version 2.2 if the encoding is not
-     *                                                      supported.
-     * @since 1.1
-     * @deprecated replaced by write(CharSequence, OutputStream, String)
-     */
-    @Deprecated
-    public static void write(StringBuffer data, OutputStream output, String encoding) throws IOException {
-        if (data != null) {
-            output.write(data.toString().getBytes(Charsets.toCharset(encoding)));
-        }
+        writeTo(data, output, Charsets.toCharset(encoding));
     }
 
     // writeLines
@@ -2225,8 +2163,19 @@ public final class IOUtils {
         }
     }
 
-
     public final static String FILE_EXTENSION_SEPARATOR = ".";
+
+    public static String readString(String filePath, Charset charset) {
+        return readString(new File(filePath), charset.name());
+    }
+
+    public static String readString(String filePath, String charsetName) {
+        return readString(new File(filePath), charsetName);
+    }
+
+    public static String readString(File file, Charset charset) {
+        return readString(file, charset.name());
+    }
 
     /**
      * read file
@@ -2236,12 +2185,11 @@ public final class IOUtils {
      * @return if file not exist, return null, else return content of file
      * @throws RuntimeException if an error occurs while operator BufferedReader
      */
-    public static StringBuilder readString(String filePath, String charsetName) {
-        File file = new File(filePath);
-        StringBuilder fileContent = new StringBuilder("");
+    public static String readString(File file, String charsetName) {
         if (file == null || !file.isFile()) {
             return null;
         }
+        StringBuilder fileContent = new StringBuilder();
 
         BufferedReader reader = null;
         try {
@@ -2255,12 +2203,16 @@ public final class IOUtils {
                 fileContent.append(line);
             }
             reader.close();
-            return fileContent;
+            return fileContent.toString();
         } catch (IOException e) {
             throw new RuntimeException("IOException occurred. ", e);
         } finally {
             closeQuietly(reader);
         }
+    }
+
+    public static boolean writeString(String filePath, String content) {
+        return writeString(filePath, content, false);
     }
 
     /**
@@ -2273,10 +2225,17 @@ public final class IOUtils {
      * @throws RuntimeException if an error occurs while operator FileWriter
      */
     public static boolean writeString(String filePath, String content, boolean append) {
+        return writeString(filePath != null ? new File(filePath) : null, content, append);
+    }
+
+    public static boolean writeString(File file, String content) {
+        return writeString(file, content, false);
+    }
+
+    public static boolean writeString(File file, String content, boolean append) {
         FileWriter fileWriter = null;
         try {
-            makeDirs(filePath);
-            fileWriter = new FileWriter(filePath, append);
+            fileWriter = new FileWriter(file, append);
             fileWriter.write(content);
             fileWriter.close();
             return true;
@@ -2287,6 +2246,7 @@ public final class IOUtils {
         }
     }
 
+
     /**
      * write file
      *
@@ -2295,8 +2255,8 @@ public final class IOUtils {
      * @return
      * @see {@link #writeFile(String, InputStream, boolean)}
      */
-    public static boolean writeString(String filePath, InputStream stream) {
-        return writeString(filePath, stream, false);
+    public static boolean writeStream(String filePath, InputStream stream) {
+        return writeStream(filePath, stream, false);
     }
 
     /**
@@ -2308,8 +2268,8 @@ public final class IOUtils {
      * @return return true
      * @throws RuntimeException if an error occurs while operator FileOutputStream
      */
-    public static boolean writeString(String filePath, InputStream stream, boolean append) {
-        return writeString(filePath != null ? new File(filePath) : null, stream, append);
+    public static boolean writeStream(String filePath, InputStream stream, boolean append) {
+        return writeStream(filePath != null ? new File(filePath) : null, stream, append);
     }
 
     /**
@@ -2320,8 +2280,8 @@ public final class IOUtils {
      * @return
      * @see {@link #writeFile(File, InputStream, boolean)}
      */
-    public static boolean writeString(File file, InputStream stream) {
-        return writeString(file, stream, false);
+    public static boolean writeStream(File file, InputStream stream) {
+        return writeStream(file, stream, false);
     }
 
     /**
@@ -2333,7 +2293,7 @@ public final class IOUtils {
      * @return return true
      * @throws RuntimeException if an error occurs while operator FileOutputStream
      */
-    public static boolean writeString(File file, InputStream stream, boolean append) {
+    public static boolean writeStream(File file, InputStream stream, boolean append) {
         OutputStream o = null;
         try {
             makeDirs(file.getAbsolutePath());
@@ -2352,6 +2312,27 @@ public final class IOUtils {
         } finally {
             closeQuietly(o);
             closeQuietly(stream);
+        }
+    }
+
+    public static boolean writeBytes(File file, byte[] data) {
+        return writeBytes(file, data, false);
+    }
+
+    public static boolean writeBytes(File file, byte[] data, boolean append) {
+        OutputStream o = null;
+        try {
+            makeDirs(file.getAbsolutePath());
+            o = new FileOutputStream(file, append);
+            o.write(data);
+            o.flush();
+            return true;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("FileNotFoundException occurred. ", e);
+        } catch (IOException e) {
+            throw new RuntimeException("IOException occurred. ", e);
+        } finally {
+            closeQuietly(o);
         }
     }
 
