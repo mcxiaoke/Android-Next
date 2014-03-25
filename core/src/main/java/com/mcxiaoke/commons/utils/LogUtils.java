@@ -87,7 +87,7 @@ public final class LogUtils {
 
     public void clearLogFiles(Context context) {
         File logDir = createFileLogDir(context);
-        IOUtils.deleteFile(logDir.getPath());
+        IOUtils.delete(logDir.getPath());
     }
 
     public void clearLogFilesAsync(final Context context) {

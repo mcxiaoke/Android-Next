@@ -807,10 +807,10 @@ public abstract class StringUtils {
      * Parse the given <code>localeString</code> value into a {@link java.util.Locale}.
      * <p/>
      * This is the inverse operation of {@link java.util.Locale#toString Locale's
-     * toString}.
+     * readString}.
      *
      * @param localeString the locale string, following <code>Locale's</code>
-     *                     <code>toString()</code> format ("en", "en_UK", etc); also
+     *                     <code>readString()</code> format ("en", "en_UK", etc); also
      *                     accepts spaces as separators, as an alternative to underscores
      * @return a corresponding <code>Locale</code> instance
      */
@@ -1254,7 +1254,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a Collection as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>toString()</code> implementations.
+     * String. E.g. useful for <code>readString()</code> implementations.
      *
      * @param coll   the Collection to display
      * @param delim  the delimiter to use (probably a ",")
@@ -1298,7 +1298,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a Collection as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>toString()</code> implementations.
+     * String. E.g. useful for <code>readString()</code> implementations.
      *
      * @param coll  the Collection to display
      * @param delim the delimiter to use (probably a ",")
@@ -1316,7 +1316,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a Collection as a CSV String. E.g. useful
-     * for <code>toString()</code> implementations.
+     * for <code>readString()</code> implementations.
      *
      * @param coll the Collection to display
      * @return the delimited String
@@ -1331,7 +1331,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a String array as a delimited (e.g. CSV)
-     * String. E.g. useful for <code>toString()</code> implementations.
+     * String. E.g. useful for <code>readString()</code> implementations.
      *
      * @param arr   the array to display
      * @param delim the delimiter to use (probably a ",")
@@ -1356,7 +1356,7 @@ public abstract class StringUtils {
 
     /**
      * Convenience method to return a String array as a CSV String. E.g. useful
-     * for <code>toString()</code> implementations.
+     * for <code>readString()</code> implementations.
      *
      * @param arr the array to display
      * @return the delimited String

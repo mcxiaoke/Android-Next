@@ -88,7 +88,7 @@ public class FileCache implements IDiscCache {
             return null;
         }
         try {
-            return IOUtils.toByteArray(new FileInputStream(file));
+            return IOUtils.readBytes(new FileInputStream(file));
         } catch (IOException e) {
             return null;
         }

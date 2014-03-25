@@ -372,12 +372,12 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Determine whether the given method is a "toString" method.
+     * Determine whether the given method is a "readString" method.
      *
      * @see Object#toString()
      */
     public static boolean isToStringMethod(Method method) {
-        return (method != null && method.getName().equals("toString") && method.getParameterTypes().length == 0);
+        return (method != null && method.getName().equals("readString") && method.getParameterTypes().length == 0);
     }
 
     /**

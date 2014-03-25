@@ -168,9 +168,9 @@ public class BoundedInputStream extends InputStream {
     }
 
     /**
-     * Invokes the delegate's <code>toString()</code> method.
+     * Invokes the delegate's <code>readString()</code> method.
      *
-     * @return the delegate's <code>toString()</code>
+     * @return the delegate's <code>readString()</code>
      */
     @Override
     public String toString() {

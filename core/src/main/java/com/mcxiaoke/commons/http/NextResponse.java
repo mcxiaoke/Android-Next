@@ -98,7 +98,7 @@ public class NextResponse implements Closeable {
     public byte[] getAsBytes() throws IOException {
         if (content == null) {
             try {
-                content = IOUtils.toByteArray(stream);
+                content = IOUtils.readBytes(stream);
             } finally {
                 consumed = true;
                 IOUtils.closeQuietly(stream);
