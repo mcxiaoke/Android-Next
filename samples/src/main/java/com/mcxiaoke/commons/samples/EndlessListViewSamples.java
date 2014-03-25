@@ -76,10 +76,10 @@ public class EndlessListViewSamples extends BaseActivity {
                 return buildData();
             }
         };
-        final NextExecutor.ResultCallback<List<String>> callback = new NextExecutor.SimpleResultCallback<List<String>>() {
+        final NextExecutor.TaskCallback<List<String>> callback = new NextExecutor.SimpleTaskCallback<List<String>>() {
             @Override
-            public void onResultSuccess(List<String> strings, Bundle extras, Object object) {
-                super.onResultSuccess(strings, extras, object);
+            public void onTaskSuccess(List<String> strings, Bundle extras, Object object) {
+                super.onTaskSuccess(strings, extras, object);
                 if (strings != null) {
                     mArrayAdapter.addAll(strings);
                     mEndlessListView.showFooterEmpty();
@@ -90,8 +90,8 @@ public class EndlessListViewSamples extends BaseActivity {
             }
 
             @Override
-            public void onResultFailure(Throwable e, Bundle extras) {
-                super.onResultFailure(e, extras);
+            public void onTaskFailure(Throwable e, Bundle extras) {
+                super.onTaskFailure(e, extras);
                 mEndlessListView.showFooterEmpty();
             }
         };

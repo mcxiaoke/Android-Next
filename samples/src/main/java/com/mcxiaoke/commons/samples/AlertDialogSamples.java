@@ -96,16 +96,16 @@ public class AlertDialogSamples extends BaseActivity {
                 return response.getAsAsString();
             }
         };
-        final NextExecutor.ResultCallback<String> callback = new NextExecutor.SimpleResultCallback<String>() {
+        final NextExecutor.TaskCallback<String> callback = new NextExecutor.SimpleTaskCallback<String>() {
             @Override
-            public void onResultSuccess(String s, Bundle extras, Object object) {
-                super.onResultSuccess(s, extras, object);
+            public void onTaskSuccess(String s, Bundle extras, Object object) {
+                super.onTaskSuccess(s, extras, object);
                 Log.w(TAG, s);
             }
 
             @Override
-            public void onResultFailure(Throwable e, Bundle extras) {
-                super.onResultFailure(e, extras);
+            public void onTaskFailure(Throwable e, Bundle extras) {
+                super.onTaskFailure(e, extras);
                 Log.e(TAG, e.toString());
             }
         };

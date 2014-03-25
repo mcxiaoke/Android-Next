@@ -19,10 +19,10 @@ import java.util.concurrent.Future;
 /**
  * 一个用于执行异步任务的类，单例，支持检查Caller，支持按照Caller和Tag取消对应的任务
  * User: mcxiaoke
- * Date: 2013-7-1 2013-7-25 2014-03-04
+ * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25
  */
 public final class NextExecutor {
-    public static final String SEPARATOR = "$$$$";
+    public static final String SEPARATOR = "::::";
     public static final String TAG = NextExecutor.class.getSimpleName();
 
     private final Object mLock = new Object();
@@ -75,21 +75,15 @@ public final class NextExecutor {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的TAG，可用于取消任务
      */
-    public <Result, Caller> String add(final Callable<Result> callable, final ResultCallback<Result> callback, final Caller caller) {
+    public <Result, Caller> String add(final Callable<Result> callable, final TaskCallback<Result> callback, final Caller caller) {
         checkArguments(callable, caller);
         // 保存Caller对象的WeakReference，用于后面检查Caller是否存在
         final WeakReference<Caller> weakTarget = new WeakReference<Caller>(caller);
         final String tag = buildTag(caller);
-        if (mDebug) {
-            LogUtils.v(TAG, "add() callable=" + callable + " callback=" + callback + " caller=" + caller);
-        }
         final NextDispatcher dispatcher = new NextDispatcher(tag) {
             @Override
             public void run() {
                 try {
-                    if (mDebug) {
-                        LogUtils.v(TAG, "add() start");
-                    }
                     Result result = callable.call();
 
                     if (isCancelled()) {
@@ -132,9 +126,6 @@ public final class NextExecutor {
                 } finally {
                     handleFinally(tag);
                 }
-                if (mDebug) {
-                    LogUtils.v(TAG, "add() end");
-                }
             }
         };
         return execute(tag, dispatcher);
@@ -150,7 +141,7 @@ public final class NextExecutor {
      * @return Tag
      */
     public <Result, Caller> String add(final Callable<Result> callable, final Caller caller) {
-        return add(callable, new SimpleResultCallback<Result>() {
+        return add(callable, new SimpleTaskCallback<Result>() {
         }, caller);
     }
 
@@ -392,7 +383,7 @@ public final class NextExecutor {
      * @param callback 任务回调接口
      * @param <Result> 类型参数，任务结果类型
      */
-    private <Result> void dispatchTaskSuccess(final Result result, final ResultCallback<Result> callback) {
+    private <Result> void dispatchTaskSuccess(final Result result, final TaskCallback<Result> callback) {
         if (mDebug) {
             LogUtils.v(TAG, "dispatchTaskSuccess() result=" + result + " callback=" + callback);
         }
@@ -400,7 +391,7 @@ public final class NextExecutor {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onResultSuccess(result, null, null);
+                    callback.onTaskSuccess(result, null, null);
                 }
             }
         });
@@ -414,7 +405,7 @@ public final class NextExecutor {
      * @param callback  任务回调接口
      * @param <Result>  类型参数，任务结果类型
      */
-    private <Result> void dispatchTaskFailure(final Exception exception, final ResultCallback<Result> callback) {
+    private <Result> void dispatchTaskFailure(final Exception exception, final TaskCallback<Result> callback) {
         if (mDebug) {
             LogUtils.v(TAG, "dispatchTaskFailure() exception=" + exception + " callback=" + callback);
         }
@@ -422,7 +413,7 @@ public final class NextExecutor {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onResultFailure(exception, null);
+                    callback.onTaskFailure(exception, null);
                 }
             }
         });
@@ -468,9 +459,6 @@ public final class NextExecutor {
      * 检查并初始化Handler
      */
     private void ensureHandler() {
-        if (mDebug) {
-            LogUtils.v(TAG, "ensureHandler()");
-        }
         if (mUiHandler == null) {
             mUiHandler = new Handler(Looper.getMainLooper());
         }
@@ -480,9 +468,6 @@ public final class NextExecutor {
      * 关闭Executor
      */
     private void destroyExecutor() {
-        if (mDebug) {
-            LogUtils.v(TAG, "destroyExecutor()");
-        }
         if (mExecutor != null) {
             mExecutor.shutdownNow();
             mExecutor = null;
@@ -493,9 +478,6 @@ public final class NextExecutor {
      * 关闭Handler
      */
     private void destroyHandler() {
-        if (mDebug) {
-            LogUtils.v(TAG, "destroyHandler()");
-        }
         synchronized (mLock) {
             if (mUiHandler != null) {
                 mUiHandler.removeCallbacksAndMessages(null);
@@ -526,7 +508,7 @@ public final class NextExecutor {
         String className = caller.getClass().getName();
         long hashCode = System.identityHashCode(caller);
         StringBuilder builder = new StringBuilder();
-        builder.append(hashCode).append(SEPARATOR).append(className).append(SEPARATOR);
+        builder.append(className).append(SEPARATOR).append(hashCode).append(SEPARATOR);
         return builder;
     }
 
@@ -607,7 +589,7 @@ public final class NextExecutor {
      *
      * @param <Result> 类型参数，任务执行结果
      */
-    public static interface ResultCallback<Result> {
+    public static interface TaskCallback<Result> {
 
         /**
          * 回调，任务执行完成
@@ -616,7 +598,7 @@ public final class NextExecutor {
          * @param extras 附加结果，需要返回多种结果时会用到
          * @param object 附加结果，需要返回多种结果时会用到
          */
-        public void onResultSuccess(Result result, Bundle extras, Object object);
+        public void onTaskSuccess(Result result, Bundle extras, Object object);
 
         /**
          * 回调，任务执行失败
@@ -624,7 +606,7 @@ public final class NextExecutor {
          * @param e      失败原因，异常
          * @param extras 附加结果，需要返回额外的信息时会用到
          */
-        public void onResultFailure(Throwable e, Bundle extras);
+        public void onTaskFailure(Throwable e, Bundle extras);
 
     }
 
@@ -633,14 +615,14 @@ public final class NextExecutor {
      *
      * @param <Result> 类型参数，执行结果类型
      */
-    public static abstract class SimpleResultCallback<Result> implements ResultCallback<Result> {
+    public static abstract class SimpleTaskCallback<Result> implements TaskCallback<Result> {
 
         @Override
-        public void onResultSuccess(Result result, Bundle extras, Object object) {
+        public void onTaskSuccess(Result result, Bundle extras, Object object) {
         }
 
         @Override
-        public void onResultFailure(Throwable e, Bundle extras) {
+        public void onTaskFailure(Throwable e, Bundle extras) {
         }
 
     }
