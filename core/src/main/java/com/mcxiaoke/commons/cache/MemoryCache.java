@@ -9,12 +9,12 @@ import java.util.Map;
 /**
  * This class is  to save, restore, remove and return your cached objects.
  */
-public class CacheStore implements ICache<String, ICacheValue> {
+public class MemoryCache implements IMemoryCache<String, ICacheValue> {
 
-    ICache<String, ICacheValue> store;
+    IMemoryCache<String, ICacheValue> store;
 
     // Private constructor prevents instantiation from other classes
-    private CacheStore() {
+    private MemoryCache() {
         setDefault();
     }
 
@@ -30,7 +30,7 @@ public class CacheStore implements ICache<String, ICacheValue> {
      * or the first access to SingletonHolder.DEFAULT, not before.
      */
     private static class SingletonHolder {
-        public static final CacheStore DEFAULT = new CacheStore();
+        public static final MemoryCache DEFAULT = new MemoryCache();
     }
 
     /**
@@ -38,7 +38,7 @@ public class CacheStore implements ICache<String, ICacheValue> {
      *
      * @return Cache
      */
-    public static CacheStore getDefault() {
+    public static MemoryCache getDefault() {
         return SingletonHolder.DEFAULT;
     }
 
@@ -47,7 +47,7 @@ public class CacheStore implements ICache<String, ICacheValue> {
      *
      * @return the Cache object.
      */
-    private ICache<String, ICacheValue> getCache() {
+    private IMemoryCache<String, ICacheValue> getCache() {
         return store;
     }
 
@@ -114,7 +114,7 @@ public class CacheStore implements ICache<String, ICacheValue> {
      *
      * @param cache The new Cache
      */
-    private void setCache(ICache<String, ICacheValue> cache) {
+    private void setCache(IMemoryCache<String, ICacheValue> cache) {
         this.store = cache;
     }
 

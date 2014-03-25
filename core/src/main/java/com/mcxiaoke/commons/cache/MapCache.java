@@ -8,7 +8,7 @@ import java.util.Map;
  * Date: 14-3-21
  * Time: 17:21
  */
-class MapCache<K, V> implements ICache<K, V> {
+class MapCache<K, V> implements IMemoryCache<K, V> {
     private Map<K, V> cache;
 
     public MapCache() {

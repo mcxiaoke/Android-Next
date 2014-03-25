@@ -7,7 +7,7 @@ import java.util.Map;
  * Date: 14-3-21
  * Time: 17:18
  */
-public interface ICache<K, V> {
+public interface IMemoryCache<K, V> {
     /**
      * Returns the value for {@code key} if it exists in the cache or can be
      * created by {@code #create}. If a value was returned, it is moved to the

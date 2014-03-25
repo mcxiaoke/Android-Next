@@ -7,7 +7,7 @@ import java.util.Map;
  * Date: 14-3-21
  * Time: 17:21
  */
-class LruCache<K, V> implements ICache<K, V> {
+class LruCache<K, V> implements IMemoryCache<K, V> {
     private android.support.v4.util.LruCache<K, V> cache;
 
     public LruCache(int maxSize) {

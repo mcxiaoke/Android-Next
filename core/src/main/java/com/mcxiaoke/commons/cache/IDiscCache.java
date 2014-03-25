@@ -16,7 +16,10 @@
 package com.mcxiaoke.commons.cache;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
 
 public interface IDiscCache {
 
@@ -26,13 +29,19 @@ public interface IDiscCache {
 
     void put(String key, String text);
 
+    void put(String key, Collection<?> collection);
+
     String get(String key);
 
     File getFile(String key);
 
     byte[] getBytes(String key);
 
-    File remove(String key);
+    List<String> getList(String key);
+
+    boolean remove(String key);
 
     void clear();
+
+    int trim(FileFilter filter);
 }

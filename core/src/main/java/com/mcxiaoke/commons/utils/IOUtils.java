@@ -27,6 +27,7 @@ import java.io.CharArrayWriter;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -476,46 +477,93 @@ public final class IOUtils {
     // writeList
     //-----------------------------------------------------------------------
 
-    public static void writeList(Collection<?> lines, String lineEnding,
-                                 OutputStream output) throws IOException {
-        writeList(lines, lineEnding, output, Charset.defaultCharset());
+    public static void writeList(Collection<?> lines,
+                                 String filePath) throws IOException {
+        writeList(lines, filePath, Charset.defaultCharset());
     }
 
-    public static void writeList(Collection<?> lines, String lineEnding, OutputStream output, Charset encoding)
+    public static void writeList(Collection<?> lines,
+                                 File file) throws IOException {
+        writeList(lines, file, Charset.defaultCharset());
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 String filePath, String encoding) throws IOException {
+        writeList(lines, filePath, Charsets.toCharset(encoding));
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 File file, String encoding) throws IOException {
+        writeList(lines, file, Charsets.toCharset(encoding));
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 String filePath, Charset charset) throws IOException {
+        FileOutputStream fos = new FileOutputStream(filePath);
+        writeList(lines, fos, charset);
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 File file, Charset charset) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        writeList(lines, fos, charset);
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 OutputStream output) throws IOException {
+        writeList(lines, output, Charset.defaultCharset());
+    }
+
+    public static void writeList(Collection<?> lines, OutputStream output, String encoding)
+            throws IOException {
+        writeList(lines, output, Charsets.toCharset(encoding));
+    }
+
+    public static void writeList(Collection<?> lines, OutputStream output, Charset encoding)
+            throws IOException {
+        writeList(lines, output, encoding, LINE_SEPARATOR);
+    }
+
+    public static void writeList(Collection<?> lines,
+                                 OutputStream output, String encoding, String lineSeparator) throws IOException {
+        writeList(lines, output, Charsets.toCharset(encoding), lineSeparator);
+    }
+
+    public static void writeList(Collection<?> lines, OutputStream output, Charset encoding, String lineSeparator)
             throws IOException {
         if (lines == null) {
             return;
         }
-        if (lineEnding == null) {
-            lineEnding = LINE_SEPARATOR;
+        if (lineSeparator == null) {
+            lineSeparator = LINE_SEPARATOR;
         }
         Charset cs = Charsets.toCharset(encoding);
         for (Object line : lines) {
             if (line != null) {
                 output.write(line.toString().getBytes(cs));
             }
-            output.write(lineEnding.getBytes(cs));
+            output.write(lineSeparator.getBytes(cs));
         }
     }
 
-    public static void writeList(Collection<?> lines, String lineEnding,
-                                 OutputStream output, String encoding) throws IOException {
-        writeList(lines, lineEnding, output, Charsets.toCharset(encoding));
+    public static void writeList(Collection<?> lines,
+                                 Writer writer) throws IOException {
+        writeList(lines, LINE_SEPARATOR, writer);
     }
 
-    public static void writeList(Collection<?> lines, String lineEnding,
+    public static void writeList(Collection<?> lines, String lineSeparator,
                                  Writer writer) throws IOException {
         if (lines == null) {
             return;
         }
-        if (lineEnding == null) {
-            lineEnding = LINE_SEPARATOR;
+        if (lineSeparator == null) {
+            lineSeparator = LINE_SEPARATOR;
         }
         for (Object line : lines) {
             if (line != null) {
                 writer.write(line.toString());
             }
-            writer.write(lineEnding);
+            writer.write(lineSeparator);
         }
     }
 
@@ -1134,51 +1182,6 @@ public final class IOUtils {
         }
     }
 
-    public static List<String> readLines(String filePath, String encoding) throws IOException {
-        return readLines(filePath, Charset.forName(encoding));
-    }
-
-    public static List<String> readLines(String filePath, Charset charset) throws IOException {
-        if (StringUtils.isEmpty(filePath)) {
-            return null;
-        }
-        File file = new File(filePath);
-        return readLines(file, charset);
-    }
-
-    public static List<String> readLines(File file, String encoding) throws IOException {
-        return readLines(file, Charset.forName(encoding));
-    }
-
-    /**
-     * read file to string list, a element of list is a line
-     *
-     * @param file     file
-     * @param encoding The name of a supported {@link java.nio.charset.Charset </code>charset<code>}
-     * @return if file not exist, return null, else return content of file
-     * @throws IOException if an error occurs while operator BufferedReader
-     */
-    public static List<String> readLines(File file, Charset charset) throws IOException {
-        List<String> lines = new ArrayList<String>();
-        if (file == null || !file.isFile()) {
-            return null;
-        }
-
-        BufferedReader reader = null;
-        try {
-            InputStreamReader is = new InputStreamReader(new FileInputStream(file), charset);
-            reader = new BufferedReader(is);
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-            reader.close();
-            return lines;
-        } finally {
-            closeQuietly(reader);
-        }
-    }
-
     /**
      * get file name from path, not include suffix
      * <p/>
@@ -1434,4 +1437,7 @@ public final class IOUtils {
         File file = new File(path);
         return (file.exists() && file.isFile() ? file.length() : -1);
     }
+
+    private static final String RESERVED_CHARS = "|\\?*<\":>+[]/'";
+
 }
