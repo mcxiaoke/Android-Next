@@ -1,7 +1,6 @@
 package com.mcxiaoke.commons.cache;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -9,20 +8,13 @@ import java.util.Map;
 /**
  * This class is  to save, restore, remove and return your cached objects.
  */
-public class MemoryCache implements IMemoryCache<String, ICacheValue> {
+public class MemoryCache implements IMemoryCache<String, Object> {
 
-    IMemoryCache<String, ICacheValue> store;
+    IMemoryCache<String, Object> mCacheStore;
 
     // Private constructor prevents instantiation from other classes
-    private MemoryCache() {
-        setDefault();
-    }
-
-    private void setDefault() {
-//        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        // Use 1/8th of the available memory for this memory store.
-//        final int cacheSize = maxMemory / 8;
-        setCache(CacheFactory.createCache());
+    private MemoryCache(IMemoryCache<String, Object> cache) {
+        this.mCacheStore = cache;
     }
 
     /**
@@ -30,7 +22,7 @@ public class MemoryCache implements IMemoryCache<String, ICacheValue> {
      * or the first access to SingletonHolder.DEFAULT, not before.
      */
     private static class SingletonHolder {
-        public static final MemoryCache DEFAULT = new MemoryCache();
+        public static final MemoryCache DEFAULT = new MemoryCache(CacheFactory.createCache());
     }
 
     /**
@@ -42,71 +34,12 @@ public class MemoryCache implements IMemoryCache<String, ICacheValue> {
         return SingletonHolder.DEFAULT;
     }
 
-    /**
-     * Returns the Cache object.
-     *
-     * @return the Cache object.
-     */
-    private IMemoryCache<String, ICacheValue> getCache() {
-        return store;
+    public static MemoryCache create() {
+        return create(CacheFactory.createCache());
     }
 
-    /**
-     * Returns the Cacheable object stored in the store. If the Cacheable Object is not in the store,
-     * it will be saved before return it.
-     *
-     * @param cacheable The Cacheable object that you get from somewhere.
-     * @return The Cacheable object stored in the store.
-     */
-    public ICacheValue get(ICacheValue cacheable) {
-        ICacheValue ce = store.get(cacheable.getKey());
-
-        if (ce == null) {
-            put(cacheable);
-            ce = get(cacheable.getKey());
-        }
-        return ce;
-    }
-
-    /**
-     * Returns the Cacheable object which has the same key value.
-     *
-     * @param key The key value
-     * @return The Cacheable object stored in the store
-     */
-    public ICacheValue get(String key) {
-        return store.get(key);
-    }
-
-    /**
-     * Returns the Object which has the same key value and is stored in the store.
-     *
-     * @param key   The key value
-     * @param clazz The Object's class that you are looking for.
-     * @return The Object that which is stored in the store.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T get(String key, Class<T> clazz) {
-        return (T) store.get(key);
-    }
-
-
-    /**
-     * Returns the Cacheable Object that is stored in the store. If not, it previously will be saved in the store.
-     *
-     * @param cacheable The Cacheable Object that you get from somewhere.
-     * @param clazz     The Object's class that you are looking for.
-     * @return The Cacheable Object that which is stored in the store.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T get(ICacheValue cacheable, Class<T> clazz) {
-        T ce = (T) store.get(cacheable.getKey());
-
-        if (ce == null) {
-            put(cacheable);
-            ce = get(cacheable.getKey(), clazz);
-        }
-        return ce;
+    public static MemoryCache create(IMemoryCache<String, Object> cache) {
+        return new MemoryCache(cache);
     }
 
     /**
@@ -114,78 +47,42 @@ public class MemoryCache implements IMemoryCache<String, ICacheValue> {
      *
      * @param cache The new Cache
      */
-    private void setCache(IMemoryCache<String, ICacheValue> cache) {
-        this.store = cache;
+    private void setCache(IMemoryCache<String, Object> cache) {
+        this.mCacheStore = cache;
+    }
+
+
+    /**
+     * Returns the Cache object.
+     *
+     * @return the Cache object.
+     */
+    private IMemoryCache<String, Object> getCache() {
+        return mCacheStore;
     }
 
     /**
-     * Adds a List of Cacheables into store.
+     * Returns the Cacheable object which has the same key value.
      *
-     * @param cacheables The Cacheable List
+     * @param key The key value
+     * @return The Cacheable object stored in the mCacheStore
      */
-    public void put(List<ICacheValue> cacheables) {
-        for (ICacheValue cacheable : cacheables) {
-            put(cacheable);
-        }
+    public Object get(String key) {
+        return mCacheStore.get(key);
     }
 
     /**
-     * Adds a Cacheable Object into store.
+     * Returns the Object which has the same key value and is stored in the mCacheStore.
      *
-     * @param cacheable Cache
-     * @return The  key
+     * @param key   The key value
+     * @param clazz The Object's class that you are looking for.
+     * @return The Object that which is stored in the mCacheStore.
      */
-    public ICacheValue put(ICacheValue cacheable) {
-        return put(cacheable.getKey(), cacheable);
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key, Class<T> clazz) {
+        return (T) mCacheStore.get(key);
     }
 
-    /**
-     * Adds a List of some class that you need to store. Typically the class will be your Pojo Class.
-     *
-     * @param cacheables The List to store into store.
-     * @return List<T> The List that you previously stored in the store.
-     */
-    public <T> List<T> putList(List<T> cacheables) {
-        for (T t : cacheables) {
-            if (t instanceof ICacheValue) {
-                this.store.put(((ICacheValue) t).getKey(), (ICacheValue) t);
-            }
-        }
-        return cacheables;
-    }
-
-    /**
-     * Removes the Cacheable Object previously stored in the store.
-     *
-     * @param cacheable The Cacheable Object.
-     */
-    public ICacheValue remove(ICacheValue cacheable) {
-        return this.store.remove(cacheable.getKey());
-    }
-
-    /**
-     * Removes all the Cacheable Objects which are instances of clazz.
-     *
-     * @param clazz The class which instances should be removed.
-     */
-    public <T> void removeAll(Class<T> clazz) {
-        List<T> list = toList(clazz);
-
-        for (T t : list) {
-            if (t instanceof ICacheValue) {
-                this.store.remove(((ICacheValue) t).getKey());
-            }
-        }
-    }
-
-    /**
-     * Returns a COPY of all the stored Cacheable objects.
-     *
-     * @return The List of Cacheable objects.
-     */
-    public Collection<ICacheValue> toList() {
-        return this.store.snapshot().values();
-    }
 
     /**
      * Returns a COPY of all the stored objects which are instances of the given class.
@@ -197,7 +94,7 @@ public class MemoryCache implements IMemoryCache<String, ICacheValue> {
     public <T> List<T> toList(Class<T> clazz) {
         List<T> list = new ArrayList<T>();
 
-        for (ICacheValue cacheable : this.store.snapshot().values()) {
+        for (Object cacheable : this.mCacheStore.snapshot().values()) {
             if (clazz.isInstance(cacheable)) {
                 list.add((T) cacheable);
             }
@@ -206,32 +103,32 @@ public class MemoryCache implements IMemoryCache<String, ICacheValue> {
     }
 
     @Override
-    public ICacheValue put(String key, ICacheValue value) {
-        return this.store.put(key, value);
+    public Object put(String key, Object value) {
+        return this.mCacheStore.put(key, value);
     }
 
     @Override
-    public ICacheValue remove(String key) {
-        return this.store.remove(key);
+    public Object remove(String key) {
+        return this.mCacheStore.remove(key);
     }
 
     @Override
     public void clear() {
-        this.store.clear();
+        this.mCacheStore.clear();
     }
 
     @Override
     public int size() {
-        return this.store.size();
+        return this.mCacheStore.size();
     }
 
     @Override
     public int maxSize() {
-        return this.store.maxSize();
+        return this.mCacheStore.maxSize();
     }
 
     @Override
-    public Map<String, ICacheValue> snapshot() {
-        return this.store.snapshot();
+    public Map<String, Object> snapshot() {
+        return this.mCacheStore.snapshot();
     }
 }

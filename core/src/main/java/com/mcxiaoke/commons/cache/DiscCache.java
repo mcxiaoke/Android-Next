@@ -21,26 +21,45 @@ import java.util.List;
  * Time: 18:19
  */
 public class DiscCache implements IDiscCache {
-    public static final String CACHE_DIR_NAME = "disc_cache_store";
+    public static final String DIR_NAME_DEFAULT = "next_disc_cache";
 
     private Context mContext;
     private File mCacheDir;
+    private String mCacheDirName;
     private FileNameGenerator mGenerator = new SimpleFileNameGenerator();
     private Charset mCharset = Charsets.UTF_8;
 
     public DiscCache(Context context) {
-        mContext = context;
-        setCacheDir(null);
+        this(context, DIR_NAME_DEFAULT);
     }
 
-    public DiscCache(Context context, File cacheDir) {
+    public DiscCache(Context context, String cacheDirName) {
         mContext = context;
-        setCacheDir(cacheDir);
+        setCacheDir(cacheDirName);
     }
 
+    /**
+     * 设置缓存文件夹的名字
+     *
+     * @param dirName Dir Name
+     */
+    public void setCacheDir(String dirName) {
+        if (dirName == null) {
+            mCacheDirName = DIR_NAME_DEFAULT;
+        } else {
+            mCacheDirName = dirName;
+        }
+        checkCacheDir(true);
+    }
+
+    /**
+     * 直接设置完整的缓存路径
+     *
+     * @param cacheDir Cache Dir
+     */
     public void setCacheDir(File cacheDir) {
         mCacheDir = cacheDir;
-        checkCacheDir();
+        checkCacheDir(false);
     }
 
     public void setCharset(String charset) {
@@ -57,7 +76,7 @@ public class DiscCache implements IDiscCache {
 
     @Override
     public void put(String key, byte[] data) {
-        checkCacheDir();
+        checkCacheDir(false);
         try {
             IOUtils.writeBytes(getFile(key), data);
         } catch (IOException ignored) {
@@ -66,7 +85,7 @@ public class DiscCache implements IDiscCache {
 
     @Override
     public void put(String key, InputStream stream) {
-        checkCacheDir();
+        checkCacheDir(false);
         try {
             IOUtils.writeStream(getFile(key), stream);
         } catch (IOException ignored) {
@@ -75,7 +94,7 @@ public class DiscCache implements IDiscCache {
 
     @Override
     public void put(String key, String text) {
-        checkCacheDir();
+        checkCacheDir(false);
         try {
             IOUtils.writeString(getFile(key), text);
         } catch (IOException ignored) {
@@ -84,7 +103,7 @@ public class DiscCache implements IDiscCache {
 
     @Override
     public void put(String key, Collection<?> collection) {
-        checkCacheDir();
+        checkCacheDir(false);
         try {
             IOUtils.writeList(collection, getFile(key), mCharset);
         } catch (IOException ignored) {
@@ -137,7 +156,7 @@ public class DiscCache implements IDiscCache {
     @Override
     public void clear() {
         IOUtils.delete(mCacheDir);
-        checkCacheDir();
+        checkCacheDir(false);
     }
 
     @Override
@@ -155,15 +174,15 @@ public class DiscCache implements IDiscCache {
         return count;
     }
 
-    private void checkCacheDir() {
-        if (mCacheDir == null) {
+    private void checkCacheDir(boolean forceSet) {
+        if (mCacheDir == null || forceSet) {
             File baseCacheDir;
             if (AndroidUtils.isMediaMounted()) {
                 baseCacheDir = mContext.getExternalCacheDir();
             } else {
                 baseCacheDir = mContext.getCacheDir();
             }
-            mCacheDir = new File(baseCacheDir, CACHE_DIR_NAME);
+            mCacheDir = new File(baseCacheDir, mCacheDirName);
         }
         if (!mCacheDir.exists()) {
             mCacheDir.mkdirs();

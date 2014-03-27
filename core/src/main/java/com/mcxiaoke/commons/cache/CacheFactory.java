@@ -10,11 +10,11 @@ public final class CacheFactory {
     private CacheFactory() {
     }
 
-    public static IMemoryCache<String, ICacheValue> createLruCache(int maxSize) {
-        return new LruCache<String, ICacheValue>(maxSize);
+    public static IMemoryCache<String, Object> createLruCache(int maxSize) {
+        return new LruCache<String, Object>(maxSize);
     }
 
-    public static IMemoryCache<String, ICacheValue> createCache() {
-        return new MapCache<String, ICacheValue>();
+    public static IMemoryCache<String, Object> createCache() {
+        return new MapCache<String, Object>();
     }
 }
