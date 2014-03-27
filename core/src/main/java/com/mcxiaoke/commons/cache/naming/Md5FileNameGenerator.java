@@ -19,7 +19,7 @@ import com.mcxiaoke.commons.utils.CryptoUtils;
 
 import java.math.BigInteger;
 
-public class MD5FileNameGenerator implements FileNameGenerator {
+public class Md5FileNameGenerator implements FileNameGenerator {
 
     private static final int RADIX = 10 + 26; // 10 digits + 26 letters
 
