@@ -14,12 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.commons.ui.widget.ArrayAdapterCompat;
+import com.mcxiaoke.commons.cache.DiscCache;
 import com.mcxiaoke.commons.ui.widget.AdvancedShareActionProvider;
+import com.mcxiaoke.commons.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.commons.ui.widget.ShareTarget;
-
-import com.mcxiaoke.commons.samples.R;
-import com.mcxiaoke.commons.samples.BuildConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +50,13 @@ public class Samples extends BaseActivity {
         ButterKnife.inject(this);
         initSamples();
         initListView();
+
+        DiscCache cache = new DiscCache(this, "debug");
+        cache.setDebug(true);
+        String key="aaa";
+        cache.put(key,"dgdsgdsgdsgsdgsdgsdgsdgsdgsdsdgsgsdg");
+        String data=cache.get(key);
+        System.out.print(data);
     }
 
     private void initSamples() {
