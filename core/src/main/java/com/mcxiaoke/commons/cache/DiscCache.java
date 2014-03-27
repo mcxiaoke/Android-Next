@@ -184,9 +184,6 @@ public class DiscCache implements IDiscCache {
         if (mDebug) {
             LogUtils.v(TAG, "getFile() key=" + key + " file=" + file);
         }
-        if (file == null || !file.exists()) {
-            return null;
-        }
         return file;
     }
 
