@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * 日志工具类，支持记录到文件，支持针对单个TAG设定日志级别
  * User: mcxiaoke
- * Date: 13-9-10
+ * Date: 13-9-10 14-04-08
  * Time: 下午1:14
  */
 public final class LogUtils {
@@ -195,14 +195,67 @@ public final class LogUtils {
         }
     }
 
-    // 使用全局TAG
-    public static void debug(String message) {
-        v(TAG_DEBUG, message);
+    public static void v(String format, Object... args) {
+        if (isLoggable(Log.VERBOSE)) {
+            Log.v(TAG_DEBUG, buildMessage(format, args));
+        }
     }
 
-    // 使用全局TAG
-    public static void error(String message) {
-        e(TAG_DEBUG, message);
+
+    public static void d(String format, Object... args) {
+        if (isLoggable(Log.DEBUG)) {
+            Log.d(TAG_DEBUG, buildMessage(format, args));
+        }
+    }
+
+    public static void i(String format, Object... args) {
+        if (isLoggable(Log.INFO)) {
+            Log.i(TAG_DEBUG, buildMessage(format, args));
+        }
+    }
+
+    public static void w(String format, Object... args) {
+        if (isLoggable(Log.WARN)) {
+            Log.w(TAG_DEBUG, buildMessage(format, args));
+        }
+    }
+
+
+    public static void e(String format, Object... args) {
+        if (isLoggable(Log.ERROR)) {
+            Log.e(TAG_DEBUG, buildMessage(format, args));
+        }
+    }
+
+    public static void e(Throwable tr, String format, Object... args) {
+        if (isLoggable(Log.ERROR)) {
+            Log.e(TAG_DEBUG, buildMessage(format, args), tr);
+        }
+    }
+
+    /**
+     * 获取StackTrace信息
+     */
+    private static String buildMessage(String format, Object... args) {
+        String msg = (args == null) ? format : String.format(Locale.US, format, args);
+        StackTraceElement[] trace = new Throwable().fillInStackTrace().getStackTrace();
+
+        String caller = "<unknown>";
+        // Walk up the stack looking for the first caller outside of VolleyLog.
+        // It will be at least two frames up, so start there.
+        for (int i = 2; i < trace.length; i++) {
+            Class<?> clazz = trace[i].getClass();
+            if (!clazz.equals(LogUtils.class)) {
+                String callingClass = trace[i].getClassName();
+                callingClass = callingClass.substring(callingClass.lastIndexOf('.') + 1);
+                callingClass = callingClass.substring(callingClass.lastIndexOf('$') + 1);
+
+                caller = callingClass + "." + trace[i].getMethodName();
+                break;
+            }
+        }
+        return String.format(Locale.US, "[%d] %s: %s",
+                Thread.currentThread().getId(), caller, msg);
     }
 
     public static void e(Class<?> clz, String message) {
@@ -230,46 +283,27 @@ public final class LogUtils {
     }
 
     public static void e(String message) {
-        e(getClassName(3), message);
+        e(TAG_DEBUG, message);
     }
 
     public static void w(String message) {
-        w(getClassName(3), message);
+        w(TAG_DEBUG, message);
     }
 
     public static void i(String message) {
-        i(getClassName(3), message);
+        i(TAG_DEBUG, message);
     }
 
     public static void d(String message) {
-        d(getClassName(3), message);
+        d(TAG_DEBUG, message);
     }
 
     public static void v(String message) {
-        v(getClassName(3), message);
+        v(TAG_DEBUG, message);
     }
 
     public static void e(Throwable t) {
-        // frame 2: skip frames 0 (#getClassName) and 1 (this method)
-        e(getClassName(3), t);
-    }
-
-    public static String getClassName(int frame) {
-        StackTraceElement[] frames = (new Throwable()).getStackTrace();
-        String fullName = frames[frame].getClassName();
-        Class<?> clz = null;
-        try {
-            clz = Class.forName(fullName);
-        } catch (ClassNotFoundException e) {
-            // oops; not much we can do.
-            // Intentionally fall through so we hit the null check below
-        }
-
-        if (clz == null) {
-            return fullName;
-        } else {
-            return clz.getSimpleName();
-        }
+        e(TAG_DEBUG, t);
     }
 
     public static void startTrace(String operation) {
