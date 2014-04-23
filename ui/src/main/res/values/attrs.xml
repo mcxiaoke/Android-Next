@@ -16,6 +16,11 @@
 
 <resources>
 
+    <declare-styleable name="FontFaceStyle">
+        <attr name="fontPath" format="string" />
+        <attr name="fontCache" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="AspectRatioImageView">
         <attr name="stretch">
             <!-- We will control the horizontal. We will control the vertical. -->
