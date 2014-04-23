@@ -13,8 +13,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * User: mcxiaoke
@@ -36,12 +34,12 @@ public class DiscCache implements IDiscCache {
         this(context, DIR_NAME_DEFAULT);
     }
 
-    public DiscCache(Context context, String cacheDirName) {
+    public DiscCache(Context context, String dirName) {
         if (mDebug) {
-            LogUtils.v(TAG, "DiscCache() cacheDirName=" + cacheDirName);
+            LogUtils.v(TAG, "DiscCache() cacheDirName=" + dirName);
         }
         mContext = context;
-        setCacheDir(cacheDirName);
+        setCacheDir(dirName);
     }
 
     public void setDebug(boolean debug) {
@@ -77,6 +75,12 @@ public class DiscCache implements IDiscCache {
         }
         mCacheDir = cacheDir;
         checkCacheDir(false);
+    }
+
+    @Override
+    public File getCacheDir() {
+        checkCacheDir(false);
+        return mCacheDir;
     }
 
     public void setCharset(String charset) {
@@ -146,22 +150,6 @@ public class DiscCache implements IDiscCache {
     }
 
     @Override
-    public void put(String key, Collection<?> collection) {
-        checkCacheDir(false);
-        try {
-            if (mDebug) {
-                LogUtils.v(TAG, "put() list key=" + key);
-            }
-            IOUtils.writeList(collection, getFile(key), mCharset);
-        } catch (IOException ignored) {
-            if (mDebug) {
-                ignored.printStackTrace();
-                LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
-            }
-        }
-    }
-
-    @Override
     public String get(String key) {
         try {
             String value = IOUtils.readString(getFile(key), mCharset);
@@ -195,18 +183,6 @@ public class DiscCache implements IDiscCache {
         } catch (IOException ignored) {
             if (mDebug) {
                 ignored.printStackTrace();
-                LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
-            }
-            return null;
-        }
-    }
-
-    @Override
-    public List<String> getList(String key) {
-        try {
-            return IOUtils.readStringList(getFile(key), mCharset);
-        } catch (IOException ignored) {
-            if (mDebug) {
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
             return null;
