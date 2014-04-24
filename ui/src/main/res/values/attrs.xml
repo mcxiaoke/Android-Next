@@ -30,7 +30,7 @@
     </declare-styleable>
 
     <declare-styleable name="FixedRatioImageView">
-        <attr name="stretch">
+        <attr name="orientation">
             <!-- 以高还是宽为基准. -->
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />

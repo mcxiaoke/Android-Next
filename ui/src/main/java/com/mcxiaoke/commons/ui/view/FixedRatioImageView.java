@@ -24,7 +24,7 @@ public class FixedRatioImageView extends ImageView {
     private static final int STRETCH_VERTICAL = 1;
 
     private float mRatio = INVALID_RATIO;
-    private int mStretch = STRETCH_HORIZONTAL;
+    private int mOrientation = STRETCH_HORIZONTAL;
 
     public FixedRatioImageView(Context context) {
         super(context);
@@ -45,7 +45,7 @@ public class FixedRatioImageView extends ImageView {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioImageView);
             mRatio = a.getDimension(R.styleable.FixedRatioImageView_ratio, INVALID_RATIO);
-            mStretch = a.getInt(R.styleable.FixedRatioImageView_stretch, STRETCH_HORIZONTAL);
+            mOrientation = a.getInt(R.styleable.FixedRatioImageView_orientation, STRETCH_HORIZONTAL);
             a.recycle();
         }
     }
@@ -54,7 +54,7 @@ public class FixedRatioImageView extends ImageView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         if (mRatio > 0) {
-            if (mStretch == STRETCH_VERTICAL) {
+            if (mOrientation == STRETCH_VERTICAL) {
                 int height = getMeasuredHeight();
                 int width = (int) (height * mRatio);
                 setMeasuredDimension(width, height);
