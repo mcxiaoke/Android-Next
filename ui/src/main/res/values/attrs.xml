@@ -23,12 +23,21 @@
 
     <declare-styleable name="AspectRatioImageView">
         <attr name="stretch">
-            <!-- We will control the horizontal. We will control the vertical. -->
+            <!-- 以高还是宽为基准. -->
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
         </attr>
     </declare-styleable>
 
+    <declare-styleable name="FixedRatioImageView">
+        <attr name="stretch">
+            <!-- 以高还是宽为基准. -->
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+        </attr>
+        <!--高宽比 ratio=height/width-->
+        <attr name="ratio" format="float" />
+    </declare-styleable>
 
     <declare-styleable name="TwoDirectionListView">
 
