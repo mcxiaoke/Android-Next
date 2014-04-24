@@ -39,6 +39,13 @@
         <attr name="ratio" format="float" />
     </declare-styleable>
 
+    <declare-styleable name="CircularImageView">
+        <attr name="border" format="boolean" />
+        <attr name="border_width" format="integer" />
+        <attr name="border_color" format="color" />
+        <attr name="shadow" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="TwoDirectionListView">
 
         <!-- Imported from View -->
