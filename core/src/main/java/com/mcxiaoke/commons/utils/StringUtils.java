@@ -1425,4 +1425,46 @@ public abstract class StringUtils {
     }
 
 
+    private static final int MAX_DIR_NAME_LENGTH = 1024;
+    private static final int MAX_FILE_NAME_LENGTH = 1024;
+
+    /**
+     * Converts any string into a string that is safe to use as a file name.
+     * The result will only include ascii characters and numbers, and the "-","_", and "." characters.
+     */
+    public static String toSafeDirName(String name) {
+        return toSafeFileName(name, true);
+    }
+
+    public static String toSafeFileName(String name) {
+        return toSafeFileName(name, false);
+    }
+
+    /**
+     * Converts any string into a string that is safe to use as a file name.
+     * The result will only include ascii characters and numbers, and the "-","_", and "." characters.
+     */
+    private static String toSafeFileName(String name, boolean dirSeparators) {
+        int size = name.length();
+        StringBuilder builder = new StringBuilder(size * 2);
+        for (int i = 0; i < size; i++) {
+            char c = name.charAt(i);
+            boolean valid = c >= 'a' && c <= 'z';
+            valid = valid || (c >= 'A' && c <= 'Z');
+            valid = valid || (c >= '0' && c <= '9');
+            valid = valid || (c == '_') || (c == '-') || (c == '.') || (c == '#')
+                    || (dirSeparators && ((c == '/') || (c == '\\')));
+
+            if (valid) {
+                builder.append(c);
+            } else {
+                // Encode the character using hex notation
+                builder.append('#');
+                builder.append(HexSupport.toHexFromInt(c, true));
+            }
+        }
+        return builder.toString();
+    }
+
+
 }
