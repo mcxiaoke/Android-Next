@@ -89,7 +89,7 @@ import java.util.List;
  */
 public class TwoDirectionListView extends AdapterView<ListAdapter> implements
         ViewTreeObserver.OnTouchModeChangeListener {
-    private static final String LOGTAG = "TwoWayView";
+    private static final String LOGTAG = "TwoDirectionListView";
 
     private static final int NO_POSITION = -1;
     private static final int INVALID_POINTER = -1;

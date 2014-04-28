@@ -81,7 +81,7 @@ public class AspectRatioImageView extends ImageView {
         }
         final TypedArray ta = context.obtainStyledAttributes(attrs,
                 R.styleable.AspectRatioImageView);
-        mStretch = ta.getInt(R.styleable.AspectRatioImageView_stretch, STRETCH_UNDEFINED);
+        mStretch = ta.getInt(R.styleable.AspectRatioImageView_ari_stretch, STRETCH_UNDEFINED);
 
         ta.recycle();
 

@@ -45,7 +45,7 @@ public class FixedRatioImageView extends ImageView {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioImageView);
             mRatio = a.getDimension(R.styleable.FixedRatioImageView_ratio, INVALID_RATIO);
-            mOrientation = a.getInt(R.styleable.FixedRatioImageView_orientation, STRETCH_HORIZONTAL);
+            mOrientation = a.getInt(R.styleable.FixedRatioImageView_fri_orientation, STRETCH_HORIZONTAL);
             a.recycle();
         }
     }

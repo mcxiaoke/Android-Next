@@ -17,12 +17,12 @@
 <resources>
 
     <declare-styleable name="FontFaceStyle">
-        <attr name="fontPath" format="string" />
-        <attr name="fontCache" format="boolean" />
+        <attr name="font_path" format="string" />
+        <attr name="font_use_cache" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="AspectRatioImageView">
-        <attr name="stretch">
+        <attr name="ari_stretch">
             <!-- 以高还是宽为基准. -->
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
@@ -30,7 +30,7 @@
     </declare-styleable>
 
     <declare-styleable name="FixedRatioImageView">
-        <attr name="orientation">
+        <attr name="fri_orientation">
             <!-- 以高还是宽为基准. -->
             <enum name="horizontal" value="0" />
             <enum name="vertical" value="1" />
@@ -40,10 +40,10 @@
     </declare-styleable>
 
     <declare-styleable name="CircularImageView">
-        <attr name="border" format="boolean" />
-        <attr name="border_width" format="integer" />
-        <attr name="border_color" format="color" />
-        <attr name="shadow" format="boolean" />
+        <attr name="ci_border" format="boolean" />
+        <attr name="ci_border_width" format="integer" />
+        <attr name="ci_border_color" format="color" />
+        <attr name="ci_shadow" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="TwoDirectionListView">

@@ -47,12 +47,12 @@ public class CircularImageView extends ImageView {
         // fileLoad the styled attributes and set their properties
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, defStyle, 0);
 
-        if (a.getBoolean(R.styleable.CircularImageView_border, true)) {
-            setBorderWidth(a.getColor(R.styleable.CircularImageView_border_width, 4));
-            setBorderColor(a.getInt(R.styleable.CircularImageView_border_color, Color.WHITE));
+        if (a.getBoolean(R.styleable.CircularImageView_ci_border, true)) {
+            setBorderWidth(a.getColor(R.styleable.CircularImageView_ci_border_width, 4));
+            setBorderColor(a.getInt(R.styleable.CircularImageView_ci_border_color, Color.WHITE));
         }
 
-        if (a.getBoolean(R.styleable.CircularImageView_shadow, false)) {
+        if (a.getBoolean(R.styleable.CircularImageView_ci_shadow, false)) {
             addShadow();
         }
 

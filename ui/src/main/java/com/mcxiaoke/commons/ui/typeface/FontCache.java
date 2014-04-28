@@ -29,8 +29,8 @@ public class FontCache {
 
     public void setFont(TextView tv, AttributeSet attrs) {
         TypedArray a = tv.getContext().obtainStyledAttributes(attrs, R.styleable.FontFaceStyle);
-        final String fontName = a.getString(R.styleable.FontFaceStyle_fontPath);
-        final boolean useCache = a.getBoolean(R.styleable.FontFaceStyle_fontCache, false);
+        final String fontName = a.getString(R.styleable.FontFaceStyle_font_path);
+        final boolean useCache = a.getBoolean(R.styleable.FontFaceStyle_font_use_cache, false);
         setFont(tv, fontName, useCache);
         a.recycle();
     }
