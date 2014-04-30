@@ -282,7 +282,7 @@ public final class NextExecutor {
         int cancelledCount = 0;
         String tagPrefix = buildTagPrefix(caller).toString();
         if (mDebug) {
-            LogUtils.v(TAG, "cancelAll() caller=" + caller);
+            LogUtils.v(TAG, "cancelAll() caller=" + caller.getClass().getSimpleName());
         }
 //        List<String> filterTags = new ArrayList<String>();
         Set<String> keySet = mDispatchers.keySet();
@@ -385,7 +385,7 @@ public final class NextExecutor {
      */
     private <Result> void dispatchTaskSuccess(final Result result, final TaskCallback<Result> callback) {
         if (mDebug) {
-            LogUtils.v(TAG, "dispatchTaskSuccess() result=" + result + " callback=" + callback);
+            LogUtils.v(TAG, "dispatchTaskSuccess()");
         }
         dispatchOnUiThread(new Runnable() {
             @Override
@@ -407,7 +407,7 @@ public final class NextExecutor {
      */
     private <Result> void dispatchTaskFailure(final Exception exception, final TaskCallback<Result> callback) {
         if (mDebug) {
-            LogUtils.v(TAG, "dispatchTaskFailure() exception=" + exception + " callback=" + callback);
+            LogUtils.v(TAG, "dispatchTaskFailure() exception=" + exception);
         }
         dispatchOnUiThread(new Runnable() {
             @Override

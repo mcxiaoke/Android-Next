@@ -4,6 +4,7 @@
 package com.mcxiaoke.commons.utils;
 
 import android.util.Base64;
+import com.mcxiaoke.commons.Charsets;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -24,7 +25,7 @@ import java.util.Arrays;
  */
 public final class CryptoUtils {
     public static final String TAG = CryptoUtils.class.getSimpleName();
-    public static final String ENC_UTF8 = "UTF-8";
+    public static final String ENC_UTF8 = Charsets.ENCODING_UTF_8;
 
     private CryptoUtils() {
     }
@@ -32,7 +33,6 @@ public final class CryptoUtils {
     public static final class AES {
         static final int ITERATION_COUNT_DEFAULT = 100;
         static final int KEY_SIZE_DEFAULT = 256;
-        static final int SALT_SIZE_DEFAULT = 8;
         static final int IV_SIZE_DEFAULT = 16;
         static final String KEY_AES_SPEC = "AES/CBC/PKCS7Padding";
 
