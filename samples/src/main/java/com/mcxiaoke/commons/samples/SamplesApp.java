@@ -1,6 +1,7 @@
 package com.mcxiaoke.commons.samples;
 
 import android.app.Application;
+import android.util.Log;
 import com.mcxiaoke.commons.utils.LogUtils;
 
 /**
@@ -13,7 +14,7 @@ public class SamplesApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        LogUtils.setEnable(true);
+        LogUtils.init(this, Log.VERBOSE, Log.ASSERT);
     }
 
     @Override
