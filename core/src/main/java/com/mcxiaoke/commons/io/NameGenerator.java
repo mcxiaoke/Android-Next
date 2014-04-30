@@ -13,24 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.mcxiaoke.commons.cache.naming;
+package com.mcxiaoke.commons.io;
 
-import com.mcxiaoke.commons.utils.CryptoUtils;
+public interface NameGenerator {
 
-import java.math.BigInteger;
-
-public class Md5FileNameGenerator implements FileNameGenerator {
-
-    private static final int RADIX = 10 + 26; // 10 digits + 26 letters
-
-    @Override
-    public String generate(String imageUri) {
-        byte[] md5 = hash(imageUri.getBytes());
-        BigInteger bi = new BigInteger(md5).abs();
-        return bi.toString(RADIX);
-    }
-
-    private byte[] hash(byte[] data) {
-        return CryptoUtils.HASH.md5Bytes(data);
-    }
+    String generate(String key);
 }

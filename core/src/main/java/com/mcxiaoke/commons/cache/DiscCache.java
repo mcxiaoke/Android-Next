@@ -2,8 +2,8 @@ package com.mcxiaoke.commons.cache;
 
 import android.content.Context;
 import com.mcxiaoke.commons.Charsets;
-import com.mcxiaoke.commons.cache.naming.FileNameGenerator;
-import com.mcxiaoke.commons.cache.naming.SimpleFileNameGenerator;
+import com.mcxiaoke.commons.io.NameGenerator;
+import com.mcxiaoke.commons.io.SafeFileNameGenerator;
 import com.mcxiaoke.commons.utils.AndroidUtils;
 import com.mcxiaoke.commons.utils.IOUtils;
 import com.mcxiaoke.commons.utils.LogUtils;
@@ -21,12 +21,22 @@ import java.nio.charset.Charset;
  */
 public class DiscCache implements IDiscCache {
     public static final String TAG = DiscCache.class.getSimpleName();
-    public static final String DIR_NAME_DEFAULT = "next_disc_cache";
+
+    /**
+     * 指定使用内部存储，外部存储，还是自动选择
+     */
+    public static final int MODE_INTERNAL = 0;
+    public static final int MODE_EXTERNAL = 1;
+    public static final int MODE_AUTO = 2;
+
+
+    public static final String DIR_NAME_DEFAULT = ".disc";
 
     private Context mContext;
+    private int mMode = MODE_AUTO;
     private File mCacheDir;
     private String mCacheDirName;
-    private FileNameGenerator mGenerator = new SimpleFileNameGenerator();
+    private NameGenerator mGenerator = new SafeFileNameGenerator();
     private Charset mCharset = Charsets.UTF_8;
     private boolean mDebug;
 
@@ -35,11 +45,15 @@ public class DiscCache implements IDiscCache {
     }
 
     public DiscCache(Context context, String dirName) {
+        this(context, dirName, MODE_AUTO);
+    }
+
+    public DiscCache(Context context, String dirName, int mode) {
         if (mDebug) {
             LogUtils.v(TAG, "DiscCache() cacheDirName=" + dirName);
         }
         mContext = context;
-        setCacheDir(dirName);
+        setCacheDir(dirName, mode);
     }
 
     public void setDebug(boolean debug) {
@@ -47,29 +61,34 @@ public class DiscCache implements IDiscCache {
         mDebug = debug;
     }
 
+    public void setCacheDir(String dirName) {
+        setCacheDir(dirName, MODE_AUTO);
+    }
+
     /**
      * 设置缓存文件夹的名字
      *
      * @param dirName Dir Name
      */
-    public void setCacheDir(String dirName) {
+    public void setCacheDir(String dirName, int mode) {
         if (mDebug) {
-            LogUtils.v(TAG, "setCacheDir() dirName=" + dirName);
+            LogUtils.v(TAG, "setCacheDir() dirName=" + dirName + " mode=" + mode);
         }
         if (dirName == null) {
             mCacheDirName = DIR_NAME_DEFAULT;
         } else {
             mCacheDirName = dirName;
         }
+        mMode = mode;
         checkCacheDir(true);
     }
 
     /**
-     * 直接设置完整的缓存路径
+     * 直接设置完整的缓存路径，调试用
      *
      * @param cacheDir Cache Dir
      */
-    public void setCacheDir(File cacheDir) {
+    public void setDebugCacheDir(File cacheDir) {
         if (mDebug) {
             LogUtils.v(TAG, "setCacheDir() cacheDir=" + cacheDir);
         }
@@ -97,7 +116,7 @@ public class DiscCache implements IDiscCache {
         mCharset = Charsets.toCharset(charset);
     }
 
-    public void setFileNameGenerator(FileNameGenerator generator) {
+    public void setFileNameGenerator(NameGenerator generator) {
         mGenerator = generator;
     }
 
@@ -225,15 +244,14 @@ public class DiscCache implements IDiscCache {
         return count;
     }
 
+    @Override
+    public long getCacheSize() {
+        return IOUtils.sizeOf(getCacheDir());
+    }
+
     private void checkCacheDir(boolean forceSet) {
         if (mCacheDir == null || forceSet) {
-            File baseCacheDir;
-            if (AndroidUtils.isMediaMounted()) {
-                baseCacheDir = mContext.getExternalCacheDir();
-            } else {
-                baseCacheDir = mContext.getCacheDir();
-            }
-            mCacheDir = new File(baseCacheDir, mCacheDirName);
+            mCacheDir = new File(getBaseCacheDir(), mCacheDirName);
         }
         if (!mCacheDir.exists()) {
             mCacheDir.mkdirs();
@@ -249,6 +267,30 @@ public class DiscCache implements IDiscCache {
             LogUtils.v(TAG, "getCacheFile() key=" + key + " fileName=" + fileName);
         }
         return new File(mCacheDir, fileName);
+    }
+
+    private File getBaseCacheDir() {
+        File baseCacheDir;
+        switch (mMode) {
+            case MODE_INTERNAL: {
+                baseCacheDir = mContext.getCacheDir();
+            }
+            break;
+            case MODE_EXTERNAL: {
+                baseCacheDir = mContext.getExternalCacheDir();
+            }
+            break;
+            case MODE_AUTO:
+            default: {
+                if (AndroidUtils.isMediaMounted()) {
+                    baseCacheDir = mContext.getExternalCacheDir();
+                } else {
+                    baseCacheDir = mContext.getCacheDir();
+                }
+                break;
+            }
+        }
+        return baseCacheDir;
     }
 
 }

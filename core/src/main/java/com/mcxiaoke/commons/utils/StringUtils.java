@@ -1443,7 +1443,7 @@ public abstract class StringUtils {
             } else {
                 // Encode the character using hex notation
                 builder.append('x');
-                builder.append(HexSupport.toHexFromInt(c, true));
+                builder.append(Integer.toHexString(i));
             }
         }
         return builder.toString();

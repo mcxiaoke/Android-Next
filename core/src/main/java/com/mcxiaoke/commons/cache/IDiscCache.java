@@ -40,4 +40,6 @@ public interface IDiscCache {
     int trim(FileFilter filter);
 
     File getCacheDir();
+
+    long getCacheSize();
 }

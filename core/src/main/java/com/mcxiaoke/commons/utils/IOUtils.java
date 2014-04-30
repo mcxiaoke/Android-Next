@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -1460,25 +1461,96 @@ public final class IOUtils {
         return file.delete();
     }
 
-    /**
-     * get file size
-     * <ul>
-     * <li>if path is null or empty, return -1</li>
-     * <li>if path exist and it is a file, return file size, else return -1</li>
-     * <ul>
-     *
-     * @param path
-     * @return returns the length of this file in bytes. returns -1 if the file does not exist.
-     */
-    public static long getFileSize(String path) {
-        if (StringUtils.isEmpty(path)) {
-            return -1;
+    public static boolean isSymlink(File file) throws IOException {
+        if (file == null) {
+            throw new NullPointerException("File must not be null");
+        }
+        File fileInCanonicalFile = null;
+        if (file.getParent() == null) {
+            fileInCanonicalFile = file;
+        } else {
+            File canonicalDir = file.getParentFile().getCanonicalFile();
+            fileInCanonicalFile = new File(canonicalDir, file.getName());
         }
 
-        File file = new File(path);
-        return (file.exists() && file.isFile() ? file.length() : -1);
+        return !fileInCanonicalFile.getCanonicalFile().equals(fileInCanonicalFile.getAbsoluteFile());
+    }
+
+    private static long sizeOfDirectory(File directory) {
+        final File[] files = directory.listFiles();
+        if (files == null) {
+            return 0L;
+        }
+        long size = 0;
+
+        for (final File file : files) {
+            try {
+                if (!isSymlink(file)) {
+                    size += sizeOf(file);
+                    if (size < 0) {
+                        break;
+                    }
+                }
+            } catch (IOException ignored) {
+            }
+        }
+
+        return size;
+    }
+
+    public static long sizeOf(File file) {
+        if (file == null || !file.exists()) {
+            return 0L;
+        }
+        if (file.isDirectory()) {
+            return sizeOfDirectory(file);
+        } else {
+            return file.length();
+        }
     }
 
     private static final String RESERVED_CHARS = "|\\?*<\":>+[]/'";
+
+
+    public static final long ONE_KB = 1024;
+    public static final BigInteger ONE_KB_BI = BigInteger.valueOf(ONE_KB);
+    public static final long ONE_MB = ONE_KB * ONE_KB;
+    public static final BigInteger ONE_MB_BI = ONE_KB_BI.multiply(ONE_KB_BI);
+    private static final long FILE_COPY_BUFFER_SIZE = ONE_MB * 30;
+    public static final long ONE_GB = ONE_KB * ONE_MB;
+    public static final BigInteger ONE_GB_BI = ONE_KB_BI.multiply(ONE_MB_BI);
+    public static final long ONE_TB = ONE_KB * ONE_GB;
+    public static final BigInteger ONE_TB_BI = ONE_KB_BI.multiply(ONE_GB_BI);
+    public static final long ONE_PB = ONE_KB * ONE_TB;
+    public static final BigInteger ONE_PB_BI = ONE_KB_BI.multiply(ONE_TB_BI);
+    public static final long ONE_EB = ONE_KB * ONE_PB;
+    public static final BigInteger ONE_EB_BI = ONE_KB_BI.multiply(ONE_PB_BI);
+    public static final BigInteger ONE_ZB = BigInteger.valueOf(ONE_KB).multiply(BigInteger.valueOf(ONE_EB));
+    public static final BigInteger ONE_YB = ONE_KB_BI.multiply(ONE_ZB);
+
+    public static String byteCountToDisplaySize(BigInteger size) {
+        String displaySize;
+
+        if (size.divide(ONE_EB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_EB_BI)) + " EB";
+        } else if (size.divide(ONE_PB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_PB_BI)) + " PB";
+        } else if (size.divide(ONE_TB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_TB_BI)) + " TB";
+        } else if (size.divide(ONE_GB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_GB_BI)) + " GB";
+        } else if (size.divide(ONE_MB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_MB_BI)) + " MB";
+        } else if (size.divide(ONE_KB_BI).compareTo(BigInteger.ZERO) > 0) {
+            displaySize = String.valueOf(size.divide(ONE_KB_BI)) + " KB";
+        } else {
+            displaySize = String.valueOf(size) + " bytes";
+        }
+        return displaySize;
+    }
+
+    public static String byteCountToDisplaySize(long size) {
+        return byteCountToDisplaySize(BigInteger.valueOf(size));
+    }
 
 }
