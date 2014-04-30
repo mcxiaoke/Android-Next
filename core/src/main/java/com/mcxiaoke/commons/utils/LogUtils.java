@@ -1,11 +1,11 @@
 package com.mcxiaoke.commons.utils;
 
 import android.content.Context;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import com.mcxiaoke.commons.Charsets;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,29 +32,21 @@ public final class LogUtils {
     public static final String TAG_DEBUG = "DEBUG";
     public static final String TAG_TRACE = "TRACE";
     private static final String FILE_LOG_DIR = "logs";
-    public static final boolean DEBUG_FLAG_DEFAULT = true;
 
     private static Map<String, Long> sTraceMap = new HashMap<String, Long>();
-    private static Map<String, Integer> sTagLoggingLevelMap = new HashMap<String, Integer>();
     private static FileLogger sFileLogger;
-    private static int sLoggingLevel = Log.ERROR;
+    private static int sLoggingLevel = Log.DEBUG;
     private static int sFileLoggingLevel = Log.ASSERT;
-    private static boolean sEnable = DEBUG_FLAG_DEFAULT;
 
     private LogUtils() {
     }
 
     private static boolean isLoggable(int level) {
-        return sEnable && level >= sLoggingLevel;
+        return level >= sLoggingLevel;
     }
 
     private static boolean isFileLoggable(int level) {
-        return sEnable && level >= sFileLoggingLevel;
-    }
-
-    private static boolean isTagLoggable(String tag, int level) {
-        Integer loggingLevel = sTagLoggingLevelMap.get(tag);
-        return loggingLevel == null || level >= loggingLevel;
+        return level >= sFileLoggingLevel;
     }
 
     private static void closeFileLogger() {
@@ -65,16 +57,14 @@ public final class LogUtils {
     }
 
     private static void openFileLogger(Context context) {
-        if (sEnable) {
-            if (sFileLoggingLevel < Log.ASSERT) {
-                sFileLogger = new FileLogger(TAG_DEBUG, createFileLogDir(context));
-            }
+        if (sFileLoggingLevel < Log.ASSERT) {
+            sFileLogger = new FileLogger(TAG_DEBUG, createFileLogDirIfNeeded(context));
         }
     }
 
-    private static File createFileLogDir(Context context) {
+    private static File createFileLogDirIfNeeded(Context context) {
         File dir;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (AndroidUtils.isMediaMounted()) {
             dir = new File(context.getExternalCacheDir(), FILE_LOG_DIR);
         } else {
             dir = new File(context.getCacheDir(), FILE_LOG_DIR);
@@ -86,7 +76,7 @@ public final class LogUtils {
     }
 
     public void clearLogFiles(Context context) {
-        File logDir = createFileLogDir(context);
+        File logDir = createFileLogDirIfNeeded(context);
         IOUtils.delete(logDir.getPath());
     }
 
@@ -99,37 +89,15 @@ public final class LogUtils {
         }.start();
     }
 
-    public static void setEnable(boolean enable) {
-        sEnable = enable;
-        sLoggingLevel = enable ? Log.VERBOSE : Log.ERROR;
-    }
-
-    public static void setLoggingLevel(int level) {
-        sLoggingLevel = level;
-    }
-
-    public static void setFileLoggingLevel(Context context, int level) {
-        sFileLoggingLevel = level;
+    public static void init(Context appContext, int loggingLevel, int fileLoggingLevel) {
+        sLoggingLevel = loggingLevel;
+        sFileLoggingLevel = fileLoggingLevel;
         closeFileLogger();
-        openFileLogger(context);
-    }
-
-    public static void setTagLoggingLevel(String tag, int level) {
-        sTagLoggingLevelMap.put(tag, level);
-    }
-
-    public static void setTagLoggingLevel(Object object, int level) {
-        final String tag = object.getClass().getSimpleName();
-        sTagLoggingLevelMap.put(tag, level);
-    }
-
-    public static void setTagLoggingLevel(Class<?> clz, int level) {
-        final String tag = clz.getSimpleName();
-        sTagLoggingLevelMap.put(tag, level);
+        openFileLogger(appContext);
     }
 
     public static void e(String tag, Throwable e) {
-        if (isLoggable(Log.ERROR) && isTagLoggable(tag, Log.ERROR)) {
+        if (isLoggable(Log.ERROR)) {
             Log.e(tag, "", e);
 
         }
@@ -141,7 +109,7 @@ public final class LogUtils {
     }
 
     public static void e(String tag, String message) {
-        if (isLoggable(Log.ERROR) && isTagLoggable(tag, Log.ERROR)) {
+        if (isLoggable(Log.ERROR)) {
             Log.e(tag, message);
         }
         if (isFileLoggable(Log.ERROR)) {
@@ -152,7 +120,7 @@ public final class LogUtils {
     }
 
     public static void w(String tag, String message) {
-        if (isLoggable(Log.WARN) && isTagLoggable(tag, Log.WARN)) {
+        if (isLoggable(Log.WARN)) {
             Log.w(tag, message);
         }
         if (isFileLoggable(Log.WARN)) {
@@ -163,7 +131,7 @@ public final class LogUtils {
     }
 
     public static void i(String tag, String message) {
-        if (isLoggable(Log.INFO) && isTagLoggable(tag, Log.INFO)) {
+        if (isLoggable(Log.INFO)) {
             Log.i(tag, message);
         }
         if (isFileLoggable(Log.INFO)) {
@@ -174,7 +142,7 @@ public final class LogUtils {
     }
 
     public static void d(String tag, String message) {
-        if (isLoggable(Log.DEBUG) && isTagLoggable(tag, Log.DEBUG)) {
+        if (isLoggable(Log.DEBUG)) {
             Log.d(tag, message);
         }
         if (isFileLoggable(Log.DEBUG)) {
@@ -185,7 +153,7 @@ public final class LogUtils {
     }
 
     public static void v(String tag, String message) {
-        if (isLoggable(Log.VERBOSE) && isTagLoggable(tag, Log.VERBOSE)) {
+        if (isLoggable(Log.VERBOSE)) {
             Log.v(tag, message);
         }
         if (isFileLoggable(Log.VERBOSE)) {
@@ -423,7 +391,7 @@ public final class LogUtils {
         public static final String TAG = FileLogger.class.getSimpleName();
         private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd-HH", Locale.US);
         public static long MAX_FILE_SIZE = 1024 * 1024 * 10;
-        private static final String UTF_8 = "UTF-8";
+        private static final String UTF_8 = Charsets.ENCODING_UTF_8;
         private static final int MSG_OPEN = 0;
         private static final int MSG_WRITE = 1;
         private static final int MSG_CLEAR = 2;
@@ -471,6 +439,10 @@ public final class LogUtils {
             }
         }
 
+        public void clear() {
+            sendClearMessage();
+        }
+
         private void onMessageOpen(Message msg) {
             closeWriter();
             openWriter();
@@ -493,7 +465,7 @@ public final class LogUtils {
         private void onMessageClear() {
             if (mLogFile != null) {
                 closeWriter();
-                mLogFile.delete();
+                IOUtils.delete(mLogDir);
                 openWriter();
             }
         }
