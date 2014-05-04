@@ -89,7 +89,8 @@ public class AlertDialogSamples extends BaseActivity {
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                NextRequest request = NextRequest.post("http://www.douban.com").setDebug(true);
+                NextRequest.setDebug(true);
+                NextRequest request = NextRequest.post("http://www.douban.com");
                 request.addParam("fdf", "我是中文");
                 Log.w(TAG, request.getCompleteUrl());
                 NextResponse response = request.getResponse();

@@ -14,7 +14,8 @@ public class SamplesApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        LogUtils.init(this, Log.VERBOSE, Log.ASSERT);
+        LogUtils.setLevel(Log.VERBOSE);
+        LogUtils.setFileLoggingLevel(this, Log.ASSERT);
     }
 
     @Override
