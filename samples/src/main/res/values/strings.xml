@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CatCommons Samples</string>
-    <string name="app_name_short">CatCommons</string>
+    <string name="app_name">Android Next Samples</string>
+    <string name="app_name_short">Android-Next</string>
     <string name="menu_share">Share</string>
 </resources>
