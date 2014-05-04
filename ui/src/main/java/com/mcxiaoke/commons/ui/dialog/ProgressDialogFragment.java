@@ -1,11 +1,13 @@
 package com.mcxiaoke.commons.ui.dialog;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 
 /**
@@ -15,6 +17,7 @@ import android.os.Bundle;
  * dialog even after a call to dismiss the dialog {@link #dismiss()} or
  * {@link #dismissAllowingStateLoss()}.
  */
+@TargetApi(VERSION_CODES.ICE_CREAM_SANDWICH)
 public class ProgressDialogFragment extends DialogFragment {
     private static final String TAG = ProgressDialogFragment.class.getSimpleName();
 

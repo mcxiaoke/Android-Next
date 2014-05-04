@@ -168,15 +168,12 @@ public class AlertDialogFragment extends DialogFragment {
 
         builder.setCancelable(mParams.mCancelable);
         builder.setOnKeyListener(mParams.mOnKeyListener);
-        builder.setOnCancelListener(mParams.mOnCancelListener);
 
         AlertDialog dialog = builder.create();
         if (mParams.mWindowNoTitle) {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
         dialog.setCanceledOnTouchOutside(mParams.mCanceledOnTouchOutside);
-        // must put it here, builder.setOnDismissListener() require api 17
-        dialog.setOnDismissListener(mParams.mOnDismissListener);
         return dialog;
     }
 

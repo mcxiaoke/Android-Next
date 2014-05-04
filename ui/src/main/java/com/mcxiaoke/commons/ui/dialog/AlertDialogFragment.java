@@ -1,11 +1,13 @@
 package com.mcxiaoke.commons.ui.dialog;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,7 @@ import java.util.Arrays;
  * Date: 13-10-23
  * Time: 下午6:28
  */
+@TargetApi(VERSION_CODES.ICE_CREAM_SANDWICH)
 public class AlertDialogFragment extends DialogFragment {
     public static final String TAG = AlertDialogFragment.class.getSimpleName();
     public static final boolean DEBUG = false;
@@ -168,17 +171,15 @@ public class AlertDialogFragment extends DialogFragment {
 
         builder.setCancelable(mParams.mCancelable);
         builder.setOnKeyListener(mParams.mOnKeyListener);
-        builder.setOnCancelListener(mParams.mOnCancelListener);
 
         AlertDialog dialog = builder.create();
         if (mParams.mWindowNoTitle) {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         }
         dialog.setCanceledOnTouchOutside(mParams.mCanceledOnTouchOutside);
-        // must put it here, builder.setOnDismissListener() require api 17
-        dialog.setOnDismissListener(mParams.mOnDismissListener);
         return dialog;
     }
+
 
     @Override
     public void onDismiss(DialogInterface dialog) {
