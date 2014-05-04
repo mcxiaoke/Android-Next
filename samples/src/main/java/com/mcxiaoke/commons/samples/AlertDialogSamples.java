@@ -1,6 +1,8 @@
 package com.mcxiaoke.commons.samples;
 
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -26,6 +28,7 @@ import java.util.concurrent.Callable;
 /**
  * AlertDialogFragment使用示例
  */
+@TargetApi(VERSION_CODES.HONEYCOMB)
 public class AlertDialogSamples extends BaseActivity {
     public static final String TAG = AlertDialogSamples.class.getSimpleName();
 
@@ -39,6 +42,7 @@ public class AlertDialogSamples extends BaseActivity {
     Button mButton4;
     @InjectView(R.id.button5)
     Button mButton5;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,7 @@
 package com.mcxiaoke.commons.samples;
 
+import android.annotation.TargetApi;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -16,6 +18,7 @@ import java.util.concurrent.Callable;
  * Date: 13-10-25
  * Time: 下午4:44
  */
+@TargetApi(VERSION_CODES.HONEYCOMB)
 public class EndlessListViewSamples extends BaseActivity {
     public static final String TAG = EndlessListViewSamples.class.getSimpleName();
 
@@ -25,6 +28,7 @@ public class EndlessListViewSamples extends BaseActivity {
     private StringListAdapter mArrayAdapter;
 
     private int mIndex;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

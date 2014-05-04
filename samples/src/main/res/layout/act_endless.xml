@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.mcxiaoke.commons.view.endless.EndlessListView
+    <com.mcxiaoke.commons.ui.endless.EndlessListView
         android:id="@android:id/list"
         android:layout_height="match_parent"
         android:layout_width="match_parent" />
