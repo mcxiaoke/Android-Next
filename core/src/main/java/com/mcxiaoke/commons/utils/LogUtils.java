@@ -29,13 +29,19 @@ import java.util.Map;
  */
 public final class LogUtils {
 
+    /**
+     * 表示关闭LOG输出 *
+     */
+    public static final int LEVEL_OFF = Integer.MAX_VALUE;
+
     public static final String TAG_DEBUG = "DEBUG";
     public static final String TAG_TRACE = "TRACE";
     private static final String FILE_LOG_DIR = "logs";
 
     private static Map<String, Long> sTraceMap = new HashMap<String, Long>();
     private static FileLogger sFileLogger;
-    private static int sLoggingLevel = Log.DEBUG;
+    // 默认情况下log输出ERROR级别，file log不输出
+    private static int sLoggingLevel = Log.ERROR;
     private static int sFileLoggingLevel = Log.ASSERT;
 
     private LogUtils() {
@@ -45,54 +51,12 @@ public final class LogUtils {
         return level >= sLoggingLevel;
     }
 
-    private static boolean isFileLoggable(int level) {
-        return level >= sFileLoggingLevel;
+    public static void setLevel(int level) {
+        sLoggingLevel = level;
     }
 
-    private static void closeFileLogger() {
-        if (sFileLogger != null) {
-            sFileLogger.close();
-            sFileLogger = null;
-        }
-    }
-
-    private static void openFileLogger(Context context) {
-        if (sFileLoggingLevel < Log.ASSERT) {
-            sFileLogger = new FileLogger(TAG_DEBUG, createFileLogDirIfNeeded(context));
-        }
-    }
-
-    private static File createFileLogDirIfNeeded(Context context) {
-        File dir;
-        if (AndroidUtils.isMediaMounted()) {
-            dir = new File(context.getExternalCacheDir(), FILE_LOG_DIR);
-        } else {
-            dir = new File(context.getCacheDir(), FILE_LOG_DIR);
-        }
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
-    }
-
-    public void clearLogFiles(Context context) {
-        File logDir = createFileLogDirIfNeeded(context);
-        IOUtils.delete(logDir.getPath());
-    }
-
-    public void clearLogFilesAsync(final Context context) {
-        new Thread() {
-            @Override
-            public void run() {
-                clearLogFiles(context);
-            }
-        }.start();
-    }
-
-    public static void init(Context appContext, int loggingLevel, int fileLoggingLevel) {
-        sLoggingLevel = loggingLevel;
-        sFileLoggingLevel = fileLoggingLevel;
-        closeFileLogger();
+    public static void setFileLoggingLevel(Context appContext, int level) {
+        sFileLoggingLevel = level;
         openFileLogger(appContext);
     }
 
@@ -101,21 +65,11 @@ public final class LogUtils {
             Log.e(tag, "", e);
 
         }
-        if (isFileLoggable(Log.ERROR)) {
-            if (sFileLogger != null) {
-                sFileLogger.e(tag, "", e);
-            }
-        }
     }
 
     public static void e(String tag, String message) {
         if (isLoggable(Log.ERROR)) {
             Log.e(tag, message);
-        }
-        if (isFileLoggable(Log.ERROR)) {
-            if (sFileLogger != null) {
-                sFileLogger.e(tag, message);
-            }
         }
     }
 
@@ -123,21 +77,11 @@ public final class LogUtils {
         if (isLoggable(Log.WARN)) {
             Log.w(tag, message);
         }
-        if (isFileLoggable(Log.WARN)) {
-            if (sFileLogger != null) {
-                sFileLogger.w(tag, message);
-            }
-        }
     }
 
     public static void i(String tag, String message) {
         if (isLoggable(Log.INFO)) {
             Log.i(tag, message);
-        }
-        if (isFileLoggable(Log.INFO)) {
-            if (sFileLogger != null) {
-                sFileLogger.i(tag, message);
-            }
         }
     }
 
@@ -145,21 +89,11 @@ public final class LogUtils {
         if (isLoggable(Log.DEBUG)) {
             Log.d(tag, message);
         }
-        if (isFileLoggable(Log.DEBUG)) {
-            if (sFileLogger != null) {
-                sFileLogger.d(tag, message);
-            }
-        }
     }
 
     public static void v(String tag, String message) {
         if (isLoggable(Log.VERBOSE)) {
             Log.v(tag, message);
-        }
-        if (isFileLoggable(Log.VERBOSE)) {
-            if (sFileLogger != null) {
-                sFileLogger.v(tag, message);
-            }
         }
     }
 
@@ -199,6 +133,128 @@ public final class LogUtils {
         if (isLoggable(Log.ERROR)) {
             Log.e(TAG_DEBUG, buildMessage(format, args), tr);
         }
+    }
+
+
+    /**
+     * 写log到文件
+     */
+    public static void fe(String tag, Throwable e) {
+        if (isLoggable(Log.ERROR)) {
+            Log.e(tag, "", e);
+
+        }
+        if (isFileLoggable(Log.ERROR)) {
+            if (sFileLogger != null) {
+                sFileLogger.e(tag, "", e);
+            }
+        }
+    }
+
+    public static void fe(String tag, String message) {
+        if (isLoggable(Log.ERROR)) {
+            Log.e(tag, message);
+        }
+        if (isFileLoggable(Log.ERROR)) {
+            if (sFileLogger != null) {
+                sFileLogger.e(tag, message);
+            }
+        }
+    }
+
+    public static void fw(String tag, String message) {
+        if (isLoggable(Log.WARN)) {
+            Log.w(tag, message);
+        }
+        if (isFileLoggable(Log.WARN)) {
+            if (sFileLogger != null) {
+                sFileLogger.w(tag, message);
+            }
+        }
+    }
+
+    public static void fi(String tag, String message) {
+        if (isLoggable(Log.INFO)) {
+            Log.i(tag, message);
+        }
+        if (isFileLoggable(Log.INFO)) {
+            if (sFileLogger != null) {
+                sFileLogger.i(tag, message);
+            }
+        }
+    }
+
+    public static void fd(String tag, String message) {
+        if (isLoggable(Log.DEBUG)) {
+            Log.d(tag, message);
+        }
+        if (isFileLoggable(Log.DEBUG)) {
+            if (sFileLogger != null) {
+                sFileLogger.d(tag, message);
+            }
+        }
+    }
+
+    public static void fv(String tag, String message) {
+        if (isLoggable(Log.VERBOSE)) {
+            Log.v(tag, message);
+        }
+        if (isFileLoggable(Log.VERBOSE)) {
+            if (sFileLogger != null) {
+                sFileLogger.v(tag, message);
+            }
+        }
+    }
+
+
+    /**
+     * *****
+     * File Logger相关
+     */
+
+    private static boolean isFileLoggable(int level) {
+        return level >= sFileLoggingLevel;
+    }
+
+    private static void closeFileLogger() {
+        if (sFileLogger != null) {
+            sFileLogger.close();
+            sFileLogger = null;
+        }
+    }
+
+    private static void openFileLogger(Context context) {
+        closeFileLogger();
+        if (sFileLoggingLevel < Log.ASSERT) {
+            sFileLogger = new FileLogger(TAG_DEBUG, createFileLogDirIfNeeded(context));
+        }
+    }
+
+    private static File createFileLogDirIfNeeded(Context context) {
+        File dir;
+        if (AndroidUtils.isMediaMounted()) {
+            dir = new File(context.getExternalCacheDir(), FILE_LOG_DIR);
+        } else {
+            dir = new File(context.getCacheDir(), FILE_LOG_DIR);
+        }
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
+    }
+
+    public void clearLogFiles(Context context) {
+        File logDir = createFileLogDirIfNeeded(context);
+        IOUtils.delete(logDir.getPath());
+    }
+
+    public void clearLogFilesAsync(final Context context) {
+        new Thread() {
+            @Override
+            public void run() {
+                clearLogFiles(context);
+            }
+        }.start();
     }
 
     /**
