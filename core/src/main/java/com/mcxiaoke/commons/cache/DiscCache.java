@@ -32,13 +32,14 @@ public class DiscCache implements IDiscCache {
 
     public static final String DIR_NAME_DEFAULT = ".disc";
 
+    private static boolean sDebug;
+
     private Context mContext;
     private int mMode = MODE_AUTO;
     private File mCacheDir;
     private String mCacheDirName;
     private NameGenerator mGenerator = new SafeFileNameGenerator();
     private Charset mCharset = Charsets.UTF_8;
-    private boolean mDebug;
 
     public DiscCache(Context context) {
         this(context, DIR_NAME_DEFAULT);
@@ -49,16 +50,16 @@ public class DiscCache implements IDiscCache {
     }
 
     public DiscCache(Context context, String dirName, int mode) {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "DiscCache() cacheDirName=" + dirName);
         }
         mContext = context;
         setCacheDir(dirName, mode);
     }
 
-    public void setDebug(boolean debug) {
+    public static void setDebug(boolean debug) {
         LogUtils.v(TAG, "setDebug() debug=" + debug);
-        mDebug = debug;
+        DiscCache.sDebug = debug;
     }
 
     public void setCacheDir(String dirName) {
@@ -71,7 +72,7 @@ public class DiscCache implements IDiscCache {
      * @param dirName Dir Name
      */
     public void setCacheDir(String dirName, int mode) {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "setCacheDir() dirName=" + dirName + " mode=" + mode);
         }
         if (dirName == null) {
@@ -89,7 +90,7 @@ public class DiscCache implements IDiscCache {
      * @param cacheDir Cache Dir
      */
     public void setDebugCacheDir(File cacheDir) {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "setCacheDir() cacheDir=" + cacheDir);
         }
         mCacheDir = cacheDir;
@@ -103,14 +104,14 @@ public class DiscCache implements IDiscCache {
     }
 
     public void setCharset(String charset) {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "setCharset() charset=" + charset);
         }
         mCharset = Charsets.toCharset(charset);
     }
 
     public void setCharset(Charset charset) {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "setCharset() charset=" + charset);
         }
         mCharset = Charsets.toCharset(charset);
@@ -124,12 +125,12 @@ public class DiscCache implements IDiscCache {
     public void put(String key, byte[] data) {
         checkCacheDir(false);
         try {
-            if (mDebug) {
+            if (sDebug) {
                 LogUtils.v(TAG, "put() bytes key=" + key);
             }
             IOUtils.writeBytes(getFile(key), data);
         } catch (IOException ignored) {
-            if (mDebug) {
+            if (sDebug) {
                 ignored.printStackTrace();
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
@@ -140,12 +141,12 @@ public class DiscCache implements IDiscCache {
     public void put(String key, InputStream stream) {
         checkCacheDir(false);
         try {
-            if (mDebug) {
+            if (sDebug) {
                 LogUtils.v(TAG, "put() stream key=" + key);
             }
             IOUtils.writeStream(getFile(key), stream);
         } catch (IOException ignored) {
-            if (mDebug) {
+            if (sDebug) {
                 ignored.printStackTrace();
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
@@ -156,12 +157,12 @@ public class DiscCache implements IDiscCache {
     public void put(String key, String text) {
         checkCacheDir(false);
         try {
-            if (mDebug) {
+            if (sDebug) {
                 LogUtils.v(TAG, "put() string key=" + key);
             }
             IOUtils.writeString(getFile(key), text);
         } catch (IOException ignored) {
-            if (mDebug) {
+            if (sDebug) {
                 ignored.printStackTrace();
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
@@ -172,12 +173,12 @@ public class DiscCache implements IDiscCache {
     public String get(String key) {
         try {
             String value = IOUtils.readString(getFile(key), mCharset);
-            if (mDebug) {
+            if (sDebug) {
                 LogUtils.v(TAG, "get() key=" + key + " value=" + value);
             }
             return value;
         } catch (IOException ignored) {
-            if (mDebug) {
+            if (sDebug) {
                 ignored.printStackTrace();
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
@@ -188,7 +189,7 @@ public class DiscCache implements IDiscCache {
     @Override
     public File getFile(String key) {
         File file = getCacheFile(key);
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "getFile() key=" + key + " file=" + file);
         }
         return file;
@@ -200,7 +201,7 @@ public class DiscCache implements IDiscCache {
         try {
             return IOUtils.readBytes(file);
         } catch (IOException ignored) {
-            if (mDebug) {
+            if (sDebug) {
                 ignored.printStackTrace();
                 LogUtils.e(TAG, "put() key=" + key + " error=" + ignored);
             }
@@ -211,7 +212,7 @@ public class DiscCache implements IDiscCache {
     @Override
     public boolean remove(String key) {
         File file = getFile(key);
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "remove() key=" + key + " file=" + file);
         }
         return IOUtils.delete(file);
@@ -219,7 +220,7 @@ public class DiscCache implements IDiscCache {
 
     @Override
     public void clear() {
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "clear()");
         }
         IOUtils.delete(mCacheDir);
@@ -227,21 +228,23 @@ public class DiscCache implements IDiscCache {
     }
 
     @Override
-    public int trim(FileFilter filter) {
-        File[] files = mCacheDir.listFiles();
+    public int delete(FileFilter filter) {
+        File cacheDir = getCacheDir();
+        File[] files = cacheDir.listFiles();
         if (files == null || files.length == 0) {
             return 0;
         }
         int count = 0;
         for (File file : files) {
             if (filter.accept(file)) {
-                if (mDebug) {
+                if (sDebug) {
                     LogUtils.v(TAG, "trim() file=" + file.getPath());
                 }
-                IOUtils.delete(file);
+                // no recursion
+                file.delete();
             }
         }
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "trim() count=" + count);
         }
         return count;
@@ -259,14 +262,14 @@ public class DiscCache implements IDiscCache {
         if (!mCacheDir.exists()) {
             mCacheDir.mkdirs();
         }
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "checkCacheDir() cacheDir=" + mCacheDir + " forceSet=" + forceSet);
         }
     }
 
     private File getCacheFile(String key) {
         String fileName = mGenerator.generate(key);
-        if (mDebug) {
+        if (sDebug) {
             LogUtils.v(TAG, "getCacheFile() key=" + key + " fileName=" + fileName);
         }
         return new File(mCacheDir, fileName);

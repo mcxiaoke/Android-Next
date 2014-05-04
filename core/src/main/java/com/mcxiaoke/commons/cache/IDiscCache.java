@@ -37,7 +37,7 @@ public interface IDiscCache {
 
     void clear();
 
-    int trim(FileFilter filter);
+    int delete(FileFilter filter);
 
     File getCacheDir();
 

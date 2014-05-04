@@ -50,7 +50,7 @@ import java.util.zip.GZIPInputStream;
 public class NextRequest implements NextConsts {
     public static final String TAG = NextRequest.class.getSimpleName();
 
-    private boolean debug;
+    private static boolean sDebug;
     private final String url;
     private final Method method;
     private NextParams httpParams;
@@ -79,6 +79,9 @@ public class NextRequest implements NextConsts {
 
     private static ConnectionFactory sConnectionFactory = ConnectionFactory.DEFAULT;
 
+    public static void setDebug(boolean debug) {
+        NextRequest.sDebug = debug;
+    }
 
     public static NextRequest head(String url) {
         return create(url, Method.HEAD);
@@ -294,7 +297,7 @@ public class NextRequest implements NextConsts {
         checkConfig(conn);
         checkHttps(conn);
         checkHeaders(conn);
-        if (debug) {
+        if (sDebug) {
             Log.v(TAG, "[Request] " + toString());
         }
         checkWriteBody(conn);
@@ -360,7 +363,7 @@ public class NextRequest implements NextConsts {
         response.setContentLength(contentLength).setContentType(contentType);
         response.setHeaders(rawHeaders).setStream(stream);
 
-        if (debug) {
+        if (sDebug) {
             Log.v(TAG, "[Response] " + response);
         }
 
@@ -537,10 +540,6 @@ public class NextRequest implements NextConsts {
         return charset == null ? Charset.defaultCharset().name() : charset;
     }
 
-    public NextRequest setDebug(boolean debug) {
-        this.debug = debug;
-        return this;
-    }
 
     /**
      * Sets the add timeout for the underlying {@link java.net.HttpURLConnection}
