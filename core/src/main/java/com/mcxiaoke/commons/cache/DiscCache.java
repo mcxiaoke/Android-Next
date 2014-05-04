@@ -235,6 +235,9 @@ public class DiscCache implements IDiscCache {
         int count = 0;
         for (File file : files) {
             if (filter.accept(file)) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "trim() file=" + file.getPath());
+                }
                 IOUtils.delete(file);
             }
         }
