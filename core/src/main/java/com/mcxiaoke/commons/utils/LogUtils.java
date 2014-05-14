@@ -140,13 +140,17 @@ public final class LogUtils {
      * 写log到文件
      */
     public static void fe(String tag, Throwable e) {
+        fe(tag, "", e);
+    }
+
+    public static void fe(String tag, String message, Throwable e) {
         if (isLoggable(Log.ERROR)) {
             Log.e(tag, "", e);
 
         }
         if (isFileLoggable(Log.ERROR)) {
             if (sFileLogger != null) {
-                sFileLogger.e(tag, "", e);
+                sFileLogger.e(tag, message, e);
             }
         }
     }
