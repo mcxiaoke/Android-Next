@@ -1,7 +1,5 @@
 package com.mcxiaoke.commons.os;
 
-import android.os.Bundle;
-
 import java.util.concurrent.Callable;
 
 /**
@@ -10,10 +8,14 @@ import java.util.concurrent.Callable;
  * Time: 17:23
  */
 public abstract class NextCallable<V> implements Callable<V> {
-    public Bundle extras;
-    public Object obj;
+    public NextMessage mMessage;
 
     public NextCallable() {
+
+    }
+
+    public NextCallable(NextMessage message) {
+        mMessage = message;
 
     }
 

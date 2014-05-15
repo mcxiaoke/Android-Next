@@ -2,7 +2,6 @@ package com.mcxiaoke.commons.os;
 
 import android.os.Handler;
 import android.os.SystemClock;
-import com.mcxiaoke.commons.os.NextExecutor.TaskCallback;
 import com.mcxiaoke.commons.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
@@ -15,13 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: 14-5-14
  * Time: 17:12
  */
-class NextRunnable<Result, Caller> implements Runnable {
+class NextUnit<Result, Caller> implements Runnable {
 
-    public static final String TAG = NextRunnable.class.getSimpleName();
+    public static final String TAG = NextUnit.class.getSimpleName();
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
-    private RunnableCallback mNextCallback;
+    private ResultCallback mNextCallback;
     private NextCallable<Result> mCallable;
     private TaskCallback<Result> mCallback;
     private Future<?> mFuture;
@@ -36,11 +35,11 @@ class NextRunnable<Result, Caller> implements Runnable {
     private boolean mCancelled;
     private boolean mDebug;
 
-    public NextRunnable(final Handler handler,
-                        final RunnableCallback nextCallback,
-                        final NextCallable<Result> callable,
-                        final TaskCallback<Result> callback,
-                        final Caller caller) {
+    public NextUnit(final Handler handler,
+                    final ResultCallback nextCallback,
+                    final NextCallable<Result> callable,
+                    final TaskCallback<Result> callback,
+                    final Caller caller) {
         mHandler = handler;
         mNextCallback = nextCallback;
         mCallable = callable;
@@ -181,7 +180,7 @@ class NextRunnable<Result, Caller> implements Runnable {
      */
     private void onSuccess(final Result result) {
         if (mDebug) {
-            LogUtils.v(TAG, "onSuccess()");
+            LogUtils.v(TAG, "onTaskSuccess()");
         }
         final NextCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -189,7 +188,7 @@ class NextRunnable<Result, Caller> implements Runnable {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onTaskSuccess(result, callable.extras, callable.obj);
+                    callback.onTaskSuccess(result, callable.mMessage);
                 }
             }
         });
@@ -205,7 +204,7 @@ class NextRunnable<Result, Caller> implements Runnable {
      */
     private void onFailure(final Throwable exception) {
         if (mDebug) {
-            LogUtils.e(TAG, "onFailure() exception=" + exception);
+            LogUtils.e(TAG, "onTaskFailure() exception=" + exception);
         }
         final NextCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -213,7 +212,7 @@ class NextRunnable<Result, Caller> implements Runnable {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onTaskFailure(exception, callable.extras, callable.obj);
+                    callback.onTaskFailure(exception, callable.mMessage);
                 }
             }
         });
@@ -223,7 +222,7 @@ class NextRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onDone()");
         }
-        final RunnableCallback callback = mNextCallback;
+        final ResultCallback callback = mNextCallback;
         postRunnable(new Runnable() {
             @Override
             public void run() {

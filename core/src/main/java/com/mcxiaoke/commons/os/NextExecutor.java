@@ -1,6 +1,5 @@
 package com.mcxiaoke.commons.os;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import com.mcxiaoke.commons.utils.LogUtils;
@@ -29,7 +28,7 @@ public final class NextExecutor {
     private ExecutorService mExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
-    private Map<String, NextRunnable> mRunnableMap;
+    private Map<String, NextUnit> mRunnableMap;
 
     private boolean mDebug;
 
@@ -56,7 +55,7 @@ public final class NextExecutor {
             LogUtils.v(TAG, "ensureData()");
         }
         mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
-        mRunnableMap = new ConcurrentHashMap<String, NextRunnable>();
+        mRunnableMap = new ConcurrentHashMap<String, NextUnit>();
     }
 
 
@@ -80,13 +79,13 @@ public final class NextExecutor {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
-    public <Result, Caller> NextRunnable<Result, Caller> execute(
+    private  <Result, Caller> NextUnit<Result, Caller> execute(
             final Callable<Result> callable, final TaskCallback<Result> callback, final Caller caller) {
         checkArguments(callable, caller);
-        final Map<String, NextRunnable> runnableMap = mRunnableMap;
+        final Map<String, NextUnit> unitMap = mRunnableMap;
         final Handler handler = mUiHandler;
 
-        final RunnableCallback nextCallback = new RunnableCallback() {
+        final ResultCallback nextCallback = new ResultCallback() {
             @Override
             public void onDone(final int hashCode, final String tag) {
                 remove(tag);
@@ -100,23 +99,23 @@ public final class NextExecutor {
             nextCallable = new NextCallableWrapper<Result>(callable);
         }
 
-        final NextRunnable<Result, Caller> runnable = new NextRunnable<Result, Caller>
+        final NextUnit<Result, Caller> unit = new NextUnit<Result, Caller>
                 (handler, nextCallback, nextCallable, callback, caller);
 
         synchronized (mLock) {
-            Future<?> future = submit(runnable);
-            runnable.setFuture(future);
-            runnableMap.put(runnable.getTag(), runnable);
+            Future<?> future = submit(unit);
+            unit.setFuture(future);
+            unitMap.put(unit.getTag(), unit);
         }
 
-        putToRunnableMap(runnable);
-        putToCallerMap(runnable);
-        return runnable;
+        putToUnitMap(unit);
+        putToCallerMap(unit);
+        return unit;
     }
 
     public <Result, Caller> String add(final Callable<Result> callable,
                                        final TaskCallback<Result> callback, final Caller caller) {
-        final NextRunnable<Result, Caller> runnable = execute(callable, callback, caller);
+        final NextUnit<Result, Caller> runnable = execute(callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -163,11 +162,11 @@ public final class NextExecutor {
      * @return 是否正在运行
      */
     public boolean isActive(String tag) {
-        NextRunnable nr = mRunnableMap.get(tag);
+        NextUnit nr = mRunnableMap.get(tag);
         return nr.isActive();
     }
 
-    private <Result, Caller> void putToRunnableMap(final NextRunnable<Result, Caller> runnable) {
+    private <Result, Caller> void putToUnitMap(final NextUnit<Result, Caller> runnable) {
         final String tag = runnable.getTag();
         Future<?> future = submit(runnable);
         runnable.setFuture(future);
@@ -176,7 +175,7 @@ public final class NextExecutor {
         }
     }
 
-    private <Result, Caller> void putToCallerMap(final NextRunnable<Result, Caller> runnable) {
+    private <Result, Caller> void putToCallerMap(final NextUnit<Result, Caller> runnable) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+sequenceNumber+timestamp
         final int hashCode = runnable.getHashCode();
@@ -209,8 +208,8 @@ public final class NextExecutor {
      * 取消所有的Runnable对应的任务
      */
     private void cancelAllInternal() {
-        Collection<NextRunnable> runnables = mRunnableMap.values();
-        for (NextRunnable runnable : runnables) {
+        Collection<NextUnit> runnables = mRunnableMap.values();
+        for (NextUnit runnable : runnables) {
             if (runnable != null) {
                 runnable.cancel();
                 runnable.reset();
@@ -232,7 +231,7 @@ public final class NextExecutor {
             LogUtils.v(TAG, "cancel() tag=" + tag);
         }
         boolean result = false;
-        NextRunnable runnable = mRunnableMap.remove(tag);
+        NextUnit runnable = mRunnableMap.remove(tag);
         if (runnable != null) {
             result = runnable.cancel();
             runnable.reset();
@@ -383,49 +382,6 @@ public final class NextExecutor {
                 throw new NullPointerException("argument can not be null.");
             }
         }
-    }
-
-    /**
-     * 任务回调接口
-     *
-     * @param <Result> 类型参数，任务执行结果
-     */
-    public static interface TaskCallback<Result> {
-
-        /**
-         * 回调，任务执行完成
-         *
-         * @param result 执行结果
-         * @param extras 附加结果，需要返回多种结果时会用到
-         * @param object 附加结果，需要返回多种结果时会用到
-         */
-        public void onTaskSuccess(Result result, Bundle extras, Object object);
-
-        /**
-         * 回调，任务执行失败
-         *
-         * @param e      失败原因，异常
-         * @param extras 附加结果，需要返回额外的信息时会用到
-         */
-        public void onTaskFailure(Throwable e, Bundle extras, Object object);
-
-    }
-
-    /**
-     * 回调接口抽象类
-     *
-     * @param <Result> 类型参数，执行结果类型
-     */
-    public static abstract class SimpleTaskCallback<Result> implements TaskCallback<Result> {
-
-        @Override
-        public void onTaskSuccess(Result result, Bundle extras, Object object) {
-        }
-
-        @Override
-        public void onTaskFailure(Throwable e, Bundle extras, Object object) {
-        }
-
     }
 
 }

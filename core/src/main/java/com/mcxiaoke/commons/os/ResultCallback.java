@@ -5,7 +5,7 @@ package com.mcxiaoke.commons.os;
  * Date: 14-5-14
  * Time: 17:12
  */
-interface RunnableCallback {
+interface ResultCallback {
 
     void onDone(final int hashCode, final String tag);
 }
