@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="share_action_provider_expand_label">更多…</string>
-    <string name="share_action_provider_target_not_found">分享目标应用不存在!</string>
-</resources>
