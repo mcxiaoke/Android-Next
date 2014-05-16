@@ -1,5 +1,6 @@
 package com.mcxiaoke.commons.utils;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -34,12 +35,9 @@ public final class ThreadUtils {
         return executor;
     }
 
-    public static ThreadPoolExecutor newSingleThreadExecutor(final String name) {
-        ThreadPoolExecutor executor = (ThreadPoolExecutor)
-                Executors.newSingleThreadExecutor(
+    public static ExecutorService newSingleThreadExecutor(final String name) {
+        return Executors.newSingleThreadExecutor(
                         new CounterThreadFactory(name));
-        executor.setRejectedExecutionHandler(new LogDiscardPolicy());
-        return executor;
     }
 
     public static class LogDiscardPolicy implements RejectedExecutionHandler {

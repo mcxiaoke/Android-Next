@@ -35,11 +35,11 @@ public final class NextExecutor {
 
     // 延迟加载
     private static final class SingletonHolder {
-        static final NextExecutor INSTANCE = new NextExecutor();
+        static final NextExecutor DEFAULT = new NextExecutor();
     }
 
     public static NextExecutor getDefault() {
-        return SingletonHolder.INSTANCE;
+        return SingletonHolder.DEFAULT;
     }
 
     public NextExecutor() {
