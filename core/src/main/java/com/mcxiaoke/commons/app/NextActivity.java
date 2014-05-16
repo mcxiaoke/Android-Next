@@ -1,6 +1,8 @@
 package com.mcxiaoke.commons.app;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.view.MenuItem;
 import com.mcxiaoke.commons.utils.LogUtils;
@@ -10,6 +12,7 @@ import com.mcxiaoke.commons.utils.LogUtils;
  * Date: 14-3-5
  * Time: 11:49
  */
+@TargetApi(VERSION_CODES.HONEYCOMB)
 public abstract class NextActivity extends Activity {
     private static final String BASE_TAG = NextActivity.class.getSimpleName();
     public static final boolean DEBUG = false;
