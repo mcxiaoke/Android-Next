@@ -1,5 +1,6 @@
 package com.mcxiaoke.commons.utils;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
@@ -29,6 +30,14 @@ public final class ThreadUtils {
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
         executor.setThreadFactory(new CounterThreadFactory(name));
+        executor.setRejectedExecutionHandler(new LogDiscardPolicy());
+        return executor;
+    }
+
+    public static ThreadPoolExecutor newSingleThreadExecutor(final String name) {
+        ThreadPoolExecutor executor = (ThreadPoolExecutor)
+                Executors.newSingleThreadExecutor(
+                        new CounterThreadFactory(name));
         executor.setRejectedExecutionHandler(new LogDiscardPolicy());
         return executor;
     }

@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
  * Date: 14-5-14
  * Time: 17:23
  */
-class NextCallableWrapper<V> extends NextCallable<V> {
+public class NextCallableWrapper<V> extends NextCallable<V> {
 
     private Callable<V> mCallable;
 

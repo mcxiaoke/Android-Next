@@ -14,9 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: 14-5-14
  * Time: 17:12
  */
-class NextUnit<Result, Caller> implements Runnable {
+class NextRunnable<Result, Caller> implements Runnable {
 
-    public static final String TAG = NextUnit.class.getSimpleName();
+    public static final String TAG = NextRunnable.class.getSimpleName();
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
@@ -32,15 +32,17 @@ class NextUnit<Result, Caller> implements Runnable {
     private int mHashCode;
     private String mTag;
 
+    private boolean mSerial;
     private boolean mCancelled;
     private boolean mDebug;
 
-    public NextUnit(final Handler handler,
-                    final ResultCallback nextCallback,
-                    final NextCallable<Result> callable,
-                    final TaskCallback<Result> callback,
-                    final Caller caller) {
+    public NextRunnable(final Handler handler, final boolean serial,
+                        final ResultCallback nextCallback,
+                        final NextCallable<Result> callable,
+                        final TaskCallback<Result> callback,
+                        final Caller caller) {
         mHandler = handler;
+        mSerial = serial;
         mNextCallback = nextCallback;
         mCallable = callable;
         mCallback = callback;
@@ -58,14 +60,14 @@ class NextUnit<Result, Caller> implements Runnable {
 
 
     // 重置所有字段
-    public void reset() {
+    private void reset() {
         if (mDebug) {
             LogUtils.v(TAG, "reset()");
         }
         mHandler = null;
         mNextCallback = null;
-        mCallable = null;
         mCallback = null;
+        mCallable = null;
         mFuture = null;
         mWeakCaller = null;
         mResult = null;
@@ -108,12 +110,14 @@ class NextUnit<Result, Caller> implements Runnable {
         mResult = result;
         mThrowable = throwable;
 
+        onDone();
         if (throwable != null) {
             onFailure(throwable);
         } else {
             onSuccess(result);
         }
-        onDone();
+
+        onFinally();
     }
 
     public boolean cancel() {
@@ -160,6 +164,10 @@ class NextUnit<Result, Caller> implements Runnable {
         return mFuture == null ||
                 mFuture.isCancelled() ||
                 mFuture.isDone();
+    }
+
+    public boolean isSerial() {
+        return mSerial;
     }
 
     public boolean isCancelled() {
@@ -233,6 +241,10 @@ class NextUnit<Result, Caller> implements Runnable {
         });
     }
 
+    private void onFinally() {
+        reset();
+    }
+
     private void postRunnable(final Runnable runnable) {
         mHandler.post(runnable);
     }
@@ -244,6 +256,7 @@ class NextUnit<Result, Caller> implements Runnable {
         builder.append(", mThrowable=").append(mThrowable);
         builder.append(", mHashCode=").append(mHashCode);
         builder.append(", mTag='").append(mTag).append('\'');
+        builder.append(", mSerial=").append(mSerial);
         builder.append(", mCancelled=").append(mCancelled);
         builder.append(", mDebug=").append(mDebug);
         builder.append(", mCallback=").append(mCallback);
@@ -268,7 +281,7 @@ class NextUnit<Result, Caller> implements Runnable {
         // caller的key是hashcode
         // tag的组成:className+hashcode+sequenceNumber+timestamp
         final int hashCode = System.identityHashCode(caller);
-        final String className = caller.getClass().getSimpleName();
+        final String className = caller.getClass().getName();
         final int sequenceNumber = getSequenceNumber();
         final long timestamp = SystemClock.elapsedRealtime();
 

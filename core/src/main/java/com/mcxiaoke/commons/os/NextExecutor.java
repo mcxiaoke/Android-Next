@@ -26,9 +26,10 @@ public final class NextExecutor {
     private final Object mLock = new Object();
 
     private ExecutorService mExecutor;
+    private ExecutorService mSerialExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
-    private Map<String, NextUnit> mRunnableMap;
+    private Map<String, NextRunnable> mTaskMap;
 
     private boolean mDebug;
 
@@ -54,8 +55,12 @@ public final class NextExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "ensureData()");
         }
-        mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
-        mRunnableMap = new ConcurrentHashMap<String, NextUnit>();
+        if (mTaskMap == null) {
+            mTaskMap = new ConcurrentHashMap<String, NextRunnable>();
+        }
+        if (mCallerMap == null) {
+            mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
+        }
     }
 
 
@@ -79,10 +84,15 @@ public final class NextExecutor {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
-    private  <Result, Caller> NextUnit<Result, Caller> execute(
-            final Callable<Result> callable, final TaskCallback<Result> callback, final Caller caller) {
+    private <Result, Caller> NextRunnable<Result, Caller> addToQueue(
+            final boolean serial, final Callable<Result> callable,
+            final TaskCallback<Result> callback, final Caller caller) {
+
         checkArguments(callable, caller);
-        final Map<String, NextUnit> unitMap = mRunnableMap;
+        ensureData();
+        ensureHandler();
+        ensureExecutor();
+
         final Handler handler = mUiHandler;
 
         final ResultCallback nextCallback = new ResultCallback() {
@@ -99,23 +109,17 @@ public final class NextExecutor {
             nextCallable = new NextCallableWrapper<Result>(callable);
         }
 
-        final NextUnit<Result, Caller> unit = new NextUnit<Result, Caller>
-                (handler, nextCallback, nextCallable, callback, caller);
+        final NextRunnable<Result, Caller> unit = new NextRunnable<Result, Caller>
+                (handler, serial, nextCallback, nextCallable, callback, caller);
 
-        synchronized (mLock) {
-            Future<?> future = submit(unit);
-            unit.setFuture(future);
-            unitMap.put(unit.getTag(), unit);
-        }
-
-        putToUnitMap(unit);
-        putToCallerMap(unit);
+        addToTaskMap(unit);
+        addToCallerMap(unit);
         return unit;
     }
 
-    public <Result, Caller> String add(final Callable<Result> callable,
-                                       final TaskCallback<Result> callback, final Caller caller) {
-        final NextUnit<Result, Caller> runnable = execute(callable, callback, caller);
+    public <Result, Caller> String execute(final Callable<Result> callable,
+                                           final TaskCallback<Result> callback, final Caller caller) {
+        final NextRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -128,32 +132,28 @@ public final class NextExecutor {
      * @param <Caller> Caller
      * @return Tag
      */
-    public <Result, Caller> String add(final Callable<Result> callable, final Caller caller) {
-        return add(callable, new SimpleTaskCallback<Result>() {
-        }, caller);
+    public <Result, Caller> String execute(final Callable<Result> callable, final Caller caller) {
+        return execute(callable, null, caller);
+    }
+
+    public <Result, Caller> String executeSerially(final Callable<Result> callable,
+                                                   final TaskCallback<Result> callback, final Caller caller) {
+        final NextRunnable<Result, Caller> runnable = addToQueue(true, callable, callback, caller);
+        return runnable.getTag();
     }
 
     /**
-     * 不带Caller，无法终止
+     * 没有回调
      *
      * @param callable Callable
+     * @param caller   Caller
      * @param <Result> Result
-     * @return Future
+     * @param <Caller> Caller
+     * @return Tag
      */
-    public <Result> Future<Result> addDirect(final Callable<Result> callable) {
-        return submit(callable);
+    public <Result, Caller> String executeSerially(final Callable<Result> callable, final Caller caller) {
+        return executeSerially(callable, null, caller);
     }
-
-    /**
-     * 不带Caller，无法终止
-     *
-     * @param runnable Runnable
-     * @return Future
-     */
-    public Future<?> addDirect(final Runnable runnable) {
-        return submit(runnable);
-    }
-
 
     /**
      * 检查某个任务是否正在运行
@@ -162,22 +162,23 @@ public final class NextExecutor {
      * @return 是否正在运行
      */
     public boolean isActive(String tag) {
-        NextUnit nr = mRunnableMap.get(tag);
-        return nr.isActive();
+        NextRunnable nr = mTaskMap.get(tag);
+        return nr != null && nr.isActive();
     }
 
-    private <Result, Caller> void putToUnitMap(final NextUnit<Result, Caller> runnable) {
-        final String tag = runnable.getTag();
-        Future<?> future = submit(runnable);
-        runnable.setFuture(future);
+    private <Result, Caller> void addToTaskMap(final NextRunnable<Result, Caller> unit) {
+
+        final String tag = unit.getTag();
+        Future<?> future = smartSubmit(unit);
+        unit.setFuture(future);
         synchronized (mLock) {
-            mRunnableMap.put(tag, runnable);
+            mTaskMap.put(tag, unit);
         }
     }
 
-    private <Result, Caller> void putToCallerMap(final NextUnit<Result, Caller> runnable) {
+    private <Result, Caller> void addToCallerMap(final NextRunnable<Result, Caller> runnable) {
         // caller的key是hashcode
-        // tag的组成:className+hashcode+sequenceNumber+timestamp
+        // tag的组成:className+hashcode+timestamp+sequenceNumber
         final int hashCode = runnable.getHashCode();
         final String tag = runnable.getTag();
         List<String> tags = mCallerMap.get(hashCode);
@@ -208,15 +209,14 @@ public final class NextExecutor {
      * 取消所有的Runnable对应的任务
      */
     private void cancelAllInternal() {
-        Collection<NextUnit> runnables = mRunnableMap.values();
-        for (NextUnit runnable : runnables) {
+        Collection<NextRunnable> runnables = mTaskMap.values();
+        for (NextRunnable runnable : runnables) {
             if (runnable != null) {
                 runnable.cancel();
-                runnable.reset();
             }
         }
         synchronized (mLock) {
-            mRunnableMap.clear();
+            mTaskMap.clear();
         }
     }
 
@@ -231,10 +231,9 @@ public final class NextExecutor {
             LogUtils.v(TAG, "cancel() tag=" + tag);
         }
         boolean result = false;
-        NextUnit runnable = mRunnableMap.remove(tag);
+        NextRunnable runnable = mTaskMap.remove(tag);
         if (runnable != null) {
             result = runnable.cancel();
-            runnable.reset();
         }
         return result;
     }
@@ -300,7 +299,7 @@ public final class NextExecutor {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
         synchronized (mLock) {
-            mRunnableMap.remove(tag);
+            mTaskMap.remove(tag);
         }
     }
 
@@ -310,34 +309,49 @@ public final class NextExecutor {
      * @param runnable 任务Runnable
      * @return 返回任务对应的Future对象
      */
+    private Future<?> smartSubmit(final NextRunnable unit) {
+        if (unit.isSerial()) {
+            return submitSerial(unit);
+        } else {
+            return submit(unit);
+        }
+    }
+
     private Future<?> submit(final Runnable runnable) {
         ensureHandler();
         ensureExecutor();
         return mExecutor.submit(runnable);
     }
 
-    /**
-     * 将任务添加到线程池执行
-     *
-     * @param runnable 任务Runnable
-     * @return 返回任务对应的Future对象
-     */
-    private <Result> Future<Result> submit(final Callable<Result> callable) {
+    private <T> Future<T> submit(final Callable<T> callable) {
         ensureHandler();
         ensureExecutor();
         return mExecutor.submit(callable);
     }
 
+    private Future<?> submitSerial(final Runnable runnable) {
+        ensureHandler();
+        ensureExecutor();
+        return mSerialExecutor.submit(runnable);
+    }
+
+
+    private <T> Future<T> submitSerial(final Callable<T> callable) {
+        ensureHandler();
+        ensureExecutor();
+        return mSerialExecutor.submit(callable);
+    }
+
     /**
      * 检查并初始化ExecutorService
-     *
-     * @return ExecutorService
      */
-    private ExecutorService ensureExecutor() {
+    private void ensureExecutor() {
         if (mExecutor == null || mExecutor.isShutdown()) {
             mExecutor = ThreadUtils.newCachedThreadPool(TAG);
         }
-        return mExecutor;
+        if (mSerialExecutor == null || mSerialExecutor.isShutdown()) {
+            mSerialExecutor = ThreadUtils.newSingleThreadExecutor(TAG + " serial");
+        }
     }
 
     /**
@@ -356,6 +370,10 @@ public final class NextExecutor {
         if (mExecutor != null) {
             mExecutor.shutdownNow();
             mExecutor = null;
+        }
+        if (mSerialExecutor != null) {
+            mSerialExecutor.shutdownNow();
+            mSerialExecutor = null;
         }
     }
 
