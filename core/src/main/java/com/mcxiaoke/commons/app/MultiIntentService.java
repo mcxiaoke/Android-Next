@@ -15,23 +15,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 类似于IntentService，但是多个异步任务可以并行执行
- * Service每隔30秒自动检查，如果任务数目为0则自动结束
+ * Service每隔300秒自动检查，如果活跃任务目为0则自动结束
+ * 自动结束时间可设置，是否启用自动结束功能可设置
  * User: mcxiaoke
- * Date: 14-4-22
+ * Date: 14-4-22 14-05-22
  * Time: 14:04
  */
 public abstract class MultiIntentService extends Service {
     private static final String BASE_TAG = MultiIntentService.class.getSimpleName();
 
-    public static final long CHECK_STOP_DELAY = 30 * 1000L;
+    // 默认空闲5分钟后自动stopSelf()
+    public static final long AUTO_CLOSE_DEFAULT_TIME = 300 * 1000L;
 
     private final Object mLock = new Object();
 
     private ExecutorService mExecutor;
     private Handler mHandler;
 
-    private volatile Map<Long, Future<?>> mReferenceTasks;
-    private volatile AtomicInteger mReferenceCount;
+    private volatile Map<Long, Future<?>> mFutures;
+    private volatile AtomicInteger mRetainCount;
+
+    private boolean mAutoCloseEnable;
+    private long mAutoCloseTime;
 
     public MultiIntentService() {
         super();
@@ -41,10 +46,13 @@ public abstract class MultiIntentService extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtils.v(BASE_TAG, "onCreate()");
-        mReferenceCount = new AtomicInteger(0);
-        mReferenceTasks = new ConcurrentHashMap<Long, Future<?>>();
+        mRetainCount = new AtomicInteger(0);
+        mFutures = new ConcurrentHashMap<Long, Future<?>>();
+        mAutoCloseEnable = true;
+        mAutoCloseTime = AUTO_CLOSE_DEFAULT_TIME;
         ensureHandler();
         ensureExecutor();
+        checkAutoClose();
     }
 
     @Override
@@ -63,11 +71,21 @@ public abstract class MultiIntentService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LogUtils.v(BASE_TAG, "onDestroy() mReferenceCount=" + mReferenceCount.get());
-        LogUtils.v(BASE_TAG, "onDestroy() mReferenceTasks.size()=" + mReferenceTasks.size());
-        cancelCheckStopService();
+        LogUtils.v(BASE_TAG, "onDestroy() mRetainCount=" + mRetainCount.get());
+        LogUtils.v(BASE_TAG, "onDestroy() mFutures.size()=" + mFutures.size());
+        cancelAutoClose();
         destroyHandler();
         destroyExecutor();
+    }
+
+    public void setAutoCloseEnable(boolean enable) {
+        mAutoCloseEnable = enable;
+        checkAutoClose();
+    }
+
+    public void setAutoCloseTime(long milliseconds) {
+        mAutoCloseTime = milliseconds;
+        checkAutoClose();
     }
 
     private void dispatchIntent(final Intent intent) {
@@ -75,52 +93,65 @@ public abstract class MultiIntentService extends Service {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                LogUtils.v(BASE_TAG, "before handleIntent() thread=" + Thread.currentThread());
-                LogUtils.v(BASE_TAG, "before handleIntent() id=" + id);
+                LogUtils.v(BASE_TAG, "dispatchIntent thread=" + Thread.currentThread());
+                LogUtils.v(BASE_TAG, "dispatchIntent start id=" + id);
                 onHandleIntent(intent, id);
-                LogUtils.v(BASE_TAG, "after handleIntent() id=" + id);
-                decrementReferenceCount(id);
+                LogUtils.v(BASE_TAG, "dispatchIntent end id=" + id);
+                release(id);
             }
         };
         Future<?> future = submit(runnable);
-        incrementReferenceCount(id, future);
+        retain(id, future);
     }
 
-    private void incrementReferenceCount(final long id, final Future<?> future) {
-        LogUtils.v(BASE_TAG, "incrementReferenceCount() id=" + id);
-        mReferenceCount.incrementAndGet();
-        mReferenceTasks.put(id, future);
+    private void retain(final long id, final Future<?> future) {
+        LogUtils.v(BASE_TAG, "retain() id=" + id);
+        mRetainCount.incrementAndGet();
+        mFutures.put(id, future);
     }
 
-    private void decrementReferenceCount(final long id) {
-        LogUtils.v(BASE_TAG, "decrementReferenceCount() id=" + id);
-        mReferenceCount.decrementAndGet();
-        mReferenceTasks.remove(id);
-        scheduleCheckStopService();
+    private void release(final long id) {
+        LogUtils.v(BASE_TAG, "release() id=" + id);
+        mRetainCount.decrementAndGet();
+        mFutures.remove(id);
+        checkAutoClose();
     }
 
-    private final Runnable mCheckStopRunnable = new Runnable() {
+    private final Runnable mAutoCloseRunnable = new Runnable() {
         @Override
         public void run() {
-            checkStopService();
+            autoClose();
         }
     };
 
-    private void scheduleCheckStopService() {
-        ensureHandler();
-        mHandler.postDelayed(mCheckStopRunnable, CHECK_STOP_DELAY);
-    }
-
-    private void cancelCheckStopService() {
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mCheckStopRunnable);
+    private void checkAutoClose() {
+        if (mAutoCloseEnable) {
+            scheduleAutoClose();
+        } else {
+            cancelAutoClose();
         }
     }
 
-    private void checkStopService() {
-        LogUtils.v(BASE_TAG, "checkStopService() mReferenceCount=" + mReferenceCount.get());
-        LogUtils.v(BASE_TAG, "checkStopService() mReferenceTasks.size()=" + mReferenceTasks.size());
-        if (mReferenceCount.get() <= 0) {
+    private void scheduleAutoClose() {
+        if (mAutoCloseTime > 0) {
+            LogUtils.v(BASE_TAG, "scheduleAutoClose()");
+            if (mHandler != null) {
+                mHandler.postDelayed(mAutoCloseRunnable, mAutoCloseTime);
+            }
+        }
+    }
+
+    private void cancelAutoClose() {
+        LogUtils.v(BASE_TAG, "cancelAutoClose()");
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mAutoCloseRunnable);
+        }
+    }
+
+    private void autoClose() {
+        LogUtils.v(BASE_TAG, "autoClose() mRetainCount=" + mRetainCount.get());
+        LogUtils.v(BASE_TAG, "autoClose() mFutures.size()=" + mFutures.size());
+        if (mRetainCount.get() <= 0) {
             stopSelf();
         }
     }
@@ -155,10 +186,10 @@ public abstract class MultiIntentService extends Service {
     }
 
     protected final void cancel(long id) {
-        Future<?> future = mReferenceTasks.get(id);
+        Future<?> future = mFutures.get(id);
         if (future != null) {
             future.cancel(true);
-            decrementReferenceCount(id);
+            release(id);
         }
     }
 
