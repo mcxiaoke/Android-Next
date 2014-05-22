@@ -2,6 +2,7 @@ package com.mcxiaoke.commons.os;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import com.mcxiaoke.commons.utils.LogUtils;
 import com.mcxiaoke.commons.utils.ThreadUtils;
 
@@ -95,13 +96,6 @@ public final class NextExecutor {
 
         final Handler handler = mUiHandler;
 
-        final ResultCallback nextCallback = new ResultCallback() {
-            @Override
-            public void onDone(final int hashCode, final String tag) {
-                remove(tag);
-            }
-        };
-
         final NextCallable<Result> nextCallable;
         if (callable instanceof NextCallable) {
             nextCallable = (NextCallable<Result>) callable;
@@ -110,7 +104,7 @@ public final class NextExecutor {
         }
 
         final NextRunnable<Result, Caller> unit = new NextRunnable<Result, Caller>
-                (handler, serial, nextCallback, nextCallable, callback, caller);
+                (handler, serial, nextCallable, callback, caller);
 
         addToTaskMap(unit);
         addToCallerMap(unit);
@@ -118,7 +112,8 @@ public final class NextExecutor {
     }
 
     public <Result, Caller> String execute(final Callable<Result> callable,
-                                           final TaskCallback<Result> callback, final Caller caller) {
+                                           final TaskCallback<Result> callback,
+                                           final Caller caller) {
         final NextRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
         return runnable.getTag();
     }
@@ -354,12 +349,34 @@ public final class NextExecutor {
         }
     }
 
+
+    // 某一个线程运行结束时需要从TaskMap里移除
+    public static final int MSG_REMOVE_TASK_BY_TAG = 4001;
+
     /**
-     * 检查并初始化Handler
+     * 检查并初始化Handler，主线程处理消息
+     * TODO 考虑把所有的操作都放到一个单独的线程，避免cancelAll等操作堵塞住线程
      */
     private void ensureHandler() {
         if (mUiHandler == null) {
-            mUiHandler = new Handler(Looper.getMainLooper());
+            mUiHandler = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(final Message msg) {
+                    super.handleMessage(msg);
+                    if (mDebug) {
+                        LogUtils.v(TAG, "handleMessage() what=" + msg.what);
+                    }
+                    switch (msg.what) {
+                        case MSG_REMOVE_TASK_BY_TAG: {
+                            final String tag = (String) msg.obj;
+                            remove(tag);
+                        }
+                        break;
+                        default:
+                            break;
+                    }
+                }
+            };
         }
     }
 

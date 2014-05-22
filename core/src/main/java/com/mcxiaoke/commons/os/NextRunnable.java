@@ -20,7 +20,6 @@ class NextRunnable<Result, Caller> implements Runnable {
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
-    private ResultCallback mNextCallback;
     private NextCallable<Result> mCallable;
     private TaskCallback<Result> mCallback;
     private Future<?> mFuture;
@@ -37,13 +36,11 @@ class NextRunnable<Result, Caller> implements Runnable {
     private boolean mDebug;
 
     public NextRunnable(final Handler handler, final boolean serial,
-                        final ResultCallback nextCallback,
                         final NextCallable<Result> callable,
                         final TaskCallback<Result> callback,
                         final Caller caller) {
         mHandler = handler;
         mSerial = serial;
-        mNextCallback = nextCallback;
         mCallable = callable;
         mCallback = callback;
         mWeakCaller = new WeakReference<Caller>(caller);
@@ -65,7 +62,6 @@ class NextRunnable<Result, Caller> implements Runnable {
             LogUtils.v(TAG, "reset()");
         }
         mHandler = null;
-        mNextCallback = null;
         mCallback = null;
         mCallable = null;
         mFuture = null;
@@ -230,15 +226,9 @@ class NextRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onDone()");
         }
-        final ResultCallback callback = mNextCallback;
-        postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (callback != null) {
-                    callback.onDone(mHashCode, mTag);
-                }
-            }
-        });
+        if (mHandler != null) {
+            mHandler.sendEmptyMessage(NextExecutor.MSG_REMOVE_TASK_BY_TAG);
+        }
     }
 
     private void onFinally() {
@@ -246,7 +236,9 @@ class NextRunnable<Result, Caller> implements Runnable {
     }
 
     private void postRunnable(final Runnable runnable) {
-        mHandler.post(runnable);
+        if (mHandler != null) {
+            mHandler.post(runnable);
+        }
     }
 
     @Override
