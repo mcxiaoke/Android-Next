@@ -16,7 +16,8 @@ import java.util.concurrent.Future;
  */
 class TaskRunnable<Result, Caller> implements Runnable {
 
-    public static final String TAG = TaskRunnable.class.getSimpleName();
+    public static final String CLASS_TAG = TaskRunnable.class.getSimpleName();
+    public static final String TAG = TaskExecutor.TAG + "." + CLASS_TAG;
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
@@ -28,12 +29,16 @@ class TaskRunnable<Result, Caller> implements Runnable {
     private Result mResult;
     private Throwable mThrowable;
 
+    private int mSequence;
     private int mHashCode;
     private String mTag;
 
     private boolean mSerial;
     private boolean mCancelled;
     private boolean mDebug;
+
+    private long mStartTime;
+    private long mEndTime;
 
     public TaskRunnable(final Handler handler, final boolean serial,
                         final TaskCallable<Result> callable,
@@ -44,6 +49,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mCallable = callable;
         mCallback = callback;
         mWeakCaller = new WeakReference<Caller>(caller);
+        mSequence = incSequence();
         mHashCode = System.identityHashCode(caller);
         mTag = buildTag(caller);
         if (mDebug) {
@@ -86,9 +92,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
             final boolean noCaller = mWeakCaller.get() == null;
             final boolean noCallback = mCallback == null;
             LogUtils.v(TAG, "isTaskCancelled() cancelled=" + cancelled
-                    + " interrupted=" + interrupted);
-            LogUtils.v(TAG, "isTaskCancelled() noCaller=" + noCaller
-                    + " noCallback=" + noCallback);
+                    + " interrupted=" + interrupted + " noCaller="
+                    + noCaller + " noCallback=" + noCallback + " tag=" + getTag());
         }
         return isCancelled() || isInterrupted()
                 || mWeakCaller.get() == null || mCallback == null;
@@ -98,8 +103,10 @@ class TaskRunnable<Result, Caller> implements Runnable {
     public void run() {
         if (mDebug) {
             LogUtils.v(TAG, "run() start seq=" + getSequence()
-                    + " thread=" + Thread.currentThread());
+                    + " thread=" + Thread.currentThread().getName() + " tag=" + getTag());
+            mStartTime = SystemClock.elapsedRealtime();
         }
+
         final Callable<Result> callable = mCallable;
         Result result = null;
         Throwable throwable = null;
@@ -117,7 +124,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
         } else {
             if (mDebug) {
                 LogUtils.v(TAG, "run() task is cancelled, ignore callable execute, seq="
-                        + getSequence() + " thread=" + Thread.currentThread());
+                        + getSequence() + " thread="
+                        + Thread.currentThread().getName() + " tag=" + getTag());
             }
         }
 
@@ -129,9 +137,12 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mResult = result;
         mThrowable = throwable;
 
+
         if (mDebug) {
+            mEndTime = SystemClock.elapsedRealtime();
             LogUtils.v(TAG, "run() end taskCancelled=" + taskCancelled
-                    + " seq=" + getSequence() + " thread=" + Thread.currentThread());
+                    + " seq=" + getSequence() + " thread=" + Thread.currentThread().getName());
+            LogUtils.v(TAG, "run() end duration:" + getDuration() + "ms tag=" + getTag());
         }
 
         onDone();
@@ -146,6 +157,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
         }
 
         onFinally();
+
     }
 
     public boolean cancel() {
@@ -172,12 +184,20 @@ class TaskRunnable<Result, Caller> implements Runnable {
         return mThrowable;
     }
 
+    public int getSequence() {
+        return mSequence;
+    }
+
     public int getHashCode() {
         return mHashCode;
     }
 
     public String getTag() {
         return mTag;
+    }
+
+    public long getDuration() {
+        return mEndTime - mStartTime;
     }
 
     public void setFuture(Future<?> future) {
@@ -216,7 +236,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
      */
     private void onSuccess(final Result result) {
         if (mDebug) {
-            LogUtils.v(TAG, "onSuccess()");
+            LogUtils.v(TAG, "onSuccess() tag=" + getTag());
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -240,7 +260,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
      */
     private void onFailure(final Throwable exception) {
         if (mDebug) {
-            LogUtils.e(TAG, "onFailure() exception=" + exception);
+            LogUtils.e(TAG, "onFailure() exception=" + exception + " tag=" + getTag());
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -256,7 +276,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
     private void onDone() {
         if (mDebug) {
-            LogUtils.v(TAG, "onDone()");
+            LogUtils.v(TAG, "onDone() tag=" + getTag());
         }
         final Handler handler = mHandler;
         final String tag = mTag;
@@ -282,6 +302,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder("NextRunnable{");
+        builder.append("mTAg=").append(mTag);
         builder.append("mResult=").append(mResult);
         builder.append(", mThrowable=").append(mThrowable);
         builder.append(", mHashCode=").append(mHashCode);
@@ -295,14 +316,10 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
 
-    private static volatile int mSequence = 0;
-
-    static int getSequence() {
-        return mSequence;
-    }
+    private static volatile int sSequence = 0;
 
     static int incSequence() {
-        return ++mSequence;
+        return ++sSequence;
     }
 
     /**
@@ -314,20 +331,20 @@ class TaskRunnable<Result, Caller> implements Runnable {
     private String buildTag(final Caller caller) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+timestamp+seq
-        final int hashCode = System.identityHashCode(caller);
+        final int sequence = mSequence;
+        final int hashCode = mHashCode;
         final String className = caller.getClass().getSimpleName();
-        final int sequenceNumber = incSequence();
         final long timestamp = SystemClock.elapsedRealtime();
 
         if (mDebug) {
-            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequenceNumber);
+            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequence);
         }
 
         StringBuilder builder = new StringBuilder();
         builder.append(className).append(SEPARATOR);
         builder.append(hashCode).append(SEPARATOR);
         builder.append(timestamp).append(SEPARATOR);
-        builder.append(sequenceNumber);
+        builder.append(sequence);
         return builder.toString();
     }
 }
