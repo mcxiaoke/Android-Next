@@ -6,7 +6,7 @@
         android:id="@id/menu_share"
         android:title="@string/menu_share"
         android:icon="@drawable/ic_actionbar_share"
-        android:actionProviderClass="com.mcxiaoke.commons.ui.widget.AdvancedShareActionProvider"
+        android:actionProviderClass="com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider"
         android:showAsAction="ifRoom" />
 
 </menu>
