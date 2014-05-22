@@ -8,7 +8,6 @@ import com.mcxiaoke.next.utils.LogUtils;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * User: mcxiaoke
@@ -48,7 +47,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mHashCode = System.identityHashCode(caller);
         mTag = buildTag(caller);
         if (mDebug) {
-            LogUtils.v(TAG, "NextRunnable() hashCode=" + mHashCode + " tag=" + mTag);
+            LogUtils.v(TAG, "TaskRunnable() hashCode=" + mHashCode
+                    + " tag=" + mTag + " serial=" + serial);
         }
     }
 
@@ -74,19 +74,33 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
     private boolean isDiscard() {
+        if (mDebug) {
+            final boolean cancelled = isCancelled();
+            final boolean interrupted = isInterrupted();
+            final boolean noCaller = mWeakCaller.get() == null;
+            final boolean noCallback = mCallback == null;
+            LogUtils.v(TAG, "isDiscard() cancelled=" + cancelled
+                    + " interrupted=" + interrupted);
+            LogUtils.v(TAG, "isDiscard() noCaller=" + noCaller
+                    + " noCallback=" + noCallback);
+        }
         return isCancelled() || isInterrupted()
                 || mWeakCaller.get() == null || mCallback == null;
     }
 
     @Override
     public void run() {
+        if (mDebug) {
+            LogUtils.v(TAG, "run() start seq=" + getSequence()
+                    + " thread=" + Thread.currentThread());
+        }
         final Callable<Result> callable = mCallable;
         Result result = null;
         Throwable throwable = null;
 
         if (isDiscard()) {
             if (mDebug) {
-                LogUtils.v(TAG, "discard result, return");
+                LogUtils.v(TAG, "run() end, discard before job execute, seq=" + getSequence());
             }
             return;
         }
@@ -99,13 +113,18 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
         if (isDiscard()) {
             if (mDebug) {
-                LogUtils.v(TAG, "discard result, return");
+                LogUtils.v(TAG, "run() end, discard after job execute, seq=" + getSequence());
             }
             return;
         }
 
         mResult = result;
         mThrowable = throwable;
+
+        if (mDebug) {
+            LogUtils.v(TAG, "run() end, normally finish, seq=" + getSequence()
+                    + " thread=" + Thread.currentThread());
+        }
 
         onDone();
         if (throwable != null) {
@@ -185,7 +204,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
      */
     private void onSuccess(final Result result) {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskSuccess()");
+            LogUtils.v(TAG, "onSuccess()");
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -209,7 +228,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
      */
     private void onFailure(final Throwable exception) {
         if (mDebug) {
-            LogUtils.e(TAG, "onTaskFailure() exception=" + exception);
+            LogUtils.e(TAG, "onFailure() exception=" + exception);
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -261,10 +280,14 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
 
-    private static AtomicInteger mSequenceNumber = new AtomicInteger(0);
+    private static volatile int mSequence = 0;
 
-    static int getSequenceNumber() {
-        return mSequenceNumber.getAndIncrement();
+    static int getSequence() {
+        return mSequence;
+    }
+
+    static int incSequence() {
+        return ++mSequence;
     }
 
     /**
@@ -273,14 +296,18 @@ class TaskRunnable<Result, Caller> implements Runnable {
      * @param caller 调用对象
      * @return 任务的TAG
      */
-    static <Caller> String buildTag(Caller caller) {
+    private String buildTag(Caller caller) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+sequenceNumber+timestamp
         final int hashCode = System.identityHashCode(caller);
-        final String className = caller.getClass().getName();
+        final String className = caller.getClass().getSimpleName();
         final int clsHashCode = className.hashCode();
-        final int sequenceNumber = getSequenceNumber();
+        final int sequenceNumber = incSequence();
         final long timestamp = SystemClock.elapsedRealtime();
+
+        if (mDebug) {
+            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequenceNumber);
+        }
 
         StringBuilder builder = new StringBuilder();
         builder.append(hashCode).append(SEPARATOR);

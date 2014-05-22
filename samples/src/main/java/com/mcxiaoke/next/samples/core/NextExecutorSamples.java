@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.samples.core;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -11,13 +11,16 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.task.TaskCallable;
-import com.mcxiaoke.next.task.TaskExecutor;
-import com.mcxiaoke.next.task.TaskMessage;
-import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
+import com.mcxiaoke.next.task.TaskCallable;
+import com.mcxiaoke.next.task.TaskCallback;
+import com.mcxiaoke.next.task.TaskExecutor;
+import com.mcxiaoke.next.task.TaskMessage;
 import com.mcxiaoke.next.utils.StringUtils;
+
+import java.util.Random;
+import java.util.concurrent.Callable;
 
 /**
  * User: mcxiaoke
@@ -52,12 +55,9 @@ public class NextExecutorSamples extends BaseActivity {
         TaskExecutor.getDefault().setDebug(true);
     }
 
+    private int mCounter;
+
     private void doRequest() {
-        if (mRunning) {
-            showToast("task is running already!");
-            return;
-        }
-        mRunning = true;
 
         final String url = mEditText.getText().toString();
         if (StringUtils.isEmpty(url)) {
@@ -68,37 +68,40 @@ public class NextExecutorSamples extends BaseActivity {
         final TaskCallback<String> callback = new TaskCallback<String>() {
             @Override
             public void onTaskSuccess(final String result, final TaskMessage message) {
-                println("success, end http request.\n");
-                println("Response:\n");
-                println(result);
-                println("\n");
-                mRunning = false;
-                hideProgressIndicator();
+                final int type = message.type;
+                println("success, end http request index:" + type);
             }
 
             @Override
             public void onTaskFailure(final Throwable ex, final TaskMessage message) {
-                println("failure, end http request.\n");
-                println("Error:\n");
-                println("" + Log.getStackTraceString(ex));
-                println("\n");
-                mRunning = false;
-                hideProgressIndicator();
+                final int type = message.type;
+                println("failure, end http request index:" + type);
             }
         };
-        final TaskMessage message = new TaskMessage(1001, 123, 456, true);
-        final TaskCallable<String> callable = new TaskCallable<String>(message) {
+
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+    }
+
+    private static final Random RANDOM = new Random(System.currentTimeMillis());
+
+    private Callable<String> getCallable(final String url) {
+        final int index = ++mCounter;
+        println("Start http request. index:" + index);
+        final TaskMessage message = new TaskMessage(index, 123, 456, true);
+        return new TaskCallable<String>(message) {
             @Override
             public String call() throws Exception {
+                SystemClock.sleep(RANDOM.nextInt() % 3000);
                 final NextRequest request = NextRequest.get(url);
                 return request.asString();
             }
         };
-        clearText();
-        println("url:" + url);
-        println("Start http request...");
-        showProgressIndicator();
-        TaskExecutor.getDefault().execute(callable, callback, this);
     }
 
     private void clearText() {
