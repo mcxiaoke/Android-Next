@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.os;
 
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import com.mcxiaoke.next.utils.LogUtils;
 
@@ -226,8 +227,11 @@ class NextRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onDone()");
         }
-        if (mHandler != null) {
-            mHandler.sendEmptyMessage(NextExecutor.MSG_REMOVE_TASK_BY_TAG);
+        final Handler handler = mHandler;
+        final String tag = mTag;
+        if (handler != null) {
+            Message message = handler.obtainMessage(NextExecutor.MSG_REMOVE_TASK_BY_TAG, tag);
+            handler.sendMessage(message);
         }
     }
 
@@ -274,14 +278,15 @@ class NextRunnable<Result, Caller> implements Runnable {
         // tag的组成:className+hashcode+sequenceNumber+timestamp
         final int hashCode = System.identityHashCode(caller);
         final String className = caller.getClass().getName();
+        final int clsHashCode = className.hashCode();
         final int sequenceNumber = getSequenceNumber();
         final long timestamp = SystemClock.elapsedRealtime();
 
         StringBuilder builder = new StringBuilder();
-        builder.append(System.identityHashCode(caller)).append(SEPARATOR);
-        builder.append(className).append(SEPARATOR);
+        builder.append(hashCode).append(SEPARATOR);
+        builder.append(clsHashCode).append(SEPARATOR);
         builder.append(timestamp).append(SEPARATOR);
-        builder.append(sequenceNumber).append(SEPARATOR);
+        builder.append(sequenceNumber);
         return builder.toString();
     }
 }

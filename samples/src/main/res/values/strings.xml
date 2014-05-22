@@ -3,4 +3,7 @@
     <string name="app_name">Android Next Samples</string>
     <string name="app_name_short">Android-Next</string>
     <string name="menu_share">Share</string>
+    <string name="button_run">Run</string>
+    <string name="edit_hint_url">input request url</string>
+    <string name="response_content">request response content</string>
 </resources>

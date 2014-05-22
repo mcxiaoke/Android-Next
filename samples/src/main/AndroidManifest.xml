@@ -61,5 +61,9 @@
             android:name="com.mcxiaoke.next.samples.StickyHeaderSamples"
             android:label="@string/app_name" />
 
+        <activity
+            android:name="com.mcxiaoke.next.samples.core.NextExecutorSamples"
+            android:label="@string/app_name" />
+
     </application>
 </manifest> 

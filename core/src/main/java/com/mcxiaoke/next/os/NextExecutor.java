@@ -94,6 +94,10 @@ public final class NextExecutor {
         ensureHandler();
         ensureExecutor();
 
+        if (mDebug) {
+            LogUtils.v(TAG, "addToQueue() serial=" + serial);
+        }
+
         final Handler handler = mUiHandler;
 
         final NextCallable<Result> nextCallable;
@@ -103,17 +107,21 @@ public final class NextExecutor {
             nextCallable = new NextCallableWrapper<Result>(callable);
         }
 
-        final NextRunnable<Result, Caller> unit = new NextRunnable<Result, Caller>
+        final NextRunnable<Result, Caller> runnable = new NextRunnable<Result, Caller>
                 (handler, serial, nextCallable, callback, caller);
+        runnable.setDebug(mDebug);
 
-        addToTaskMap(unit);
-        addToCallerMap(unit);
-        return unit;
+        addToTaskMap(runnable);
+        addToCallerMap(runnable);
+        return runnable;
     }
 
     public <Result, Caller> String execute(final Callable<Result> callable,
                                            final TaskCallback<Result> callback,
                                            final Caller caller) {
+        if (mDebug) {
+            LogUtils.v(TAG, "execute()");
+        }
         final NextRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
         return runnable.getTag();
     }
@@ -133,6 +141,9 @@ public final class NextExecutor {
 
     public <Result, Caller> String executeSerially(final Callable<Result> callable,
                                                    final TaskCallback<Result> callback, final Caller caller) {
+        if (mDebug) {
+            LogUtils.v(TAG, "executeSerially()");
+        }
         final NextRunnable<Result, Caller> runnable = addToQueue(true, callable, callback, caller);
         return runnable.getTag();
     }
@@ -161,13 +172,16 @@ public final class NextExecutor {
         return nr != null && nr.isActive();
     }
 
-    private <Result, Caller> void addToTaskMap(final NextRunnable<Result, Caller> unit) {
+    private <Result, Caller> void addToTaskMap(final NextRunnable<Result, Caller> runnable) {
 
-        final String tag = unit.getTag();
-        Future<?> future = smartSubmit(unit);
-        unit.setFuture(future);
+        final String tag = runnable.getTag();
+        if (mDebug) {
+            LogUtils.v(TAG, "addToTaskMap() tag=" + tag);
+        }
+        Future<?> future = smartSubmit(runnable);
+        runnable.setFuture(future);
         synchronized (mLock) {
-            mTaskMap.put(tag, unit);
+            mTaskMap.put(tag, runnable);
         }
     }
 
@@ -176,6 +190,9 @@ public final class NextExecutor {
         // tag的组成:className+hashcode+timestamp+sequenceNumber
         final int hashCode = runnable.getHashCode();
         final String tag = runnable.getTag();
+        if (mDebug) {
+            LogUtils.v(TAG, "addToCallerMap() tag=" + tag + " hashCode=" + hashCode);
+        }
         List<String> tags = mCallerMap.get(hashCode);
         if (tags == null) {
             tags = new ArrayList<String>();
@@ -342,10 +359,10 @@ public final class NextExecutor {
      */
     private void ensureExecutor() {
         if (mExecutor == null || mExecutor.isShutdown()) {
-            mExecutor = ThreadUtils.newCachedThreadPool(TAG);
+            mExecutor = ThreadUtils.newCachedThreadPool("next");
         }
         if (mSerialExecutor == null || mSerialExecutor.isShutdown()) {
-            mSerialExecutor = ThreadUtils.newSingleThreadExecutor(TAG + " serial");
+            mSerialExecutor = ThreadUtils.newSingleThreadExecutor("next-serial");
         }
     }
 

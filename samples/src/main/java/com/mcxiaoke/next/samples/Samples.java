@@ -14,8 +14,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.cache.DiscCache;
+import com.mcxiaoke.next.samples.core.NextExecutorSamples;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
@@ -53,10 +53,10 @@ public class Samples extends BaseActivity {
         initListView();
 
         DiscCache cache = new DiscCache(this, "debug");
-        cache.setDebug(true);
-        String key="aaa";
-        cache.put(key,"dgdsgdsgdsgsdgsdgsdgsdgsdgsdsdgsgsdg");
-        String data=cache.get(key);
+        DiscCache.setDebug(true);
+        String key = "aaa";
+        cache.put(key, "dgdsgdsgdsgsdgsdgsdgsdgsdgsdsdgsgsdg");
+        String data = cache.get(key);
         System.out.print(data);
     }
 
@@ -65,7 +65,7 @@ public class Samples extends BaseActivity {
         mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(NextExecutorSamples.TAG, NextExecutorSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
