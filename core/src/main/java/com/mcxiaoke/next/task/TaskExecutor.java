@@ -243,7 +243,10 @@ public final class TaskExecutor {
             LogUtils.v(TAG, "cancel() tag=" + tag);
         }
         boolean result = false;
-        TaskRunnable runnable = mTaskMap.remove(tag);
+        final TaskRunnable runnable;
+        synchronized (mLock) {
+            runnable = mTaskMap.remove(tag);
+        }
         if (runnable != null) {
             result = runnable.cancel();
         }
@@ -263,7 +266,10 @@ public final class TaskExecutor {
         }
         int cancelledCount = 0;
         final int hashCode = System.identityHashCode(caller);
-        final List<String> tags = mCallerMap.remove(hashCode);
+        final List<String> tags;
+        synchronized (mLock) {
+            tags = mCallerMap.remove(hashCode);
+        }
         if (tags == null || tags.isEmpty()) {
             return cancelledCount;
         }
