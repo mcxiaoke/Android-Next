@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.os;
+package com.mcxiaoke.next.task;
 
 import java.util.concurrent.Callable;
 
@@ -7,11 +7,11 @@ import java.util.concurrent.Callable;
  * Date: 14-5-14
  * Time: 17:23
  */
-public class NextCallableWrapper<V> extends NextCallable<V> {
+public class TaskCallableWrapper<V> extends TaskCallable<V> {
 
     private Callable<V> mCallable;
 
-    public NextCallableWrapper(Callable<V> callable) {
+    public TaskCallableWrapper(Callable<V> callable) {
         mCallable = callable;
     }
 

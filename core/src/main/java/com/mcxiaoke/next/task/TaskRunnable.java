@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.os;
+package com.mcxiaoke.next.task;
 
 import android.os.Handler;
 import android.os.Message;
@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: 14-5-14
  * Time: 17:12
  */
-class NextRunnable<Result, Caller> implements Runnable {
+class TaskRunnable<Result, Caller> implements Runnable {
 
-    public static final String TAG = NextRunnable.class.getSimpleName();
+    public static final String TAG = TaskRunnable.class.getSimpleName();
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
-    private NextCallable<Result> mCallable;
+    private TaskCallable<Result> mCallable;
     private TaskCallback<Result> mCallback;
     private Future<?> mFuture;
     private WeakReference<Caller> mWeakCaller;
@@ -36,8 +36,8 @@ class NextRunnable<Result, Caller> implements Runnable {
     private boolean mCancelled;
     private boolean mDebug;
 
-    public NextRunnable(final Handler handler, final boolean serial,
-                        final NextCallable<Result> callable,
+    public TaskRunnable(final Handler handler, final boolean serial,
+                        final TaskCallable<Result> callable,
                         final TaskCallback<Result> callback,
                         final Caller caller) {
         mHandler = handler;
@@ -187,7 +187,7 @@ class NextRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskSuccess()");
         }
-        final NextCallable<Result> callable = mCallable;
+        final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
         postRunnable(new Runnable() {
             @Override
@@ -211,7 +211,7 @@ class NextRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             LogUtils.e(TAG, "onTaskFailure() exception=" + exception);
         }
-        final NextCallable<Result> callable = mCallable;
+        final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
         postRunnable(new Runnable() {
             @Override
@@ -230,7 +230,7 @@ class NextRunnable<Result, Caller> implements Runnable {
         final Handler handler = mHandler;
         final String tag = mTag;
         if (handler != null) {
-            Message message = handler.obtainMessage(NextExecutor.MSG_REMOVE_TASK_BY_TAG, tag);
+            Message message = handler.obtainMessage(TaskExecutor.MSG_REMOVE_TASK_BY_TAG, tag);
             handler.sendMessage(message);
         }
     }

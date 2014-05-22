@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.os;
+package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -11,7 +11,7 @@ import android.os.Parcelable;
  * Date: 14-5-15
  * Time: 18:21
  */
-public class NextMessage implements Parcelable {
+public class TaskMessage implements Parcelable {
     public int type;
     public int arg1;
     public long arg2;
@@ -19,49 +19,49 @@ public class NextMessage implements Parcelable {
     public Object obj;
     private Bundle data;
 
-    public static NextMessage create(int type) {
-        return new NextMessage(type);
+    public static TaskMessage create(int type) {
+        return new TaskMessage(type);
     }
 
-    public static NextMessage create(int type, int arg1) {
-        return new NextMessage(type, arg1);
+    public static TaskMessage create(int type, int arg1) {
+        return new TaskMessage(type, arg1);
     }
 
-    public static NextMessage create(int type, int arg1, long arg2) {
-        return new NextMessage(type, arg1, arg2);
+    public static TaskMessage create(int type, int arg1, long arg2) {
+        return new TaskMessage(type, arg1, arg2);
     }
 
-    public static NextMessage create(int type, int arg1, long arg2, boolean flag) {
-        return new NextMessage(type, arg1, arg2, flag);
+    public static TaskMessage create(int type, int arg1, long arg2, boolean flag) {
+        return new TaskMessage(type, arg1, arg2, flag);
     }
 
 
-    public NextMessage() {
+    public TaskMessage() {
     }
 
-    public NextMessage(int type) {
+    public TaskMessage(int type) {
         this.type = type;
     }
 
-    public NextMessage(int type, int arg1) {
+    public TaskMessage(int type, int arg1) {
         this.type = type;
         this.arg1 = arg1;
     }
 
-    public NextMessage(int type, int arg1, long arg2) {
+    public TaskMessage(int type, int arg1, long arg2) {
         this.type = type;
         this.arg1 = arg1;
         this.arg2 = arg2;
     }
 
-    public NextMessage(int type, int arg1, long arg2, boolean flag) {
+    public TaskMessage(int type, int arg1, long arg2, boolean flag) {
         this.type = type;
         this.arg1 = arg1;
         this.arg2 = arg2;
         this.flag = flag;
     }
 
-    private NextMessage(Parcel in) {
+    private TaskMessage(Parcel in) {
         this.type = in.readInt();
         this.arg1 = in.readInt();
         this.arg2 = in.readLong();
@@ -108,13 +108,13 @@ public class NextMessage implements Parcelable {
     }
 
 
-    public static Creator<NextMessage> CREATOR = new Creator<NextMessage>() {
-        public NextMessage createFromParcel(Parcel source) {
-            return new NextMessage(source);
+    public static Creator<TaskMessage> CREATOR = new Creator<TaskMessage>() {
+        public TaskMessage createFromParcel(Parcel source) {
+            return new TaskMessage(source);
         }
 
-        public NextMessage[] newArray(int size) {
-            return new NextMessage[size];
+        public TaskMessage[] newArray(int size) {
+            return new TaskMessage[size];
         }
     };
 }

@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.os;
+package com.mcxiaoke.next.task;
 
 /**
  * User: mcxiaoke
@@ -22,7 +22,7 @@ public interface TaskCallback<V> {
      * @param extras 附加结果，需要返回多种结果时会用到
      * @param object 附加结果，需要返回多种结果时会用到
      */
-    public void onTaskSuccess(V result, NextMessage message);
+    public void onTaskSuccess(V result, TaskMessage message);
 
     /**
      * 回调，任务执行失败
@@ -30,7 +30,7 @@ public interface TaskCallback<V> {
      * @param e      失败原因，异常
      * @param extras 附加结果，需要返回额外的信息时会用到
      */
-    public void onTaskFailure(Throwable ex, NextMessage message);
+    public void onTaskFailure(Throwable ex, TaskMessage message);
 
 
 }

@@ -11,10 +11,10 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.os.NextCallable;
-import com.mcxiaoke.next.os.NextExecutor;
-import com.mcxiaoke.next.os.NextMessage;
-import com.mcxiaoke.next.os.TaskCallback;
+import com.mcxiaoke.next.task.TaskCallable;
+import com.mcxiaoke.next.task.TaskExecutor;
+import com.mcxiaoke.next.task.TaskMessage;
+import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.utils.StringUtils;
@@ -49,7 +49,7 @@ public class NextExecutorSamples extends BaseActivity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.act_next_executor);
         ButterKnife.inject(this);
-        NextExecutor.getDefault().setDebug(true);
+        TaskExecutor.getDefault().setDebug(true);
     }
 
     private void doRequest() {
@@ -67,7 +67,7 @@ public class NextExecutorSamples extends BaseActivity {
 
         final TaskCallback<String> callback = new TaskCallback<String>() {
             @Override
-            public void onTaskSuccess(final String result, final NextMessage message) {
+            public void onTaskSuccess(final String result, final TaskMessage message) {
                 println("success, end http request.\n");
                 println("Response:\n");
                 println(result);
@@ -77,7 +77,7 @@ public class NextExecutorSamples extends BaseActivity {
             }
 
             @Override
-            public void onTaskFailure(final Throwable ex, final NextMessage message) {
+            public void onTaskFailure(final Throwable ex, final TaskMessage message) {
                 println("failure, end http request.\n");
                 println("Error:\n");
                 println("" + Log.getStackTraceString(ex));
@@ -86,8 +86,8 @@ public class NextExecutorSamples extends BaseActivity {
                 hideProgressIndicator();
             }
         };
-        final NextMessage message = new NextMessage(1001, 123, 456, true);
-        final NextCallable<String> callable = new NextCallable<String>(message) {
+        final TaskMessage message = new TaskMessage(1001, 123, 456, true);
+        final TaskCallable<String> callable = new TaskCallable<String>(message) {
             @Override
             public String call() throws Exception {
                 final NextRequest request = NextRequest.get(url);
@@ -98,7 +98,7 @@ public class NextExecutorSamples extends BaseActivity {
         println("url:" + url);
         println("Start http request...");
         showProgressIndicator();
-        NextExecutor.getDefault().execute(callable, callback, this);
+        TaskExecutor.getDefault().execute(callable, callback, this);
     }
 
     private void clearText() {
@@ -113,6 +113,6 @@ public class NextExecutorSamples extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        NextExecutor.getDefault().cancelAll(this);
+        TaskExecutor.getDefault().cancelAll(this);
     }
 }

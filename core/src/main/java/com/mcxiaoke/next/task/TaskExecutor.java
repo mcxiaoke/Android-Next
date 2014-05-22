@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.os;
+package com.mcxiaoke.next.task;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -20,9 +20,9 @@ import java.util.concurrent.Future;
  * User: mcxiaoke
  * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14
  */
-public final class NextExecutor {
+public final class TaskExecutor {
     public static final String SEPARATOR = "::";
-    public static final String TAG = NextExecutor.class.getSimpleName();
+    public static final String TAG = TaskExecutor.class.getSimpleName();
 
     private final Object mLock = new Object();
 
@@ -30,20 +30,20 @@ public final class NextExecutor {
     private ExecutorService mSerialExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
-    private Map<String, NextRunnable> mTaskMap;
+    private Map<String, TaskRunnable> mTaskMap;
 
     private boolean mDebug;
 
     // 延迟加载
     private static final class SingletonHolder {
-        static final NextExecutor DEFAULT = new NextExecutor();
+        static final TaskExecutor DEFAULT = new TaskExecutor();
     }
 
-    public static NextExecutor getDefault() {
+    public static TaskExecutor getDefault() {
         return SingletonHolder.DEFAULT;
     }
 
-    public NextExecutor() {
+    public TaskExecutor() {
         if (mDebug) {
             LogUtils.v(TAG, "NextExecutor()");
         }
@@ -57,7 +57,7 @@ public final class NextExecutor {
             LogUtils.v(TAG, "ensureData()");
         }
         if (mTaskMap == null) {
-            mTaskMap = new ConcurrentHashMap<String, NextRunnable>();
+            mTaskMap = new ConcurrentHashMap<String, TaskRunnable>();
         }
         if (mCallerMap == null) {
             mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
@@ -85,7 +85,7 @@ public final class NextExecutor {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
-    private <Result, Caller> NextRunnable<Result, Caller> addToQueue(
+    private <Result, Caller> TaskRunnable<Result, Caller> addToQueue(
             final boolean serial, final Callable<Result> callable,
             final TaskCallback<Result> callback, final Caller caller) {
 
@@ -100,14 +100,14 @@ public final class NextExecutor {
 
         final Handler handler = mUiHandler;
 
-        final NextCallable<Result> nextCallable;
-        if (callable instanceof NextCallable) {
-            nextCallable = (NextCallable<Result>) callable;
+        final TaskCallable<Result> nextCallable;
+        if (callable instanceof TaskCallable) {
+            nextCallable = (TaskCallable<Result>) callable;
         } else {
-            nextCallable = new NextCallableWrapper<Result>(callable);
+            nextCallable = new TaskCallableWrapper<Result>(callable);
         }
 
-        final NextRunnable<Result, Caller> runnable = new NextRunnable<Result, Caller>
+        final TaskRunnable<Result, Caller> runnable = new TaskRunnable<Result, Caller>
                 (handler, serial, nextCallable, callback, caller);
         runnable.setDebug(mDebug);
 
@@ -122,7 +122,7 @@ public final class NextExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
         }
-        final NextRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
+        final TaskRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -144,7 +144,7 @@ public final class NextExecutor {
         if (mDebug) {
             LogUtils.v(TAG, "executeSerially()");
         }
-        final NextRunnable<Result, Caller> runnable = addToQueue(true, callable, callback, caller);
+        final TaskRunnable<Result, Caller> runnable = addToQueue(true, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -168,11 +168,11 @@ public final class NextExecutor {
      * @return 是否正在运行
      */
     public boolean isActive(String tag) {
-        NextRunnable nr = mTaskMap.get(tag);
+        TaskRunnable nr = mTaskMap.get(tag);
         return nr != null && nr.isActive();
     }
 
-    private <Result, Caller> void addToTaskMap(final NextRunnable<Result, Caller> runnable) {
+    private <Result, Caller> void addToTaskMap(final TaskRunnable<Result, Caller> runnable) {
 
         final String tag = runnable.getTag();
         if (mDebug) {
@@ -185,7 +185,7 @@ public final class NextExecutor {
         }
     }
 
-    private <Result, Caller> void addToCallerMap(final NextRunnable<Result, Caller> runnable) {
+    private <Result, Caller> void addToCallerMap(final TaskRunnable<Result, Caller> runnable) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+timestamp+sequenceNumber
         final int hashCode = runnable.getHashCode();
@@ -221,8 +221,8 @@ public final class NextExecutor {
      * 取消所有的Runnable对应的任务
      */
     private void cancelAllInternal() {
-        Collection<NextRunnable> runnables = mTaskMap.values();
-        for (NextRunnable runnable : runnables) {
+        Collection<TaskRunnable> runnables = mTaskMap.values();
+        for (TaskRunnable runnable : runnables) {
             if (runnable != null) {
                 runnable.cancel();
             }
@@ -243,7 +243,7 @@ public final class NextExecutor {
             LogUtils.v(TAG, "cancel() tag=" + tag);
         }
         boolean result = false;
-        NextRunnable runnable = mTaskMap.remove(tag);
+        TaskRunnable runnable = mTaskMap.remove(tag);
         if (runnable != null) {
             result = runnable.cancel();
         }
@@ -321,7 +321,7 @@ public final class NextExecutor {
      * @param runnable 任务Runnable
      * @return 返回任务对应的Future对象
      */
-    private Future<?> smartSubmit(final NextRunnable unit) {
+    private Future<?> smartSubmit(final TaskRunnable unit) {
         if (unit.isSerial()) {
             return submitSerial(unit);
         } else {

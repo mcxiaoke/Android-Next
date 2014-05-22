@@ -5,11 +5,10 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.next.samples.R;
-import com.mcxiaoke.next.os.NextExecutor;
-import com.mcxiaoke.next.os.NextMessage;
-import com.mcxiaoke.next.os.SimpleTaskCallback;
-import com.mcxiaoke.next.os.TaskCallback;
+import com.mcxiaoke.next.task.TaskExecutor;
+import com.mcxiaoke.next.task.TaskMessage;
+import com.mcxiaoke.next.task.SimpleTaskCallback;
+import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.ui.endless.EndlessListView;
 
 import java.util.ArrayList;
@@ -86,7 +85,7 @@ public class EndlessListViewSamples extends BaseActivity {
         };
         final TaskCallback<List<String>> callback = new SimpleTaskCallback<List<String>>() {
             @Override
-            public void onTaskSuccess(List<String> strings, NextMessage message) {
+            public void onTaskSuccess(List<String> strings, TaskMessage message) {
                 super.onTaskSuccess(strings, message);
                 if (strings != null) {
                     mArrayAdapter.addAll(strings);
@@ -98,17 +97,17 @@ public class EndlessListViewSamples extends BaseActivity {
             }
 
             @Override
-            public void onTaskFailure(Throwable e, NextMessage message) {
+            public void onTaskFailure(Throwable e, TaskMessage message) {
                 super.onTaskFailure(e, message);
                 mEndlessListView.showFooterEmpty();
             }
         };
-        NextExecutor.getDefault().execute(callable, callback, this);
+        TaskExecutor.getDefault().execute(callable, callback, this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        NextExecutor.getDefault().cancelAll(this);
+        TaskExecutor.getDefault().cancelAll(this);
     }
 }
