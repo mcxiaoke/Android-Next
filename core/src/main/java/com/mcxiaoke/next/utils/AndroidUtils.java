@@ -12,7 +12,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
@@ -33,9 +35,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.mcxiaoke.next.BuildConfig;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -638,6 +644,64 @@ public final class AndroidUtils {
         return "Battery Info: isCharging=" + isCharging
                 + " usbCharge=" + usbCharge + " acCharge=" + acCharge
                 + " batteryPct=" + batteryPct;
+    }
+
+
+    private static Signature getSignature(Context context) {
+        final PackageManager pm = context.getPackageManager();
+        PackageInfo info = null;
+        try {
+            info = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+        } catch (Exception ignored) {
+        }
+
+        Signature signature = null;
+        if (info != null) {
+            Signature[] signatures = info.signatures;
+            if (signatures != null && signatures.length > 0) {
+                signature = signatures[0];
+            }
+        }
+
+        if (DEBUG) {
+            LogUtils.v(TAG, "getSignature() " + signature);
+        }
+
+
+        return signature;
+    }
+
+    public static String getSignatureInfo(Context context) {
+        final Signature signature = getSignature(context);
+        if (signature == null) {
+            return "";
+        }
+        final StringBuilder builder = new StringBuilder();
+        try {
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            final InputStream is = new ByteArrayInputStream(signature.toByteArray());
+            X509Certificate cert = (X509Certificate) certFactory.generateCertificate(is);
+            final byte[] pubKey = cert.getPublicKey().getEncoded();
+            final String md5 = CryptoUtils.HASH.md5(pubKey);
+            final String sha1 = CryptoUtils.HASH.sha1(pubKey);
+            String signNumber = cert.getSerialNumber().toString();
+//            builder.append("SignName:").append(cert.getSigAlgName()).append("\n");
+            builder.append("MD5:").append(md5).append("\n");
+            builder.append("SHA1:").append(sha1).append("\n");
+//            builder.append("SignNumber:").append(signNumber).append("\n");
+            builder.append("SubjectDN:").append(cert.getSubjectDN().getName()).append("\n");
+//            builder.append("IssuerDN:").append(cert.getIssuerDN().getName()).append("\n");
+        } catch (Exception e) {
+            LogUtils.e(TAG, "parseSignature() ex=" + e);
+        }
+
+        final String text = builder.toString();
+
+        if (DEBUG) {
+            LogUtils.v(TAG, text);
+        }
+
+        return text;
     }
 
 
