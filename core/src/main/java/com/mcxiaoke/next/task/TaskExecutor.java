@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 一个用于执行异步任务的类，单例，支持检查Caller，支持按照Caller和Tag取消对应的任务
@@ -26,8 +26,8 @@ public final class TaskExecutor {
 
     private final Object mLock = new Object();
 
-    private ExecutorService mExecutor;
-    private ExecutorService mSerialExecutor;
+    private ThreadPoolExecutor mExecutor;
+    private ThreadPoolExecutor mSerialExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
     private Map<String, TaskRunnable> mTaskMap;
@@ -74,6 +74,20 @@ public final class TaskExecutor {
         mDebug = debug;
     }
 
+    private void logExecutor(final String name, final ThreadPoolExecutor executor) {
+        final int corePoolSize = executor.getCorePoolSize();
+        final int poolSize = executor.getPoolSize();
+        final int activeCount = executor.getActiveCount();
+        final long taskCount = executor.getTaskCount();
+        final long completedCount = executor.getCompletedTaskCount();
+        final boolean isShutdown = executor.isShutdown();
+        final boolean isTerminated = executor.isTerminated();
+        LogUtils.v(TAG, name + " CorePoolSize:" + corePoolSize + " PoolSize:" + poolSize);
+        LogUtils.v(TAG, name + " isShutdown:" + isShutdown + " isTerminated:" + isTerminated);
+        LogUtils.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
+                + " completedCount:" + completedCount);
+    }
+
 
     /**
      * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
@@ -113,6 +127,7 @@ public final class TaskExecutor {
 
         addToTaskMap(runnable);
         addToCallerMap(runnable);
+
         return runnable;
     }
 
@@ -291,7 +306,7 @@ public final class TaskExecutor {
      *
      * @param executor ExecutorService
      */
-    public void setExecutor(ExecutorService executor) {
+    public void setExecutor(final ThreadPoolExecutor executor) {
         mExecutor = executor;
     }
 
@@ -374,7 +389,7 @@ public final class TaskExecutor {
 
 
     // 某一个线程运行结束时需要从TaskMap里移除
-    public static final int MSG_REMOVE_TASK_BY_TAG = 4001;
+    public static final int MSG_TASK_DONE = 4001;
 
     /**
      * 检查并初始化Handler，主线程处理消息
@@ -390,7 +405,13 @@ public final class TaskExecutor {
                         LogUtils.v(TAG, "handleMessage() what=" + msg.what);
                     }
                     switch (msg.what) {
-                        case MSG_REMOVE_TASK_BY_TAG: {
+                        case MSG_TASK_DONE: {
+                            if (mDebug) {
+                                LogUtils.v(TAG, "========EXECUTOR STATUS START========");
+                                logExecutor("Executor", mExecutor);
+                                logExecutor("SerialExecutor", mSerialExecutor);
+                                LogUtils.v(TAG, "========EXECUTOR STATUS END===========");
+                            }
                             final String tag = (String) msg.obj;
                             remove(tag);
                         }

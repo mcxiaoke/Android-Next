@@ -1,7 +1,5 @@
 package com.mcxiaoke.next.utils;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
@@ -26,18 +24,15 @@ public final class ThreadUtils {
     }
 
     public static ThreadPoolExecutor newFixedThreadPool(final String name, int nThreads) {
-
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(nThreads, nThreads,
+        return new ThreadPoolExecutor(nThreads, nThreads,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>());
-        executor.setThreadFactory(new CounterThreadFactory(name));
-        executor.setRejectedExecutionHandler(new LogDiscardPolicy());
-        return executor;
+                new LinkedBlockingQueue<Runnable>(),
+                new CounterThreadFactory(name),
+                new LogDiscardPolicy());
     }
 
-    public static ExecutorService newSingleThreadExecutor(final String name) {
-        return Executors.newSingleThreadExecutor(
-                        new CounterThreadFactory(name));
+    public static ThreadPoolExecutor newSingleThreadExecutor(final String name) {
+        return newFixedThreadPool(name, 1);
     }
 
     public static class LogDiscardPolicy implements RejectedExecutionHandler {

@@ -79,20 +79,28 @@ public class NextExecutorSamples extends BaseActivity {
             }
         };
 
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+
+        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
+        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
+        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
+        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
     }
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
-    private Callable<String> getCallable(final String url) {
+    private Callable<String> getCallable(final String url, final boolean serial) {
         final int index = ++mCounter;
-        println("Start http request. index:" + index);
+        println("Start http request. index:" + index + " serial:" + serial);
         final TaskMessage message = new TaskMessage(index, 123, 456, true);
         return new TaskCallable<String>(message) {
             @Override

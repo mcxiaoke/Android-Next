@@ -73,15 +73,21 @@ class TaskRunnable<Result, Caller> implements Runnable {
 //            mTag=null;
     }
 
-    private boolean isDiscard() {
+    /**
+     * 由于各种原因导致任务被取消
+     * 原因：手动取消，线程中断，调用者不存在，回调接口不存在
+     *
+     * @return cancelled
+     */
+    private boolean isTaskCancelled() {
         if (mDebug) {
             final boolean cancelled = isCancelled();
             final boolean interrupted = isInterrupted();
             final boolean noCaller = mWeakCaller.get() == null;
             final boolean noCallback = mCallback == null;
-            LogUtils.v(TAG, "isDiscard() cancelled=" + cancelled
+            LogUtils.v(TAG, "isTaskCancelled() cancelled=" + cancelled
                     + " interrupted=" + interrupted);
-            LogUtils.v(TAG, "isDiscard() noCaller=" + noCaller
+            LogUtils.v(TAG, "isTaskCancelled() noCaller=" + noCaller
                     + " noCallback=" + noCallback);
         }
         return isCancelled() || isInterrupted()
@@ -98,39 +104,45 @@ class TaskRunnable<Result, Caller> implements Runnable {
         Result result = null;
         Throwable throwable = null;
 
-        if (isDiscard()) {
-            if (mDebug) {
-                LogUtils.v(TAG, "run() end, discard before job execute, seq=" + getSequence());
+
+        // check  task cancelled before execute
+        boolean taskCancelled = isTaskCancelled();
+
+        if (!taskCancelled) {
+            try {
+                result = callable.call();
+            } catch (Throwable e) {
+                throwable = e;
             }
-            return;
+        } else {
+            if (mDebug) {
+                LogUtils.v(TAG, "run() task is cancelled, ignore callable execute, seq="
+                        + getSequence() + " thread=" + Thread.currentThread());
+            }
         }
 
-        try {
-            result = callable.call();
-        } catch (Throwable e) {
-            throwable = e;
-        }
-
-        if (isDiscard()) {
-            if (mDebug) {
-                LogUtils.v(TAG, "run() end, discard after job execute, seq=" + getSequence());
-            }
-            return;
+        // check task cancelled after task execute
+        if (!taskCancelled) {
+            taskCancelled = isTaskCancelled();
         }
 
         mResult = result;
         mThrowable = throwable;
 
         if (mDebug) {
-            LogUtils.v(TAG, "run() end, normally finish, seq=" + getSequence()
-                    + " thread=" + Thread.currentThread());
+            LogUtils.v(TAG, "run() end taskCancelled=" + taskCancelled
+                    + " seq=" + getSequence() + " thread=" + Thread.currentThread());
         }
 
         onDone();
-        if (throwable != null) {
-            onFailure(throwable);
-        } else {
-            onSuccess(result);
+
+        // if not cancelled, notify callback
+        if (!taskCancelled) {
+            if (throwable != null) {
+                onFailure(throwable);
+            } else {
+                onSuccess(result);
+            }
         }
 
         onFinally();
@@ -249,12 +261,15 @@ class TaskRunnable<Result, Caller> implements Runnable {
         final Handler handler = mHandler;
         final String tag = mTag;
         if (handler != null) {
-            Message message = handler.obtainMessage(TaskExecutor.MSG_REMOVE_TASK_BY_TAG, tag);
+            Message message = handler.obtainMessage(TaskExecutor.MSG_TASK_DONE, tag);
             handler.sendMessage(message);
         }
     }
 
     private void onFinally() {
+        if (mDebug) {
+            LogUtils.v(TAG, "onFinally()");
+        }
         reset();
     }
 
@@ -291,17 +306,16 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
     /**
-     * 根据Caller生成对应的TAG，完整类名+hashcode+timestamp
+     * 根据Caller生成对应的TAG，hashcode+类名+timestamp+seq
      *
      * @param caller 调用对象
      * @return 任务的TAG
      */
-    private String buildTag(Caller caller) {
+    private String buildTag(final Caller caller) {
         // caller的key是hashcode
-        // tag的组成:className+hashcode+sequenceNumber+timestamp
+        // tag的组成:className+hashcode+timestamp+seq
         final int hashCode = System.identityHashCode(caller);
         final String className = caller.getClass().getSimpleName();
-        final int clsHashCode = className.hashCode();
         final int sequenceNumber = incSequence();
         final long timestamp = SystemClock.elapsedRealtime();
 
@@ -310,8 +324,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
         }
 
         StringBuilder builder = new StringBuilder();
+        builder.append(className).append(SEPARATOR);
         builder.append(hashCode).append(SEPARATOR);
-        builder.append(clsHashCode).append(SEPARATOR);
         builder.append(timestamp).append(SEPARATOR);
         builder.append(sequenceNumber);
         return builder.toString();
