@@ -9,13 +9,16 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -372,6 +375,12 @@ public final class AndroidUtils {
         context.sendBroadcast(intent);
     }
 
+    // another media scan way
+    public static void addToMediaStore(Context context, File file) {
+        String[] path = new String[]{file.getPath()};
+        MediaScannerConnection.scanFile(context, path, null, null);
+    }
+
     public static boolean isMediaMounted() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
     }
@@ -561,6 +570,74 @@ public final class AndroidUtils {
             StrictMode.setThreadPolicy(threadPolicyBuilder.build());
             StrictMode.setVmPolicy(vmPolicyBuilder.build());
         }
+    }
+
+
+    /**
+     * 重启一个Activity
+     *
+     * @param activity Activity
+     */
+    public static void restartActivity(final Activity activity) {
+        Intent intent = activity.getIntent();
+        activity.overridePendingTransition(0, 0);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        activity.finish();
+        activity.overridePendingTransition(0, 0);
+        activity.startActivity(intent);
+    }
+
+    public static void enableHttpResponseCache(Context context, String dirName) {
+        try {
+            File httpCacheDir = new File(context.getCacheDir(), dirName);
+//            HttpResponseCache.install(httpCacheDir, HTTP_CACHE_SIZE);
+            Class.forName("android.net.http.HttpResponseCache")
+                    .getMethod("install", File.class, long.class)
+                    .invoke(null, httpCacheDir, dirName);
+        } catch (Exception httpResponseCacheNotAvailable) {
+            LogUtils.e("HTTP response cache is unavailable.");
+        }
+    }
+
+    public static void enableComponent(Context context, Class<?> clazz) {
+        setComponent(context, clazz, true);
+    }
+
+    public static void disableComponent(Context context, Class<?> clazz) {
+        setComponent(context, clazz, false);
+    }
+
+    public static void setComponent(Context context, Class<?> clazz, boolean enable) {
+        ComponentName receiver = new ComponentName(context, clazz);
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(receiver,
+                enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+        );
+    }
+
+    public static Intent getBatteryStatus(Context context) {
+        Context appContext = context.getApplicationContext();
+        return appContext.registerReceiver(null,
+                new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+    }
+
+    public static String getBatteryInfo(Intent batteryIntent) {
+        int status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+        int chargePlug = batteryIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        float batteryPct = level / (float) scale;
+        return "Battery Info: isCharging=" + isCharging
+                + " usbCharge=" + usbCharge + " acCharge=" + acCharge
+                + " batteryPct=" + batteryPct;
     }
 
 

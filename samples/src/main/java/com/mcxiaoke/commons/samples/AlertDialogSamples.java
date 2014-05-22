@@ -14,6 +14,9 @@ import butterknife.InjectView;
 import com.mcxiaoke.commons.http.NextRequest;
 import com.mcxiaoke.commons.http.NextResponse;
 import com.mcxiaoke.commons.os.NextExecutor;
+import com.mcxiaoke.commons.os.NextMessage;
+import com.mcxiaoke.commons.os.SimpleTaskCallback;
+import com.mcxiaoke.commons.os.TaskCallback;
 import com.mcxiaoke.commons.ui.dialog.AlertDialogFragment;
 import com.mcxiaoke.commons.ui.dialog.ProgressDialogFragment;
 
@@ -80,6 +83,7 @@ public class AlertDialogSamples extends BaseActivity {
                 showProgressDialog();
             }
         });
+        mButton5.setText("测试异步任务");
         mButton5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,20 +105,20 @@ public class AlertDialogSamples extends BaseActivity {
                 return response.getAsAsString();
             }
         };
-        final NextExecutor.TaskCallback<String> callback = new NextExecutor.SimpleTaskCallback<String>() {
+        final TaskCallback<String> callback = new SimpleTaskCallback<String>() {
             @Override
-            public void onTaskSuccess(String s, Bundle extras, Object object) {
-                super.onTaskSuccess(s, extras, object);
+            public void onTaskSuccess(String s, NextMessage message) {
+                super.onTaskSuccess(s, message);
                 Log.w(TAG, s);
             }
 
             @Override
-            public void onTaskFailure(Throwable e, Bundle extras) {
-                super.onTaskFailure(e, extras);
+            public void onTaskFailure(Throwable e, NextMessage message) {
+                super.onTaskFailure(e, message);
                 Log.e(TAG, e.toString());
             }
         };
-        NextExecutor.getDefault().add(callable, callback, this);
+        NextExecutor.getDefault().execute(callable, callback, this);
     }
 
     private void showAlertDialog(boolean list) {
