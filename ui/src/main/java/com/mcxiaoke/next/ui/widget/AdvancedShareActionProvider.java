@@ -396,7 +396,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
         try {
             mContext.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        } catch (Exception e) {
             Log.e(TAG, "onMenuItemClick() error: " + e);
             Toast.makeText(mContext, R.string.share_action_provider_target_not_found, Toast.LENGTH_SHORT).show();
         }
