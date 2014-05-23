@@ -13,8 +13,8 @@ import com.mcxiaoke.next.utils.LogUtils;
  * Time: 11:49
  */
 @TargetApi(VERSION_CODES.HONEYCOMB)
-public abstract class NextActivity extends Activity {
-    private static final String BASE_TAG = NextActivity.class.getSimpleName();
+public abstract class NextBaseActivity extends Activity {
+    private static final String BASE_TAG = NextBaseActivity.class.getSimpleName();
     public static final boolean DEBUG = false;
 
     private boolean mPaused;
@@ -71,7 +71,7 @@ public abstract class NextActivity extends Activity {
         onBackPressed();
     }
 
-    protected NextActivity getActivity() {
+    protected NextBaseActivity getActivity() {
         return this;
     }
 

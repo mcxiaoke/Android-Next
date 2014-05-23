@@ -15,9 +15,9 @@ import com.mcxiaoke.next.utils.LogUtils;
  * Time: 11:49
  */
 @TargetApi(VERSION_CODES.HONEYCOMB)
-public abstract class NextFragment extends Fragment {
+public abstract class NextBaseFragment extends Fragment {
     public static final boolean DEBUG = false;
-    private static final String BASE_TAG = NextFragment.class.getSimpleName();
+    private static final String BASE_TAG = NextBaseFragment.class.getSimpleName();
 
     @Override
     public void onAttach(Activity activity) {
@@ -84,40 +84,40 @@ public abstract class NextFragment extends Fragment {
         return o.getClass().getSimpleName();
     }
 
-    public final NextActivity getBaseActivity() {
-        return (NextActivity) getActivity();
+    public final NextBaseActivity getBaseActivity() {
+        return (NextBaseActivity) getActivity();
     }
 
     public final void showProgressIndicator() {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.showProgressIndicator();
         }
     }
 
     public final void hideProgressIndicator() {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.hideProgressIndicator();
         }
     }
 
     public final void finishActivity() {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.finish();
         }
     }
 
     public final void setResult(int resultCode) {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.setResult(resultCode);
         }
     }
 
     public final void setResult(int resultCode, Intent data) {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.setResult(resultCode, data);
         }
@@ -125,14 +125,14 @@ public abstract class NextFragment extends Fragment {
 
 
     public final void invalidateOptionsMenu() {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             activity.invalidateOptionsMenu();
         }
     }
 
     public final ActionBar getActionBar() {
-        NextActivity activity = getBaseActivity();
+        NextBaseActivity activity = getBaseActivity();
         if (activity != null) {
             return activity.getActionBar();
         }
@@ -167,7 +167,7 @@ public abstract class NextFragment extends Fragment {
         }
     }
 
-    protected NextFragment getFragment() {
+    protected NextBaseFragment getFragment() {
         return this;
     }
 
