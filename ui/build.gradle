@@ -5,3 +5,7 @@ dependencies {
 }
 
 apply from: '../base.gradle'
+
+//android {
+//    resourcePrefix "next"
+//}
