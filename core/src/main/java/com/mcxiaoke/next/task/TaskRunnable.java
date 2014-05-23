@@ -106,6 +106,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
             mStartTime = SystemClock.elapsedRealtime();
         }
 
+        notifyStarted();
+
         final Callable<Result> callable = mCallable;
         Result result = null;
         Throwable throwable = null;
@@ -144,14 +146,14 @@ class TaskRunnable<Result, Caller> implements Runnable {
             LogUtils.v(TAG, "run() end duration:" + getDuration() + "ms tag=" + getTag());
         }
 
-        onDone();
+        notifyDone();
 
         // if not cancelled, notify callback
         if (!taskCancelled) {
             if (throwable != null) {
-                onFailure(throwable);
+                notifyFailure(throwable);
             } else {
-                onSuccess(result);
+                notifySuccess(result);
             }
         }
 
@@ -225,6 +227,22 @@ class TaskRunnable<Result, Caller> implements Runnable {
         return Thread.currentThread().isInterrupted();
     }
 
+    private void notifyStarted() {
+        if (mDebug) {
+            LogUtils.v(TAG, "notifyStarted() tag=" + getTag());
+        }
+        final String tag = getTag();
+        final TaskCallback<Result> callback = mCallback;
+        postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                if (callback != null) {
+                    callback.onTaskStarted(tag);
+                }
+            }
+        });
+    }
+
     /**
      * 回调，任务执行成功
      * 注意：回调函数在UI线程运行
@@ -233,9 +251,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
      * @param callback 任务回调接口
      * @param <Result> 类型参数，任务结果类型
      */
-    private void onSuccess(final Result result) {
+    private void notifySuccess(final Result result) {
         if (mDebug) {
-            LogUtils.v(TAG, "onSuccess() tag=" + getTag());
+            LogUtils.v(TAG, "notifySuccess() tag=" + getTag());
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -257,9 +275,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
      * @param callback  任务回调接口
      * @param <Result>  类型参数，任务结果类型
      */
-    private void onFailure(final Throwable exception) {
+    private void notifyFailure(final Throwable exception) {
         if (mDebug) {
-            LogUtils.e(TAG, "onFailure() exception=" + exception + " tag=" + getTag());
+            LogUtils.e(TAG, "notifyFailure() exception=" + exception + " tag=" + getTag());
         }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
@@ -273,9 +291,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
         });
     }
 
-    private void onDone() {
+    private void notifyDone() {
 //        if (mDebug) {
-//            LogUtils.v(TAG, "onDone() tag=" + getTag());
+//            LogUtils.v(TAG, "notifyDone() tag=" + getTag());
 //        }
         final Handler handler = mHandler;
         final String tag = mTag;

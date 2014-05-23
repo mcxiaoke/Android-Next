@@ -5,10 +5,15 @@ package com.mcxiaoke.next.task;
  * Date: 14-5-15
  * Time: 18:42
  */
-public class SimpleTaskCallback<V> implements TaskCallback<V> {
+public class SimpleTaskCallback<Result> implements TaskCallback<Result> {
 
     @Override
-    public void onTaskSuccess(final V result, final TaskMessage message) {
+    public void onTaskStarted(final String tag) {
+
+    }
+
+    @Override
+    public void onTaskSuccess(final Result result, final TaskMessage message) {
 
     }
 
