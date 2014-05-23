@@ -13,6 +13,7 @@ import butterknife.OnClick;
 import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
+import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskExecutor;
@@ -65,7 +66,7 @@ public class NextExecutorSamples extends BaseActivity {
             return;
         }
 
-        final TaskCallback<String> callback = new TaskCallback<String>() {
+        final TaskCallback<String> callback = new SimpleTaskCallback<String>() {
             @Override
             public void onTaskSuccess(final String result, final TaskMessage message) {
                 final int type = message.type;
