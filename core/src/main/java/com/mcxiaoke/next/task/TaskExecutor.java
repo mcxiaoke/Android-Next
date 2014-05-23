@@ -53,9 +53,9 @@ public final class TaskExecutor {
     }
 
     private void ensureData() {
-        if (mDebug) {
-            LogUtils.v(TAG, "ensureData()");
-        }
+//        if (mDebug) {
+//            LogUtils.v(TAG, "ensureData()");
+//        }
         if (mTaskMap == null) {
             mTaskMap = new ConcurrentHashMap<String, TaskRunnable>();
         }
@@ -206,7 +206,7 @@ public final class TaskExecutor {
         final int hashCode = runnable.getHashCode();
         final String tag = runnable.getTag();
         if (mDebug) {
-            LogUtils.v(TAG, "addToCallerMap() tag=" + tag + " hashCode=" + hashCode);
+            LogUtils.v(TAG, "addToCallerMap() tag=" + tag);
         }
         List<String> tags = mCallerMap.get(hashCode);
         if (tags == null) {
@@ -406,12 +406,12 @@ public final class TaskExecutor {
                     }
                     switch (msg.what) {
                         case MSG_TASK_DONE: {
-                            if (mDebug) {
-                                LogUtils.v(TAG, "========EXECUTOR STATUS START========");
-                                logExecutor("Executor", mExecutor);
-                                logExecutor("SerialExecutor", mSerialExecutor);
-                                LogUtils.v(TAG, "========EXECUTOR STATUS END===========");
-                            }
+//                            if (mDebug) {
+//                                LogUtils.v(TAG, "========EXECUTOR STATUS START========");
+//                                logExecutor("Executor", mExecutor);
+//                                logExecutor("SerialExecutor", mSerialExecutor);
+//                                LogUtils.v(TAG, "========EXECUTOR STATUS END===========");
+//                            }
                             final String tag = (String) msg.obj;
                             remove(tag);
                         }

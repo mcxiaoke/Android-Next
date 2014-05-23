@@ -53,8 +53,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mHashCode = System.identityHashCode(caller);
         mTag = buildTag(caller);
         if (mDebug) {
-            LogUtils.v(TAG, "TaskRunnable() hashCode=" + mHashCode
-                    + " tag=" + mTag + " serial=" + serial);
+            LogUtils.v(TAG, "TaskRunnable() tag=" + mTag + " serial=" + serial);
         }
     }
 
@@ -65,9 +64,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
     // 重置所有字段
     private void reset() {
-        if (mDebug) {
-            LogUtils.v(TAG, "reset()");
-        }
+//        if (mDebug) {
+//            LogUtils.v(TAG, "reset()");
+//        }
         mHandler = null;
         mCallback = null;
         mCallable = null;
@@ -86,15 +85,15 @@ class TaskRunnable<Result, Caller> implements Runnable {
      * @return cancelled
      */
     private boolean isTaskCancelled() {
-        if (mDebug) {
-            final boolean cancelled = isCancelled();
-            final boolean interrupted = isInterrupted();
-            final boolean noCaller = mWeakCaller.get() == null;
-            final boolean noCallback = mCallback == null;
-            LogUtils.v(TAG, "isTaskCancelled() cancelled=" + cancelled
-                    + " interrupted=" + interrupted + " noCaller="
-                    + noCaller + " noCallback=" + noCallback + " tag=" + getTag());
-        }
+//        if (mDebug) {
+//            final boolean cancelled = isCancelled();
+//            final boolean interrupted = isInterrupted();
+//            final boolean noCaller = mWeakCaller.get() == null;
+//            final boolean noCallback = mCallback == null;
+//            LogUtils.v(TAG, "isTaskCancelled() cancelled=" + cancelled
+//                    + " interrupted=" + interrupted + " noCaller="
+//                    + noCaller + " noCallback=" + noCallback + " tag=" + getTag());
+//        }
         return isCancelled() || isInterrupted()
                 || mWeakCaller.get() == null || mCallback == null;
     }
@@ -123,7 +122,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
             }
         } else {
             if (mDebug) {
-                LogUtils.v(TAG, "run() task is cancelled, ignore callable execute, seq="
+                LogUtils.v(TAG, "run() task is cancelled, ignore task, seq="
                         + getSequence() + " thread="
                         + Thread.currentThread().getName() + " tag=" + getTag());
             }
@@ -275,9 +274,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
     private void onDone() {
-        if (mDebug) {
-            LogUtils.v(TAG, "onDone() tag=" + getTag());
-        }
+//        if (mDebug) {
+//            LogUtils.v(TAG, "onDone() tag=" + getTag());
+//        }
         final Handler handler = mHandler;
         final String tag = mTag;
         if (handler != null) {
@@ -287,9 +286,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
     }
 
     private void onFinally() {
-        if (mDebug) {
-            LogUtils.v(TAG, "onFinally()");
-        }
+//        if (mDebug) {
+//            LogUtils.v(TAG, "onFinally()");
+//        }
         reset();
     }
 
@@ -336,9 +335,9 @@ class TaskRunnable<Result, Caller> implements Runnable {
         final String className = caller.getClass().getSimpleName();
         final long timestamp = SystemClock.elapsedRealtime();
 
-        if (mDebug) {
-            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequence);
-        }
+//        if (mDebug) {
+//            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequence);
+//        }
 
         StringBuilder builder = new StringBuilder();
         builder.append(className).append(SEPARATOR);
