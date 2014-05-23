@@ -14,7 +14,11 @@ import java.util.concurrent.Future;
  * Date: 14-5-14
  * Time: 17:12
  */
-class TaskRunnable<Result, Caller> implements Runnable {
+final class TaskRunnable<Result, Caller> implements Runnable {
+
+    static enum TaskStatus {
+        IDLE, RUNNING, DONE
+    }
 
     public static final String CLASS_TAG = TaskRunnable.class.getSimpleName();
     public static final String TAG = TaskExecutor.TAG + "." + CLASS_TAG;
@@ -37,6 +41,8 @@ class TaskRunnable<Result, Caller> implements Runnable {
     private boolean mCancelled;
     private boolean mDebug;
 
+    private TaskStatus mStatus;
+
     private long mStartTime;
     private long mEndTime;
 
@@ -52,6 +58,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mSequence = incSequence();
         mHashCode = System.identityHashCode(caller);
         mTag = buildTag(caller);
+        mStatus = TaskStatus.IDLE;
         if (mDebug) {
             LogUtils.v(TAG, "TaskRunnable() tag=" + mTag + " serial=" + serial);
         }
@@ -100,6 +107,7 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
     @Override
     public void run() {
+        mStatus = TaskStatus.RUNNING;
         if (mDebug) {
             LogUtils.v(TAG, "run() start seq=" + getSequence()
                     + " thread=" + Thread.currentThread().getName() + " tag=" + getTag());
@@ -139,13 +147,6 @@ class TaskRunnable<Result, Caller> implements Runnable {
         mThrowable = throwable;
 
 
-        if (mDebug) {
-            mEndTime = SystemClock.elapsedRealtime();
-            LogUtils.v(TAG, "run() end taskCancelled=" + taskCancelled
-                    + " seq=" + getSequence() + " thread=" + Thread.currentThread().getName());
-            LogUtils.v(TAG, "run() end duration:" + getDuration() + "ms tag=" + getTag());
-        }
-
         notifyDone();
 
         // if not cancelled, notify callback
@@ -158,7 +159,13 @@ class TaskRunnable<Result, Caller> implements Runnable {
         }
 
         onFinally();
-
+        if (mDebug) {
+            mEndTime = SystemClock.elapsedRealtime();
+            LogUtils.v(TAG, "run() end taskCancelled=" + taskCancelled
+                    + " seq=" + getSequence() + " thread=" + Thread.currentThread().getName());
+            LogUtils.v(TAG, "run() end duration:" + getDuration() + "ms tag=" + getTag());
+        }
+        mStatus = TaskStatus.DONE;
     }
 
     public boolean cancel() {
@@ -199,6 +206,10 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
     public long getDuration() {
         return mEndTime - mStartTime;
+    }
+
+    public String getStatus() {
+        return mStatus.name();
     }
 
     public void setFuture(Future<?> future) {
@@ -318,16 +329,14 @@ class TaskRunnable<Result, Caller> implements Runnable {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder("NextRunnable{");
-        builder.append("mTAg=").append(mTag);
+        final StringBuilder builder = new StringBuilder("TaskRunnable{");
         builder.append("mResult=").append(mResult);
         builder.append(", mThrowable=").append(mThrowable);
-        builder.append(", mHashCode=").append(mHashCode);
         builder.append(", mTag='").append(mTag).append('\'');
         builder.append(", mSerial=").append(mSerial);
         builder.append(", mCancelled=").append(mCancelled);
-        builder.append(", mDebug=").append(mDebug);
-        builder.append(", mCallback=").append(mCallback);
+        builder.append(", mStatus=").append(mStatus);
+        builder.append(", mDuration=").append(getDuration());
         builder.append('}');
         return builder.toString();
     }
