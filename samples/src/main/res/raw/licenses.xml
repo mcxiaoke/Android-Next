@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notices>
+    <notice>
+        <name>Android Open Source Project</name>
+        <url>http://source.android.com/</url>
+        <copyright>Copyright (C) 2009 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Google Gson</name>
+        <url>https://code.google.com/p/google-gson/</url>
+        <copyright>Copyright (C) 2009 Google Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>jsoup</name>
+        <url>http://jsoup.org/</url>
+        <copyright>Copyright (C) 2009, 2010, 2011, 2012, 2013 Jonathan Hedley</copyright>
+        <license>MIT License</license>
+    </notice>
+
+    <notice>
+        <name>Jodd Lagarto</name>
+        <url>http://jodd.org/</url>
+        <copyright>Copyright (C) 2003-2014, Jodd Team</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Butter Knife</name>
+        <url>https://github.com/JakeWharton/butterknife</url>
+        <copyright>Copyright 2013 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Picasso</name>
+        <url>https://github.com/square/picasso</url>
+        <copyright>Copyright 2013 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>OkHttp</name>
+        <url>https://github.com/square/okhttp</url>
+        <copyright>Copyright 2013 Square, Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>ListViewAnimations</name>
+        <url>https://github.com/nhaarman/ListViewAnimations</url>
+        <copyright>Copyright 2013 Niek Haarman</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Universal Image Loader</name>
+        <url>https://github.com/nostra13/Android-Universal-Image-Loader</url>
+        <copyright>Copyright 2011-2014 Sergey Tarasevich</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>StickyListHeaders</name>
+        <url>https://github.com/emilsjolander/StickyListHeaders</url>
+        <copyright>Copyright 2014 Emil Sjölander</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>SmoothProgressBar</name>
+        <url>https://github.com/castorflex/SmoothProgressBar</url>
+        <copyright>You can do whatever you want with this stuff.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Crouton</name>
+        <url>https://github.com/keyboardsurfer/Crouton</url>
+        <copyright>Copyright 2013 Marie Schweiz</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>SuperToasts</name>
+        <url>https://github.com/JohnPersano/SuperToasts</url>
+        <copyright>Copyright 2014 John Persano</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Paho</name>
+        <url>http://www.eclipse.org/paho/</url>
+        <copyright>Copyright (c) 2007, Eclipse Foundation, Inc.</copyright>
+        <license>Eclipse Public License 1.0</license>
+    </notice>
+
+    <notice>
+        <name>PhotoView</name>
+        <url>https://github.com/chrisbanes/PhotoView</url>
+        <copyright>Copyright 2011, 2012 Chris Banes</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Android ViewPagerIndicator</name>
+        <url>http://viewpagerindicator.com/</url>
+        <copyright>Copyright 2011 Patrik Åkerfeldt, 2012 Jake Wharton</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Android-PullToRefresh</name>
+        <url>https://github.com/chrisbanes/Android-PullToRefresh</url>
+        <copyright>Copyright 2011, 2012 Chris Banes</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>Android Next</name>
+        <url>https://github.com/mcxiaoke/Next</url>
+        <copyright>Copyright 2014 Xiaoke Zhang</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>LicensesDialog</name>
+        <url>https://github.com/PSDev/LicensesDialog</url>
+        <copyright>Copyright 2013 Philip Schiffer</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>HttpComponents</name>
+        <url>http://hc.apache.org/</url>
+        <copyright>Copyright 2002-2012 The Apache Software Foundation</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+    <notice>
+        <name>CircularImageView</name>
+        <url>https://github.com/lopspower/CircularImageView</url>
+        <copyright>Copyright 2014 Lopez Mikhael</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+
+</notices>
