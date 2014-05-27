@@ -168,4 +168,15 @@ public class ViewUtils {
         context.getResources().getValue(resId, value, true);
         return (int) TypedValue.complexToFloat(value.data);
     }
+
+    @SuppressWarnings({"unchecked", "UnusedDeclaration"})
+    public static <T extends View> T findById(View view, int id) {
+        return (T) view.findViewById(id);
+    }
+
+    @SuppressWarnings({"unchecked", "UnusedDeclaration"})
+    public static <T extends View> T findById(Activity activity, int id) {
+        return (T) activity.findViewById(id);
+    }
+
 }
