@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.task;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -144,8 +145,8 @@ public final class TaskQueue {
     }
 
     public <Result, Caller> String add(final Callable<Result> callable,
-                                           final TaskCallback<Result> callback,
-                                           final Caller caller) {
+                                       final TaskCallback<Result> callback,
+                                       final Caller caller) {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
         }
@@ -473,6 +474,103 @@ public final class TaskQueue {
                 throw new NullPointerException("argument can not be null.");
             }
         }
+    }
+
+    public static interface Success<Result> {
+        void onSuccess(final Result result, final Bundle extras);
+    }
+
+    public static interface Failure {
+        void onFailure(Throwable throwable, final Bundle extras);
+    }
+
+    /**
+     * Builder模式，链式调用
+     *
+     * @param <Result> Result
+     */
+    public static class Builder<Result> {
+        private Object mCaller;
+        private TaskCallback<Result> mCallback;
+        private Success<Result> mSuccess;
+        private Failure mFailure;
+        private Callable<Result> mCallable;
+
+        public String execute() {
+            if (mCaller == null) {
+                throw new NullPointerException("caller can not be null.");
+            }
+            if (mCallable == null) {
+                throw new NullPointerException("callable can not be null.");
+            }
+            if (mCallback == null) {
+                mCallback = new TaskCallback<Result>() {
+                    @Override
+                    public void onTaskStarted(final String tag, final Bundle extras) {
+                    }
+
+                    @Override
+                    public void onTaskSuccess(final Result result, final Bundle extras) {
+                        if (mSuccess != null) {
+                            mSuccess.onSuccess(result, extras);
+                        }
+                    }
+
+                    @Override
+                    public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                        if (mFailure != null) {
+                            mFailure.onFailure(ex, extras);
+                        }
+                    }
+                };
+            }
+            return TaskQueue.getDefault().add(mCallable, mCallback, mCaller);
+        }
+
+        public <Caller> Builder() {
+        }
+
+        public <Caller> Builder(Caller caller) {
+            with(caller);
+        }
+
+        public <Caller> Builder with(final Caller caller) {
+            mCaller = caller;
+            return this;
+        }
+
+        public Builder callable(Callable<Result> callable) {
+            if (mCaller != null) {
+                throw new IllegalStateException("callable is already set.");
+            }
+            mCallable = callable;
+            return this;
+        }
+
+        public Builder success(final Success<Result> success) {
+            if (mCallback != null) {
+                throw new IllegalStateException("callback is already set.");
+            }
+            mSuccess = success;
+            return this;
+        }
+
+        public Builder failure(final Failure failure) {
+            if (mCallback != null) {
+                throw new IllegalStateException("callback is already set.");
+            }
+            mFailure = failure;
+            return this;
+        }
+
+        public Builder callback(final TaskCallback<Result> callback) {
+            if (mSuccess != null || mFailure != null) {
+                throw new IllegalStateException("success or failure callback is already set.");
+            }
+            mCallback = callback;
+            return this;
+        }
+
     }
 
 }
