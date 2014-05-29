@@ -101,7 +101,7 @@ public class EndlessListViewSamples extends BaseActivity {
                 mEndlessListView.showFooterEmpty();
             }
         };
-        TaskQueue.getDefault().execute(callable, callback, this);
+        TaskQueue.getDefault().add(callable, callback, this);
     }
 
     @Override

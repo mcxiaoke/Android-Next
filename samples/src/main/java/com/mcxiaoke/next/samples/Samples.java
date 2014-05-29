@@ -16,7 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.mcxiaoke.next.cache.DiscCache;
 import com.mcxiaoke.next.samples.core.LicenseSamples;
-import com.mcxiaoke.next.samples.core.TaskExecutorSamples;
+import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
@@ -66,7 +66,7 @@ public class Samples extends BaseActivity {
         mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
-        mSampleListData.add(new SampleInfo(TaskExecutorSamples.TAG, TaskExecutorSamples.class));
+        mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
         mSampleListData.add(new SampleInfo(LicenseSamples.TAG, LicenseSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));

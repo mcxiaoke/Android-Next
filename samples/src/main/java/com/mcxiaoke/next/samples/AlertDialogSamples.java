@@ -117,7 +117,7 @@ public class AlertDialogSamples extends BaseActivity {
                 Log.e(TAG, e.toString());
             }
         };
-        TaskQueue.getDefault().execute(callable, callback, this);
+        TaskQueue.getDefault().add(callable, callback, this);
     }
 
     private void showAlertDialog(boolean list) {

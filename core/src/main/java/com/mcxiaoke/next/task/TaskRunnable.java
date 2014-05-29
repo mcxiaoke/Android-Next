@@ -1,8 +1,12 @@
 package com.mcxiaoke.next.task;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import com.mcxiaoke.next.utils.AndroidUtils;
 import com.mcxiaoke.next.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
@@ -37,6 +41,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
     private int mHashCode;
     private String mTag;
 
+    private boolean mCheckCaller;
     private boolean mSerial;
     private boolean mCancelled;
     private boolean mDebug;
@@ -46,11 +51,12 @@ final class TaskRunnable<Result, Caller> implements Runnable {
     private long mStartTime;
     private long mEndTime;
 
-    public TaskRunnable(final Handler handler, final boolean serial,
-                        final TaskCallable<Result> callable,
-                        final TaskCallback<Result> callback,
-                        final Caller caller) {
+    TaskRunnable(final Handler handler, final boolean checkCaller, final boolean serial,
+                 final TaskCallable<Result> callable,
+                 final TaskCallback<Result> callback,
+                 final Caller caller) {
         mHandler = handler;
+        mCheckCaller = checkCaller;
         mSerial = serial;
         mCallable = callable;
         mCallback = callback;
@@ -102,7 +108,36 @@ final class TaskRunnable<Result, Caller> implements Runnable {
 //                    + noCaller + " noCallback=" + noCallback + " tag=" + getTag());
 //        }
         return isCancelled() || isInterrupted()
-                || mWeakCaller.get() == null || mCallback == null;
+                || mWeakCaller == null || mCallback == null;
+    }
+
+    /**
+     * 检查Caller的生命周期，是否Alive
+     *
+     * @return
+     */
+    @SuppressLint("NewApi")
+    private boolean isCallerAlive() {
+        if (!mCheckCaller) {
+            return true;
+        }
+        final Caller caller = mWeakCaller.get();
+        if (caller == null) {
+            return false;
+        }
+        if (caller instanceof Activity) {
+            return !((Activity) caller).isFinishing();
+        }
+
+        if (caller instanceof android.support.v4.app.Fragment) {
+            return ((android.support.v4.app.Fragment) caller).isAdded();
+        }
+        if (AndroidUtils.hasIceCreamSandwich()) {
+            if (caller instanceof Fragment) {
+                return ((Fragment) caller).isAdded();
+            }
+        }
+        return true;
     }
 
     @Override
@@ -149,8 +184,9 @@ final class TaskRunnable<Result, Caller> implements Runnable {
 
         notifyDone();
 
-        // if not cancelled, notify callback
-        if (!taskCancelled) {
+        // if task not cancelled and caller alive, notify callback
+        final boolean callerAlive = isCallerAlive();
+        if (!taskCancelled && callerAlive) {
             if (throwable != null) {
                 notifyFailure(throwable);
             } else {
@@ -162,7 +198,8 @@ final class TaskRunnable<Result, Caller> implements Runnable {
         if (mDebug) {
             mEndTime = SystemClock.elapsedRealtime();
             LogUtils.v(TAG, "run() end taskCancelled=" + taskCancelled
-                    + " seq=" + getSequence() + " thread=" + Thread.currentThread().getName());
+                    + " seq=" + getSequence() + " callerAlive=" + callerAlive
+                    + " thread=" + Thread.currentThread().getName());
             LogUtils.v(TAG, "run() end duration:" + getDuration() + "ms tag=" + getTag());
         }
         mStatus = TaskStatus.DONE;
@@ -216,14 +253,16 @@ final class TaskRunnable<Result, Caller> implements Runnable {
         mFuture = future;
     }
 
-    public boolean isActive() {
-        return !isInactive();
+    public boolean isRunning() {
+        return mStatus == TaskStatus.RUNNING;
     }
 
-    private boolean isInactive() {
-        return mFuture == null ||
-                mFuture.isCancelled() ||
-                mFuture.isDone();
+    private boolean isIdle() {
+        return mStatus == TaskStatus.IDLE;
+    }
+
+    private boolean isDone() {
+        return mStatus == TaskStatus.DONE;
     }
 
     public boolean isSerial() {

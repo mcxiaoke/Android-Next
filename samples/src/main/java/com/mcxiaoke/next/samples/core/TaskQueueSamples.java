@@ -27,8 +27,8 @@ import java.util.concurrent.Callable;
  * Date: 14-5-22
  * Time: 15:13
  */
-public class TaskExecutorSamples extends BaseActivity {
-    public static final String TAG = TaskExecutorSamples.class.getSimpleName();
+public class TaskQueueSamples extends BaseActivity {
+    public static final String TAG = TaskQueueSamples.class.getSimpleName();
 
     @InjectView(R.id.input)
     EditText mEditText;
@@ -77,21 +77,21 @@ public class TaskExecutorSamples extends BaseActivity {
             }
         };
 
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
 
-        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
     }
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());

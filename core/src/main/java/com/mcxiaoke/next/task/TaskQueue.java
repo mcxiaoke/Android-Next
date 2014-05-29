@@ -18,10 +18,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * 一个用于执行异步任务的类，单例，支持检查Caller，支持按照Caller和Tag取消对应的任务
  * User: mcxiaoke
- * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14
+ * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14 2014-05-29
  */
 public final class TaskQueue {
-    public static final String SEPARATOR = "::";
     public static final String TAG = TaskQueue.class.getSimpleName();
 
     private final Object mLock = new Object();
@@ -32,6 +31,7 @@ public final class TaskQueue {
     private Map<Integer, List<String>> mCallerMap;
     private Map<String, TaskRunnable> mTaskMap;
 
+    private boolean mEnableCallerAliveCheck;
     private boolean mDebug;
 
     // 延迟加载
@@ -64,6 +64,17 @@ public final class TaskQueue {
         }
     }
 
+    /**
+     * 是否检查Android组件生命周期
+     * 对于Activity，检查Activity.isFinishing()
+     * 对于Fragment，检查Fragment.isAdded()
+     * 如果不满足条件，取消回调
+     *
+     * @param checkCaller
+     */
+    public void setEnableCallerAliveCheck(boolean enable) {
+        mEnableCallerAliveCheck = enable;
+    }
 
     /**
      * debug开关
@@ -99,7 +110,7 @@ public final class TaskQueue {
      * @param <Caller> 类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
-    private <Result, Caller> TaskRunnable<Result, Caller> addToQueue(
+    private <Result, Caller> TaskRunnable<Result, Caller> enqueue(
             final boolean serial, final Callable<Result> callable,
             final TaskCallback<Result> callback, final Caller caller) {
 
@@ -109,10 +120,11 @@ public final class TaskQueue {
         ensureExecutor();
 
         if (mDebug) {
-            LogUtils.v(TAG, "addToQueue() serial=" + serial);
+            LogUtils.v(TAG, "enqueue() serial=" + serial);
         }
 
         final Handler handler = mUiHandler;
+        final boolean enable = mEnableCallerAliveCheck;
 
         final TaskCallable<Result> nextCallable;
         if (callable instanceof TaskCallable) {
@@ -122,7 +134,7 @@ public final class TaskQueue {
         }
 
         final TaskRunnable<Result, Caller> runnable = new TaskRunnable<Result, Caller>
-                (handler, serial, nextCallable, callback, caller);
+                (handler, enable, serial, nextCallable, callback, caller);
         runnable.setDebug(mDebug);
 
         addToTaskMap(runnable);
@@ -131,13 +143,13 @@ public final class TaskQueue {
         return runnable;
     }
 
-    public <Result, Caller> String execute(final Callable<Result> callable,
+    public <Result, Caller> String add(final Callable<Result> callable,
                                            final TaskCallback<Result> callback,
                                            final Caller caller) {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
         }
-        final TaskRunnable<Result, Caller> runnable = addToQueue(false, callable, callback, caller);
+        final TaskRunnable<Result, Caller> runnable = enqueue(false, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -150,16 +162,16 @@ public final class TaskQueue {
      * @param <Caller> Caller
      * @return Tag
      */
-    public <Result, Caller> String execute(final Callable<Result> callable, final Caller caller) {
-        return execute(callable, null, caller);
+    public <Result, Caller> String add(final Callable<Result> callable, final Caller caller) {
+        return add(callable, null, caller);
     }
 
-    public <Result, Caller> String executeSerially(final Callable<Result> callable,
-                                                   final TaskCallback<Result> callback, final Caller caller) {
+    public <Result, Caller> String addSerially(final Callable<Result> callable,
+                                               final TaskCallback<Result> callback, final Caller caller) {
         if (mDebug) {
-            LogUtils.v(TAG, "executeSerially()");
+            LogUtils.v(TAG, "addSerially()");
         }
-        final TaskRunnable<Result, Caller> runnable = addToQueue(true, callable, callback, caller);
+        final TaskRunnable<Result, Caller> runnable = enqueue(true, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -172,8 +184,8 @@ public final class TaskQueue {
      * @param <Caller> Caller
      * @return Tag
      */
-    public <Result, Caller> String executeSerially(final Callable<Result> callable, final Caller caller) {
-        return executeSerially(callable, null, caller);
+    public <Result, Caller> String addSerially(final Callable<Result> callable, final Caller caller) {
+        return addSerially(callable, null, caller);
     }
 
     /**
@@ -184,7 +196,7 @@ public final class TaskQueue {
      */
     public boolean isActive(String tag) {
         TaskRunnable nr = mTaskMap.get(tag);
-        return nr != null && nr.isActive();
+        return nr != null && nr.isRunning();
     }
 
     private <Result, Caller> void addToTaskMap(final TaskRunnable<Result, Caller> runnable) {
