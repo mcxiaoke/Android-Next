@@ -88,6 +88,10 @@ public abstract class MultiIntentService extends Service {
         checkAutoClose();
     }
 
+    public boolean isIdle() {
+        return mRetainCount.get() <= 0;
+    }
+
     private void dispatchIntent(final Intent intent) {
         final long id = System.currentTimeMillis();
         final Runnable runnable = new Runnable() {
@@ -151,7 +155,7 @@ public abstract class MultiIntentService extends Service {
     private void autoClose() {
         LogUtils.v(BASE_TAG, "autoClose() mRetainCount=" + mRetainCount.get());
         LogUtils.v(BASE_TAG, "autoClose() mFutures.size()=" + mFutures.size());
-        if (mRetainCount.get() <= 0) {
+        if (isIdle()) {
             stopSelf();
         }
     }
