@@ -16,7 +16,7 @@ import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
-import com.mcxiaoke.next.task.TaskExecutor;
+import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.utils.StringUtils;
 
 import java.util.Random;
@@ -52,7 +52,7 @@ public class TaskExecutorSamples extends BaseActivity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.act_next_executor);
         ButterKnife.inject(this);
-        TaskExecutor.getDefault().setDebug(true);
+        TaskQueue.getDefault().setDebug(true);
     }
 
     private int mCounter;
@@ -77,21 +77,21 @@ public class TaskExecutorSamples extends BaseActivity {
             }
         };
 
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
-        TaskExecutor.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
+        TaskQueue.getDefault().executeSerially(getCallable(url, true), callback, this);
 
-        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
-        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
-        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
-        TaskExecutor.getDefault().execute(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
+        TaskQueue.getDefault().execute(getCallable(url, false), callback, this);
     }
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());
@@ -123,6 +123,6 @@ public class TaskExecutorSamples extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TaskExecutor.getDefault().cancelAll(this);
+        TaskQueue.getDefault().cancelAll(this);
     }
 }

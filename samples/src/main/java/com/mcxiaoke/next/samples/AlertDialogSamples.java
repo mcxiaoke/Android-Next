@@ -11,12 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.next.task.TaskExecutor;
 import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.task.TaskMessage;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallback;
+import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.ui.dialog.AlertDialogFragment;
 import com.mcxiaoke.next.ui.dialog.ProgressDialogFragment;
 
@@ -93,7 +92,7 @@ public class AlertDialogSamples extends BaseActivity {
     }
 
     private void testRequest() {
-        TaskExecutor.getDefault().setDebug(true);
+        TaskQueue.getDefault().setDebug(true);
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -107,18 +106,18 @@ public class AlertDialogSamples extends BaseActivity {
         };
         final TaskCallback<String> callback = new SimpleTaskCallback<String>() {
             @Override
-            public void onTaskSuccess(String s, TaskMessage message) {
-                super.onTaskSuccess(s, message);
+            public void onTaskSuccess(String s, Bundle extras) {
+                super.onTaskSuccess(s, extras);
                 Log.w(TAG, s);
             }
 
             @Override
-            public void onTaskFailure(Throwable e, TaskMessage message) {
-                super.onTaskFailure(e, message);
+            public void onTaskFailure(Throwable e, Bundle extras) {
+                super.onTaskFailure(e, extras);
                 Log.e(TAG, e.toString());
             }
         };
-        TaskExecutor.getDefault().execute(callable, callback, this);
+        TaskQueue.getDefault().execute(callable, callback, this);
     }
 
     private void showAlertDialog(boolean list) {
