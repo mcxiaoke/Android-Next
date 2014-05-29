@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
  * Date: 14-5-14
  * Time: 17:12
  */
-final class TaskRunnable<Result, Caller> implements Runnable {
+final class TaskRunnable<Result> implements Runnable {
 
     static enum TaskStatus {
         IDLE, RUNNING, DONE
@@ -32,7 +32,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
     private TaskCallable<Result> mCallable;
     private TaskCallback<Result> mCallback;
     private Future<?> mFuture;
-    private WeakReference<Caller> mWeakCaller;
+    private WeakReference<Object> mWeakCaller;
 
     private Result mResult;
     private Throwable mThrowable;
@@ -54,13 +54,13 @@ final class TaskRunnable<Result, Caller> implements Runnable {
     TaskRunnable(final Handler handler, final boolean checkCaller, final boolean serial,
                  final TaskCallable<Result> callable,
                  final TaskCallback<Result> callback,
-                 final Caller caller) {
+                 final Object caller) {
         mHandler = handler;
         mCheckCaller = checkCaller;
         mSerial = serial;
         mCallable = callable;
         mCallback = callback;
-        mWeakCaller = new WeakReference<Caller>(caller);
+        mWeakCaller = new WeakReference<Object>(caller);
         mSequence = incSequence();
         mHashCode = System.identityHashCode(caller);
         mTag = buildTag(caller);
@@ -121,7 +121,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
         if (!mCheckCaller) {
             return true;
         }
-        final Caller caller = mWeakCaller.get();
+        final Object caller = mWeakCaller.get();
         if (caller == null) {
             return false;
         }
@@ -394,7 +394,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
      * @param caller 调用对象
      * @return 任务的TAG
      */
-    private String buildTag(final Caller caller) {
+    private String buildTag(final Object caller) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+timestamp+seq
         final int sequence = mSequence;

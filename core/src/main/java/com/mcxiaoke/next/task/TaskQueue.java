@@ -108,12 +108,12 @@ public final class TaskQueue {
      * @param callback 回调接口
      * @param caller   调用方，一般为Fragment或Activity
      * @param <Result> 类型参数，异步任务执行结果
-     * @param <Caller> 类型参数，调用对象
+     * @param Object   类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
-    private <Result, Caller> TaskRunnable<Result, Caller> enqueue(
+    private <Result> TaskRunnable<Result> enqueue(
             final boolean serial, final Callable<Result> callable,
-            final TaskCallback<Result> callback, final Caller caller) {
+            final TaskCallback<Result> callback, final Object caller) {
 
         checkArguments(callable, caller);
         ensureData();
@@ -134,7 +134,7 @@ public final class TaskQueue {
             nextCallable = new TaskCallableWrapper<Result>(callable);
         }
 
-        final TaskRunnable<Result, Caller> runnable = new TaskRunnable<Result, Caller>
+        final TaskRunnable<Result> runnable = new TaskRunnable<Result>
                 (handler, enable, serial, nextCallable, callback, caller);
         runnable.setDebug(mDebug);
 
@@ -144,13 +144,13 @@ public final class TaskQueue {
         return runnable;
     }
 
-    public <Result, Caller> String add(final Callable<Result> callable,
-                                       final TaskCallback<Result> callback,
-                                       final Caller caller) {
+    public <Result> String add(final Callable<Result> callable,
+                               final TaskCallback<Result> callback,
+                               final Object caller) {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
         }
-        final TaskRunnable<Result, Caller> runnable = enqueue(false, callable, callback, caller);
+        final TaskRunnable<Result> runnable = enqueue(false, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -163,16 +163,16 @@ public final class TaskQueue {
      * @param <Caller> Caller
      * @return Tag
      */
-    public <Result, Caller> String add(final Callable<Result> callable, final Caller caller) {
+    public <Result> String add(final Callable<Result> callable, final Object caller) {
         return add(callable, null, caller);
     }
 
-    public <Result, Caller> String addSerially(final Callable<Result> callable,
-                                               final TaskCallback<Result> callback, final Caller caller) {
+    public <Result> String addSerially(final Callable<Result> callable,
+                                       final TaskCallback<Result> callback, final Object caller) {
         if (mDebug) {
             LogUtils.v(TAG, "addSerially()");
         }
-        final TaskRunnable<Result, Caller> runnable = enqueue(true, callable, callback, caller);
+        final TaskRunnable<Result> runnable = enqueue(true, callable, callback, caller);
         return runnable.getTag();
     }
 
@@ -185,7 +185,7 @@ public final class TaskQueue {
      * @param <Caller> Caller
      * @return Tag
      */
-    public <Result, Caller> String addSerially(final Callable<Result> callable, final Caller caller) {
+    public <Result> String addSerially(final Callable<Result> callable, final Object caller) {
         return addSerially(callable, null, caller);
     }
 
@@ -200,7 +200,7 @@ public final class TaskQueue {
         return nr != null && nr.isRunning();
     }
 
-    private <Result, Caller> void addToTaskMap(final TaskRunnable<Result, Caller> runnable) {
+    private <Result> void addToTaskMap(final TaskRunnable<Result> runnable) {
 
         final String tag = runnable.getTag();
         if (mDebug) {
@@ -213,7 +213,7 @@ public final class TaskQueue {
         }
     }
 
-    private <Result, Caller> void addToCallerMap(final TaskRunnable<Result, Caller> runnable) {
+    private <Result> void addToCallerMap(final TaskRunnable<Result> runnable) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+timestamp+sequenceNumber
         final int hashCode = runnable.getHashCode();
