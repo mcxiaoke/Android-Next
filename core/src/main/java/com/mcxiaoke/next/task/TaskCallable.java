@@ -1,5 +1,7 @@
 package com.mcxiaoke.next.task;
 
+import android.os.Bundle;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -8,15 +10,31 @@ import java.util.concurrent.Callable;
  * Time: 17:23
  */
 public abstract class TaskCallable<V> implements Callable<V> {
-    public TaskMessage mMessage;
+    private String mName;
+    private Bundle mExtras;
 
-    public TaskCallable() {
-
+    public TaskCallable(String name) {
+        mName = name;
     }
 
-    public TaskCallable(TaskMessage message) {
-        mMessage = message;
-
+    public TaskCallable(String name, Bundle extras) {
+        mName = name;
+        mExtras = extras;
     }
 
+    public void setName(final String name) {
+        mName = name;
+    }
+
+    public void setExtras(final Bundle extras) {
+        mExtras = extras;
+    }
+
+    public Bundle getExtras() {
+        return mExtras;
+    }
+
+    public String getName() {
+        return mName;
+    }
 }

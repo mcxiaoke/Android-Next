@@ -17,7 +17,6 @@ import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskExecutor;
-import com.mcxiaoke.next.task.TaskMessage;
 import com.mcxiaoke.next.utils.StringUtils;
 
 import java.util.Random;
@@ -28,8 +27,8 @@ import java.util.concurrent.Callable;
  * Date: 14-5-22
  * Time: 15:13
  */
-public class NextExecutorSamples extends BaseActivity {
-    public static final String TAG = NextExecutorSamples.class.getSimpleName();
+public class TaskExecutorSamples extends BaseActivity {
+    public static final String TAG = TaskExecutorSamples.class.getSimpleName();
 
     @InjectView(R.id.input)
     EditText mEditText;
@@ -68,15 +67,13 @@ public class NextExecutorSamples extends BaseActivity {
 
         final TaskCallback<String> callback = new SimpleTaskCallback<String>() {
             @Override
-            public void onTaskSuccess(final String result, final TaskMessage message) {
-                final int type = message.type;
-                println("success, end http request index:" + type);
+            public void onTaskSuccess(final String result, final Bundle extras) {
+                println("success, end http request index:" + extras.getInt("index"));
             }
 
             @Override
-            public void onTaskFailure(final Throwable ex, final TaskMessage message) {
-                final int type = message.type;
-                println("failure, end http request index:" + type);
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                println("failure, end http request index:" + extras.getInt("index"));
             }
         };
 
@@ -102,8 +99,9 @@ public class NextExecutorSamples extends BaseActivity {
     private Callable<String> getCallable(final String url, final boolean serial) {
         final int index = ++mCounter;
         println("Start http request. index:" + index + " serial:" + serial);
-        final TaskMessage message = new TaskMessage(index, 123, 456, true);
-        return new TaskCallable<String>(message) {
+        final Bundle extras = new Bundle();
+        extras.putInt("index", index);
+        return new TaskCallable<String>(TAG) {
             @Override
             public String call() throws Exception {
                 SystemClock.sleep(RANDOM.nextInt() % 3000);

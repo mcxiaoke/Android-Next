@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.task;
+package com.mcxiaoke.next.common;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -11,61 +11,70 @@ import android.os.Parcelable;
  * Date: 14-5-15
  * Time: 18:21
  */
-public class TaskMessage implements Parcelable {
+public class NextMessage implements Parcelable {
     public int type;
     public int arg1;
     public long arg2;
     public boolean flag;
+    public String text;
     public Object obj;
     private Bundle data;
 
-    public static TaskMessage create(int type) {
-        return new TaskMessage(type);
+    public static NextMessage create(int type) {
+        return new NextMessage(type);
     }
 
-    public static TaskMessage create(int type, int arg1) {
-        return new TaskMessage(type, arg1);
+    public static NextMessage create(int type, int arg1) {
+        return new NextMessage(type, arg1);
     }
 
-    public static TaskMessage create(int type, int arg1, long arg2) {
-        return new TaskMessage(type, arg1, arg2);
+    public static NextMessage create(int type, int arg1, long arg2) {
+        return new NextMessage(type, arg1, arg2);
     }
 
-    public static TaskMessage create(int type, int arg1, long arg2, boolean flag) {
-        return new TaskMessage(type, arg1, arg2, flag);
+    public static NextMessage create(int type, int arg1, long arg2, boolean flag) {
+        return new NextMessage(type, arg1, arg2, flag);
+    }
+
+    public static NextMessage create(int type, int arg1, long arg2, boolean flag, String text) {
+        return new NextMessage(type, arg1, arg2, flag, text);
     }
 
 
-    public TaskMessage() {
+    public NextMessage() {
     }
 
-    public TaskMessage(int type) {
+    public NextMessage(int type) {
         this.type = type;
     }
 
-    public TaskMessage(int type, int arg1) {
+    public NextMessage(int type, int arg1) {
         this.type = type;
         this.arg1 = arg1;
     }
 
-    public TaskMessage(int type, int arg1, long arg2) {
-        this.type = type;
-        this.arg1 = arg1;
-        this.arg2 = arg2;
+    public NextMessage(int type, int arg1, long arg2) {
+        this(type, arg1, arg2, false, null);
     }
 
-    public TaskMessage(int type, int arg1, long arg2, boolean flag) {
+    public NextMessage(int type, int arg1, long arg2, boolean flag) {
+        this(type, arg1, arg2, flag, null);
+    }
+
+    public NextMessage(int type, int arg1, long arg2, boolean flag, String text) {
         this.type = type;
         this.arg1 = arg1;
         this.arg2 = arg2;
         this.flag = flag;
+        this.text = text;
     }
 
-    private TaskMessage(Parcel in) {
+    private NextMessage(Parcel in) {
         this.type = in.readInt();
         this.arg1 = in.readInt();
         this.arg2 = in.readLong();
         this.flag = in.readByte() != 0;
+        this.text = in.readString();
         data = in.readBundle();
     }
 
@@ -87,6 +96,7 @@ public class TaskMessage implements Parcelable {
         sb.append(", arg1=").append(arg1);
         sb.append(", arg2=").append(arg2);
         sb.append(", flag=").append(flag);
+        sb.append(", text=").append(text);
         sb.append(", obj=").append(obj);
         sb.append(", data=").append(data);
         sb.append('}');
@@ -103,18 +113,19 @@ public class TaskMessage implements Parcelable {
         dest.writeInt(this.type);
         dest.writeInt(this.arg1);
         dest.writeLong(this.arg2);
-        dest.writeByte(flag ? (byte) 1 : (byte) 0);
-        dest.writeBundle(data);
+        dest.writeByte(this.flag ? (byte) 1 : (byte) 0);
+        dest.writeString(this.text);
+        dest.writeBundle(this.data);
     }
 
 
-    public static Creator<TaskMessage> CREATOR = new Creator<TaskMessage>() {
-        public TaskMessage createFromParcel(Parcel source) {
-            return new TaskMessage(source);
+    public static Creator<NextMessage> CREATOR = new Creator<NextMessage>() {
+        public NextMessage createFromParcel(Parcel source) {
+            return new NextMessage(source);
         }
 
-        public TaskMessage[] newArray(int size) {
-            return new TaskMessage[size];
+        public NextMessage[] newArray(int size) {
+            return new NextMessage[size];
         }
     };
 }

@@ -1,5 +1,7 @@
 package com.mcxiaoke.next.task;
 
+import android.os.Bundle;
+
 /**
  * User: mcxiaoke
  * Date: 14-5-15
@@ -8,17 +10,17 @@ package com.mcxiaoke.next.task;
 public class SimpleTaskCallback<Result> implements TaskCallback<Result> {
 
     @Override
-    public void onTaskStarted(final String tag) {
+    public void onTaskStarted(final String tag, final Bundle extras) {
 
     }
 
     @Override
-    public void onTaskSuccess(final Result result, final TaskMessage message) {
+    public void onTaskSuccess(final Result result, final Bundle extras) {
 
     }
 
     @Override
-    public void onTaskFailure(final Throwable ex, final TaskMessage message) {
+    public void onTaskFailure(final Throwable ex, final Bundle extras) {
 
     }
 }

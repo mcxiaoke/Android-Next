@@ -21,7 +21,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
     }
 
     public static final String CLASS_TAG = TaskRunnable.class.getSimpleName();
-    public static final String TAG = TaskExecutor.TAG + "." + CLASS_TAG;
+    public static final String TAG = TaskQueue.TAG + "." + CLASS_TAG;
     public static final String SEPARATOR = "::";
 
     private Handler mHandler;
@@ -243,12 +243,13 @@ final class TaskRunnable<Result, Caller> implements Runnable {
             LogUtils.v(TAG, "notifyStarted() tag=" + getTag());
         }
         final String tag = getTag();
+        final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
         postRunnable(new Runnable() {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onTaskStarted(tag);
+                    callback.onTaskStarted(tag, callable.getExtras());
                 }
             }
         });
@@ -272,7 +273,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onTaskSuccess(result, callable.mMessage);
+                    callback.onTaskSuccess(result, callable.getExtras());
                 }
             }
         });
@@ -296,7 +297,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
             @Override
             public void run() {
                 if (callback != null) {
-                    callback.onTaskFailure(exception, callable.mMessage);
+                    callback.onTaskFailure(exception, callable.getExtras());
                 }
             }
         });
@@ -309,7 +310,7 @@ final class TaskRunnable<Result, Caller> implements Runnable {
         final Handler handler = mHandler;
         final String tag = mTag;
         if (handler != null) {
-            Message message = handler.obtainMessage(TaskExecutor.MSG_TASK_DONE, tag);
+            Message message = handler.obtainMessage(TaskQueue.MSG_TASK_DONE, tag);
             handler.sendMessage(message);
         }
     }

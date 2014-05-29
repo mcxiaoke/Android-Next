@@ -8,10 +8,16 @@ import java.util.concurrent.Callable;
  * Time: 17:23
  */
 public class TaskCallableWrapper<V> extends TaskCallable<V> {
+    private static final String TAG = TaskCallableWrapper.class.getSimpleName();
 
     private Callable<V> mCallable;
 
     public TaskCallableWrapper(Callable<V> callable) {
+        this(TAG, callable);
+    }
+
+    public TaskCallableWrapper(String name, Callable<V> callable) {
+        super(name);
         mCallable = callable;
     }
 

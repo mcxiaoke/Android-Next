@@ -20,9 +20,9 @@ import java.util.concurrent.ThreadPoolExecutor;
  * User: mcxiaoke
  * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14
  */
-public final class TaskExecutor {
+public final class TaskQueue {
     public static final String SEPARATOR = "::";
-    public static final String TAG = TaskExecutor.class.getSimpleName();
+    public static final String TAG = TaskQueue.class.getSimpleName();
 
     private final Object mLock = new Object();
 
@@ -36,14 +36,14 @@ public final class TaskExecutor {
 
     // 延迟加载
     private static final class SingletonHolder {
-        static final TaskExecutor DEFAULT = new TaskExecutor();
+        static final TaskQueue DEFAULT = new TaskQueue();
     }
 
-    public static TaskExecutor getDefault() {
+    public static TaskQueue getDefault() {
         return SingletonHolder.DEFAULT;
     }
 
-    public TaskExecutor() {
+    public TaskQueue() {
         if (mDebug) {
             LogUtils.v(TAG, "NextExecutor()");
         }
