@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import com.mcxiaoke.next.utils.LogUtils;
 import com.mcxiaoke.next.utils.ThreadUtils;
 
@@ -27,12 +28,20 @@ public abstract class MultiIntentService extends Service {
     // 默认空闲5分钟后自动stopSelf()
     public static final long AUTO_CLOSE_DEFAULT_TIME = 300 * 1000L;
 
+    private static final String SEPARATOR = "::";
+
+    private static volatile long sSequence = 0L;
+
+    static long incSequence() {
+        return ++sSequence;
+    }
+
     private final Object mLock = new Object();
 
     private ExecutorService mExecutor;
     private Handler mHandler;
 
-    private volatile Map<Long, Future<?>> mFutures;
+    private volatile Map<String, Future<?>> mFutures;
     private volatile AtomicInteger mRetainCount;
 
     private boolean mAutoCloseEnable;
@@ -47,7 +56,7 @@ public abstract class MultiIntentService extends Service {
         super.onCreate();
         LogUtils.v(BASE_TAG, "onCreate()");
         mRetainCount = new AtomicInteger(0);
-        mFutures = new ConcurrentHashMap<Long, Future<?>>();
+        mFutures = new ConcurrentHashMap<String, Future<?>>();
         mAutoCloseEnable = true;
         mAutoCloseTime = AUTO_CLOSE_DEFAULT_TIME;
         ensureHandler();
@@ -78,46 +87,59 @@ public abstract class MultiIntentService extends Service {
         destroyExecutor();
     }
 
-    public void setAutoCloseEnable(boolean enable) {
+    protected void setAutoCloseEnable(boolean enable) {
         mAutoCloseEnable = enable;
         checkAutoClose();
     }
 
-    public void setAutoCloseTime(long milliseconds) {
+    protected void setAutoCloseTime(long milliseconds) {
         mAutoCloseTime = milliseconds;
         checkAutoClose();
     }
 
-    public boolean isIdle() {
+    protected boolean isIdle() {
         return mRetainCount.get() <= 0;
     }
 
+    protected final void cancel(final String tag) {
+        Future<?> future;
+        synchronized (mLock) {
+            future = mFutures.get(tag);
+        }
+        if (future != null) {
+            future.cancel(true);
+            release(tag);
+        }
+    }
+
     private void dispatchIntent(final Intent intent) {
-        final long id = System.currentTimeMillis();
+        final String tag = buildTag(intent);
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 LogUtils.v(BASE_TAG, "dispatchIntent thread=" + Thread.currentThread());
-                LogUtils.v(BASE_TAG, "dispatchIntent start id=" + id);
-                onHandleIntent(intent, id);
-                LogUtils.v(BASE_TAG, "dispatchIntent end id=" + id);
-                release(id);
+                LogUtils.v(BASE_TAG, "dispatchIntent start tag=" + tag);
+                onHandleIntent(intent, tag);
+                LogUtils.v(BASE_TAG, "dispatchIntent end tag=" + tag);
+                release(tag);
             }
         };
         Future<?> future = submit(runnable);
-        retain(id, future);
+        retain(tag, future);
     }
 
-    private void retain(final long id, final Future<?> future) {
-        LogUtils.v(BASE_TAG, "retain() id=" + id);
+    protected void retain(final String tag, final Future<?> future) {
+        LogUtils.v(BASE_TAG, "retain() tag=" + tag);
         mRetainCount.incrementAndGet();
-        mFutures.put(id, future);
+        mFutures.put(tag, future);
     }
 
-    private void release(final long id) {
-        LogUtils.v(BASE_TAG, "release() id=" + id);
+    protected void release(final String tag) {
+        LogUtils.v(BASE_TAG, "release() tag=" + tag);
         mRetainCount.decrementAndGet();
-        mFutures.remove(id);
+        synchronized (mLock) {
+            mFutures.remove(tag);
+        }
         checkAutoClose();
     }
 
@@ -189,12 +211,15 @@ public abstract class MultiIntentService extends Service {
         }
     }
 
-    protected final void cancel(long id) {
-        Future<?> future = mFutures.get(id);
-        if (future != null) {
-            future.cancel(true);
-            release(id);
-        }
+    private String buildTag(final Intent intent) {
+        final long hashCode = System.identityHashCode(intent);
+        final long sequence = incSequence();
+        final long timestamp = SystemClock.elapsedRealtime();
+        StringBuilder builder = new StringBuilder();
+        builder.append(hashCode).append(SEPARATOR);
+        builder.append(timestamp).append(SEPARATOR);
+        builder.append(sequence);
+        return builder.toString();
     }
 
     private Future<?> submit(Runnable runnable) {
@@ -212,6 +237,6 @@ public abstract class MultiIntentService extends Service {
      * @param intent Intent
      * @param id     ID，可以用于取消任务
      */
-    protected abstract void onHandleIntent(Intent intent, long id);
+    protected abstract void onHandleIntent(final Intent intent, final String tag);
 
 }
