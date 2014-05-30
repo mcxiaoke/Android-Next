@@ -2,7 +2,7 @@ Android Next 公共组件库
 ===========================================
 
 
-####Android Next Library: Views, Widgets, Utils
+####Android Next Library: Views, Widgets, Http,Utils
 
 已经部署到Maven Central，可以直接使用
 
@@ -11,8 +11,9 @@ Android Next 公共组件库
 
 分为以下几个模块：
 
-* core - 核心库，包括异步任务/网络/工具类
-* ui - UI组件，包括Dialog/ListView等
+* core - 核心库，包括异步任务/缓存/工具类
+* http - HTTP组件库
+* ui - UI组件，包括AdvancedShareActionProvider/Dialog/ListView等
 * extra-abc - 依赖AppCompat的组件
 * samples - 使用示例
 
@@ -25,6 +26,9 @@ Android Next 公共组件库
 ```
     // core 核心库, 格式:jar和aar
     compile 'com.mcxiaoke.next:core:1.+'
+    
+    // ui HTTP组件, 格式:aar
+    compile 'com.mcxiaoke.next:http:1.+'
     
     // ui UI组件, 格式:aar
     compile 'com.mcxiaoke.next:ui:1.+'
@@ -47,7 +51,7 @@ Android Next 公共组件库
 ##License
 
 
-    Copyright 2014 Xiaoke Zhang
+    Copyright 2013 - 2014 Xiaoke Zhang
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
