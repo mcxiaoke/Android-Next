@@ -98,7 +98,7 @@ public class AlertDialogSamples extends BaseActivity {
             public String call() throws Exception {
                 NextClient.getDefault().setDebug(true);
                 NextResponse response = NextClient.post("http://www.douban.com");
-                return response.getAsAsString();
+                return response.string();
             }
         };
         final TaskCallback<String> callback = new SimpleTaskCallback<String>() {

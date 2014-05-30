@@ -34,60 +34,60 @@ public class NextResponse implements Closeable {
         this.message = message;
     }
 
-    public static NextResponse create(int code, String message) {
+    static NextResponse create(int code, String message) {
         return new NextResponse(code, message);
     }
 
-    public NextResponse setStream(InputStream stream) {
+    NextResponse setStream(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
         return this;
     }
 
-    public boolean isSuccessful() {
+    public boolean successful() {
         return Utils.isSuccess(code);
     }
 
-    public int getCode() {
+    public int code() {
         return code;
     }
 
-    public String getMessage() {
+    public String message() {
         return message;
     }
 
-    public int getContentLength() {
+    public int contentLength() {
         return contentLength;
     }
 
-    public NextResponse setContentLength(int contentLength) {
+    NextResponse setContentLength(int contentLength) {
         this.contentLength = contentLength;
         return this;
     }
 
-    public String getContentType() {
+    public String contentType() {
         return contentType;
     }
 
-    public NextResponse setContentType(String contentType) {
+    NextResponse setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
 
-    public Map<String, List<String>> getHeaders() {
+    public Map<String, List<String>> headers() {
         return headers;
     }
 
-    public NextResponse setHeaders(Map<String, List<String>> headers) {
+    NextResponse setHeaders(Map<String, List<String>> headers) {
         this.headers = headers;
         return this;
     }
 
-    public String getHeader(String name) {
+    public String header(String name) {
         List<String> value = headers.get(name);
         return value != null ? value.get(0) : null;
     }
 
-    public InputStream getAsStream() {
+    public InputStream stream() {
         if (consumed) {
             return new ByteArrayInputStream(content);
 //            throw new IllegalStateException("the input stream is consumed.");
@@ -95,7 +95,7 @@ public class NextResponse implements Closeable {
         return stream;
     }
 
-    public byte[] getAsBytes() throws IOException {
+    public byte[] bytes() throws IOException {
         if (content == null) {
             try {
                 content = IOUtils.readBytes(stream);
@@ -107,12 +107,12 @@ public class NextResponse implements Closeable {
         return content;
     }
 
-    public String getAsAsString() throws IOException {
-        return getAsAsString(Consts.ENCODING_UTF8);
+    public String string() throws IOException {
+        return string(Consts.ENCODING_UTF8);
     }
 
-    public String getAsAsString(String charsetName) throws IOException {
-        return new String(getAsBytes(), charsetName);
+    public String string(String charsetName) throws IOException {
+        return new String(bytes(), charsetName);
     }
 
     public void close() throws IOException {
@@ -121,14 +121,14 @@ public class NextResponse implements Closeable {
 
     private String dumpContent() {
         try {
-            return StringUtils.safeSubString(getAsAsString(), 256);
+            return StringUtils.safeSubString(string(), 256);
         } catch (IOException e) {
             return "IOException";
         }
     }
 
     private String dumpHeaders() {
-        Map<String, List<String>> headers = getHeaders();
+        Map<String, List<String>> headers = headers();
         if (headers == null || headers.isEmpty()) {
             return Consts.EMPTY_STRING;
         }
