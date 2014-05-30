@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallback;
@@ -96,8 +96,8 @@ public class AlertDialogSamples extends BaseActivity {
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                NextRequest.setDebug(true);
-                NextRequest request = NextRequest.post("http://www.douban.com");
+                NextClient.setDebug(true);
+                NextClient request = NextClient.post("http://www.douban.com");
                 request.addParam("fdf", "我是中文");
                 Log.w(TAG, request.getCompleteUrl());
                 NextResponse response = request.getResponse();

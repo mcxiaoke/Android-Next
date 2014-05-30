@@ -10,7 +10,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -105,7 +105,7 @@ public class TaskQueueSamples extends BaseActivity {
             @Override
             public String call() throws Exception {
                 SystemClock.sleep(RANDOM.nextInt() % 3000);
-                final NextRequest request = NextRequest.get(url);
+                final NextClient request = NextClient.get(url);
                 return request.asString();
             }
         };

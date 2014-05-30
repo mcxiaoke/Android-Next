@@ -47,8 +47,8 @@ import java.util.zip.GZIPInputStream;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class NextRequest implements NextConsts {
-    public static final String TAG = NextRequest.class.getSimpleName();
+public class NextClient implements NextConsts {
+    public static final String TAG = NextClient.class.getSimpleName();
 
     private static boolean sDebug;
     private final String url;
@@ -80,47 +80,47 @@ public class NextRequest implements NextConsts {
     private static ConnectionFactory sConnectionFactory = ConnectionFactory.DEFAULT;
 
     public static void setDebug(boolean debug) {
-        NextRequest.sDebug = debug;
+        NextClient.sDebug = debug;
     }
 
-    public static NextRequest head(String url) {
+    public static NextClient head(String url) {
         return create(url, Method.HEAD);
     }
 
-    public static NextRequest get(String url) {
+    public static NextClient get(String url) {
         return create(url, Method.GET);
     }
 
-    public static NextRequest get(String url, Map<String, String> params) {
+    public static NextClient get(String url, Map<String, String> params) {
         return get(url).addParams(params);
     }
 
-    public static NextRequest delete(String url) {
+    public static NextClient delete(String url) {
         return create(url, Method.DELETE);
     }
 
-    public static NextRequest delete(String url, Map<String, String> params) {
+    public static NextClient delete(String url, Map<String, String> params) {
         return delete(url).addParams(params);
     }
 
-    public static NextRequest post(String url) {
+    public static NextClient post(String url) {
         return create(url, Method.POST);
     }
 
-    public static NextRequest post(String url, Map<String, String> params) {
+    public static NextClient post(String url, Map<String, String> params) {
         return post(url).addParams(params);
     }
 
-    public static NextRequest put(String url) {
+    public static NextClient put(String url) {
         return create(url, Method.PUT);
     }
 
-    public static NextRequest put(String url, Map<String, String> params) {
+    public static NextClient put(String url, Map<String, String> params) {
         return put(url).addParams(params);
     }
 
-    public static NextRequest create(String url, Method method) {
-        return new NextRequest(url, method);
+    public static NextClient create(String url, Method method) {
+        return new NextClient(url, method);
     }
 
 
@@ -130,7 +130,7 @@ public class NextRequest implements NextConsts {
      * @param method Http method (GET, POST, etc)
      * @param url    url with optional queryString parameters.
      */
-    public NextRequest(String url, Method method) {
+    public NextClient(String url, Method method) {
         this.url = url;
         this.method = method;
         initDefaults();
@@ -447,54 +447,54 @@ public class NextRequest implements NextConsts {
      * @param key   the header name
      * @param value the header value
      */
-    public NextRequest addHeader(String key, String value) {
+    public NextClient addHeader(String key, String value) {
         if (!headers.containsKey(key)) {
             this.headers.put(key, value);
         }
         return this;
     }
 
-    public NextRequest addHeaders(Map<String, String> map) {
+    public NextClient addHeaders(Map<String, String> map) {
         this.headers.putAll(map);
         return this;
     }
 
-    public NextRequest addParam(String key, String value) {
+    public NextClient addParam(String key, String value) {
         this.httpParams.put(key, value);
         return this;
     }
 
-    public NextRequest addParams(Map<String, String> map) {
+    public NextClient addParams(Map<String, String> map) {
         this.httpParams.put(map);
         return this;
     }
 
-    public NextRequest addBody(String key, File file, String mimeType) {
+    public NextClient addBody(String key, File file, String mimeType) {
         this.httpParams.put(key, file, mimeType);
         return this;
     }
 
-    public NextRequest addBody(String key, File file, String mimeType, String fileName) {
+    public NextClient addBody(String key, File file, String mimeType, String fileName) {
         this.httpParams.put(key, file, mimeType, fileName);
         return this;
     }
 
-    public NextRequest addBody(String key, byte[] bytes, String mimeType) {
+    public NextClient addBody(String key, byte[] bytes, String mimeType) {
         this.httpParams.put(key, bytes, mimeType);
         return this;
     }
 
-    public NextRequest addBody(String key, byte[] bytes, String mimeType, String fileName) {
+    public NextClient addBody(String key, byte[] bytes, String mimeType, String fileName) {
         this.httpParams.put(key, bytes, mimeType, fileName);
         return this;
     }
 
-    public NextRequest addBody(String key, InputStream stream, String mimeType) {
+    public NextClient addBody(String key, InputStream stream, String mimeType) {
         this.httpParams.put(key, stream, mimeType);
         return this;
     }
 
-    public NextRequest addBody(String key, InputStream stream, String mimeType, String fileName) {
+    public NextClient addBody(String key, InputStream stream, String mimeType, String fileName) {
         this.httpParams.put(key, stream, mimeType, fileName);
         return this;
     }
@@ -547,7 +547,7 @@ public class NextRequest implements NextConsts {
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public NextRequest setConnectTimeout(int millis) {
+    public NextClient setConnectTimeout(int millis) {
         this.connectTimeout = millis;
         return this;
     }
@@ -558,7 +558,7 @@ public class NextRequest implements NextConsts {
      * @param duration duration of the timeout
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
-    public NextRequest setReadTimeout(int millis) {
+    public NextClient setReadTimeout(int millis) {
         this.readTimeout = millis;
         return this;
     }
@@ -568,12 +568,12 @@ public class NextRequest implements NextConsts {
      *
      * @param charsetName name of the charset of the request
      */
-    public NextRequest setCharset(String charsetName) {
+    public NextClient setCharset(String charsetName) {
         this.charset = charsetName;
         return this;
     }
 
-    public NextRequest setUseCaches(boolean useCaches) {
+    public NextClient setUseCaches(boolean useCaches) {
         this.useCaches = useCaches;
         return this;
     }
@@ -581,7 +581,7 @@ public class NextRequest implements NextConsts {
     /**
      * Sets whether the underlying Http Connection is persistent or not.
      */
-    public NextRequest setKeepAlive(boolean keepAlive) {
+    public NextClient setKeepAlive(boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
     }
@@ -593,45 +593,45 @@ public class NextRequest implements NextConsts {
         this.connection = connection;
     }
 
-    public NextRequest setProxy(String host, int port) {
+    public NextClient setProxy(String host, int port) {
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
         setProxy(proxy);
         return this;
     }
 
-    public NextRequest setProxy(Proxy proxy) {
+    public NextClient setProxy(Proxy proxy) {
         this.proxy = proxy;
         return this;
     }
 
-    public NextRequest setCookieStore(CookieStore cookieStore) {
+    public NextClient setCookieStore(CookieStore cookieStore) {
         this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
         return this;
     }
 
-    public NextRequest setInterceptor(NextInterceptor interceptor) {
+    public NextClient setInterceptor(NextInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
 
-    public NextRequest acceptGzipEncoding() {
+    public NextClient acceptGzipEncoding() {
         addHeader(ACCEPT_ENCODING, ENCODING_GZIP);
         return this;
     }
 
-    public NextRequest setFollowRedirects(final boolean value) {
+    public NextClient setFollowRedirects(final boolean value) {
         followRedirects = value;
         return this;
     }
 
-    public NextRequest setUserAgent(final String userAgent) {
+    public NextClient setUserAgent(final String userAgent) {
         if (userAgent != null) {
             addHeader(USER_AGENT, userAgent);
         }
         return this;
     }
 
-    public NextRequest setReferer(final String referer) {
+    public NextClient setReferer(final String referer) {
         addHeader(REFERER, referer);
         return this;
     }
@@ -641,7 +641,7 @@ public class NextRequest implements NextConsts {
      *
      * @return
      */
-    public NextRequest setTrustAllCerts(boolean enable) {
+    public NextClient setTrustAllCerts(boolean enable) {
         trustAllCerts = true;
         return this;
     }
@@ -651,7 +651,7 @@ public class NextRequest implements NextConsts {
      *
      * @return
      */
-    public NextRequest setTrustAllHosts() {
+    public NextClient setTrustAllHosts() {
         trustAllHosts = true;
         return this;
     }
@@ -664,7 +664,7 @@ public class NextRequest implements NextConsts {
         }
     }
 
-    public NextRequest setHttpEntity(HttpEntity entity) {
+    public NextClient setHttpEntity(HttpEntity entity) {
         httpEntity = entity;
         return this;
     }
