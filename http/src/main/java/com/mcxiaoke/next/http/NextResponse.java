@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +18,8 @@ import java.util.Set;
  * Time: 11:22
  */
 public class NextResponse implements Closeable {
+    public static final String TAG = NextClient.TAG;
+
     private final int code;
     private final String message;
     private int contentLength;
@@ -58,8 +59,7 @@ public class NextResponse implements Closeable {
     }
 
     public boolean isSuccessful() {
-        return getCode() >= HttpURLConnection.HTTP_OK
-                && getCode() < HttpURLConnection.HTTP_BAD_REQUEST;
+        return Utils.isSuccess(code);
     }
 
     public int getCode() {
@@ -108,7 +108,7 @@ public class NextResponse implements Closeable {
     }
 
     public String getAsAsString() throws IOException {
-        return getAsAsString(NextConsts.ENCODING_UTF8);
+        return getAsAsString(Consts.ENCODING_UTF8);
     }
 
     public String getAsAsString(String charsetName) throws IOException {
@@ -130,7 +130,7 @@ public class NextResponse implements Closeable {
     private String dumpHeaders() {
         Map<String, List<String>> headers = getHeaders();
         if (headers == null || headers.isEmpty()) {
-            return NextConsts.EMPTY_STRING;
+            return Consts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
         Set<String> keySet = headers.keySet();
@@ -150,7 +150,6 @@ public class NextResponse implements Closeable {
         sb.append(", contentLength=").append(contentLength);
         sb.append(", contentType='").append(contentType);
         sb.append(", headers=['").append(dumpHeaders()).append(']');
-        sb.append(", content=[").append(dumpContent()).append("]");
         sb.append(", consumed=").append(consumed);
         sb.append('}');
         return sb.toString();

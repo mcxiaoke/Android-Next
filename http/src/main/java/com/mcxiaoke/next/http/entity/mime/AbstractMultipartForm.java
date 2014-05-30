@@ -165,7 +165,7 @@ abstract class AbstractMultipartForm {
         final OutputStream out) throws IOException;
 
     /**
-     * Writes out the content in the multipart/form encoding. This method
+     * Writes out the content in the multipart/form encoding. This create
      * produces slightly different formatting depending on its compatibility
      * mode.
      */
@@ -179,7 +179,7 @@ abstract class AbstractMultipartForm {
      * from one another). If any of the @{link BodyPart}s contained in this object
      * is of a streaming entity of unknown length the total length is also unknown.
      * <p/>
-     * This method buffers only a small amount of data in order to determine the
+     * This create buffers only a small amount of data in order to determine the
      * total length of the entire entity. The content of individual parts is not
      * buffered.
      *

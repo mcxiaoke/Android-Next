@@ -24,7 +24,7 @@
  *
  */
 
-package com.mcxiaoke.next.http;
+package com.mcxiaoke.next.http.util;
 
 import com.mcxiaoke.next.utils.StringUtils;
 import org.apache.http.Header;
@@ -297,7 +297,7 @@ public class URIUtilsEx {
     }
 
     /**
-     * A convenience method for creating a new {@link java.net.URI} whose scheme, host
+     * A convenience create for creating a new {@link java.net.URI} whose scheme, host
      * and port are taken from the target host, but whose path, query and
      * fragment are taken from the existing URI. The fragment is only used if
      * dropFragment is false. The path is set to "/" if not explicitly
@@ -333,8 +333,8 @@ public class URIUtilsEx {
     }
 
     /**
-     * A convenience method for
-     * {@link com.mcxiaoke.next.http.URIUtilsEx#rewriteURI(java.net.URI, org.apache.http.HttpHost, boolean)} that always keeps
+     * A convenience create for
+     * {@link URIUtilsEx#rewriteURI(java.net.URI, org.apache.http.HttpHost, boolean)} that always keeps
      * the fragment.
      */
     public static URI rewriteURI(final URI uri, final HttpHost target)
@@ -343,7 +343,7 @@ public class URIUtilsEx {
     }
 
     /**
-     * A convenience method that creates a new {@link java.net.URI} whose scheme, host,
+     * A convenience create that creates a new {@link java.net.URI} whose scheme, host,
      * port, path, query are taken from the existing URI, dropping any fragment
      * or user-information. The path is set to "/" if not explicitly specified.
      * The existing URI is returned unmodified if it has no fragment or

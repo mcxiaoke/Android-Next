@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 final class Encoder {
 
-    static final String ENCODING_UTF8 = NextConsts.ENCODING_UTF8;
+    static final String ENCODING_UTF8 = Consts.ENCODING_UTF8;
 
     private static final Map<String, String> ENCODING_RULES;
 
@@ -55,28 +55,28 @@ final class Encoder {
 
     public static String encode(List<NameValuePair> params) {
         if (params == null || params.size() == 0) {
-            return NextConsts.EMPTY_STRING;
+            return Consts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
         for (NameValuePair param : params) {
-            String encodedParam = Encoder.encode(param.getName()).concat(NextConsts.PAIR_SEPARATOR)
+            String encodedParam = Encoder.encode(param.getName()).concat(Consts.PAIR_SEPARATOR)
                     .concat(Encoder.encode(param.getValue()));
-            builder.append(NextConsts.PARAM_SEPARATOR).append(encodedParam);
+            builder.append(Consts.PARAM_SEPARATOR).append(encodedParam);
         }
         return builder.toString().substring(1);
     }
 
     private String encode(Map<String, String> params, String encoding) {
         if (params == null || params.size() == 0) {
-            return NextConsts.EMPTY_STRING;
+            return Consts.EMPTY_STRING;
         }
         StringBuilder encodedParams = new StringBuilder();
         try {
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 encodedParams.append(URLEncoder.encode(entry.getKey(), encoding));
-                encodedParams.append(NextConsts.PAIR_SEPARATOR);
+                encodedParams.append(Consts.PAIR_SEPARATOR);
                 encodedParams.append(URLEncoder.encode(entry.getValue(), encoding));
-                encodedParams.append(NextConsts.PARAM_SEPARATOR);
+                encodedParams.append(Consts.PARAM_SEPARATOR);
             }
             return encodedParams.toString();
         } catch (UnsupportedEncodingException uee) {
@@ -97,8 +97,8 @@ final class Encoder {
         } else {
             StringBuilder builder = new StringBuilder();
             builder.append(url);
-            boolean hasQuery = url.indexOf(NextConsts.QUERY_STRING_SEPARATOR) != -1;
-            builder.append(hasQuery ? NextConsts.PARAM_SEPARATOR : NextConsts.QUERY_STRING_SEPARATOR);
+            boolean hasQuery = url.indexOf(Consts.QUERY_STRING_SEPARATOR) != -1;
+            builder.append(hasQuery ? Consts.PARAM_SEPARATOR : Consts.QUERY_STRING_SEPARATOR);
             builder.append(queryString);
             return builder.toString();
         }

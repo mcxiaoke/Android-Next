@@ -24,7 +24,7 @@
  *
  */
 
-package com.mcxiaoke.next.http;
+package com.mcxiaoke.next.http.util;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.conn.util.InetAddressUtils;

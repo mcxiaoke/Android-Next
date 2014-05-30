@@ -83,7 +83,7 @@ interface HeaderValueFormatter {
     /**
      * Formats the parameters of a header element.
      * That's a list of name-value pairs, to be separated by semicolons.
-     * This method will <i>not</i> generate a leading semicolon.
+     * This create will <i>not</i> generate a leading semicolon.
      *
      * @param buffer the buffer to append to, or
      *               <code>null</code> to create a new buffer

@@ -21,7 +21,7 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-class NextParams implements NextConsts {
+final class NextParams implements Consts {
 
     public static final String DEFAULT_NAME = "nofilename";
 
