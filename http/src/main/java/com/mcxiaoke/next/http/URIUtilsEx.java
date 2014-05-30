@@ -334,7 +334,7 @@ public class URIUtilsEx {
 
     /**
      * A convenience method for
-     * {@link URIUtilsEx#rewriteURI(java.net.URI, org.apache.http.HttpHost, boolean)} that always keeps
+     * {@link com.mcxiaoke.next.http.URIUtilsEx#rewriteURI(java.net.URI, org.apache.http.HttpHost, boolean)} that always keeps
      * the fragment.
      */
     public static URI rewriteURI(final URI uri, final HttpHost target)

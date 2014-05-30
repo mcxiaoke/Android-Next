@@ -2,6 +2,7 @@ apply plugin: 'android'
 
 dependencies {
     compile project(":core")
+    compile project(":http")
     compile project(":ui")
     compile "com.android.support:support-v4:+"
     compile 'com.jakewharton:butterknife:+'

@@ -43,7 +43,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     /**
      * A default instance of this class, for use as default or fallback.
-     * Note that {@link BasicHeaderValueFormatter} is not a singleton, there
+     * Note that {@link com.mcxiaoke.next.http.entity.BasicHeaderValueFormatter} is not a singleton, there
      * can be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
      */

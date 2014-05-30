@@ -59,7 +59,7 @@ public class ByteArrayBody extends AbstractContentBody {
      * @param mimeType The MIME type of the file contained in this part.
      * @param filename The name of the file contained in this part.
      *
-     * @deprecated (4.3) use {@link ByteArrayBody#ByteArrayBody(byte[], com.mcxiaoke.next.http.entity.ContentType, String)}
+     * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.ByteArrayBody#ByteArrayBody(byte[], com.mcxiaoke.next.http.entity.ContentType, String)}
      *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated

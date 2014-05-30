@@ -224,7 +224,7 @@ public class NextClient implements NextConsts {
     }
 
     /**
-     * Execute the request and return a {@link NextResponse}
+     * Execute the request and return a {@link com.mcxiaoke.next.http.NextResponse}
      *
      * @return Http Response
      * @throws RuntimeException if the connection cannot be created.
@@ -699,28 +699,28 @@ public class NextClient implements NextConsts {
     }
 
     /**
-     * Creates {@link HttpURLConnection HTTP connections} for
-     * {@link URL urls}.
+     * Creates {@link java.net.HttpURLConnection HTTP connections} for
+     * {@link java.net.URL urls}.
      */
     public interface ConnectionFactory {
         /**
-         * Open an {@link HttpURLConnection} for the specified {@link URL}.
+         * Open an {@link java.net.HttpURLConnection} for the specified {@link java.net.URL}.
          *
-         * @throws IOException
+         * @throws java.io.IOException
          */
         HttpURLConnection create(URL url) throws IOException;
 
         /**
-         * Open an {@link HttpURLConnection} for the specified {@link URL}
-         * and {@link Proxy}.
+         * Open an {@link java.net.HttpURLConnection} for the specified {@link java.net.URL}
+         * and {@link java.net.Proxy}.
          *
-         * @throws IOException
+         * @throws java.io.IOException
          */
         HttpURLConnection create(URL url, Proxy proxy) throws IOException;
 
         /**
          * A {@link ConnectionFactory} which uses the built-in
-         * {@link URL#openConnection()}
+         * {@link java.net.URL#openConnection()}
          */
         ConnectionFactory DEFAULT = new ConnectionFactory() {
             public HttpURLConnection create(URL url) throws IOException {

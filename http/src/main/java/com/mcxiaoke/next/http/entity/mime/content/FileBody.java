@@ -52,7 +52,7 @@ public class FileBody extends AbstractContentBody {
     /**
      * @since 4.1
      *
-     * @deprecated (4.3) use {@link FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType, String)}
+     * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType, String)}
      *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
@@ -66,7 +66,7 @@ public class FileBody extends AbstractContentBody {
     /**
      * @since 4.1
      *
-     * @deprecated (4.3) use {@link FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
+     * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
      *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
@@ -77,7 +77,7 @@ public class FileBody extends AbstractContentBody {
     }
 
     /**
-     * @deprecated (4.3) use {@link FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
+     * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
      *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated

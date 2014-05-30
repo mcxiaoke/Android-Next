@@ -33,7 +33,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Interface for formatting elements of a header value.
- * This is the complement to {@link HeaderValueParser}.
+ * This is the complement to {@link com.mcxiaoke.next.http.entity.HeaderValueParser}.
  * Instances of this interface are expected to be stateless and thread-safe.
  * <p/>
  * <p>

@@ -101,7 +101,7 @@ abstract class AbstractMultipartForm {
      * Creates an instance with the specified settings.
      *
      * @param subType MIME subtype - must not be {@code null}
-     * @param charset the character set to use. May be {@code null}, in which case {@link MIME#DEFAULT_CHARSET} - i.e. US-ASCII - is used.
+     * @param charset the character set to use. May be {@code null}, in which case {@link com.mcxiaoke.next.http.entity.mime.MIME#DEFAULT_CHARSET} - i.e. US-ASCII - is used.
      * @param boundary to use  - must not be {@code null}
      * @throws IllegalArgumentException if charset is null or boundary is null
      */
