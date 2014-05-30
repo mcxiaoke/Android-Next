@@ -41,7 +41,6 @@ import java.io.OutputStream;
  * Binary body part backed by a file.
  *
  * @see com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder
- *
  * @since 4.0
  */
 public class FileBody extends AbstractContentBody {
@@ -51,9 +50,8 @@ public class FileBody extends AbstractContentBody {
 
     /**
      * @since 4.1
-     *
      * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType, String)}
-     *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
+     * or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
     public FileBody(final File file,
@@ -65,9 +63,8 @@ public class FileBody extends AbstractContentBody {
 
     /**
      * @since 4.1
-     *
      * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
-     *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
+     * or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
     public FileBody(final File file,
@@ -78,7 +75,7 @@ public class FileBody extends AbstractContentBody {
 
     /**
      * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.FileBody#FileBody(java.io.File, com.mcxiaoke.next.http.entity.ContentType)}
-     *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
+     * or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
     public FileBody(final File file, final String mimeType) {
@@ -110,6 +107,18 @@ public class FileBody extends AbstractContentBody {
         return new FileInputStream(this.file);
     }
 
+    public String getTransferEncoding() {
+        return MIME.ENC_BINARY;
+    }
+
+    public long getContentLength() {
+        return this.file.length();
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
     public void writeTo(final OutputStream out) throws IOException {
         AssertUtils.notNull(out, "Output stream");
         final InputStream in = new FileInputStream(this.file);
@@ -123,18 +132,6 @@ public class FileBody extends AbstractContentBody {
         } finally {
             in.close();
         }
-    }
-
-    public String getTransferEncoding() {
-        return MIME.ENC_BINARY;
-    }
-
-    public long getContentLength() {
-        return this.file.length();
-    }
-
-    public String getFilename() {
-        return filename;
     }
 
     public File getFile() {

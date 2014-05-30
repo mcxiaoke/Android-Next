@@ -84,6 +84,22 @@ public class URIBuilderEx {
         digestURI(uri);
     }
 
+    private static String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+        int n = 0;
+        for (; n < path.length(); n++) {
+            if (path.charAt(n) != '/') {
+                break;
+            }
+        }
+        if (n > 1) {
+            path = path.substring(n - 1);
+        }
+        return path;
+    }
+
     private List<NameValuePair> parseQuery(final String query,
                                            final Charset charset) {
         if (query != null && query.length() > 0) {
@@ -177,62 +193,11 @@ public class URIBuilderEx {
     }
 
     /**
-     * Sets URI scheme.
-     */
-    public URIBuilderEx setScheme(final String scheme) {
-        this.scheme = scheme;
-        return this;
-    }
-
-    /**
-     * Sets URI user info. The value is expected to be unescaped and may contain
-     * non ASCII characters.
-     */
-    public URIBuilderEx setUserInfo(final String userInfo) {
-        this.userInfo = userInfo;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        this.encodedUserInfo = null;
-        return this;
-    }
-
-    /**
      * Sets URI user info as a combination of username and password. These
      * values are expected to be unescaped and may contain non ASCII characters.
      */
     public URIBuilderEx setUserInfo(final String username, final String password) {
         return setUserInfo(username + ':' + password);
-    }
-
-    /**
-     * Sets URI host.
-     */
-    public URIBuilderEx setHost(final String host) {
-        this.host = host;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        return this;
-    }
-
-    /**
-     * Sets URI port.
-     */
-    public URIBuilderEx setPort(final int port) {
-        this.port = port < 0 ? -1 : port;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        return this;
-    }
-
-    /**
-     * Sets URI path. The value is expected to be unescaped and may contain non
-     * ASCII characters.
-     */
-    public URIBuilderEx setPath(final String path) {
-        this.path = path;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedPath = null;
-        return this;
     }
 
     /**
@@ -320,34 +285,75 @@ public class URIBuilderEx {
         return this;
     }
 
-    /**
-     * Sets URI fragment. The value is expected to be unescaped and may contain
-     * non ASCII characters.
-     */
-    public URIBuilderEx setFragment(final String fragment) {
-        this.fragment = fragment;
-        this.encodedFragment = null;
-        return this;
-    }
-
     public String getScheme() {
         return this.scheme;
+    }
+
+    /**
+     * Sets URI scheme.
+     */
+    public URIBuilderEx setScheme(final String scheme) {
+        this.scheme = scheme;
+        return this;
     }
 
     public String getUserInfo() {
         return this.userInfo;
     }
 
+    /**
+     * Sets URI user info. The value is expected to be unescaped and may contain
+     * non ASCII characters.
+     */
+    public URIBuilderEx setUserInfo(final String userInfo) {
+        this.userInfo = userInfo;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedAuthority = null;
+        this.encodedUserInfo = null;
+        return this;
+    }
+
     public String getHost() {
         return this.host;
+    }
+
+    /**
+     * Sets URI host.
+     */
+    public URIBuilderEx setHost(final String host) {
+        this.host = host;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedAuthority = null;
+        return this;
     }
 
     public int getPort() {
         return this.port;
     }
 
+    /**
+     * Sets URI port.
+     */
+    public URIBuilderEx setPort(final int port) {
+        this.port = port < 0 ? -1 : port;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedAuthority = null;
+        return this;
+    }
+
     public String getPath() {
         return this.path;
+    }
+
+    /**
+     * Sets URI path. The value is expected to be unescaped and may contain non
+     * ASCII characters.
+     */
+    public URIBuilderEx setPath(final String path) {
+        this.path = path;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedPath = null;
+        return this;
     }
 
     public List<NameValuePair> getQueryParams() {
@@ -362,25 +368,19 @@ public class URIBuilderEx {
         return this.fragment;
     }
 
+    /**
+     * Sets URI fragment. The value is expected to be unescaped and may contain
+     * non ASCII characters.
+     */
+    public URIBuilderEx setFragment(final String fragment) {
+        this.fragment = fragment;
+        this.encodedFragment = null;
+        return this;
+    }
+
     @Override
     public String toString() {
         return buildString();
-    }
-
-    private static String normalizePath(String path) {
-        if (path == null) {
-            return null;
-        }
-        int n = 0;
-        for (; n < path.length(); n++) {
-            if (path.charAt(n) != '/') {
-                break;
-            }
-        }
-        if (n > 1) {
-            path = path.substring(n - 1);
-        }
-        return path;
     }
 
 }

@@ -10,12 +10,12 @@ package com.mcxiaoke.next.http;
  * POST/PUT write data progress callback
  */
 public interface ProgressCallback {
-    void onProgress(long currentSize, long totalSize);
-
     ProgressCallback DEFAULT = new ProgressCallback() {
         @Override
         public void onProgress(long currentSize, long totalSize) {
 
         }
     };
+
+    void onProgress(long currentSize, long totalSize);
 }

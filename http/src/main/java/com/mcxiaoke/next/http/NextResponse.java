@@ -29,32 +29,17 @@ public class NextResponse implements Closeable {
     private Map<String, List<String>> headers;
     private byte[] content;
 
-    public static NextResponse create(int code, String message) {
-        return new NextResponse(code, message);
-    }
-
     private NextResponse(int code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public NextResponse setContentType(String contentType) {
-        this.contentType = contentType;
-        return this;
-    }
-
-    public NextResponse setContentLength(int contentLength) {
-        this.contentLength = contentLength;
-        return this;
+    public static NextResponse create(int code, String message) {
+        return new NextResponse(code, message);
     }
 
     public NextResponse setStream(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
-        return this;
-    }
-
-    public NextResponse setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
         return this;
     }
 
@@ -74,12 +59,27 @@ public class NextResponse implements Closeable {
         return contentLength;
     }
 
+    public NextResponse setContentLength(int contentLength) {
+        this.contentLength = contentLength;
+        return this;
+    }
+
     public String getContentType() {
         return contentType;
     }
 
+    public NextResponse setContentType(String contentType) {
+        this.contentType = contentType;
+        return this;
+    }
+
     public Map<String, List<String>> getHeaders() {
         return headers;
+    }
+
+    public NextResponse setHeaders(Map<String, List<String>> headers) {
+        this.headers = headers;
+        return this;
     }
 
     public String getHeader(String name) {

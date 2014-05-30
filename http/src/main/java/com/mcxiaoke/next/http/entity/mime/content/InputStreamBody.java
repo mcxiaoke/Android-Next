@@ -39,7 +39,6 @@ import java.io.OutputStream;
  * Binary body part backed by an input stream.
  *
  * @see com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder
- *
  * @since 4.0
  */
 public class InputStreamBody extends AbstractContentBody {
@@ -72,6 +71,18 @@ public class InputStreamBody extends AbstractContentBody {
         return this.in;
     }
 
+    public String getTransferEncoding() {
+        return MIME.ENC_BINARY;
+    }
+
+    public long getContentLength() {
+        return -1;
+    }
+
+    public String getFilename() {
+        return this.filename;
+    }
+
     public void writeTo(final OutputStream out) throws IOException {
         AssertUtils.notNull(out, "Output stream");
         try {
@@ -84,18 +95,6 @@ public class InputStreamBody extends AbstractContentBody {
         } finally {
             this.in.close();
         }
-    }
-
-    public String getTransferEncoding() {
-        return MIME.ENC_BINARY;
-    }
-
-    public long getContentLength() {
-        return -1;
-    }
-
-    public String getFilename() {
-        return this.filename;
     }
 
 }

@@ -63,6 +63,133 @@ import java.util.Stack;
 public class URIUtilsEx {
 
 
+    public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
+    public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
+    public static final int SP = 32; // <US-ASCII SP, space (32)>
+    public static final int HT = 9; // <US-ASCII HT, horizontal-tab (9)>
+    public static final String ENCODING_UTF8 = "UTF-8";
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset ASCII = Charset.forName("US-ASCII");
+    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final String PARAMETER_SEPARATOR = "&";
+    public static final String NAME_VALUE_SEPARATOR = "=";
+    public static final String QUERY_STRING_SEPARATOR = "?";
+    public static final String EMPTY_STRING = "";
+    private static final char[] DELIM = new char[]{'&'};
+    /**
+     * Unreserved characters, i.e. alphanumeric, plus: {@code _ - ! . ~ ' ( ) *}
+     * <p/>
+     * This list is the same as the {@code unreserved} list in <a
+     * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>
+     */
+    private static final BitSet UNRESERVED = new BitSet(256);
+    /**
+     * Punctuation characters: , ; : $ & + =
+     * <p/>
+     * These are the additional characters allowed by userinfo.
+     */
+    private static final BitSet PUNCT = new BitSet(256);
+    /**
+     * Characters which are safe to use in userinfo, i.e. {@link #UNRESERVED}
+     * plus {@link #PUNCT}uation
+     */
+    private static final BitSet USERINFO = new BitSet(256);
+    /**
+     * Characters which are safe to use in a path, i.e. {@link #UNRESERVED} plus
+     * {@link #PUNCT}uation plus / @
+     */
+    private static final BitSet PATHSAFE = new BitSet(256);
+    /**
+     * Characters which are safe to use in a fragment, i.e. {@link #RESERVED}
+     * plus {@link #UNRESERVED}
+     */
+    private static final BitSet FRAGMENT = new BitSet(256);
+    /**
+     * Reserved characters, i.e. {@code ;/?:@&=+$,[]}
+     * <p/>
+     * This list is the same as the {@code reserved} list in <a
+     * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> as augmented by
+     * <a href="http://www.ietf.org/rfc/rfc2732.txt">RFC 2732</a>
+     */
+    private static final BitSet RESERVED = new BitSet(256);
+    /**
+     * Safe characters for x-www-form-urlencoded data, as per
+     * java.net.URLEncoder and browser behaviour, i.e. alphanumeric plus
+     * {@code "-", "_", ".", "*"}
+     */
+    private static final BitSet URLENCODER = new BitSet(256);
+    static {
+        // unreserved chars
+        // alpha characters
+        for (int i = 'a'; i <= 'z'; i++) {
+            UNRESERVED.set(i);
+        }
+        for (int i = 'A'; i <= 'Z'; i++) {
+            UNRESERVED.set(i);
+        }
+        // numeric characters
+        for (int i = '0'; i <= '9'; i++) {
+            UNRESERVED.set(i);
+        }
+        UNRESERVED.set('_'); // these are the charactes of the "mark" list
+        UNRESERVED.set('-');
+        UNRESERVED.set('.');
+        UNRESERVED.set('*');
+        URLENCODER.or(UNRESERVED); // skip remaining unreserved characters
+        UNRESERVED.set('!');
+        UNRESERVED.set('~');
+        UNRESERVED.set('\'');
+        UNRESERVED.set('(');
+        UNRESERVED.set(')');
+        // punct chars
+        PUNCT.set(',');
+        PUNCT.set(';');
+        PUNCT.set(':');
+        PUNCT.set('$');
+        PUNCT.set('&');
+        PUNCT.set('+');
+        PUNCT.set('=');
+        // Safe for userinfo
+        USERINFO.or(UNRESERVED);
+        USERINFO.or(PUNCT);
+
+        // URL path safe
+        PATHSAFE.or(UNRESERVED);
+        PATHSAFE.set('/'); // segment separator
+        PATHSAFE.set(';'); // param separator
+        PATHSAFE.set(':'); // rest as per list in 2396, i.e. : @ & = + $ ,
+        PATHSAFE.set('@');
+        PATHSAFE.set('&');
+        PATHSAFE.set('=');
+        PATHSAFE.set('+');
+        PATHSAFE.set('$');
+        PATHSAFE.set(',');
+
+        RESERVED.set(';');
+        RESERVED.set('/');
+        RESERVED.set('?');
+        RESERVED.set(':');
+        RESERVED.set('@');
+        RESERVED.set('&');
+        RESERVED.set('=');
+        RESERVED.set('+');
+        RESERVED.set('$');
+        RESERVED.set(',');
+        RESERVED.set('['); // added by RFC 2732
+        RESERVED.set(']'); // added by RFC 2732
+
+        FRAGMENT.or(RESERVED);
+        FRAGMENT.or(UNRESERVED);
+    }
+    private static final int RADIX = 16;
+    private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
+
+    /**
+     * This class should not be instantiated.
+     */
+    private URIUtilsEx() {
+    }
+
     /**
      * 从URL中提取Query参数
      *
@@ -657,8 +784,6 @@ public class URIUtilsEx {
         }
     }
 
-    private static final char[] DELIM = new char[]{'&'};
-
     /**
      * Returns a list of {@link org.apache.http.NameValuePair NameValuePairs} as parsed from the
      * given string using the given character encoding.
@@ -932,139 +1057,6 @@ public class URIUtilsEx {
      */
     static String encPath(final String content, final Charset charset) {
         return urlencode(content, charset, PATHSAFE, false);
-    }
-
-    /**
-     * Unreserved characters, i.e. alphanumeric, plus: {@code _ - ! . ~ ' ( ) *}
-     * <p/>
-     * This list is the same as the {@code unreserved} list in <a
-     * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>
-     */
-    private static final BitSet UNRESERVED = new BitSet(256);
-    /**
-     * Punctuation characters: , ; : $ & + =
-     * <p/>
-     * These are the additional characters allowed by userinfo.
-     */
-    private static final BitSet PUNCT = new BitSet(256);
-    /**
-     * Characters which are safe to use in userinfo, i.e. {@link #UNRESERVED}
-     * plus {@link #PUNCT}uation
-     */
-    private static final BitSet USERINFO = new BitSet(256);
-    /**
-     * Characters which are safe to use in a path, i.e. {@link #UNRESERVED} plus
-     * {@link #PUNCT}uation plus / @
-     */
-    private static final BitSet PATHSAFE = new BitSet(256);
-    /**
-     * Characters which are safe to use in a fragment, i.e. {@link #RESERVED}
-     * plus {@link #UNRESERVED}
-     */
-    private static final BitSet FRAGMENT = new BitSet(256);
-
-    /**
-     * Reserved characters, i.e. {@code ;/?:@&=+$,[]}
-     * <p/>
-     * This list is the same as the {@code reserved} list in <a
-     * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a> as augmented by
-     * <a href="http://www.ietf.org/rfc/rfc2732.txt">RFC 2732</a>
-     */
-    private static final BitSet RESERVED = new BitSet(256);
-
-    /**
-     * Safe characters for x-www-form-urlencoded data, as per
-     * java.net.URLEncoder and browser behaviour, i.e. alphanumeric plus
-     * {@code "-", "_", ".", "*"}
-     */
-    private static final BitSet URLENCODER = new BitSet(256);
-
-    static {
-        // unreserved chars
-        // alpha characters
-        for (int i = 'a'; i <= 'z'; i++) {
-            UNRESERVED.set(i);
-        }
-        for (int i = 'A'; i <= 'Z'; i++) {
-            UNRESERVED.set(i);
-        }
-        // numeric characters
-        for (int i = '0'; i <= '9'; i++) {
-            UNRESERVED.set(i);
-        }
-        UNRESERVED.set('_'); // these are the charactes of the "mark" list
-        UNRESERVED.set('-');
-        UNRESERVED.set('.');
-        UNRESERVED.set('*');
-        URLENCODER.or(UNRESERVED); // skip remaining unreserved characters
-        UNRESERVED.set('!');
-        UNRESERVED.set('~');
-        UNRESERVED.set('\'');
-        UNRESERVED.set('(');
-        UNRESERVED.set(')');
-        // punct chars
-        PUNCT.set(',');
-        PUNCT.set(';');
-        PUNCT.set(':');
-        PUNCT.set('$');
-        PUNCT.set('&');
-        PUNCT.set('+');
-        PUNCT.set('=');
-        // Safe for userinfo
-        USERINFO.or(UNRESERVED);
-        USERINFO.or(PUNCT);
-
-        // URL path safe
-        PATHSAFE.or(UNRESERVED);
-        PATHSAFE.set('/'); // segment separator
-        PATHSAFE.set(';'); // param separator
-        PATHSAFE.set(':'); // rest as per list in 2396, i.e. : @ & = + $ ,
-        PATHSAFE.set('@');
-        PATHSAFE.set('&');
-        PATHSAFE.set('=');
-        PATHSAFE.set('+');
-        PATHSAFE.set('$');
-        PATHSAFE.set(',');
-
-        RESERVED.set(';');
-        RESERVED.set('/');
-        RESERVED.set('?');
-        RESERVED.set(':');
-        RESERVED.set('@');
-        RESERVED.set('&');
-        RESERVED.set('=');
-        RESERVED.set('+');
-        RESERVED.set('$');
-        RESERVED.set(',');
-        RESERVED.set('['); // added by RFC 2732
-        RESERVED.set(']'); // added by RFC 2732
-
-        FRAGMENT.or(RESERVED);
-        FRAGMENT.or(UNRESERVED);
-    }
-
-    private static final int RADIX = 16;
-
-    public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
-    public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
-    public static final int SP = 32; // <US-ASCII SP, space (32)>
-    public static final int HT = 9; // <US-ASCII HT, horizontal-tab (9)>
-
-    public static final String ENCODING_UTF8 = "UTF-8";
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
-    public static final Charset ASCII = Charset.forName("US-ASCII");
-    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
-
-    private static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
-    public static final String PARAMETER_SEPARATOR = "&";
-    public static final String NAME_VALUE_SEPARATOR = "=";
-    public static final String QUERY_STRING_SEPARATOR = "?";
-    public static final String EMPTY_STRING = "";
-
-    /**
-     * This class should not be instantiated.
-     */
-    private URIUtilsEx() {
     }
 
 }

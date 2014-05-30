@@ -57,8 +57,8 @@ class HttpBrowserCompatibleMultipart extends AbstractMultipartForm {
     }
 
     /**
-      * Write the multipart header fields; depends on the style.
-      */
+     * Write the multipart header fields; depends on the style.
+     */
     @Override
     protected void formatMultipartHeader(
             final FormBodyPart part,

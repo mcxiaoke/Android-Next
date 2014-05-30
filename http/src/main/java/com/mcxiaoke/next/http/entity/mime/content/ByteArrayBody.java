@@ -37,7 +37,6 @@ import java.io.OutputStream;
  * Binary body part backed by a byte array.
  *
  * @see com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder
- *
  * @since 4.1
  */
 public class ByteArrayBody extends AbstractContentBody {
@@ -55,12 +54,11 @@ public class ByteArrayBody extends AbstractContentBody {
     /**
      * Creates a new ByteArrayBody.
      *
-     * @param data The contents of the file contained in this part.
+     * @param data     The contents of the file contained in this part.
      * @param mimeType The MIME type of the file contained in this part.
      * @param filename The name of the file contained in this part.
-     *
      * @deprecated (4.3) use {@link com.mcxiaoke.next.http.entity.mime.content.ByteArrayBody#ByteArrayBody(byte[], com.mcxiaoke.next.http.entity.ContentType, String)}
-     *   or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
+     * or {@link com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder}
      */
     @Deprecated
     public ByteArrayBody(final byte[] data, final String mimeType, final String filename) {
@@ -80,7 +78,7 @@ public class ByteArrayBody extends AbstractContentBody {
     /**
      * Creates a new ByteArrayBody.
      *
-     * @param data The contents of the file contained in this part.
+     * @param data     The contents of the file contained in this part.
      * @param filename The name of the file contained in this part.
      */
     public ByteArrayBody(final byte[] data, final String filename) {

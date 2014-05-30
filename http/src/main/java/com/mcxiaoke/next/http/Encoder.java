@@ -66,24 +66,6 @@ final class Encoder {
         return builder.toString().substring(1);
     }
 
-    private String encode(Map<String, String> params, String encoding) {
-        if (params == null || params.size() == 0) {
-            return Consts.EMPTY_STRING;
-        }
-        StringBuilder encodedParams = new StringBuilder();
-        try {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                encodedParams.append(URLEncoder.encode(entry.getKey(), encoding));
-                encodedParams.append(Consts.PAIR_SEPARATOR);
-                encodedParams.append(URLEncoder.encode(entry.getValue(), encoding));
-                encodedParams.append(Consts.PARAM_SEPARATOR);
-            }
-            return encodedParams.toString();
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException("Encoding not supported: " + encoding, uee);
-        }
-    }
-
     public static String appendQueryString(String url, List<NameValuePair> params) {
         if (StringUtils.isEmpty(url)) {
             return url;
@@ -114,6 +96,24 @@ final class Encoder {
             pairs.add(pair);
         }
         return pairs;
+    }
+
+    private String encode(Map<String, String> params, String encoding) {
+        if (params == null || params.size() == 0) {
+            return Consts.EMPTY_STRING;
+        }
+        StringBuilder encodedParams = new StringBuilder();
+        try {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                encodedParams.append(URLEncoder.encode(entry.getKey(), encoding));
+                encodedParams.append(Consts.PAIR_SEPARATOR);
+                encodedParams.append(URLEncoder.encode(entry.getValue(), encoding));
+                encodedParams.append(Consts.PARAM_SEPARATOR);
+            }
+            return encodedParams.toString();
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("Encoding not supported: " + encoding, uee);
+        }
     }
 
 }

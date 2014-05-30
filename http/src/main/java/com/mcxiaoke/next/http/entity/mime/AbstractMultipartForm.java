@@ -48,6 +48,33 @@ import java.util.List;
  */
 abstract class AbstractMultipartForm {
 
+    private static final ByteArrayBuffer FIELD_SEP = encode(MIME.DEFAULT_CHARSET, ": ");
+    private static final ByteArrayBuffer CR_LF = encode(MIME.DEFAULT_CHARSET, "\r\n");
+    private static final ByteArrayBuffer TWO_DASHES = encode(MIME.DEFAULT_CHARSET, "--");
+    protected final Charset charset;
+    private final String subType;
+    private final String boundary;
+
+    /**
+     * Creates an instance with the specified settings.
+     *
+     * @param subType  MIME subtype - must not be {@code null}
+     * @param charset  the character set to use. May be {@code null}, in which case {@link com.mcxiaoke.next.http.entity.mime.MIME#DEFAULT_CHARSET} - i.e. US-ASCII - is used.
+     * @param boundary to use  - must not be {@code null}
+     * @throws IllegalArgumentException if charset is null or boundary is null
+     */
+    public AbstractMultipartForm(final String subType, final Charset charset, final String boundary) {
+        super();
+        AssertUtils.notNull(subType, "Multipart subtype");
+        AssertUtils.notNull(boundary, "Multipart boundary");
+        this.subType = subType;
+        this.charset = charset != null ? charset : MIME.DEFAULT_CHARSET;
+        this.boundary = boundary;
+    }
+    public AbstractMultipartForm(final String subType, final String boundary) {
+        this(subType, null, boundary);
+    }
+
     private static ByteArrayBuffer encode(
             final Charset charset, final String string) {
         final ByteBuffer encoded = charset.encode(CharBuffer.wrap(string));
@@ -89,35 +116,6 @@ abstract class AbstractMultipartForm {
         writeBytes(CR_LF, out);
     }
 
-    private static final ByteArrayBuffer FIELD_SEP = encode(MIME.DEFAULT_CHARSET, ": ");
-    private static final ByteArrayBuffer CR_LF = encode(MIME.DEFAULT_CHARSET, "\r\n");
-    private static final ByteArrayBuffer TWO_DASHES = encode(MIME.DEFAULT_CHARSET, "--");
-
-    private final String subType;
-    protected final Charset charset;
-    private final String boundary;
-
-    /**
-     * Creates an instance with the specified settings.
-     *
-     * @param subType MIME subtype - must not be {@code null}
-     * @param charset the character set to use. May be {@code null}, in which case {@link com.mcxiaoke.next.http.entity.mime.MIME#DEFAULT_CHARSET} - i.e. US-ASCII - is used.
-     * @param boundary to use  - must not be {@code null}
-     * @throws IllegalArgumentException if charset is null or boundary is null
-     */
-    public AbstractMultipartForm(final String subType, final Charset charset, final String boundary) {
-        super();
-        AssertUtils.notNull(subType, "Multipart subtype");
-        AssertUtils.notNull(boundary, "Multipart boundary");
-        this.subType = subType;
-        this.charset = charset != null ? charset : MIME.DEFAULT_CHARSET;
-        this.boundary = boundary;
-    }
-
-    public AbstractMultipartForm(final String subType, final String boundary) {
-        this(subType, null, boundary);
-    }
-
     public String getSubType() {
         return this.subType;
     }
@@ -133,11 +131,11 @@ abstract class AbstractMultipartForm {
     }
 
     void doWriteTo(
-        final OutputStream out,
-        final boolean writeContent) throws IOException {
+            final OutputStream out,
+            final boolean writeContent) throws IOException {
 
         final ByteArrayBuffer boundary = encode(this.charset, getBoundary());
-        for (final FormBodyPart part: getBodyParts()) {
+        for (final FormBodyPart part : getBodyParts()) {
             writeBytes(TWO_DASHES, out);
             writeBytes(boundary, out);
             writeBytes(CR_LF, out);
@@ -158,11 +156,11 @@ abstract class AbstractMultipartForm {
     }
 
     /**
-      * Write the multipart header fields; depends on the style.
-      */
+     * Write the multipart header fields; depends on the style.
+     */
     protected abstract void formatMultipartHeader(
-        final FormBodyPart part,
-        final OutputStream out) throws IOException;
+            final FormBodyPart part,
+            final OutputStream out) throws IOException;
 
     /**
      * Writes out the content in the multipart/form encoding. This create
@@ -184,11 +182,11 @@ abstract class AbstractMultipartForm {
      * buffered.
      *
      * @return total length of the multipart entity if known, <code>-1</code>
-     *   otherwise.
+     * otherwise.
      */
     public long getTotalLength() {
         long contentLen = 0;
-        for (final FormBodyPart part: getBodyParts()) {
+        for (final FormBodyPart part : getBodyParts()) {
             final ContentBody body = part.getBody();
             final long len = body.getContentLength();
             if (len >= 0) {

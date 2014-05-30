@@ -55,19 +55,11 @@ import java.util.Locale;
 public final class ContentType implements Serializable {
 
     public static final Charset ISO_8859_1 = Charsets.ISO_8859_1;
-    public static final Charset UTF_8 = Charsets.UTF_8;
-
-    private static final long serialVersionUID = -7768694718232371896L;
-
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
             "application/atom+xml", ISO_8859_1);
     public static final ContentType APPLICATION_FORM_URLENCODED = create(
             "application/x-www-form-urlencoded", ISO_8859_1);
-    public static final ContentType APPLICATION_JSON = create(
-            "application/json", UTF_8);
-    public static final ContentType APPLICATION_OCTET_STREAM = create(
-            "application/octet-stream", (Charset) null);
     public static final ContentType APPLICATION_SVG_XML = create(
             "application/svg+xml", ISO_8859_1);
     public static final ContentType APPLICATION_XHTML_XML = create(
@@ -80,15 +72,19 @@ public final class ContentType implements Serializable {
             "text/html", ISO_8859_1);
     public static final ContentType TEXT_PLAIN = create(
             "text/plain", ISO_8859_1);
-    public static final ContentType TEXT_XML = create(
-            "text/xml", ISO_8859_1);
-    public static final ContentType WILDCARD = create(
-            "*/*", (Charset) null);
-
     // defaults
     public static final ContentType DEFAULT_TEXT = TEXT_PLAIN;
+    public static final ContentType TEXT_XML = create(
+            "text/xml", ISO_8859_1);
+    public static final Charset UTF_8 = Charsets.UTF_8;
+    public static final ContentType APPLICATION_JSON = create(
+            "application/json", UTF_8);
+    public static final ContentType APPLICATION_OCTET_STREAM = create(
+            "application/octet-stream", (Charset) null);
     public static final ContentType DEFAULT_BINARY = APPLICATION_OCTET_STREAM;
-
+    public static final ContentType WILDCARD = create(
+            "*/*", (Charset) null);
+    private static final long serialVersionUID = -7768694718232371896L;
     private final String mimeType;
     private final Charset charset;
     private final NameValuePair[] params;
@@ -108,48 +104,6 @@ public final class ContentType implements Serializable {
         this.params = params;
         final String s = getParameter("charset");
         this.charset = !StringUtils.isBlank(s) ? Charset.forName(s) : null;
-    }
-
-    public String getMimeType() {
-        return this.mimeType;
-    }
-
-    public Charset getCharset() {
-        return this.charset;
-    }
-
-    /**
-     * @since 4.3
-     */
-    public String getParameter(final String name) {
-        AssertUtils.notEmpty(name, "Parameter name");
-        if (this.params == null) {
-            return null;
-        }
-        for (final NameValuePair param : this.params) {
-            if (param.getName().equalsIgnoreCase(name)) {
-                return param.getValue();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Generates textual representation of this content type which can be used as the value
-     * of a <code>Content-Type</code> header.
-     */
-    @Override
-    public String toString() {
-        final CharArrayBuffer buf = new CharArrayBuffer(64);
-        buf.append(this.mimeType);
-        if (this.params != null) {
-            buf.append("; ");
-            BasicHeaderValueFormatter.INSTANCE.formatParameters(buf, this.params, false);
-        } else if (this.charset != null) {
-            buf.append("; charset=");
-            buf.append(this.charset.name());
-        }
-        return buf.toString();
     }
 
     private static boolean valid(final String s) {
@@ -275,6 +229,48 @@ public final class ContentType implements Serializable {
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
+    }
+
+    public String getMimeType() {
+        return this.mimeType;
+    }
+
+    public Charset getCharset() {
+        return this.charset;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public String getParameter(final String name) {
+        AssertUtils.notEmpty(name, "Parameter name");
+        if (this.params == null) {
+            return null;
+        }
+        for (final NameValuePair param : this.params) {
+            if (param.getName().equalsIgnoreCase(name)) {
+                return param.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Generates textual representation of this content type which can be used as the value
+     * of a <code>Content-Type</code> header.
+     */
+    @Override
+    public String toString() {
+        final CharArrayBuffer buf = new CharArrayBuffer(64);
+        buf.append(this.mimeType);
+        if (this.params != null) {
+            buf.append("; ");
+            BasicHeaderValueFormatter.INSTANCE.formatParameters(buf, this.params, false);
+        } else if (this.charset != null) {
+            buf.append("; charset=");
+            buf.append(this.charset.name());
+        }
+        return buf.toString();
     }
 
     /**

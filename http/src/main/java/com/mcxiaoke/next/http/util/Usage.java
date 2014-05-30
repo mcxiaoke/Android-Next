@@ -9,9 +9,9 @@ import com.mcxiaoke.next.http.NextRequest;
  */
 public class Usage {
 
-    public static void test(){
-        final String url="http://www.douban.com";
-        NextRequest.Builder builder=NextRequest.newBuilder();
+    public static void test() {
+        final String url = "http://www.douban.com";
+        NextRequest.Builder builder = NextRequest.newBuilder();
         builder.get(url);
     }
 }

@@ -59,12 +59,12 @@ class HttpStrictMultipart extends AbstractMultipartForm {
 
     @Override
     protected void formatMultipartHeader(
-        final FormBodyPart part,
-        final OutputStream out) throws IOException {
+            final FormBodyPart part,
+            final OutputStream out) throws IOException {
 
         // For strict, we output all fields with MIME-standard encoding.
         final Header header = part.getHeader();
-        for (final MinimalField field: header) {
+        for (final MinimalField field : header) {
             writeField(field, out);
         }
     }

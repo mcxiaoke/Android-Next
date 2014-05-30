@@ -28,16 +28,21 @@
 package com.mcxiaoke.next.http.entity.mime;
 
 /**
- *
  * @since 4.0
  */
 public enum HttpMultipartMode {
 
-    /** RFC 822, RFC 2045, RFC 2046 compliant */
+    /**
+     * RFC 822, RFC 2045, RFC 2046 compliant
+     */
     STRICT,
-    /** browser-compatible mode, i.e. only write Content-Disposition; use content charset */
+    /**
+     * browser-compatible mode, i.e. only write Content-Disposition; use content charset
+     */
     BROWSER_COMPATIBLE,
-    /** RFC 6532 compliant */
+    /**
+     * RFC 6532 compliant
+     */
     RFC6532
 
 }

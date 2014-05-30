@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- *
  * @since 4.0
  */
 public interface ContentBody extends ContentDescriptor {

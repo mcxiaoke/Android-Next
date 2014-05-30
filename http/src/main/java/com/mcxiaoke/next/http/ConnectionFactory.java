@@ -17,6 +17,20 @@ import java.net.URL;
  */
 public interface ConnectionFactory {
     /**
+     * A {@link ConnectionFactory} which uses the built-in
+     * {@link java.net.URL#openConnection()}
+     */
+    ConnectionFactory DEFAULT = new ConnectionFactory() {
+        public HttpURLConnection create(URL url) throws IOException {
+            return (HttpURLConnection) url.openConnection();
+        }
+
+        public HttpURLConnection create(URL url, Proxy proxy) throws IOException {
+            return (HttpURLConnection) url.openConnection(proxy);
+        }
+    };
+
+    /**
      * Open an {@link java.net.HttpURLConnection} for the specified {@link java.net.URL}.
      *
      * @throws java.io.IOException
@@ -30,18 +44,4 @@ public interface ConnectionFactory {
      * @throws java.io.IOException
      */
     HttpURLConnection create(URL url, Proxy proxy) throws IOException;
-
-    /**
-     * A {@link ConnectionFactory} which uses the built-in
-     * {@link java.net.URL#openConnection()}
-     */
-    ConnectionFactory DEFAULT = new ConnectionFactory() {
-        public HttpURLConnection create(URL url) throws IOException {
-            return (HttpURLConnection) url.openConnection();
-        }
-
-        public HttpURLConnection create(URL url, Proxy proxy) throws IOException {
-            return (HttpURLConnection) url.openConnection(proxy);
-        }
-    };
 }

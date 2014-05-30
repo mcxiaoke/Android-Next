@@ -34,6 +34,9 @@ public final class HttpMethod {
     public static final Set<String> METHODS = new LinkedHashSet<String>(Arrays.asList(
             "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "PATCH"));
 
+    private HttpMethod() {
+    }
+
     public static boolean invalidatesCache(String method) {
         return method.equals("POST")
                 || method.equals("PATCH")
@@ -46,8 +49,5 @@ public final class HttpMethod {
                 || method.equals("PUT")
                 || method.equals("PATCH")
                 || method.equals("DELETE"); // Permitted as spec is ambiguous.
-    }
-
-    private HttpMethod() {
     }
 }

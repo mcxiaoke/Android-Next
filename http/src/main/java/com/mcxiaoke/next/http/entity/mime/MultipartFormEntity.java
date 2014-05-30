@@ -64,10 +64,6 @@ class MultipartFormEntity implements HttpEntity {
         return !isRepeatable();
     }
 
-    public boolean isStreaming() {
-        return !isRepeatable();
-    }
-
     public long getContentLength() {
         return this.contentLength;
     }
@@ -80,21 +76,25 @@ class MultipartFormEntity implements HttpEntity {
         return null;
     }
 
-    public void consumeContent()
-        throws IOException, UnsupportedOperationException{
-        if (isStreaming()) {
-            throw new UnsupportedOperationException(
-                    "Streaming entity does not implement #consumeContent()");
-        }
-    }
-
     public InputStream getContent() throws IOException {
         throw new UnsupportedOperationException(
-                    "Multipart form entity does not implement #getContent()");
+                "Multipart form entity does not implement #getContent()");
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
         this.multipart.writeTo(outstream);
+    }
+
+    public boolean isStreaming() {
+        return !isRepeatable();
+    }
+
+    public void consumeContent()
+            throws IOException, UnsupportedOperationException {
+        if (isStreaming()) {
+            throw new UnsupportedOperationException(
+                    "Streaming entity does not implement #consumeContent()");
+        }
     }
 
 }

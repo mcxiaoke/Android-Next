@@ -66,12 +66,12 @@ public class MultipartEntityBuilder {
     private Charset charset = null;
     private List<FormBodyPart> bodyParts = null;
 
-    public static MultipartEntityBuilder create() {
-        return new MultipartEntityBuilder();
-    }
-
     MultipartEntityBuilder() {
         super();
+    }
+
+    public static MultipartEntityBuilder create() {
+        return new MultipartEntityBuilder();
     }
 
     public MultipartEntityBuilder setMode(final HttpMultipartMode mode) {

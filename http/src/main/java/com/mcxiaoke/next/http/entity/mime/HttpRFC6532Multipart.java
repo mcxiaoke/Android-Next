@@ -59,12 +59,12 @@ class HttpRFC6532Multipart extends AbstractMultipartForm {
 
     @Override
     protected void formatMultipartHeader(
-        final FormBodyPart part,
-        final OutputStream out) throws IOException {
+            final FormBodyPart part,
+            final OutputStream out) throws IOException {
 
         // For RFC6532, we output all fields with UTF-8 encoding.
         final Header header = part.getHeader();
-        for (final MinimalField field: header) {
+        for (final MinimalField field : header) {
             writeField(field, MIME.UTF8_CHARSET, out);
         }
     }

@@ -31,17 +31,12 @@ import java.util.Map;
  * http request
  */
 public final class NextRequest {
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
     URL url;
     String method;
     Map<String, String> headers;
     NextParams body;
     ProgressCallback callback;
     Object tag;
-
     volatile URI uri; // Lazily initialized.
 
     NextRequest(Builder builder) {
@@ -51,6 +46,10 @@ public final class NextRequest {
         this.body = builder.body;
         this.callback = builder.callback;
         this.tag = builder.tag != null ? builder.tag : this;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     public NextResponse execute() throws IOException {

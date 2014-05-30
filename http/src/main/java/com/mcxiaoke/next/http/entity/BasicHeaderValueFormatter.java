@@ -84,6 +84,56 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
                 .formatElements(null, elems, quote).toString();
     }
 
+    /**
+     * Formats a header element.
+     *
+     * @param elem      the header element to format
+     * @param quote     <code>true</code> to always format with quoted values,
+     *                  <code>false</code> to use quotes only when necessary
+     * @param formatter the formatter to use, or <code>null</code>
+     *                  for the {@link #INSTANCE default}
+     * @return the formatted header element
+     */
+    public static String formatHeaderElement(final HeaderElement elem,
+                                             final boolean quote,
+                                             final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatHeaderElement(null, elem, quote).toString();
+    }
+
+    /**
+     * Formats a set of parameters.
+     *
+     * @param nvps      the parameters to format
+     * @param quote     <code>true</code> to always format with quoted values,
+     *                  <code>false</code> to use quotes only when necessary
+     * @param formatter the formatter to use, or <code>null</code>
+     *                  for the {@link #INSTANCE default}
+     * @return the formatted parameters
+     */
+    public static String formatParameters(final NameValuePair[] nvps,
+                                          final boolean quote,
+                                          final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatParameters(null, nvps, quote).toString();
+    }
+
+    /**
+     * Formats a name-value pair.
+     *
+     * @param nvp       the name-value pair to format
+     * @param quote     <code>true</code> to always format with a quoted value,
+     *                  <code>false</code> to use quotes only when necessary
+     * @param formatter the formatter to use, or <code>null</code>
+     *                  for the {@link #INSTANCE default}
+     * @return the formatted name-value pair
+     */
+    public static String formatNameValuePair(final NameValuePair nvp,
+                                             final boolean quote,
+                                             final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatNameValuePair(null, nvp, quote).toString();
+    }
 
     // non-javadoc, see interface HeaderValueFormatter
     public CharArrayBuffer formatElements(final CharArrayBuffer charBuffer,
@@ -107,45 +157,6 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
         return buffer;
     }
-
-
-    /**
-     * Estimates the length of formatted header elements.
-     *
-     * @param elems the header elements to format, or <code>null</code>
-     * @return a length estimate, in number of characters
-     */
-    protected int estimateElementsLen(final HeaderElement[] elems) {
-        if ((elems == null) || (elems.length < 1)) {
-            return 0;
-        }
-
-        int result = (elems.length - 1) * 2; // elements separated by ", "
-        for (final HeaderElement elem : elems) {
-            result += estimateHeaderElementLen(elem);
-        }
-
-        return result;
-    }
-
-
-    /**
-     * Formats a header element.
-     *
-     * @param elem      the header element to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter the formatter to use, or <code>null</code>
-     *                  for the {@link #INSTANCE default}
-     * @return the formatted header element
-     */
-    public static String formatHeaderElement(final HeaderElement elem,
-                                             final boolean quote,
-                                             final HeaderValueFormatter formatter) {
-        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
-                .formatHeaderElement(null, elem, quote).toString();
-    }
-
 
     // non-javadoc, see interface HeaderValueFormatter
     public CharArrayBuffer formatHeaderElement(final CharArrayBuffer charBuffer,
@@ -178,6 +189,70 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
         return buffer;
     }
 
+    // non-javadoc, see interface HeaderValueFormatter
+    public CharArrayBuffer formatParameters(final CharArrayBuffer charBuffer,
+                                            final NameValuePair[] nvps,
+                                            final boolean quote) {
+        AssertUtils.notNull(nvps, "Header parameter array");
+        final int len = estimateParametersLen(nvps);
+        CharArrayBuffer buffer = charBuffer;
+        if (buffer == null) {
+            buffer = new CharArrayBuffer(len);
+        } else {
+            buffer.ensureCapacity(len);
+        }
+
+        for (int i = 0; i < nvps.length; i++) {
+            if (i > 0) {
+                buffer.append("; ");
+            }
+            formatNameValuePair(buffer, nvps[i], quote);
+        }
+
+        return buffer;
+    }
+
+    // non-javadoc, see interface HeaderValueFormatter
+    public CharArrayBuffer formatNameValuePair(final CharArrayBuffer charBuffer,
+                                               final NameValuePair nvp,
+                                               final boolean quote) {
+        AssertUtils.notNull(nvp, "Name / value pair");
+        final int len = estimateNameValuePairLen(nvp);
+        CharArrayBuffer buffer = charBuffer;
+        if (buffer == null) {
+            buffer = new CharArrayBuffer(len);
+        } else {
+            buffer.ensureCapacity(len);
+        }
+
+        buffer.append(nvp.getName());
+        final String value = nvp.getValue();
+        if (value != null) {
+            buffer.append('=');
+            doFormatValue(buffer, value, quote);
+        }
+
+        return buffer;
+    }
+
+    /**
+     * Estimates the length of formatted header elements.
+     *
+     * @param elems the header elements to format, or <code>null</code>
+     * @return a length estimate, in number of characters
+     */
+    protected int estimateElementsLen(final HeaderElement[] elems) {
+        if ((elems == null) || (elems.length < 1)) {
+            return 0;
+        }
+
+        int result = (elems.length - 1) * 2; // elements separated by ", "
+        for (final HeaderElement elem : elems) {
+            result += estimateHeaderElementLen(elem);
+        }
+
+        return result;
+    }
 
     /**
      * Estimates the length of a formatted header element.
@@ -208,49 +283,6 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
         return result;
     }
 
-
-    /**
-     * Formats a set of parameters.
-     *
-     * @param nvps      the parameters to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter the formatter to use, or <code>null</code>
-     *                  for the {@link #INSTANCE default}
-     * @return the formatted parameters
-     */
-    public static String formatParameters(final NameValuePair[] nvps,
-                                          final boolean quote,
-                                          final HeaderValueFormatter formatter) {
-        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
-                .formatParameters(null, nvps, quote).toString();
-    }
-
-
-    // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatParameters(final CharArrayBuffer charBuffer,
-                                            final NameValuePair[] nvps,
-                                            final boolean quote) {
-        AssertUtils.notNull(nvps, "Header parameter array");
-        final int len = estimateParametersLen(nvps);
-        CharArrayBuffer buffer = charBuffer;
-        if (buffer == null) {
-            buffer = new CharArrayBuffer(len);
-        } else {
-            buffer.ensureCapacity(len);
-        }
-
-        for (int i = 0; i < nvps.length; i++) {
-            if (i > 0) {
-                buffer.append("; ");
-            }
-            formatNameValuePair(buffer, nvps[i], quote);
-        }
-
-        return buffer;
-    }
-
-
     /**
      * Estimates the length of formatted parameters.
      *
@@ -269,49 +301,6 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
         return result;
     }
-
-
-    /**
-     * Formats a name-value pair.
-     *
-     * @param nvp       the name-value pair to format
-     * @param quote     <code>true</code> to always format with a quoted value,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter the formatter to use, or <code>null</code>
-     *                  for the {@link #INSTANCE default}
-     * @return the formatted name-value pair
-     */
-    public static String formatNameValuePair(final NameValuePair nvp,
-                                             final boolean quote,
-                                             final HeaderValueFormatter formatter) {
-        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
-                .formatNameValuePair(null, nvp, quote).toString();
-    }
-
-
-    // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatNameValuePair(final CharArrayBuffer charBuffer,
-                                               final NameValuePair nvp,
-                                               final boolean quote) {
-        AssertUtils.notNull(nvp, "Name / value pair");
-        final int len = estimateNameValuePairLen(nvp);
-        CharArrayBuffer buffer = charBuffer;
-        if (buffer == null) {
-            buffer = new CharArrayBuffer(len);
-        } else {
-            buffer.ensureCapacity(len);
-        }
-
-        buffer.append(nvp.getName());
-        final String value = nvp.getValue();
-        if (value != null) {
-            buffer.append('=');
-            doFormatValue(buffer, value, quote);
-        }
-
-        return buffer;
-    }
-
 
     /**
      * Estimates the length of a formatted name-value pair.

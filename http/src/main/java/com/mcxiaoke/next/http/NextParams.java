@@ -151,31 +151,6 @@ final class NextParams implements Consts {
         private String fileName;
         private long length;
 
-        public static StreamPart create(String name, File file, String mimeType) {
-            return create(name, file, mimeType, file.getName());
-        }
-
-        public static StreamPart create(String name, File file, String mimeType, String fileName) {
-            return new StreamPart(name, file, mimeType, fileName);
-        }
-
-        public static StreamPart create(String name, byte[] bytes, String mimeType) {
-            return create(name, bytes, mimeType, DEFAULT_NAME);
-        }
-
-        public static StreamPart create(String name, byte[] bytes, String mimeType, String fileName) {
-            return new StreamPart(name, bytes, mimeType, fileName);
-        }
-
-
-        public static StreamPart create(String name, InputStream stream, String mimeType) {
-            return create(name, stream, mimeType, DEFAULT_NAME);
-        }
-
-        public static StreamPart create(String name, InputStream stream, String mimeType, String fileName) {
-            return new StreamPart(name, stream, mimeType, fileName);
-        }
-
         private StreamPart(String name, File file, String mimeType, String fileName) {
             this.name = name;
             this.file = file;
@@ -198,6 +173,30 @@ final class NextParams implements Consts {
             this.length = -1;
             this.contentType = ContentType.create(mimeType);
             this.fileName = fileName;
+        }
+
+        public static StreamPart create(String name, File file, String mimeType) {
+            return create(name, file, mimeType, file.getName());
+        }
+
+        public static StreamPart create(String name, File file, String mimeType, String fileName) {
+            return new StreamPart(name, file, mimeType, fileName);
+        }
+
+        public static StreamPart create(String name, byte[] bytes, String mimeType) {
+            return create(name, bytes, mimeType, DEFAULT_NAME);
+        }
+
+        public static StreamPart create(String name, byte[] bytes, String mimeType, String fileName) {
+            return new StreamPart(name, bytes, mimeType, fileName);
+        }
+
+        public static StreamPart create(String name, InputStream stream, String mimeType) {
+            return create(name, stream, mimeType, DEFAULT_NAME);
+        }
+
+        public static StreamPart create(String name, InputStream stream, String mimeType, String fileName) {
+            return new StreamPart(name, stream, mimeType, fileName);
         }
 
         public String getName() {

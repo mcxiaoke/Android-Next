@@ -74,17 +74,6 @@ public class StringBody extends AbstractContentBody {
                 charset != null ? charset : Charsets.US_ASCII);
     }
 
-    public void writeTo(final OutputStream out) throws IOException {
-        AssertUtils.notNull(out, "Output stream");
-        final InputStream in = new ByteArrayInputStream(this.content);
-        final byte[] tmp = new byte[4096];
-        int l;
-        while ((l = in.read(tmp)) != -1) {
-            out.write(tmp, 0, l);
-        }
-        out.flush();
-    }
-
     public String getTransferEncoding() {
         return MIME.ENC_8BIT;
     }
@@ -95,6 +84,17 @@ public class StringBody extends AbstractContentBody {
 
     public String getFilename() {
         return null;
+    }
+
+    public void writeTo(final OutputStream out) throws IOException {
+        AssertUtils.notNull(out, "Output stream");
+        final InputStream in = new ByteArrayInputStream(this.content);
+        final byte[] tmp = new byte[4096];
+        int l;
+        while ((l = in.read(tmp)) != -1) {
+            out.write(tmp, 0, l);
+        }
+        out.flush();
     }
 
 }

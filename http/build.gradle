@@ -2,6 +2,7 @@ apply plugin: 'android-library'
 
 dependencies {
     compile project(":core")
+    compile 'com.google.code.gson:gson:2.+'
 }
 
 
