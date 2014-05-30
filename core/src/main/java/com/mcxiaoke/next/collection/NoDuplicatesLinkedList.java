@@ -33,11 +33,6 @@ public class NoDuplicatesLinkedList<E> extends LinkedList<E> {
     }
 
     @Override
-    public boolean add(final E e) {
-        return !contains(e) && super.add(e);
-    }
-
-    @Override
     public void add(final int index, final E element) {
         if (!contains(element)) {
             super.add(index, element);
@@ -45,10 +40,8 @@ public class NoDuplicatesLinkedList<E> extends LinkedList<E> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends E> collection) {
-        final Collection<E> copy = new LinkedList<E>(collection);
-        copy.removeAll(this);
-        return super.addAll(copy);
+    public boolean add(final E e) {
+        return !contains(e) && super.add(e);
     }
 
     @Override
@@ -56,5 +49,12 @@ public class NoDuplicatesLinkedList<E> extends LinkedList<E> {
         final Collection<E> copy = new LinkedList<E>(collection);
         copy.removeAll(this);
         return super.addAll(index, copy);
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends E> collection) {
+        final Collection<E> copy = new LinkedList<E>(collection);
+        copy.removeAll(this);
+        return super.addAll(copy);
     }
 }

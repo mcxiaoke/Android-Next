@@ -23,21 +23,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Time: 14:04
  */
 public abstract class MultiIntentService extends Service {
-    private static final String BASE_TAG = MultiIntentService.class.getSimpleName();
-
     // 默认空闲5分钟后自动stopSelf()
     public static final long AUTO_CLOSE_DEFAULT_TIME = 300 * 1000L;
-
+    private static final String BASE_TAG = MultiIntentService.class.getSimpleName();
     private static final String SEPARATOR = "::";
 
     private static volatile long sSequence = 0L;
-
-    static long incSequence() {
-        return ++sSequence;
-    }
-
     private final Object mLock = new Object();
-
+    private final Runnable mAutoCloseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            autoClose();
+        }
+    };
     private ExecutorService mExecutor;
     private Handler mHandler;
 
@@ -49,6 +47,10 @@ public abstract class MultiIntentService extends Service {
 
     public MultiIntentService() {
         super();
+    }
+
+    static long incSequence() {
+        return ++sSequence;
     }
 
     @Override
@@ -73,11 +75,6 @@ public abstract class MultiIntentService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         LogUtils.v(BASE_TAG, "onDestroy() mRetainCount=" + mRetainCount.get());
@@ -85,6 +82,11 @@ public abstract class MultiIntentService extends Service {
         cancelAutoClose();
         destroyHandler();
         destroyExecutor();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     protected void setAutoCloseEnable(boolean enable) {
@@ -142,13 +144,6 @@ public abstract class MultiIntentService extends Service {
         }
         checkAutoClose();
     }
-
-    private final Runnable mAutoCloseRunnable = new Runnable() {
-        @Override
-        public void run() {
-            autoClose();
-        }
-    };
 
     private void checkAutoClose() {
         if (mAutoCloseEnable) {

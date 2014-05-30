@@ -20,14 +20,10 @@ import java.util.concurrent.Future;
  */
 final class TaskRunnable<Result> implements Runnable {
 
-    static enum TaskStatus {
-        IDLE, RUNNING, DONE
-    }
-
     public static final String CLASS_TAG = TaskRunnable.class.getSimpleName();
     public static final String TAG = TaskQueue.TAG + "." + CLASS_TAG;
     public static final String SEPARATOR = "::";
-
+    private static volatile int sSequence = 0;
     private Handler mHandler;
     private TaskCallable<Result> mCallable;
     private TaskCallback<Result> mCallback;
@@ -70,10 +66,13 @@ final class TaskRunnable<Result> implements Runnable {
         }
     }
 
+    static int incSequence() {
+        return ++sSequence;
+    }
+
     public void setDebug(boolean debug) {
         mDebug = debug;
     }
-
 
     // 重置所有字段
     private void reset() {
@@ -221,6 +220,10 @@ final class TaskRunnable<Result> implements Runnable {
         return mFuture;
     }
 
+    public void setFuture(Future<?> future) {
+        mFuture = future;
+    }
+
     public Result getResult() {
         return mResult;
     }
@@ -247,10 +250,6 @@ final class TaskRunnable<Result> implements Runnable {
 
     public String getStatus() {
         return mStatus.name();
-    }
-
-    public void setFuture(Future<?> future) {
-        mFuture = future;
     }
 
     public boolean isRunning() {
@@ -381,13 +380,6 @@ final class TaskRunnable<Result> implements Runnable {
         return builder.toString();
     }
 
-
-    private static volatile int sSequence = 0;
-
-    static int incSequence() {
-        return ++sSequence;
-    }
-
     /**
      * 根据Caller生成对应的TAG，hashcode+类名+timestamp+seq
      *
@@ -412,5 +404,9 @@ final class TaskRunnable<Result> implements Runnable {
         builder.append(timestamp).append(SEPARATOR);
         builder.append(sequence);
         return builder.toString();
+    }
+
+    static enum TaskStatus {
+        IDLE, RUNNING, DONE
     }
 }

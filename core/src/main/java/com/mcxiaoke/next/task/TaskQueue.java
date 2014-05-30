@@ -23,26 +23,16 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public final class TaskQueue {
     public static final String TAG = TaskQueue.class.getSimpleName();
-
+    // 某一个线程运行结束时需要从TaskMap里移除
+    public static final int MSG_TASK_DONE = 4001;
     private final Object mLock = new Object();
-
     private ThreadPoolExecutor mExecutor;
     private ThreadPoolExecutor mSerialExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
     private Map<String, TaskRunnable> mTaskMap;
-
     private boolean mEnableCallerAliveCheck;
     private boolean mDebug;
-
-    // 延迟加载
-    private static final class SingletonHolder {
-        static final TaskQueue DEFAULT = new TaskQueue();
-    }
-
-    public static TaskQueue getDefault() {
-        return SingletonHolder.DEFAULT;
-    }
 
     public TaskQueue() {
         if (mDebug) {
@@ -51,6 +41,23 @@ public final class TaskQueue {
         ensureData();
         ensureHandler();
         ensureExecutor();
+    }
+
+    public static TaskQueue getDefault() {
+        return SingletonHolder.DEFAULT;
+    }
+
+    /**
+     * 检查参数非空
+     *
+     * @param args 参数列表
+     */
+    private static void checkArguments(final Object... args) {
+        for (Object o : args) {
+            if (o == null) {
+                throw new NullPointerException("argument can not be null.");
+            }
+        }
     }
 
     private void ensureData() {
@@ -99,7 +106,6 @@ public final class TaskQueue {
         LogUtils.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
                 + " completedCount:" + completedCount);
     }
-
 
     /**
      * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
@@ -233,7 +239,6 @@ public final class TaskQueue {
         }
 
     }
-
 
     /**
      * 便利任务列表，取消所有任务
@@ -381,7 +386,6 @@ public final class TaskQueue {
         return mSerialExecutor.submit(runnable);
     }
 
-
     private <T> Future<T> submitSerial(final Callable<T> callable) {
         ensureHandler();
         ensureExecutor();
@@ -399,10 +403,6 @@ public final class TaskQueue {
             mSerialExecutor = ThreadUtils.newSingleThreadExecutor("next-serial");
         }
     }
-
-
-    // 某一个线程运行结束时需要从TaskMap里移除
-    public static final int MSG_TASK_DONE = 4001;
 
     /**
      * 检查并初始化Handler，主线程处理消息
@@ -463,25 +463,17 @@ public final class TaskQueue {
         }
     }
 
-    /**
-     * 检查参数非空
-     *
-     * @param args 参数列表
-     */
-    private static void checkArguments(final Object... args) {
-        for (Object o : args) {
-            if (o == null) {
-                throw new NullPointerException("argument can not be null.");
-            }
-        }
-    }
-
     public static interface Success<Result> {
         void onSuccess(final Result result, final Bundle extras);
     }
 
     public static interface Failure {
         void onFailure(Throwable throwable, final Bundle extras);
+    }
+
+    // 延迟加载
+    private static final class SingletonHolder {
+        static final TaskQueue DEFAULT = new TaskQueue();
     }
 
     /**
@@ -495,6 +487,13 @@ public final class TaskQueue {
         private Success<Result> mSuccess;
         private Failure mFailure;
         private Callable<Result> mCallable;
+
+        public <Caller> Builder() {
+        }
+
+        public <Caller> Builder(Caller caller) {
+            with(caller);
+        }
 
         public String execute() {
             if (mCaller == null) {
@@ -525,13 +524,6 @@ public final class TaskQueue {
                 };
             }
             return TaskQueue.getDefault().add(mCallable, mCallback, mCaller);
-        }
-
-        public <Caller> Builder() {
-        }
-
-        public <Caller> Builder(Caller caller) {
-            with(caller);
         }
 
         public <Caller> Builder with(final Caller caller) {

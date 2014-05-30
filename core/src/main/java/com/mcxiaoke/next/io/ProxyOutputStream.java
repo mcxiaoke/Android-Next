@@ -44,23 +44,6 @@ public class ProxyOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Invokes the delegate's <code>write(int)</code> method.
-     *
-     * @param idx the byte to write
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public void write(int idx) throws IOException {
-        try {
-            beforeWrite(1);
-            out.write(idx);
-            afterWrite(1);
-        } catch (IOException e) {
-            handleIOException(e);
-        }
-    }
-
-    /**
      * Invokes the delegate's <code>write(byte[])</code> method.
      *
      * @param bts the bytes to write
@@ -73,6 +56,34 @@ public class ProxyOutputStream extends FilterOutputStream {
             beforeWrite(len);
             out.write(bts);
             afterWrite(len);
+        } catch (IOException e) {
+            handleIOException(e);
+        }
+    }
+
+    /**
+     * Invokes the delegate's <code>close()</code> method.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public void close() throws IOException {
+        try {
+            out.close();
+        } catch (IOException e) {
+            handleIOException(e);
+        }
+    }
+
+    /**
+     * Invokes the delegate's <code>flush()</code> method.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public void flush() throws IOException {
+        try {
+            out.flush();
         } catch (IOException e) {
             handleIOException(e);
         }
@@ -98,28 +109,17 @@ public class ProxyOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Invokes the delegate's <code>flush()</code> method.
+     * Invokes the delegate's <code>write(int)</code> method.
      *
+     * @param idx the byte to write
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    public void flush() throws IOException {
+    public void write(int idx) throws IOException {
         try {
-            out.flush();
-        } catch (IOException e) {
-            handleIOException(e);
-        }
-    }
-
-    /**
-     * Invokes the delegate's <code>close()</code> method.
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public void close() throws IOException {
-        try {
-            out.close();
+            beforeWrite(1);
+            out.write(idx);
+            afterWrite(1);
         } catch (IOException e) {
             handleIOException(e);
         }

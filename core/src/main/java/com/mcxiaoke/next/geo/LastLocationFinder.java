@@ -105,7 +105,9 @@ public class LastLocationFinder {
         return bestResult;
     }
 
-    /**
+    public void setLocationListener(LocationListener li) {
+        locationListener = li;
+    }    /**
      * This {@link BroadcastReceiver} listens for a single location
      * update before unregistering itself.
      * The oneshot location update is returned via the {@link LocationListener}
@@ -126,13 +128,11 @@ public class LastLocationFinder {
         }
     };
 
-    public void setLocationListener(LocationListener li) {
-        locationListener = li;
-    }
-
     public void cancel() {
         context.unregisterReceiver(singleUpdateReceiver);
         locationManager.removeUpdates(pendingIntent);
     }
+
+
 }
 

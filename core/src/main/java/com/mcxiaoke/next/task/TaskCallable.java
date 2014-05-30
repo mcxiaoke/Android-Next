@@ -22,19 +22,19 @@ public abstract class TaskCallable<V> implements Callable<V> {
         mExtras = extras;
     }
 
-    public void setName(final String name) {
-        mName = name;
+    public Bundle getExtras() {
+        return mExtras;
     }
 
     public void setExtras(final Bundle extras) {
         mExtras = extras;
     }
 
-    public Bundle getExtras() {
-        return mExtras;
-    }
-
     public String getName() {
         return mName;
+    }
+
+    public void setName(final String name) {
+        mName = name;
     }
 }

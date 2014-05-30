@@ -18,14 +18,6 @@ public class MemoryCache implements IMemoryCache<String, Object> {
     }
 
     /**
-     * SingletonHolder is loaded on the first execution of Singleton.getDefault()
-     * or the first access to SingletonHolder.DEFAULT, not before.
-     */
-    private static class SingletonHolder {
-        public static final MemoryCache DEFAULT = new MemoryCache(CacheFactory.createCache());
-    }
-
-    /**
      * Singleton pattern. Returns the same DEFAULT every time. This singleton is thread safe.
      *
      * @return Cache
@@ -43,22 +35,21 @@ public class MemoryCache implements IMemoryCache<String, Object> {
     }
 
     /**
-     * Sets the Cache
-     *
-     * @param cache The new Cache
-     */
-    private void setCache(IMemoryCache<String, Object> cache) {
-        this.mCacheStore = cache;
-    }
-
-
-    /**
      * Returns the Cache object.
      *
      * @return the Cache object.
      */
     private IMemoryCache<String, Object> getCache() {
         return mCacheStore;
+    }
+
+    /**
+     * Sets the Cache
+     *
+     * @param cache The new Cache
+     */
+    private void setCache(IMemoryCache<String, Object> cache) {
+        this.mCacheStore = cache;
     }
 
     /**
@@ -69,37 +60,6 @@ public class MemoryCache implements IMemoryCache<String, Object> {
      */
     public Object get(String key) {
         return mCacheStore.get(key);
-    }
-
-    /**
-     * Returns the Object which has the same key value and is stored in the mCacheStore.
-     *
-     * @param key   The key value
-     * @param clazz The Object's class that you are looking for.
-     * @return The Object that which is stored in the mCacheStore.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T get(String key, Class<T> clazz) {
-        return (T) mCacheStore.get(key);
-    }
-
-
-    /**
-     * Returns a COPY of all the stored objects which are instances of the given class.
-     *
-     * @param clazz The Object's Class DEFAULT that you are looking for.
-     * @return The List of stored objects.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> List<T> toList(Class<T> clazz) {
-        List<T> list = new ArrayList<T>();
-
-        for (Object cacheable : this.mCacheStore.snapshot().values()) {
-            if (clazz.isInstance(cacheable)) {
-                list.add((T) cacheable);
-            }
-        }
-        return list;
     }
 
     @Override
@@ -130,5 +90,43 @@ public class MemoryCache implements IMemoryCache<String, Object> {
     @Override
     public Map<String, Object> snapshot() {
         return this.mCacheStore.snapshot();
+    }
+
+    /**
+     * Returns the Object which has the same key value and is stored in the mCacheStore.
+     *
+     * @param key   The key value
+     * @param clazz The Object's class that you are looking for.
+     * @return The Object that which is stored in the mCacheStore.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key, Class<T> clazz) {
+        return (T) mCacheStore.get(key);
+    }
+
+    /**
+     * Returns a COPY of all the stored objects which are instances of the given class.
+     *
+     * @param clazz The Object's Class DEFAULT that you are looking for.
+     * @return The List of stored objects.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> toList(Class<T> clazz) {
+        List<T> list = new ArrayList<T>();
+
+        for (Object cacheable : this.mCacheStore.snapshot().values()) {
+            if (clazz.isInstance(cacheable)) {
+                list.add((T) cacheable);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * SingletonHolder is loaded on the first execution of Singleton.getDefault()
+     * or the first access to SingletonHolder.DEFAULT, not before.
+     */
+    private static class SingletonHolder {
+        public static final MemoryCache DEFAULT = new MemoryCache(CacheFactory.createCache());
     }
 }

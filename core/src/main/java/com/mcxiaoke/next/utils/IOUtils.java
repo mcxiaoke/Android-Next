@@ -57,17 +57,37 @@ import java.util.List;
  */
 public final class IOUtils {
 
-    private static final int EOF = -1;
     public static final char DIR_SEPARATOR_UNIX = '/';
     public static final char DIR_SEPARATOR_WINDOWS = '\\';
     public static final char DIR_SEPARATOR = File.separatorChar;
     public static final String LINE_SEPARATOR_UNIX = "\n";
     public static final String LINE_SEPARATOR_WINDOWS = "\r\n";
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public final static String FILE_EXTENSION_SEPARATOR = ".";
+    public static final long ONE_KB = 1024;
+    public static final BigInteger ONE_KB_BI = BigInteger.valueOf(ONE_KB);
+    public static final BigInteger ONE_MB_BI = ONE_KB_BI.multiply(ONE_KB_BI);
+    public static final BigInteger ONE_GB_BI = ONE_KB_BI.multiply(ONE_MB_BI);
+    public static final BigInteger ONE_TB_BI = ONE_KB_BI.multiply(ONE_GB_BI);
 
+    //-----------------------------------------------------------------------
+    public static final BigInteger ONE_PB_BI = ONE_KB_BI.multiply(ONE_TB_BI);
+    public static final BigInteger ONE_EB_BI = ONE_KB_BI.multiply(ONE_PB_BI);
+    public static final long ONE_MB = ONE_KB * ONE_KB;
+    private static final long FILE_COPY_BUFFER_SIZE = ONE_MB * 30;
+    public static final long ONE_GB = ONE_KB * ONE_MB;
+    public static final long ONE_TB = ONE_KB * ONE_GB;
+    public static final long ONE_PB = ONE_KB * ONE_TB;
+    public static final long ONE_EB = ONE_KB * ONE_PB;
+    public static final BigInteger ONE_ZB = BigInteger.valueOf(ONE_KB).multiply(BigInteger.valueOf(ONE_EB));
+
+    // read readBytes
+    //-----------------------------------------------------------------------
+    public static final BigInteger ONE_YB = ONE_KB_BI.multiply(ONE_ZB);
+    private static final int EOF = -1;
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
     private static final int SKIP_BUFFER_SIZE = 2048;
-
+    private static final String RESERVED_CHARS = "|\\?*<\":>+[]/'";
     // Allocated in the relevant skip method if necessary.
     /*
      * N.B. no need to synchronize these because:
@@ -85,13 +105,14 @@ public final class IOUtils {
     private IOUtils() {
     }
 
-    //-----------------------------------------------------------------------
-
     public static void close(URLConnection conn) {
         if (conn instanceof HttpURLConnection) {
             ((HttpURLConnection) conn).disconnect();
         }
     }
+
+    // read char[]
+    //-----------------------------------------------------------------------
 
     public static void closeQuietly(Reader input) {
         closeQuietly((Closeable) input);
@@ -108,6 +129,9 @@ public final class IOUtils {
     public static void closeQuietly(OutputStream output) {
         closeQuietly((Closeable) output);
     }
+
+    // read readString
+    //-----------------------------------------------------------------------
 
     public static void closeQuietly(Closeable closeable) {
         try {
@@ -148,9 +172,6 @@ public final class IOUtils {
             }
         }
     }
-
-    // read readBytes
-    //-----------------------------------------------------------------------
 
     public static byte[] readBytes(File file) throws IOException {
         return readBytes(new FileInputStream(file));
@@ -205,6 +226,9 @@ public final class IOUtils {
         return IOUtils.readBytes(uri.toURL());
     }
 
+    // readStringList
+    //-----------------------------------------------------------------------
+
     public static byte[] readBytes(URL url) throws IOException {
         URLConnection conn = url.openConnection();
         try {
@@ -222,9 +246,6 @@ public final class IOUtils {
             inputStream.close();
         }
     }
-
-    // read char[]
-    //-----------------------------------------------------------------------
 
     public static char[] readChars(InputStream is) throws IOException {
         return readChars(is, Charset.defaultCharset());
@@ -247,9 +268,6 @@ public final class IOUtils {
         return sw.toCharArray();
     }
 
-    // read readString
-    //-----------------------------------------------------------------------
-
     public static String readString(InputStream input) throws IOException {
         return readString(input, Charset.defaultCharset());
     }
@@ -259,6 +277,9 @@ public final class IOUtils {
         copy(input, sw, encoding);
         return sw.toString();
     }
+
+    // toInputStream
+    //-----------------------------------------------------------------------
 
     public static String readString(InputStream input, String encoding)
             throws IOException {
@@ -287,6 +308,9 @@ public final class IOUtils {
         return readString(url, Charset.defaultCharset());
     }
 
+    // write byte[]
+    //-----------------------------------------------------------------------
+
     public static String readString(URL url, Charset encoding) throws IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -304,9 +328,6 @@ public final class IOUtils {
         return new String(input, Charsets.toCharset(encoding));
     }
 
-    // readStringList
-    //-----------------------------------------------------------------------
-
     public static List<String> readStringList(Reader input) throws IOException {
         BufferedReader reader = new BufferedReader(input);
         List<String> list = new ArrayList<String>();
@@ -317,6 +338,9 @@ public final class IOUtils {
         }
         return list;
     }
+
+    // write char[]
+    //-----------------------------------------------------------------------
 
     public static List<String> readStringList(InputStream input) throws IOException {
         return readStringList(input, Charset.defaultCharset());
@@ -335,6 +359,9 @@ public final class IOUtils {
         return readStringList(filePath, Charsets.toCharset(encoding));
     }
 
+    // write CharSequence
+    //-----------------------------------------------------------------------
+
     public static List<String> readStringList(String filePath, Charset charset) throws IOException {
         FileInputStream stream = new FileInputStream(filePath);
         return readStringList(stream, charset);
@@ -349,12 +376,12 @@ public final class IOUtils {
         return readStringList(stream, charset);
     }
 
-    // toInputStream
-    //-----------------------------------------------------------------------
-
     public static InputStream toInputStream(CharSequence input) {
         return toInputStream(input, Charset.defaultCharset());
     }
+
+    // write String
+    //-----------------------------------------------------------------------
 
     public static InputStream toInputStream(CharSequence input, Charset encoding) {
         return toInputStream(input.toString(), encoding);
@@ -372,13 +399,13 @@ public final class IOUtils {
         return new ByteArrayInputStream(input.getBytes(Charsets.toCharset(encoding)));
     }
 
+    // writeList
+    //-----------------------------------------------------------------------
+
     public static InputStream toInputStream(String input, String encoding) throws IOException {
         byte[] bytes = input.getBytes(Charsets.toCharset(encoding));
         return new ByteArrayInputStream(bytes);
     }
-
-    // write byte[]
-    //-----------------------------------------------------------------------
 
     public static void writeBytes(byte[] data, OutputStream output)
             throws IOException {
@@ -400,9 +427,6 @@ public final class IOUtils {
     public static void writeBytes(byte[] data, Writer output, String encoding) throws IOException {
         writeBytes(data, output, Charsets.toCharset(encoding));
     }
-
-    // write char[]
-    //-----------------------------------------------------------------------
 
     public static void writeChars(char[] data, Writer output) throws IOException {
         if (data != null) {
@@ -426,9 +450,6 @@ public final class IOUtils {
         writeChars(data, output, Charsets.toCharset(encoding));
     }
 
-    // write CharSequence
-    //-----------------------------------------------------------------------
-
     public static void writeCharSequence(CharSequence data, Writer output) throws IOException {
         if (data != null) {
             writeString(data.toString(), output);
@@ -450,8 +471,7 @@ public final class IOUtils {
         writeCharSequence(data, output, Charsets.toCharset(encoding));
     }
 
-    // write String
-    //-----------------------------------------------------------------------
+    // copy from File
 
     public static void writeString(String data, Writer output) throws IOException {
         if (data != null) {
@@ -464,6 +484,9 @@ public final class IOUtils {
         writeString(data, output, Charset.defaultCharset());
     }
 
+    // copy from InputStream
+    //-----------------------------------------------------------------------
+
     public static void writeString(String data, OutputStream output, Charset encoding) throws IOException {
         if (data != null) {
             output.write(data.getBytes(Charsets.toCharset(encoding)));
@@ -474,9 +497,6 @@ public final class IOUtils {
             throws IOException {
         writeString(data, output, Charsets.toCharset(encoding));
     }
-
-    // writeList
-    //-----------------------------------------------------------------------
 
     public static void writeList(Collection<?> lines,
                                  String filePath) throws IOException {
@@ -509,6 +529,9 @@ public final class IOUtils {
         FileOutputStream fos = new FileOutputStream(file);
         writeList(lines, fos, charset);
     }
+
+    // copy from Reader
+    //-----------------------------------------------------------------------
 
     public static void writeList(Collection<?> lines,
                                  OutputStream output) throws IOException {
@@ -568,8 +591,6 @@ public final class IOUtils {
         }
     }
 
-    // copy from File
-
     public static void copyLegacy(File source, File dest)
             throws IOException {
         InputStream input = null;
@@ -587,6 +608,9 @@ public final class IOUtils {
             output.close();
         }
     }
+
+    // content equals
+    //-----------------------------------------------------------------------
 
     public static void copy(File sourceFile, File destFile) throws IOException {
         if (!destFile.exists()) {
@@ -608,9 +632,6 @@ public final class IOUtils {
             }
         }
     }
-
-    // copy from InputStream
-    //-----------------------------------------------------------------------
 
     public static int copy(InputStream input, OutputStream output) throws IOException {
         long count = copyLarge(input, output);
@@ -681,9 +702,6 @@ public final class IOUtils {
         copy(input, output, Charsets.toCharset(encoding));
     }
 
-    // copy from Reader
-    //-----------------------------------------------------------------------
-
     public static int copy(Reader input, Writer output) throws IOException {
         long count = copyLarge(input, output);
         if (count > Integer.MAX_VALUE) {
@@ -752,9 +770,6 @@ public final class IOUtils {
     public static void copy(Reader input, OutputStream output, String encoding) throws IOException {
         copy(input, output, Charsets.toCharset(encoding));
     }
-
-    // content equals
-    //-----------------------------------------------------------------------
 
     public static long skip(InputStream input, long toSkip) throws IOException {
         if (toSkip < 0) {
@@ -832,7 +847,6 @@ public final class IOUtils {
             throw new EOFException("Chars to skip: " + toSkip + " actual: " + skipped);
         }
     }
-
 
     /**
      * Read characters from an input character stream.
@@ -1051,8 +1065,6 @@ public final class IOUtils {
         return s.toString();
     }
 
-    public final static String FILE_EXTENSION_SEPARATOR = ".";
-
     public static String readString(String filePath, Charset charset) throws IOException {
         return readString(new File(filePath), charset);
     }
@@ -1129,7 +1141,6 @@ public final class IOUtils {
             closeQuietly(fileWriter);
         }
     }
-
 
     /**
      * write file
@@ -1508,25 +1519,6 @@ public final class IOUtils {
             return file.length();
         }
     }
-
-    private static final String RESERVED_CHARS = "|\\?*<\":>+[]/'";
-
-
-    public static final long ONE_KB = 1024;
-    public static final BigInteger ONE_KB_BI = BigInteger.valueOf(ONE_KB);
-    public static final long ONE_MB = ONE_KB * ONE_KB;
-    public static final BigInteger ONE_MB_BI = ONE_KB_BI.multiply(ONE_KB_BI);
-    private static final long FILE_COPY_BUFFER_SIZE = ONE_MB * 30;
-    public static final long ONE_GB = ONE_KB * ONE_MB;
-    public static final BigInteger ONE_GB_BI = ONE_KB_BI.multiply(ONE_MB_BI);
-    public static final long ONE_TB = ONE_KB * ONE_GB;
-    public static final BigInteger ONE_TB_BI = ONE_KB_BI.multiply(ONE_GB_BI);
-    public static final long ONE_PB = ONE_KB * ONE_TB;
-    public static final BigInteger ONE_PB_BI = ONE_KB_BI.multiply(ONE_TB_BI);
-    public static final long ONE_EB = ONE_KB * ONE_PB;
-    public static final BigInteger ONE_EB_BI = ONE_KB_BI.multiply(ONE_PB_BI);
-    public static final BigInteger ONE_ZB = BigInteger.valueOf(ONE_KB).multiply(BigInteger.valueOf(ONE_EB));
-    public static final BigInteger ONE_YB = ONE_KB_BI.multiply(ONE_ZB);
 
     public static String byteCountToDisplaySize(BigInteger size) {
         String displaySize;

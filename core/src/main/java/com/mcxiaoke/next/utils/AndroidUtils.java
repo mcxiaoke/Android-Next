@@ -72,9 +72,8 @@ public final class AndroidUtils {
     public static final DateFormat IMG_FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
 
     public static final int HEAP_SIZE_LARGE = 48 * 1024 * 1024;
-
-    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("[\\w%+,./=_-]+");
     public static final String ENCODING_UTF8 = "UTF-8";
+    private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("[\\w%+,./=_-]+");
 
     private AndroidUtils() {
     }

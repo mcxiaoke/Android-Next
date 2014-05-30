@@ -14,9 +14,8 @@ import com.mcxiaoke.next.utils.LogUtils;
  */
 @TargetApi(VERSION_CODES.HONEYCOMB)
 public abstract class NextBaseActivity extends Activity {
-    private static final String BASE_TAG = NextBaseActivity.class.getSimpleName();
     public static final boolean DEBUG = false;
-
+    private static final String BASE_TAG = NextBaseActivity.class.getSimpleName();
     private boolean mPaused;
 
     @Override
@@ -34,18 +33,14 @@ public abstract class NextBaseActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mPaused = true;
-    }
-
-    protected boolean isPaused() {
-        return mPaused;
+    protected void onPostResume() {
+        super.onPostResume();
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onPause() {
+        super.onPause();
+        mPaused = true;
     }
 
     @Override
@@ -62,6 +57,19 @@ public abstract class NextBaseActivity extends Activity {
         LogUtils.v(BASE_TAG, "onBackPressed() activity=" + getActivity());
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (android.R.id.home == item.getItemId()) {
+            onHomeClick();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected boolean isPaused() {
+        return mPaused;
+    }
+
     protected void onHomeClick() {
         if (isFinishing()) {
             return;
@@ -73,15 +81,6 @@ public abstract class NextBaseActivity extends Activity {
 
     protected NextBaseActivity getActivity() {
         return this;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (android.R.id.home == item.getItemId()) {
-            onHomeClick();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public void showProgressIndicator() {

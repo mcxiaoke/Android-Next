@@ -44,6 +44,38 @@ import java.util.List;
 public abstract class ReflectionUtils {
 
     /**
+     * Pre-built FieldFilter that matches all non-static, non-final fields.
+     */
+    public static FieldFilter COPYABLE_FIELDS = new FieldFilter() {
+
+        @Override
+        public boolean matches(Field field) {
+            return !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
+        }
+    };
+    /**
+     * Pre-built MethodFilter that matches all non-bridge methods.
+     */
+    public static MethodFilter NON_BRIDGED_METHODS = new MethodFilter() {
+
+        @Override
+        public boolean matches(Method method) {
+            return !method.isBridge();
+        }
+    };
+    /**
+     * Pre-built MethodFilter that matches all non-bridge methods
+     * which are not declared on {@code java.lang.Object}.
+     */
+    public static MethodFilter USER_DECLARED_METHODS = new MethodFilter() {
+
+        @Override
+        public boolean matches(Method method) {
+            return (!method.isBridge() && method.getDeclaringClass() != Object.class);
+        }
+    };
+
+    /**
      * Attempt to find a {@link java.lang.reflect.Field field} on the supplied {@link Class} with the
      * supplied {@code name}. Searches all superclasses up to {@link Object}.
      *
@@ -669,42 +701,5 @@ public abstract class ReflectionUtils {
          */
         boolean matches(Field field);
     }
-
-
-    /**
-     * Pre-built FieldFilter that matches all non-static, non-final fields.
-     */
-    public static FieldFilter COPYABLE_FIELDS = new FieldFilter() {
-
-        @Override
-        public boolean matches(Field field) {
-            return !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
-        }
-    };
-
-
-    /**
-     * Pre-built MethodFilter that matches all non-bridge methods.
-     */
-    public static MethodFilter NON_BRIDGED_METHODS = new MethodFilter() {
-
-        @Override
-        public boolean matches(Method method) {
-            return !method.isBridge();
-        }
-    };
-
-
-    /**
-     * Pre-built MethodFilter that matches all non-bridge methods
-     * which are not declared on {@code java.lang.Object}.
-     */
-    public static MethodFilter USER_DECLARED_METHODS = new MethodFilter() {
-
-        @Override
-        public boolean matches(Method method) {
-            return (!method.isBridge() && method.getDeclaringClass() != Object.class);
-        }
-    };
 
 }

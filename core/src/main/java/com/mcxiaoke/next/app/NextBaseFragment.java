@@ -20,6 +20,12 @@ public abstract class NextBaseFragment extends Fragment {
     private static final String BASE_TAG = NextBaseFragment.class.getSimpleName();
 
     @Override
+    public void onHiddenChanged(final boolean hidden) {
+        super.onHiddenChanged(hidden);
+        LogUtils.v(BASE_TAG, "onHiddenChanged() hidden=" + hidden + " fragment=" + getClazzName());
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         LogUtils.v(BASE_TAG, "onAttach() fragment=" + getClazzName());
@@ -38,15 +44,9 @@ public abstract class NextBaseFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        LogUtils.v(BASE_TAG, "onDestroy() fragment=" + getClazzName());
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        LogUtils.v(BASE_TAG, "onDetach() fragment=" + getClazzName());
+    public void onStart() {
+        super.onStart();
+        LogUtils.v(BASE_TAG, "onStart() fragment=" + getClazzName());
     }
 
     @Override
@@ -62,21 +62,21 @@ public abstract class NextBaseFragment extends Fragment {
     }
 
     @Override
-    public void onHiddenChanged(final boolean hidden) {
-        super.onHiddenChanged(hidden);
-        LogUtils.v(BASE_TAG, "onHiddenChanged() hidden=" + hidden + " fragment=" + getClazzName());
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        LogUtils.v(BASE_TAG, "onStart() fragment=" + getClazzName());
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
         LogUtils.v(BASE_TAG, "onStop() fragment=" + getClazzName());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LogUtils.v(BASE_TAG, "onDestroy() fragment=" + getClazzName());
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        LogUtils.v(BASE_TAG, "onDetach() fragment=" + getClazzName());
     }
 
     private String getClazzName() {

@@ -30,6 +30,42 @@ public final class CryptoUtils {
     private CryptoUtils() {
     }
 
+    static String getRandomString() {
+        SecureRandom random = new SecureRandom();
+        return String.valueOf(random.nextLong());
+    }
+
+    static byte[] getRandomBytes(int size) {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[size];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    static byte[] getRawBytes(String text) {
+        try {
+            return text.getBytes(ENC_UTF8);
+        } catch (UnsupportedEncodingException e) {
+            return text.getBytes();
+        }
+    }
+
+    static String getString(byte[] data) {
+        try {
+            return new String(data, ENC_UTF8);
+        } catch (UnsupportedEncodingException e) {
+            return new String(data);
+        }
+    }
+
+    static byte[] base64Decode(String text) {
+        return Base64.decode(text, Base64.NO_WRAP);
+    }
+
+    static String base64Encode(byte[] data) {
+        return Base64.encodeToString(data, Base64.NO_WRAP);
+    }
+
     public static final class AES {
         static final int ITERATION_COUNT_DEFAULT = 100;
         static final int KEY_SIZE_DEFAULT = 256;
@@ -298,9 +334,10 @@ public final class CryptoUtils {
                     && keySize <= KEY_SIZE_MAX, "keySize must between "
                     + KEY_SIZE_MIN + " and " + KEY_SIZE_MAX);
             AssertUtils.isTrue(iterCount >= ITERATION_COUNT_MIN
-                    && iterCount <= ITERATION_COUNT_MAX,
+                            && iterCount <= ITERATION_COUNT_MAX,
                     "iterCount must between " + ITERATION_COUNT_MIN + " and "
-                            + ITERATION_COUNT_MAX);
+                            + ITERATION_COUNT_MAX
+            );
             this.password = password;
             this.salt = salt;
             this.iv = iv;
@@ -507,42 +544,6 @@ public final class CryptoUtils {
             return out;
         }
 
-    }
-
-    static String getRandomString() {
-        SecureRandom random = new SecureRandom();
-        return String.valueOf(random.nextLong());
-    }
-
-    static byte[] getRandomBytes(int size) {
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[size];
-        random.nextBytes(bytes);
-        return bytes;
-    }
-
-    static byte[] getRawBytes(String text) {
-        try {
-            return text.getBytes(ENC_UTF8);
-        } catch (UnsupportedEncodingException e) {
-            return text.getBytes();
-        }
-    }
-
-    static String getString(byte[] data) {
-        try {
-            return new String(data, ENC_UTF8);
-        } catch (UnsupportedEncodingException e) {
-            return new String(data);
-        }
-    }
-
-    static byte[] base64Decode(String text) {
-        return Base64.decode(text, Base64.NO_WRAP);
-    }
-
-    static String base64Encode(byte[] data) {
-        return Base64.encodeToString(data, Base64.NO_WRAP);
     }
 
 }

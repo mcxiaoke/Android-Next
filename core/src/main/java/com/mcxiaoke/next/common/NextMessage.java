@@ -12,6 +12,15 @@ import android.os.Parcelable;
  * Time: 18:21
  */
 public class NextMessage implements Parcelable {
+    public static Creator<NextMessage> CREATOR = new Creator<NextMessage>() {
+        public NextMessage createFromParcel(Parcel source) {
+            return new NextMessage(source);
+        }
+
+        public NextMessage[] newArray(int size) {
+            return new NextMessage[size];
+        }
+    };
     public int type;
     public int arg1;
     public long arg2;
@@ -19,27 +28,6 @@ public class NextMessage implements Parcelable {
     public String text;
     public Object obj;
     private Bundle data;
-
-    public static NextMessage create(int type) {
-        return new NextMessage(type);
-    }
-
-    public static NextMessage create(int type, int arg1) {
-        return new NextMessage(type, arg1);
-    }
-
-    public static NextMessage create(int type, int arg1, long arg2) {
-        return new NextMessage(type, arg1, arg2);
-    }
-
-    public static NextMessage create(int type, int arg1, long arg2, boolean flag) {
-        return new NextMessage(type, arg1, arg2, flag);
-    }
-
-    public static NextMessage create(int type, int arg1, long arg2, boolean flag, String text) {
-        return new NextMessage(type, arg1, arg2, flag, text);
-    }
-
 
     public NextMessage() {
     }
@@ -56,6 +44,7 @@ public class NextMessage implements Parcelable {
     public NextMessage(int type, int arg1, long arg2) {
         this(type, arg1, arg2, false, null);
     }
+
 
     public NextMessage(int type, int arg1, long arg2, boolean flag) {
         this(type, arg1, arg2, flag, null);
@@ -76,6 +65,26 @@ public class NextMessage implements Parcelable {
         this.flag = in.readByte() != 0;
         this.text = in.readString();
         data = in.readBundle();
+    }
+
+    public static NextMessage create(int type) {
+        return new NextMessage(type);
+    }
+
+    public static NextMessage create(int type, int arg1) {
+        return new NextMessage(type, arg1);
+    }
+
+    public static NextMessage create(int type, int arg1, long arg2) {
+        return new NextMessage(type, arg1, arg2);
+    }
+
+    public static NextMessage create(int type, int arg1, long arg2, boolean flag) {
+        return new NextMessage(type, arg1, arg2, flag);
+    }
+
+    public static NextMessage create(int type, int arg1, long arg2, boolean flag, String text) {
+        return new NextMessage(type, arg1, arg2, flag, text);
     }
 
     public Bundle getData() {
@@ -117,15 +126,4 @@ public class NextMessage implements Parcelable {
         dest.writeString(this.text);
         dest.writeBundle(this.data);
     }
-
-
-    public static Creator<NextMessage> CREATOR = new Creator<NextMessage>() {
-        public NextMessage createFromParcel(Parcel source) {
-            return new NextMessage(source);
-        }
-
-        public NextMessage[] newArray(int size) {
-            return new NextMessage[size];
-        }
-    };
 }

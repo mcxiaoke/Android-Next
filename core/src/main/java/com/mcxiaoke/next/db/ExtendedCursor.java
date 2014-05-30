@@ -57,6 +57,12 @@ public class ExtendedCursor extends AbstractCursor {
         mValue = value;
     }
 
+    private static void closeQuietly(Cursor cursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
+
     @Override
     public int getCount() {
         return mCursor.getCount();
@@ -129,14 +135,14 @@ public class ExtendedCursor extends AbstractCursor {
     }
 
     @Override
-    public boolean onMove(int oldPosition, int newPosition) {
-        return mCursor.moveToPosition(newPosition);
-    }
-
-    @Override
     public void close() {
         closeQuietly(mCursor);
         super.close();
+    }
+
+    @Override
+    public boolean onMove(int oldPosition, int newPosition) {
+        return mCursor.moveToPosition(newPosition);
     }
 
     @Override
@@ -157,11 +163,5 @@ public class ExtendedCursor extends AbstractCursor {
     @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         mCursor.unregisterDataSetObserver(observer);
-    }
-
-    private static void closeQuietly(Cursor cursor) {
-        if (cursor != null) {
-            cursor.close();
-        }
     }
 }

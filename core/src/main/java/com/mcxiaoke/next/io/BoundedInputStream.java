@@ -85,6 +85,51 @@ public class BoundedInputStream extends InputStream {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int available() throws IOException {
+        if (max >= 0 && pos >= max) {
+            return 0;
+        }
+        return in.available();
+    }
+
+    /**
+     * Invokes the delegate's <code>close()</code> method
+     * if {@link #isPropagateClose()} is {@code true}.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public void close() throws IOException {
+        if (propagateClose) {
+            in.close();
+        }
+    }
+
+    /**
+     * Invokes the delegate's <code>mark(int)</code> method.
+     *
+     * @param readlimit read ahead limit
+     */
+    @Override
+    public synchronized void mark(int readlimit) {
+        in.mark(readlimit);
+        mark = pos;
+    }
+
+    /**
+     * Invokes the delegate's <code>markSupported()</code> method.
+     *
+     * @return true if mark is supported, otherwise false
+     */
+    @Override
+    public boolean markSupported() {
+        return in.markSupported();
+    }
+
+    /**
      * Invokes the delegate's <code>read()</code> method if
      * the current position is less than the limit.
      *
@@ -142,6 +187,17 @@ public class BoundedInputStream extends InputStream {
     }
 
     /**
+     * Invokes the delegate's <code>reset()</code> method.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public synchronized void reset() throws IOException {
+        in.reset();
+        pos = mark;
+    }
+
+    /**
      * Invokes the delegate's <code>skip(long)</code> method.
      *
      * @param n the number of bytes to skip
@@ -157,17 +213,6 @@ public class BoundedInputStream extends InputStream {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int available() throws IOException {
-        if (max >= 0 && pos >= max) {
-            return 0;
-        }
-        return in.available();
-    }
-
-    /**
      * Invokes the delegate's <code>readString()</code> method.
      *
      * @return the delegate's <code>readString()</code>
@@ -175,51 +220,6 @@ public class BoundedInputStream extends InputStream {
     @Override
     public String toString() {
         return in.toString();
-    }
-
-    /**
-     * Invokes the delegate's <code>close()</code> method
-     * if {@link #isPropagateClose()} is {@code true}.
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public void close() throws IOException {
-        if (propagateClose) {
-            in.close();
-        }
-    }
-
-    /**
-     * Invokes the delegate's <code>reset()</code> method.
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public synchronized void reset() throws IOException {
-        in.reset();
-        pos = mark;
-    }
-
-    /**
-     * Invokes the delegate's <code>mark(int)</code> method.
-     *
-     * @param readlimit read ahead limit
-     */
-    @Override
-    public synchronized void mark(int readlimit) {
-        in.mark(readlimit);
-        mark = pos;
-    }
-
-    /**
-     * Invokes the delegate's <code>markSupported()</code> method.
-     *
-     * @return true if mark is supported, otherwise false
-     */
-    @Override
-    public boolean markSupported() {
-        return in.markSupported();
     }
 
     /**

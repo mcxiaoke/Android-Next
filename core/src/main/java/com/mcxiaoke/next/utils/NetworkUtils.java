@@ -29,10 +29,6 @@ public final class NetworkUtils {
     private NetworkUtils() {
     }
 
-    public static enum NetworkType {
-        WIFI, MOBILE, OTHER, NONE
-    }
-
     /**
      * 获取当前网络类型
      *
@@ -206,6 +202,10 @@ public final class NetworkUtils {
             }
         }
         return hasProxy;
+    }
+
+    public static enum NetworkType {
+        WIFI, MOBILE, OTHER, NONE
     }
 
 }

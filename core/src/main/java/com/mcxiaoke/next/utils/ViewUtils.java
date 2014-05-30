@@ -20,6 +20,9 @@ import java.lang.reflect.Method;
  */
 public class ViewUtils {
 
+    // temp variable
+    private static TypedValue mTmpValue = new TypedValue();
+
     // This intro hides the system bars.
     @TargetApi(VERSION_CODES.KITKAT)
     public static void hideSystemUI(Activity activity) {
@@ -156,9 +159,6 @@ public class ViewUtils {
         }
         return result;
     }
-
-    // temp variable
-    private static TypedValue mTmpValue = new TypedValue();
 
     /**
      * 获取资源中的数值，没有经过转换，比如dp,sp等

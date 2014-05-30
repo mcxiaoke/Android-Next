@@ -47,25 +47,6 @@ public abstract class ProxyInputStream extends FilterInputStream {
     }
 
     /**
-     * Invokes the delegate's <code>read()</code> method.
-     *
-     * @return the byte read or -1 if the end of stream
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public int read() throws IOException {
-        try {
-            beforeRead(1);
-            int b = in.read();
-            afterRead(b != -1 ? 1 : -1);
-            return b;
-        } catch (IOException e) {
-            handleIOException(e);
-            return -1;
-        }
-    }
-
-    /**
      * Invokes the delegate's <code>read(byte[])</code> method.
      *
      * @param bts the buffer to read the bytes into
@@ -82,45 +63,6 @@ public abstract class ProxyInputStream extends FilterInputStream {
         } catch (IOException e) {
             handleIOException(e);
             return -1;
-        }
-    }
-
-    /**
-     * Invokes the delegate's <code>read(byte[], int, int)</code> method.
-     *
-     * @param bts the buffer to read the bytes into
-     * @param off The start offset
-     * @param len The number of bytes to read
-     * @return the number of bytes read or -1 if the end of stream
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public int read(byte[] bts, int off, int len) throws IOException {
-        try {
-            beforeRead(len);
-            int n = in.read(bts, off, len);
-            afterRead(n);
-            return n;
-        } catch (IOException e) {
-            handleIOException(e);
-            return -1;
-        }
-    }
-
-    /**
-     * Invokes the delegate's <code>skip(long)</code> method.
-     *
-     * @param ln the number of bytes to skip
-     * @return the actual number of bytes skipped
-     * @throws java.io.IOException if an I/O error occurs
-     */
-    @Override
-    public long skip(long ln) throws IOException {
-        try {
-            return in.skip(ln);
-        } catch (IOException e) {
-            handleIOException(e);
-            return 0;
         }
     }
 
@@ -165,6 +107,57 @@ public abstract class ProxyInputStream extends FilterInputStream {
     }
 
     /**
+     * Invokes the delegate's <code>markSupported()</code> method.
+     *
+     * @return true if mark is supported, otherwise false
+     */
+    @Override
+    public boolean markSupported() {
+        return in.markSupported();
+    }
+
+    /**
+     * Invokes the delegate's <code>read()</code> method.
+     *
+     * @return the byte read or -1 if the end of stream
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public int read() throws IOException {
+        try {
+            beforeRead(1);
+            int b = in.read();
+            afterRead(b != -1 ? 1 : -1);
+            return b;
+        } catch (IOException e) {
+            handleIOException(e);
+            return -1;
+        }
+    }
+
+    /**
+     * Invokes the delegate's <code>read(byte[], int, int)</code> method.
+     *
+     * @param bts the buffer to read the bytes into
+     * @param off The start offset
+     * @param len The number of bytes to read
+     * @return the number of bytes read or -1 if the end of stream
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Override
+    public int read(byte[] bts, int off, int len) throws IOException {
+        try {
+            beforeRead(len);
+            int n = in.read(bts, off, len);
+            afterRead(n);
+            return n;
+        } catch (IOException e) {
+            handleIOException(e);
+            return -1;
+        }
+    }
+
+    /**
      * Invokes the delegate's <code>reset()</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -179,13 +172,20 @@ public abstract class ProxyInputStream extends FilterInputStream {
     }
 
     /**
-     * Invokes the delegate's <code>markSupported()</code> method.
+     * Invokes the delegate's <code>skip(long)</code> method.
      *
-     * @return true if mark is supported, otherwise false
+     * @param ln the number of bytes to skip
+     * @return the actual number of bytes skipped
+     * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    public boolean markSupported() {
-        return in.markSupported();
+    public long skip(long ln) throws IOException {
+        try {
+            return in.skip(ln);
+        } catch (IOException e) {
+            handleIOException(e);
+            return 0;
+        }
     }
 
     /**

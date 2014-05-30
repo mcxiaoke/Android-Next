@@ -259,7 +259,8 @@ public abstract class AssertUtils {
     public static void doesNotContain(String textToSearch, String substring) {
         doesNotContain(textToSearch, substring,
                 "[Assertion failed] - this String argument must not contain the substring ["
-                        + substring + "]");
+                        + substring + "]"
+        );
     }
 
     /**

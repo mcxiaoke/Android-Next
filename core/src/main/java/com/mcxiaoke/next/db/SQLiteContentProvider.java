@@ -38,56 +38,21 @@ public abstract class SQLiteContentProvider extends ContentProvider implements
         SQLiteTransactionListener {
 
     private static final String TAG = "SQLiteContentProvider";
-
-    private SQLiteOpenHelper mOpenHelper;
-    private volatile boolean mNotifyChange;
-    protected SQLiteDatabase mDb;
-
-    private final ThreadLocal<Boolean> mApplyingBatch = new ThreadLocal<Boolean>();
     private static final int SLEEP_AFTER_YIELD_DELAY = 4000;
-
     /**
      * Maximum number of operations allowed in a batch between yield points.
      */
     private static final int MAX_OPERATIONS_PER_YIELD_POINT = 500;
+    private final ThreadLocal<Boolean> mApplyingBatch = new ThreadLocal<Boolean>();
+    protected SQLiteDatabase mDb;
+    private SQLiteOpenHelper mOpenHelper;
+    private volatile boolean mNotifyChange;
 
     @Override
     public boolean onCreate() {
         Context context = getContext();
         mOpenHelper = getDatabaseHelper(context);
         return true;
-    }
-
-    protected abstract SQLiteOpenHelper getDatabaseHelper(Context context);
-
-    /**
-     * The equivalent of the {@link #insert} method, but invoked within a
-     * transaction.
-     */
-    protected abstract Uri insertInTransaction(Uri uri, ContentValues values);
-
-    /**
-     * The equivalent of the {@link #update} method, but invoked within a
-     * transaction.
-     */
-    protected abstract int updateInTransaction(Uri uri, ContentValues values,
-                                               String selection, String[] selectionArgs);
-
-    /**
-     * The equivalent of the {@link #delete} method, but invoked within a
-     * transaction.
-     */
-    protected abstract int deleteInTransaction(Uri uri, String selection,
-                                               String[] selectionArgs);
-
-    protected abstract void notifyChange();
-
-    public SQLiteOpenHelper getDatabaseHelper() {
-        return mOpenHelper;
-    }
-
-    private boolean applyingBatch() {
-        return mApplyingBatch.get() != null && mApplyingBatch.get();
     }
 
     @Override
@@ -144,6 +109,33 @@ public abstract class SQLiteContentProvider extends ContentProvider implements
     }
 
     @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        int count = 0;
+        boolean applyingBatch = applyingBatch();
+        if (!applyingBatch) {
+            mDb = mOpenHelper.getWritableDatabase();
+            mDb.beginTransactionWithListener(this);
+            try {
+                count = deleteInTransaction(uri, selection, selectionArgs);
+                if (count > 0) {
+                    mNotifyChange = true;
+                }
+                mDb.setTransactionSuccessful();
+            } finally {
+                mDb.endTransaction();
+            }
+
+            onEndTransaction();
+        } else {
+            count = deleteInTransaction(uri, selection, selectionArgs);
+            if (count > 0) {
+                mNotifyChange = true;
+            }
+        }
+        return count;
+    }
+
+    @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         int count = 0;
@@ -170,33 +162,6 @@ public abstract class SQLiteContentProvider extends ContentProvider implements
             }
         }
 
-        return count;
-    }
-
-    @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        int count = 0;
-        boolean applyingBatch = applyingBatch();
-        if (!applyingBatch) {
-            mDb = mOpenHelper.getWritableDatabase();
-            mDb.beginTransactionWithListener(this);
-            try {
-                count = deleteInTransaction(uri, selection, selectionArgs);
-                if (count > 0) {
-                    mNotifyChange = true;
-                }
-                mDb.setTransactionSuccessful();
-            } finally {
-                mDb.endTransaction();
-            }
-
-            onEndTransaction();
-        } else {
-            count = deleteInTransaction(uri, selection, selectionArgs);
-            if (count > 0) {
-                mNotifyChange = true;
-            }
-        }
         return count;
     }
 
@@ -240,6 +205,38 @@ public abstract class SQLiteContentProvider extends ContentProvider implements
             mDb.endTransaction();
             onEndTransaction();
         }
+    }
+
+    protected abstract SQLiteOpenHelper getDatabaseHelper(Context context);
+
+    /**
+     * The equivalent of the {@link #insert} method, but invoked within a
+     * transaction.
+     */
+    protected abstract Uri insertInTransaction(Uri uri, ContentValues values);
+
+    /**
+     * The equivalent of the {@link #update} method, but invoked within a
+     * transaction.
+     */
+    protected abstract int updateInTransaction(Uri uri, ContentValues values,
+                                               String selection, String[] selectionArgs);
+
+    /**
+     * The equivalent of the {@link #delete} method, but invoked within a
+     * transaction.
+     */
+    protected abstract int deleteInTransaction(Uri uri, String selection,
+                                               String[] selectionArgs);
+
+    protected abstract void notifyChange();
+
+    public SQLiteOpenHelper getDatabaseHelper() {
+        return mOpenHelper;
+    }
+
+    private boolean applyingBatch() {
+        return mApplyingBatch.get() != null && mApplyingBatch.get();
     }
 
     public void onBegin() {

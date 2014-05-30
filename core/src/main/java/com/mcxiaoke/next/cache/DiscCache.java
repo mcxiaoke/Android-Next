@@ -28,14 +28,10 @@ public class DiscCache implements IDiscCache {
     public static final int MODE_INTERNAL = 0;
     public static final int MODE_EXTERNAL = 1;
     public static final int MODE_AUTO = 2;
-
-
-    public static final String DIR_NAME_DEFAULT = ".disc";
-
-    private static boolean sDebug;
-
-    private Context mContext;
     private int mMode = MODE_AUTO;
+    public static final String DIR_NAME_DEFAULT = ".disc";
+    private static boolean sDebug;
+    private Context mContext;
     private File mCacheDir;
     private String mCacheDirName;
     private NameGenerator mGenerator = new SafeFileNameGenerator();
@@ -60,10 +56,6 @@ public class DiscCache implements IDiscCache {
     public static void setDebug(boolean debug) {
         LogUtils.v(TAG, "setDebug() debug=" + debug);
         DiscCache.sDebug = debug;
-    }
-
-    public void setCacheDir(String dirName) {
-        setCacheDir(dirName, MODE_AUTO);
     }
 
     /**
@@ -95,12 +87,6 @@ public class DiscCache implements IDiscCache {
         }
         mCacheDir = cacheDir;
         checkCacheDir(false);
-    }
-
-    @Override
-    public File getCacheDir() {
-        checkCacheDir(false);
-        return mCacheDir;
     }
 
     public void setCharset(String charset) {
@@ -248,6 +234,16 @@ public class DiscCache implements IDiscCache {
             LogUtils.v(TAG, "trim() count=" + count);
         }
         return count;
+    }
+
+    @Override
+    public File getCacheDir() {
+        checkCacheDir(false);
+        return mCacheDir;
+    }
+
+    public void setCacheDir(String dirName) {
+        setCacheDir(dirName, MODE_AUTO);
     }
 
     @Override

@@ -35,8 +35,9 @@ import java.io.InputStream;
 
 public final class BitmapUtils {
     public static final String TAG = BitmapUtils.class.getSimpleName();
-    private static final boolean DEBUG_FLAG = false;
     public static final boolean DEBUG = BuildConfig.DEBUG;
+    private static final boolean DEBUG_FLAG = false;
+    private static final int DEFAULT_BLUR_RADIUS = 12;
 
     private BitmapUtils() {
     }
@@ -53,7 +54,6 @@ public final class BitmapUtils {
         matrixRotateLeft.setRotate(angle);
         return Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrixRotateLeft, true);
     }
-
 
     /**
      * 按原比例缩放图片
@@ -390,8 +390,6 @@ public final class BitmapUtils {
 
         return output;
     }
-
-    private static final int DEFAULT_BLUR_RADIUS = 12;
 
     public static Bitmap getBluredBitmap(Bitmap sentBitmap) {
         return getBluredBitmap(sentBitmap, DEFAULT_BLUR_RADIUS);

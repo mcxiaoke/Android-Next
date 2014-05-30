@@ -61,6 +61,46 @@ public class StringBuilderWriter extends Writer implements Serializable {
     }
 
     /**
+     * Closing this writer has no effect.
+     */
+    @Override
+    public void close() {
+    }
+
+    /**
+     * Flushing this writer has no effect.
+     */
+    @Override
+    public void flush() {
+    }
+
+    /**
+     * Write a portion of a character array to the {@link StringBuilder}.
+     *
+     * @param value  The value to write
+     * @param offset The index of the first character
+     * @param length The number of characters to write
+     */
+    @Override
+    public void write(char[] value, int offset, int length) {
+        if (value != null) {
+            builder.append(value, offset, length);
+        }
+    }
+
+    /**
+     * Write a String to the {@link StringBuilder}.
+     *
+     * @param value The value to write
+     */
+    @Override
+    public void write(String value) {
+        if (value != null) {
+            builder.append(value);
+        }
+    }
+
+    /**
      * Append a single character to this Writer.
      *
      * @param value The character to append
@@ -96,47 +136,6 @@ public class StringBuilderWriter extends Writer implements Serializable {
     public Writer append(CharSequence value, int start, int end) {
         builder.append(value, start, end);
         return this;
-    }
-
-    /**
-     * Closing this writer has no effect.
-     */
-    @Override
-    public void close() {
-    }
-
-    /**
-     * Flushing this writer has no effect.
-     */
-    @Override
-    public void flush() {
-    }
-
-
-    /**
-     * Write a String to the {@link StringBuilder}.
-     *
-     * @param value The value to write
-     */
-    @Override
-    public void write(String value) {
-        if (value != null) {
-            builder.append(value);
-        }
-    }
-
-    /**
-     * Write a portion of a character array to the {@link StringBuilder}.
-     *
-     * @param value  The value to write
-     * @param offset The index of the first character
-     * @param length The number of characters to write
-     */
-    @Override
-    public void write(char[] value, int offset, int length) {
-        if (value != null) {
-            builder.append(value, offset, length);
-        }
     }
 
     /**

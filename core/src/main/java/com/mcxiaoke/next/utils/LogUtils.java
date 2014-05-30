@@ -247,20 +247,6 @@ public final class LogUtils {
         return dir;
     }
 
-    public void clearLogFiles(Context context) {
-        File logDir = createFileLogDirIfNeeded(context);
-        IOUtils.delete(logDir.getPath());
-    }
-
-    public void clearLogFilesAsync(final Context context) {
-        new Thread() {
-            @Override
-            public void run() {
-                clearLogFiles(context);
-            }
-        }.start();
-    }
-
     /**
      * 获取StackTrace信息
      */
@@ -354,6 +340,20 @@ public final class LogUtils {
     public static void clearTrace() {
         sTraceMap.clear();
         Log.v(TAG_TRACE, "trace is cleared.");
+    }
+
+    public void clearLogFiles(Context context) {
+        File logDir = createFileLogDirIfNeeded(context);
+        IOUtils.delete(logDir.getPath());
+    }
+
+    public void clearLogFilesAsync(final Context context) {
+        new Thread() {
+            @Override
+            public void run() {
+                clearLogFiles(context);
+            }
+        }.start();
     }
 
     private static class LogEntry {
@@ -450,11 +450,11 @@ public final class LogUtils {
     private static class FileLogger implements Handler.Callback {
         public static final String TAG = FileLogger.class.getSimpleName();
         private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd-HH", Locale.US);
-        public static long MAX_FILE_SIZE = 1024 * 1024 * 10;
         private static final String UTF_8 = Charsets.ENCODING_UTF_8;
         private static final int MSG_OPEN = 0;
         private static final int MSG_WRITE = 1;
         private static final int MSG_CLEAR = 2;
+        public static long MAX_FILE_SIZE = 1024 * 1024 * 10;
         private File mLogDir;
         private File mLogFile;
         private String mTag;
