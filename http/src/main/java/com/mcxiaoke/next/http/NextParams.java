@@ -107,17 +107,20 @@ final class NextParams implements Consts {
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.setCharset(Charsets.UTF_8);
             for (StreamPart part : parts) {
-                File file = part.getFile();
+                final File file = part.getFile();
                 if (file != null) {
                     builder.addBinaryBody(part.getName(), part.getFile(), part.getContentType(), part.getFileName());
                     continue;
                 }
-                byte[] bytes = part.getBytes();
+                final byte[] bytes = part.getBytes();
                 if (bytes != null) {
                     builder.addBinaryBody(part.getName(), part.getBytes(), part.getContentType(), part.getFileName());
                     continue;
                 }
-                builder.addBinaryBody(part.getName(), part.getStream(), part.getContentType(), part.getFileName());
+                final InputStream stream = part.getStream();
+                if (stream != null) {
+                    builder.addBinaryBody(part.getName(), part.getStream(), part.getContentType(), part.getFileName());
+                }
             }
             for (NameValuePair param : params) {
                 builder.addTextBody(param.getName(), param.getValue());
