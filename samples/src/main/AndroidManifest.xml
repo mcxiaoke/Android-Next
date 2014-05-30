@@ -69,5 +69,9 @@
             android:name=".core.TaskQueueSamples"
             android:label="@string/app_name" />
 
+        <activity
+            android:name=".http.NextClientSamples"
+            android:label="@string/app_name" />
+
     </application>
 </manifest> 
