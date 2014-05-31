@@ -20,6 +20,16 @@ import java.security.cert.X509Certificate;
  */
 final class Utils {
 
+    public static boolean hasOkHttp() {
+        try {
+            Class.forName("com.squareup.okhttp.OkHttpClient");
+            Class.forName("com.squareup.okhttp.OkUrlFactory");
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public static boolean isSuccess(int code) {
         return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_BAD_REQUEST;
     }

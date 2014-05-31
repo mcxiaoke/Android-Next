@@ -1,11 +1,10 @@
 package com.mcxiaoke.next.http;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.CookieStore;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -20,21 +19,19 @@ import java.util.Map;
 public class NextClient implements Consts {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
-    private Map<String, String> headers;
-    private HttpURLConnection connection;
-    private boolean useCaches;
-    private boolean keepAlive;
-    private boolean trustAllCerts;
-    private boolean trustAllHosts;
-    private boolean followRedirects;
-    private int connectTimeout;
-    private int readTimeout;
-    private Proxy proxy;
-    private CookieManager cookieManager;
-    private NextInterceptor interceptor;
+    private Map<String, String> mHeaders;
+    private boolean mUseCaches;
+    private boolean mTrustAllCerts;
+    private boolean mTrustAllHosts;
+    private boolean mFollowRedirects;
+    private int mConnectTimeout;
+    private int mReadTimeout;
+    private Proxy mProxy;
+    private CookieManager mCookieManager;
+    private NextInterceptor mInterceptor;
     private SSLSocketFactory mSSLSocketFactory;
     private HostnameVerifier mHostnameVerifier;
-    private ConnectionFactory mConnectionFactory;
+
     /**
      * Creates a new Http Client
      */
@@ -45,14 +42,6 @@ public class NextClient implements Consts {
     public static NextClient getDefault() {
         return SingletonHolder.INSTANCE;
     }
-
-    /**
-     * ****************************************************
-     * <p/>
-     * UTIL METHODS
-     * <p/>
-     * ****************************************************
-     */
 
     public static NextResponse head(String url) throws IOException {
         return NextRequest.newBuilder().head(url).build().execute();
@@ -103,18 +92,16 @@ public class NextClient implements Consts {
     }
 
     private void initDefaults() {
-        this.useCaches = true; // default
-        this.keepAlive = true; // default
-        this.trustAllCerts = false;
-        this.trustAllHosts = false;
-        this.followRedirects = true; //default
-        this.connectTimeout = CONNECT_TIMEOUT;
-        this.readTimeout = READ_TIMEOUT;
-        this.proxy = Proxy.NO_PROXY;
-        this.headers = new HashMap<String, String>();
-        this.mSSLSocketFactory = Utils.createTrustedAllSslSocketFactory();
-        this.mHostnameVerifier = Utils.createTrustAllHostNameVerifier();
-        this.mConnectionFactory = ConnectionFactory.DEFAULT;
+        this.mUseCaches = true; // default
+        this.mTrustAllCerts = false;
+        this.mTrustAllHosts = false;
+        this.mFollowRedirects = true; //default
+        this.mConnectTimeout = CONNECT_TIMEOUT;
+        this.mReadTimeout = READ_TIMEOUT;
+        this.mProxy = Proxy.NO_PROXY;
+        this.mHeaders = new HashMap<String, String>();
+//        this.mSSLSocketFactory = null; // default
+//        this.mHostnameVerifier = null; // default
     }
 
     public boolean isDebug() {
@@ -126,37 +113,19 @@ public class NextClient implements Consts {
     }
 
     public CookieManager getCookieManager() {
-        return cookieManager;
+        return mCookieManager;
     }
 
     public void setCookieManager(final CookieManager cm) {
-        this.cookieManager = cm;
+        this.mCookieManager = cm;
     }
 
     public SSLSocketFactory getTrustedSSLSocketFactory() {
-        if (mSSLSocketFactory == null) {
-            mSSLSocketFactory = Utils.createTrustedAllSslSocketFactory();
-        }
         return mSSLSocketFactory;
     }
 
     public HostnameVerifier getTrustedHostnameVerifier() {
-        if (mHostnameVerifier == null) {
-            mHostnameVerifier = Utils.createTrustAllHostNameVerifier();
-        }
         return mHostnameVerifier;
-    }
-
-    public ConnectionFactory getConnectionFactory() {
-        return mConnectionFactory;
-    }
-
-    public void setConnectionFactory(final ConnectionFactory cf) {
-        if (cf == null) {
-            mConnectionFactory = ConnectionFactory.DEFAULT;
-        } else {
-            mConnectionFactory = cf;
-        }
     }
 
     public void setSSLSocketFactory(final SSLSocketFactory SSLSocketFactory) {
@@ -174,19 +143,19 @@ public class NextClient implements Consts {
      * @param value the header value
      */
     public NextClient addHeader(String key, String value) {
-        if (!headers.containsKey(key)) {
-            this.headers.put(key, value);
+        if (!mHeaders.containsKey(key)) {
+            this.mHeaders.put(key, value);
         }
         return this;
     }
 
     public NextClient addHeaders(Map<String, String> map) {
-        this.headers.putAll(map);
+        this.mHeaders.putAll(map);
         return this;
     }
 
     public Map<String, String> getHeaders() {
-        return this.headers;
+        return this.mHeaders;
     }
 
     public NextClient setProxy(String host, int port) {
@@ -195,8 +164,12 @@ public class NextClient implements Consts {
         return this;
     }
 
-    public NextClient setCookieStore(CookieStore cookieStore) {
-        this.cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+    public Proxy getProxy() {
+        return mProxy;
+    }
+
+    public NextClient setProxy(Proxy proxy) {
+        this.mProxy = proxy;
         return this;
     }
 
@@ -219,48 +192,24 @@ public class NextClient implements Consts {
 
     /**
      * 信任所有hosts
-     *
-     * @return
      */
     public NextClient setTrustAllHosts() {
-        trustAllHosts = true;
+        mTrustAllHosts = true;
+        mHostnameVerifier = Utils.createTrustAllHostNameVerifier();
         return this;
-    }
-
-    public HttpURLConnection getConnection() {
-        return connection;
-    }
-
-    /*
-     * We need this in order to stub the connection object for test cases
-     */
-    public void setConnection(HttpURLConnection connection) {
-        this.connection = connection;
     }
 
     public boolean isUseCaches() {
-        return useCaches;
+        return mUseCaches;
     }
 
     public NextClient setUseCaches(boolean useCaches) {
-        this.useCaches = useCaches;
-        return this;
-    }
-
-    public boolean isKeepAlive() {
-        return keepAlive;
-    }
-
-    /**
-     * Sets whether the underlying Http Connection is persistent or not.
-     */
-    public NextClient setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
+        this.mUseCaches = useCaches;
         return this;
     }
 
     public boolean isTrustAllCerts() {
-        return trustAllCerts;
+        return mTrustAllCerts;
     }
 
     /**
@@ -268,30 +217,27 @@ public class NextClient implements Consts {
      *
      * @return
      */
-    public NextClient setTrustAllCerts(boolean enable) {
-        trustAllCerts = true;
+    public NextClient setTrustAllCerts() {
+        mTrustAllCerts = true;
+        mSSLSocketFactory = Utils.createTrustedAllSslSocketFactory();
         return this;
     }
 
     public boolean isTrustAllHosts() {
-        return trustAllHosts;
-    }
-
-    public void setTrustAllHosts(final boolean trustAllHosts) {
-        this.trustAllHosts = trustAllHosts;
+        return mTrustAllHosts;
     }
 
     public boolean isFollowRedirects() {
-        return followRedirects;
+        return mFollowRedirects;
     }
 
     public NextClient setFollowRedirects(final boolean value) {
-        followRedirects = value;
+        mFollowRedirects = value;
         return this;
     }
 
     public int getConnectTimeout() {
-        return connectTimeout;
+        return mConnectTimeout;
     }
 
     /**
@@ -301,12 +247,12 @@ public class NextClient implements Consts {
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
     public NextClient setConnectTimeout(int millis) {
-        this.connectTimeout = millis;
+        this.mConnectTimeout = millis;
         return this;
     }
 
     public int getReadTimeout() {
-        return readTimeout;
+        return mReadTimeout;
     }
 
     /**
@@ -316,26 +262,52 @@ public class NextClient implements Consts {
      * @param unit     unit of time (milliseconds, seconds, etc)
      */
     public NextClient setReadTimeout(int millis) {
-        this.readTimeout = millis;
+        this.mReadTimeout = millis;
         return this;
     }
 
-    public Proxy getProxy() {
-        return proxy;
-    }
-
-    public NextClient setProxy(Proxy proxy) {
-        this.proxy = proxy;
-        return this;
-    }
 
     public NextInterceptor getInterceptor() {
-        return interceptor;
+        return mInterceptor;
     }
 
     public NextClient setInterceptor(NextInterceptor interceptor) {
-        this.interceptor = interceptor;
+        this.mInterceptor = interceptor;
         return this;
+    }
+
+    void configConnection(HttpURLConnection conn) {
+        applyClientConfig(conn);
+        applyHttpsConfig(conn);
+        applyClientHeaders(conn);
+    }
+
+    private void applyClientConfig(HttpURLConnection conn) {
+        conn.setUseCaches(mUseCaches);
+        conn.setInstanceFollowRedirects(mFollowRedirects);
+        conn.setConnectTimeout(mConnectTimeout);
+        conn.setReadTimeout(mReadTimeout);
+    }
+
+    private void applyHttpsConfig(HttpURLConnection conn) {
+        if (conn instanceof HttpsURLConnection) {
+            final HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+            final SSLSocketFactory sslSocketFactory = mSSLSocketFactory;
+            final HostnameVerifier hostnameVerifier = mHostnameVerifier;
+            if (sslSocketFactory != null) {
+                httpsConn.setSSLSocketFactory(sslSocketFactory);
+            }
+            if (hostnameVerifier != null) {
+                httpsConn.setHostnameVerifier(hostnameVerifier);
+            }
+        }
+    }
+
+    private void applyClientHeaders(HttpURLConnection conn) {
+        final Map<String, String> clientHeaders = mHeaders;
+        for (Map.Entry<String, String> entry : clientHeaders.entrySet()) {
+            conn.setRequestProperty(entry.getKey(), entry.getValue());
+        }
     }
 
     Caller newCaller(final NextRequest request) {

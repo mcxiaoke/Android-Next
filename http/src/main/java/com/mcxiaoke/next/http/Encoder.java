@@ -66,7 +66,7 @@ final class Encoder {
         return builder.toString().substring(1);
     }
 
-    public static String appendQueryString(String url, List<NameValuePair> params) {
+    public static String appendQuery(String url, List<NameValuePair> params) {
         if (StringUtils.isEmpty(url)) {
             return url;
         }

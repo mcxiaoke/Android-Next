@@ -92,7 +92,7 @@ final class NextParams implements Consts {
     }
 
     public String appendQueryString(String url) {
-        return Encoder.appendQueryString(url, params);
+        return Encoder.appendQuery(url, params);
     }
 
     private NextParams put(final StreamPart part) {

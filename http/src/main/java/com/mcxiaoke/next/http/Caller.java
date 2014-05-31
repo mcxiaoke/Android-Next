@@ -7,7 +7,6 @@ import com.mcxiaoke.next.utils.LogUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +47,7 @@ class Caller {
 
     private NextResponse executeInternal() throws IOException {
         // re config request
+        final NextClient client = mClient;
         final Builder builder = mRequest.copyToBuilder();
         final HttpEntity entity = mRequest.body().getHttpEntity();
         long contentLength = -1;
@@ -70,12 +70,11 @@ class Caller {
         if (mDebug) {
             LogUtils.v(TAG, "[Request] " + mRequest);
         }
+
         intercept();
         HttpURLConnection conn = createConnection();
-        applyHttpsConfig(conn);
-        applyClientConfig(conn);
-        applyClientHeaders(conn);
-        applyRequestHeaders(conn);
+        client.configConnection(conn);
+        addRequestHeaders(conn);
         writeBody(entity, contentLength, conn);
         return getResponse(conn);
     }
@@ -92,18 +91,17 @@ class Caller {
     private HttpURLConnection createConnection() throws IOException {
         final NextClient client = mClient;
         final NextRequest request = mRequest;
-        HttpURLConnection connection;
+        final HttpURLConnection connection;
         final String method = request.method();
         final String uriString = request.url().toString();
         final List<NameValuePair> params = request.params();
-        final String completeUrl = Encoder.appendQueryString(uriString, params);
-        final ConnectionFactory cf = client.getConnectionFactory();
+        final String completeUrl = Encoder.appendQuery(uriString, params);
         final Proxy proxy = client.getProxy();
         URL url = new URL(completeUrl);
         if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
-            connection = cf.create(url);
+            connection = (HttpURLConnection) url.openConnection();
         } else {
-            connection = cf.create(url, proxy);
+            connection = (HttpURLConnection) url.openConnection(proxy);
         }
         connection.setRequestMethod(method);
 
@@ -113,36 +111,7 @@ class Caller {
         return connection;
     }
 
-    private void applyClientConfig(HttpURLConnection conn) {
-        final NextClient client = mClient;
-        conn.setUseCaches(client.isUseCaches());
-        conn.setInstanceFollowRedirects(client.isFollowRedirects());
-        conn.setConnectTimeout(client.getConnectTimeout());
-        conn.setReadTimeout(client.getConnectTimeout());
-    }
-
-    private void applyHttpsConfig(HttpURLConnection conn) {
-        final NextClient client = mClient;
-        if (conn instanceof HttpsURLConnection) {
-            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-            if (client.isTrustAllCerts()) {
-                httpsConn.setSSLSocketFactory(client.getTrustedSSLSocketFactory());
-            }
-            if (client.isTrustAllHosts()) {
-                httpsConn.setHostnameVerifier(client.getTrustedHostnameVerifier());
-            }
-        }
-    }
-
-    private void applyClientHeaders(HttpURLConnection conn) {
-        final NextClient client = mClient;
-        final Map<String, String> clientHeaders = client.getHeaders();
-        for (Map.Entry<String, String> entry : clientHeaders.entrySet()) {
-            conn.setRequestProperty(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public void applyRequestHeaders(HttpURLConnection conn) {
+    public void addRequestHeaders(HttpURLConnection conn) {
         final NextRequest request = mRequest;
         final Map<String, String> clientHeaders = request.headers();
         for (Map.Entry<String, String> entry : clientHeaders.entrySet()) {

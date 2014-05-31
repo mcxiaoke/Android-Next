@@ -1,10 +1,21 @@
 apply plugin: 'android-library'
 
+//configurations {
+//    provided
+//}
+
 dependencies {
     compile project(":core")
-    compile 'com.google.code.gson:gson:2.+'
+//    provided 'com.google.code.gson:gson:+'
+//    provided 'com.squareup.okhttp:okhttp:+'
+//    provided 'com.squareup.okhttp:okhttp-urlconnection:+'
 }
 
+//sourceSets {
+//    main {
+//        compileClasspath += configurations.provided
+//    }
+//}
 
 //android.libraryVariants.all { variant ->
 //    def name = variant.buildType.name
