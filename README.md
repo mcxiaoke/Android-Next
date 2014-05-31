@@ -27,7 +27,7 @@ Android Next 公共组件库
     // core 核心库, 格式:jar和aar
     compile 'com.mcxiaoke.next:core:1.+'
     
-    // ui HTTP组件, 格式:aar
+    // http HTTP组件, 格式:jar和aar
     compile 'com.mcxiaoke.next:http:1.+'
     
     // ui UI组件, 格式:aar
