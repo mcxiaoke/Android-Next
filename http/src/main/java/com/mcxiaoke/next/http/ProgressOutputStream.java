@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.http;
 
-import java.io.BufferedOutputStream;
+import com.mcxiaoke.next.io.ProxyOutputStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,7 +10,7 @@ import java.io.OutputStream;
  * Date: 14-5-30
  * Time: 14:40
  */
-public class ProgressOutputStream extends BufferedOutputStream {
+public class ProgressOutputStream extends ProxyOutputStream {
     private ProgressCallback callback;
     private long totalSize;
     private long currentSize;
@@ -21,10 +22,10 @@ public class ProgressOutputStream extends BufferedOutputStream {
     }
 
     @Override
-    public synchronized void write(byte[] buffer, int offset, int length) throws IOException {
-        super.write(buffer, offset, length);
+    protected void afterWrite(final int n) throws IOException {
+        super.afterWrite(n);
         if (totalSize > 0 && callback != null) {
-            currentSize += length;
+            currentSize += n;
             callback.onProgress(currentSize, totalSize);
         }
     }
