@@ -6,6 +6,7 @@ dependencies {
     compile project(":ui")
     compile "com.android.support:support-v4:+"
     compile 'com.jakewharton:butterknife:+'
+    compile 'com.google.code.gson:gson:+'
 }
 
 loadProperties("signing.properties")

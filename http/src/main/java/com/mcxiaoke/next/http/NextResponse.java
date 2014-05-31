@@ -3,7 +3,6 @@ package com.mcxiaoke.next.http;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.StringUtils;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -22,29 +21,30 @@ public class NextResponse implements Closeable {
 
     private final int code;
     private final String message;
-    private int contentLength;
-    private String contentType;
-    private boolean consumed;
-    private InputStream stream;
-    private Map<String, List<String>> headers;
+    private final int contentLength;
+    private final String contentType;
+    private final InputStream stream;
+    private final Map<String, List<String>> headers;
     private byte[] content;
+    private boolean consumed;
 
-    private NextResponse(int code, String message) {
+    NextResponse(int code, String message,
+                 int contentLength, String contentType,
+                 final Map<String, List<String>> headers, InputStream is) {
         this.code = code;
         this.message = message;
-    }
-
-    static NextResponse create(int code, String message) {
-        return new NextResponse(code, message);
-    }
-
-    NextResponse setStream(InputStream stream) {
-        this.stream = new BufferedInputStream(stream);
-        return this;
+        this.contentLength = contentLength;
+        this.contentType = contentType;
+        this.headers = headers;
+        this.stream = is;
     }
 
     public boolean successful() {
         return Utils.isSuccess(code);
+    }
+
+    public boolean redirect() {
+        return Utils.isRedirect(code);
     }
 
     public int code() {
@@ -59,32 +59,21 @@ public class NextResponse implements Closeable {
         return contentLength;
     }
 
-    NextResponse setContentLength(int contentLength) {
-        this.contentLength = contentLength;
-        return this;
-    }
-
     public String contentType() {
         return contentType;
-    }
-
-    NextResponse setContentType(String contentType) {
-        this.contentType = contentType;
-        return this;
     }
 
     public Map<String, List<String>> headers() {
         return headers;
     }
 
-    NextResponse setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
-        return this;
-    }
-
     public String header(String name) {
         List<String> value = headers.get(name);
         return value != null ? value.get(0) : null;
+    }
+
+    public String location() {
+        return header(Consts.LOCATION);
     }
 
     public InputStream stream() {
@@ -119,7 +108,7 @@ public class NextResponse implements Closeable {
         IOUtils.closeQuietly(stream);
     }
 
-    private String dumpContent() {
+    public String dumpContent() {
         try {
             return StringUtils.safeSubString(string(), 256);
         } catch (IOException e) {
@@ -127,7 +116,7 @@ public class NextResponse implements Closeable {
         }
     }
 
-    private String dumpHeaders() {
+    public String dumpHeaders() {
         Map<String, List<String>> headers = headers();
         if (headers == null || headers.isEmpty()) {
             return Consts.EMPTY_STRING;
@@ -144,13 +133,13 @@ public class NextResponse implements Closeable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("HttpResponse{");
+        final StringBuilder sb = new StringBuilder("Response{");
         sb.append("code=").append(code);
         sb.append(", message='").append(message);
         sb.append(", contentLength=").append(contentLength);
         sb.append(", contentType='").append(contentType);
-        sb.append(", headers=['").append(dumpHeaders()).append(']');
         sb.append(", consumed=").append(consumed);
+        sb.append(", headers='").append(dumpHeaders());
         sb.append('}');
         return sb.toString();
     }

@@ -21,14 +21,13 @@ import java.util.Set;
 
 public final class HttpMethod {
 
-    /**
-     * HTTP METHOD
-     */
-    public static final String METHOD_HEAD = "HEAD";
+    public static final String METHOD_OPTIONS = "OPTIONS";
     public static final String METHOD_GET = "GET";
+    public static final String METHOD_HEAD = "HEAD";
     public static final String METHOD_DELETE = "DELETE";
     public static final String METHOD_POST = "POST";
     public static final String METHOD_PUT = "PUT";
+    public static final String METHOD_TRACE = "TRACE";
     public static final String METHOD_PATCH = "PATCH";
 
     public static final Set<String> METHODS = new LinkedHashSet<String>(Arrays.asList(
@@ -37,17 +36,11 @@ public final class HttpMethod {
     private HttpMethod() {
     }
 
-    public static boolean invalidatesCache(String method) {
-        return method.equals("POST")
-                || method.equals("PATCH")
-                || method.equals("PUT")
-                || method.equals("DELETE");
-    }
-
+    // ref: HttpEntityEnclosingRequestBase
+    // 只有POST PUT PATCH可以带BODY
     public static boolean hasRequestBody(String method) {
         return method.equals("POST")
                 || method.equals("PUT")
-                || method.equals("PATCH")
-                || method.equals("DELETE"); // Permitted as spec is ambiguous.
+                || method.equals("PATCH");
     }
 }

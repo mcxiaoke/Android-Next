@@ -16,6 +16,7 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
+import com.mcxiaoke.next.collection.NoDuplicatesArrayList;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
@@ -33,14 +34,14 @@ import java.util.Map;
  * http request
  */
 public final class NextRequest {
-    URL url;
-    String method;
-    String encoding;
-    Map<String, String> headers;
-    NextParams body;
-    ProgressCallback callback;
-    Object tag;
-    volatile URI uri;
+    private URL url;
+    private String method;
+    private Map<String, String> headers;
+    private NextParams params;
+    private ProgressCallback callback;
+    private Object tag;
+    private volatile URI uri;
+    private String completeUrl;
 
 
     NextResponse execute() throws IOException {
@@ -50,9 +51,8 @@ public final class NextRequest {
     NextRequest(Builder builder) {
         this.url = builder.url;
         this.method = builder.method;
-        this.encoding = builder.encoding;
         this.headers = builder.headers;
-        this.body = builder.body;
+        this.params = builder.params;
         this.callback = builder.callback;
         this.tag = builder.tag != null ? builder.tag : this;
     }
@@ -74,12 +74,26 @@ public final class NextRequest {
         }
     }
 
+    public String completeUrl() {
+        // 去重
+        final List<NameValuePair> list = new NoDuplicatesArrayList<NameValuePair>();
+        list.addAll(params.getQueries());
+        // 支持BODY的HTTP METHOD不添加PARAMS到URL QUERY
+        if (!HttpMethod.hasRequestBody(method())) {
+            list.addAll(params.getParams());
+        }
+        if (completeUrl == null) {
+            completeUrl = Encoder.appendQuery(url.toString(), list);
+        }
+        return completeUrl;
+    }
+
     public String method() {
         return method;
     }
 
     public String encoding() {
-        return encoding;
+        return params.getEncoding();
     }
 
     public String host() {
@@ -90,6 +104,10 @@ public final class NextRequest {
         return url.getProtocol();
     }
 
+    public ProgressCallback callback() {
+        return callback;
+    }
+
     public boolean isHttps() {
         return ("https").equals(protocol());
     }
@@ -98,16 +116,12 @@ public final class NextRequest {
         return headers;
     }
 
-    public NextParams body() {
-        return body;
+    public NextParams params() {
+        return params;
     }
 
     public HttpEntity entity() {
-        return body.getHttpEntity();
-    }
-
-    public List<NameValuePair> params() {
-        return body.getParams();
+        return params.entity();
     }
 
     public String header(String name) {
@@ -125,10 +139,11 @@ public final class NextRequest {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Request{");
-        sb.append("url=").append(url);
-        sb.append(", method='").append(method).append('\'');
-        sb.append(", headers=").append(headers);
-        sb.append(", tag=").append(tag);
+        sb.append("url=").append(completeUrl());
+        sb.append(", method='").append(method()).append('\'');
+        sb.append(", headers=").append(headers());
+        sb.append(", params=").append(params());
+        sb.append(", tag=").append(tag());
         sb.append('}');
         return sb.toString();
     }
@@ -146,7 +161,7 @@ public final class NextRequest {
         URL url;
         String method;
         String encoding;
-        NextParams body;
+        NextParams params;
         Map<String, String> headers;
         ProgressCallback callback;
         Object tag;
@@ -156,7 +171,7 @@ public final class NextRequest {
             this.method = HttpMethod.METHOD_GET;
             this.encoding = Charsets.ENCODING_UTF_8;
             this.headers = new HashMap<String, String>();
-            this.body = new NextParams(this.encoding);
+            this.params = new NextParams(this.encoding);
 //            this.callback=null;
 //            this.tag=null;
         }
@@ -164,14 +179,13 @@ public final class NextRequest {
         Builder(NextRequest request) {
             this.url = request.url;
             this.method = request.method;
-            this.encoding = request.encoding;
             this.headers = request.headers;
-            this.body = request.body;
+            this.params = request.params;
             this.callback = request.callback;
             this.tag = request.tag != null ? request.tag : this;
         }
 
-        private Builder url(String uriString) {
+        public Builder url(String uriString) {
             if (uriString == null) {
                 throw new IllegalArgumentException("url can not be null");
             }
@@ -179,9 +193,13 @@ public final class NextRequest {
             return this;
         }
 
-        private Builder method(final String method) {
+        public Builder method(final String method) {
             if (method == null) {
                 throw new IllegalArgumentException("create can not be null");
+            }
+            if (!HttpMethod.METHODS.contains(method)) {
+                throw new IllegalArgumentException("unsupported method: " + method);
+
             }
             this.method = method;
             return this;
@@ -192,7 +210,7 @@ public final class NextRequest {
                 throw new IllegalArgumentException("encoding can not be null");
             }
             this.encoding = encoding;
-            this.body.setEncoding(encoding);
+            this.params.setEncoding(encoding);
             return this;
         }
 
@@ -211,53 +229,63 @@ public final class NextRequest {
             return this;
         }
 
+        public Builder query(String key, String value) {
+            this.params.query(key, value);
+            return this;
+        }
+
+        public Builder queries(Map<String, String> map) {
+            this.params.queries(map);
+            return this;
+        }
+
         public Builder param(String key, String value) {
-            this.body.put(key, value);
+            this.params.put(key, value);
             return this;
         }
 
         public Builder params(Map<String, String> map) {
-            this.body.put(map);
+            this.params.putAll(map);
             return this;
         }
 
-        public Builder body(String key, String value) {
-            this.body.put(key, value);
+        public Builder params(NextParams params) {
+            this.params.putAll(params);
             return this;
         }
 
-        public Builder body(Map<String, String> map) {
-            this.body.put(map);
+        public Builder param(String key, File file) {
+            this.params.put(key, file);
             return this;
         }
 
-        public Builder body(String key, File file, String mimeType) {
-            this.body.put(key, file, mimeType);
+        public Builder param(String key, File file, String mimeType) {
+            this.params.put(key, file, mimeType);
             return this;
         }
 
-        public Builder body(String key, File file, String mimeType, String fileName) {
-            this.body.put(key, file, mimeType, fileName);
+        public Builder param(String key, File file, String mimeType, String fileName) {
+            this.params.put(key, file, mimeType, fileName);
             return this;
         }
 
-        public Builder body(String key, byte[] bytes, String mimeType) {
-            this.body.put(key, bytes, mimeType);
+        public Builder param(String key, byte[] bytes) {
+            this.params.put(key, bytes);
             return this;
         }
 
-        public Builder body(String key, byte[] bytes, String mimeType, String fileName) {
-            this.body.put(key, bytes, mimeType, fileName);
+        public Builder param(String key, byte[] bytes, String mimeType) {
+            this.params.put(key, bytes, mimeType);
             return this;
         }
 
-        public Builder body(String key, InputStream stream, String mimeType) {
-            this.body.put(key, stream, mimeType);
+        public Builder param(String key, InputStream stream) {
+            this.params.put(key, stream);
             return this;
         }
 
-        public Builder body(String key, InputStream stream, String mimeType, String fileName) {
-            this.body.put(key, stream, mimeType, fileName);
+        public Builder param(String key, InputStream stream, String mimeType) {
+            this.params.put(key, stream, mimeType);
             return this;
         }
 
@@ -285,7 +313,7 @@ public final class NextRequest {
             return create(url, HttpMethod.METHOD_PATCH);
         }
 
-        public Builder create(final String url, final String method) {
+        private Builder create(final String url, final String method) {
             return url(url).method(method);
         }
 

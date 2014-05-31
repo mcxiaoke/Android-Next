@@ -4,6 +4,8 @@ import com.mcxiaoke.next.Charsets;
 import com.mcxiaoke.next.http.entity.ContentType;
 import com.mcxiaoke.next.http.entity.mime.HttpMultipartMode;
 import com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder;
+import com.mcxiaoke.next.utils.MimeUtils;
+import com.mcxiaoke.next.utils.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -22,13 +24,17 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-final class NextParams implements Consts {
+public final class NextParams implements Consts {
 
-    public static final String DEFAULT_NAME = "nofilename";
 
     private String encoding;
+    // URL QUERY PARAM
+    private List<NameValuePair> queries;
+    // COMMON PARAM
     private List<NameValuePair> params;
+    // BODY PARAM
     private List<StreamPart> parts;
+    // HTTP ENTITY
     private HttpEntity mEntity;
 
     public NextParams() {
@@ -37,6 +43,7 @@ final class NextParams implements Consts {
 
     public NextParams(String enc) {
         encoding = enc;
+        queries = new ArrayList<NameValuePair>();
         params = new ArrayList<NameValuePair>();
         parts = new ArrayList<StreamPart>();
     }
@@ -45,34 +52,21 @@ final class NextParams implements Consts {
         encoding = enc;
     }
 
-    public NextParams put(String key, File file, String contentType) {
-        StreamPart part = StreamPart.create(key, file, contentType);
-        return put(part);
+    public String getEncoding() {
+        return encoding;
     }
 
-    public NextParams put(String key, File file, String contentType, String fileName) {
-        StreamPart part = StreamPart.create(key, file, contentType, fileName);
-        return put(part);
+
+    public NextParams query(String key, String value) {
+        this.queries.add(new BasicNameValuePair(key, value));
+        return this;
     }
 
-    public NextParams put(String key, byte[] bytes, String contentType) {
-        StreamPart part = StreamPart.create(key, bytes, contentType);
-        return put(part);
-    }
-
-    public NextParams put(String key, byte[] bytes, String contentType, String fileName) {
-        StreamPart part = StreamPart.create(key, bytes, contentType, fileName);
-        return put(part);
-    }
-
-    public NextParams put(String key, InputStream stream, String contentType) {
-        StreamPart part = StreamPart.create(key, stream, contentType);
-        return put(part);
-    }
-
-    public NextParams put(String key, InputStream stream, String contentType, String fileName) {
-        StreamPart part = new StreamPart(key, stream, contentType, fileName);
-        return put(part);
+    public NextParams queries(Map<String, String> map) {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            query(entry.getKey(), entry.getValue());
+        }
+        return this;
     }
 
     public NextParams put(String key, String value) {
@@ -80,20 +74,86 @@ final class NextParams implements Consts {
         return this;
     }
 
-    public NextParams put(Map<String, String> map) {
-        if (map != null) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                put(entry.getKey(), entry.getValue());
-            }
+    public NextParams putAll(Map<String, String> map) {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            put(entry.getKey(), entry.getValue());
         }
         return this;
     }
 
-    public List<NameValuePair> getParams() {
+    public NextParams put(String key, File file) {
+        StreamPart part = StreamPart.create(key, file);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, File file, String contentType) {
+        StreamPart part = StreamPart.create(key, file, contentType);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, File file, String contentType, String fileName) {
+        StreamPart part = StreamPart.create(key, file, contentType, fileName);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, byte[] bytes) {
+        StreamPart part = StreamPart.create(key, bytes);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, byte[] bytes, String contentType) {
+        StreamPart part = StreamPart.create(key, bytes, contentType);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, InputStream stream) {
+        StreamPart part = StreamPart.create(key, stream);
+        return addPart(part);
+    }
+
+    public NextParams put(String key, InputStream stream, String contentType) {
+        StreamPart part = StreamPart.create(key, stream, contentType);
+        return addPart(part);
+    }
+
+    public NextParams putAll(NextParams p) {
+        this.queries.addAll(p.getQueries());
+        this.params.addAll(p.getParams());
+        this.parts.addAll(p.getParts());
+        return this;
+    }
+
+    void clearQueries() {
+        this.queries.clear();
+    }
+
+    void clearParams() {
+        this.params.clear();
+    }
+
+    void clearParts() {
+        this.parts.clear();
+    }
+
+    void clear() {
+        clearQueries();
+        clearParams();
+        clearParts();
+    }
+
+    List<NameValuePair> getQueries() {
+        return this.queries;
+    }
+
+    List<NameValuePair> getParams() {
         return this.params;
     }
 
-    private NextParams put(final StreamPart part) {
+    List<StreamPart> getParts() {
+        return parts;
+    }
+
+    private NextParams addPart(final StreamPart part) {
         this.parts.add(part);
         return this;
     }
@@ -134,7 +194,7 @@ final class NextParams implements Consts {
         return entity;
     }
 
-    public HttpEntity getHttpEntity() {
+    HttpEntity entity() {
         if (mEntity == null) {
             mEntity = createHttpEntity();
         }
@@ -149,7 +209,19 @@ final class NextParams implements Consts {
         return params.size() > 0;
     }
 
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("encoding:").append(getEncoding()).append(",");
+        builder.append("queries:[").append(StringUtils.toString(getQueries())).append("],");
+        builder.append("params:[").append(StringUtils.toString(getParams())).append("],");
+        builder.append("parts:[").append(StringUtils.toString(getParts())).append("]");
+        return builder.toString();
+    }
+
     static class StreamPart {
+
+        static final String DEFAULT_NAME = "nofilename";
+        static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
         private String name;
         private ContentType contentType;
@@ -167,20 +239,25 @@ final class NextParams implements Consts {
             this.fileName = fileName;
         }
 
-        private StreamPart(String name, byte[] bytes, String mimeType, String fileName) {
+        private StreamPart(String name, byte[] bytes, String mimeType) {
             this.name = name;
             this.bytes = bytes;
             this.length = bytes.length;
             this.contentType = ContentType.create(mimeType);
-            this.fileName = fileName;
+            this.fileName = DEFAULT_NAME;
         }
 
-        private StreamPart(String name, InputStream stream, String mimeType, String fileName) {
+        private StreamPart(String name, InputStream stream, String mimeType) {
             this.name = name;
             this.stream = stream;
             this.length = -1;
             this.contentType = ContentType.create(mimeType);
-            this.fileName = fileName;
+            this.fileName = DEFAULT_NAME;
+        }
+
+        public static StreamPart create(String name, File file) {
+            final String mimeType = MimeUtils.getMimeTypeFromPath(file.getPath());
+            return create(name, file, mimeType, file.getName());
         }
 
         public static StreamPart create(String name, File file, String mimeType) {
@@ -191,20 +268,20 @@ final class NextParams implements Consts {
             return new StreamPart(name, file, mimeType, fileName);
         }
 
-        public static StreamPart create(String name, byte[] bytes, String mimeType) {
-            return create(name, bytes, mimeType, DEFAULT_NAME);
+        public static StreamPart create(String name, byte[] bytes) {
+            return create(name, bytes, APPLICATION_OCTET_STREAM);
         }
 
-        public static StreamPart create(String name, byte[] bytes, String mimeType, String fileName) {
-            return new StreamPart(name, bytes, mimeType, fileName);
+        public static StreamPart create(String name, byte[] bytes, String mimeType) {
+            return new StreamPart(name, bytes, mimeType);
+        }
+
+        public static StreamPart create(String name, InputStream stream) {
+            return create(name, stream, APPLICATION_OCTET_STREAM);
         }
 
         public static StreamPart create(String name, InputStream stream, String mimeType) {
-            return create(name, stream, mimeType, DEFAULT_NAME);
-        }
-
-        public static StreamPart create(String name, InputStream stream, String mimeType, String fileName) {
-            return new StreamPart(name, stream, mimeType, fileName);
+            return new StreamPart(name, stream, mimeType);
         }
 
         public String getName() {
@@ -233,6 +310,17 @@ final class NextParams implements Consts {
 
         public long getLength() {
             return length;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("StreamPart{");
+            sb.append("name='").append(name).append('\'');
+            sb.append(", contentType=").append(contentType);
+            sb.append(", length=").append(length);
+            sb.append(", file=").append(file);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

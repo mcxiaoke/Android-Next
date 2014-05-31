@@ -19,6 +19,7 @@ import java.util.Map;
 public class NextClient implements Consts, Cloneable {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
+    private String mUserAgent;
     private Map<String, String> mHeaders;
     private boolean mUseCaches;
     private boolean mTrustAllCerts;
@@ -47,7 +48,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().head(url).build().execute();
     }
 
-    public static NextResponse head(String url, Map<String, String> params) throws IOException {
+    public static NextResponse head(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().head(url).params(params).build().execute();
     }
 
@@ -55,7 +56,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().get(url).build().execute();
     }
 
-    public static NextResponse get(String url, Map<String, String> params) throws IOException {
+    public static NextResponse get(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().get(url).params(params).build().execute();
     }
 
@@ -63,7 +64,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().delete(url).build().execute();
     }
 
-    public static NextResponse delete(String url, Map<String, String> params) throws IOException {
+    public static NextResponse delete(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().delete(url).params(params).build().execute();
     }
 
@@ -71,7 +72,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().post(url).build().execute();
     }
 
-    public static NextResponse post(String url, Map<String, String> params) throws IOException {
+    public static NextResponse post(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().post(url).params(params).build().execute();
     }
 
@@ -79,7 +80,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().put(url).build().execute();
     }
 
-    public static NextResponse put(String url, Map<String, String> params) throws IOException {
+    public static NextResponse put(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().put(url).params(params).build().execute();
     }
 
@@ -87,7 +88,7 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().patch(url).build().execute();
     }
 
-    public static NextResponse patch(String url, Map<String, String> params) throws IOException {
+    public static NextResponse patch(String url, NextParams params) throws IOException {
         return NextRequest.newBuilder().patch(url).params(params).build().execute();
     }
 
@@ -108,6 +109,10 @@ public class NextClient implements Consts, Cloneable {
 
     public void setDebug(boolean debug) {
         mDebug = debug;
+    }
+
+    public String getUserAgent() {
+        return mUserAgent;
     }
 
     public CookieManager getCookieManager() {
@@ -177,6 +182,7 @@ public class NextClient implements Consts, Cloneable {
     }
 
     public NextClient setUserAgent(final String userAgent) {
+        mUserAgent = userAgent;
         if (userAgent != null) {
             addHeader(USER_AGENT, userAgent);
         }

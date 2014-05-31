@@ -1,11 +1,9 @@
 package com.mcxiaoke.next.http;
 
-import android.util.Log;
 import com.mcxiaoke.next.http.NextRequest.Builder;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.LogUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -69,7 +67,7 @@ final class Caller {
         }
 
         if (mDebug) {
-            LogUtils.v(TAG, "[Request] " + mRequest);
+            LogUtils.v(TAG, "[NextRequest] " + mRequest);
         }
 
 
@@ -77,7 +75,13 @@ final class Caller {
         client.configConnection(conn);
         addRequestHeaders(conn);
         writeBody(entity, contentLength, conn);
-        return getResponse(conn);
+        NextResponse response = getResponse(conn);
+
+        if (mDebug) {
+            LogUtils.v(TAG, "[NextResponse] " + mRequest);
+        }
+
+        return response;
     }
 
     private void intercept() {
@@ -94,9 +98,7 @@ final class Caller {
         final NextRequest request = mRequest;
         final HttpURLConnection connection;
         final String method = request.method();
-        final String uriString = request.url().toString();
-        final List<NameValuePair> params = request.params();
-        final String completeUrl = Encoder.appendQuery(uriString, params);
+        final String completeUrl = request.completeUrl();
         final Proxy proxy = client.getProxy();
         URL url = new URL(completeUrl);
         if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
@@ -123,7 +125,7 @@ final class Caller {
 
     private void writeBody(final HttpEntity entity, final long length,
                            final HttpURLConnection conn) throws IOException {
-        final ProgressCallback callback = mRequest.callback;
+        final ProgressCallback callback = mRequest.callback();
         if (HttpMethod.hasRequestBody(mRequest.method())) {
             conn.setDoOutput(true);
             OutputStream outputStream = null;
@@ -167,15 +169,8 @@ final class Caller {
             stream = httpStream;
         }
 
-        NextResponse response = NextResponse.create(code, message);
-        response.setContentLength(contentLength).setContentType(contentType);
-        response.setHeaders(rawHeaders).setStream(stream);
-
-        if (mDebug) {
-            Log.v(TAG, "[Response] " + response);
-        }
-
-        return response;
+        return new NextResponse(code, message, contentLength,
+                contentType, rawHeaders, stream);
     }
 
 }

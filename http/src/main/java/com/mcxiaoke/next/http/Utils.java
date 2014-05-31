@@ -31,7 +31,11 @@ final class Utils {
     }
 
     public static boolean isSuccess(int code) {
-        return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_BAD_REQUEST;
+        return code >= HttpURLConnection.HTTP_OK && code < HttpURLConnection.HTTP_MULT_CHOICE;
+    }
+
+    public static boolean isRedirect(int code) {
+        return code >= HttpURLConnection.HTTP_MULT_CHOICE && code < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     public static URL toURL(String uriString) {

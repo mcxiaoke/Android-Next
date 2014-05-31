@@ -8,6 +8,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ final class Encoder {
         return encoded.replaceAll(Pattern.quote(toReplace), replacement);
     }
 
-    public static String encode(List<NameValuePair> params) {
+    public static String encode(Collection<NameValuePair> params) {
         if (params == null || params.size() == 0) {
             return Consts.EMPTY_STRING;
         }
@@ -66,7 +67,7 @@ final class Encoder {
         return builder.toString().substring(1);
     }
 
-    public static String appendQuery(String url, List<NameValuePair> params) {
+    public static String appendQuery(String url, Collection<NameValuePair> params) {
         if (StringUtils.isEmpty(url)) {
             return url;
         }
