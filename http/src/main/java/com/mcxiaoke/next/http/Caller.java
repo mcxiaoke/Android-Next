@@ -24,7 +24,7 @@ import java.util.zip.GZIPInputStream;
  * Date: 14-5-30
  * Time: 14:39
  */
-class Caller {
+final class Caller {
     public static final String TAG = NextClient.TAG;
 
     private boolean mDebug;
@@ -46,10 +46,11 @@ class Caller {
     }
 
     private NextResponse executeInternal() throws IOException {
+        intercept();
         // re config request
         final NextClient client = mClient;
         final Builder builder = mRequest.copyToBuilder();
-        final HttpEntity entity = mRequest.body().getHttpEntity();
+        final HttpEntity entity = mRequest.entity();
         long contentLength = -1;
         if (entity != null) {
             String contentType = entity.getContentType().getValue();
@@ -71,7 +72,7 @@ class Caller {
             LogUtils.v(TAG, "[Request] " + mRequest);
         }
 
-        intercept();
+
         HttpURLConnection conn = createConnection();
         client.configConnection(conn);
         addRequestHeaders(conn);

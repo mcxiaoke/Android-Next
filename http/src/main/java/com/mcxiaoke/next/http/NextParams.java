@@ -12,6 +12,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,22 +26,23 @@ final class NextParams implements Consts {
 
     public static final String DEFAULT_NAME = "nofilename";
 
+    private String encoding;
     private List<NameValuePair> params;
     private List<StreamPart> parts;
+    private HttpEntity mEntity;
 
     public NextParams() {
+        this(Charsets.ENCODING_UTF_8);
+    }
+
+    public NextParams(String enc) {
+        encoding = enc;
         params = new ArrayList<NameValuePair>();
         parts = new ArrayList<StreamPart>();
     }
 
-    public NextParams(String key, String value) {
-        this();
-        put(key, value);
-    }
-
-    public NextParams(Map<String, String> map) {
-        this();
-        put(map);
+    public void setEncoding(final String enc) {
+        encoding = enc;
     }
 
     public NextParams put(String key, File file, String contentType) {
@@ -91,21 +93,17 @@ final class NextParams implements Consts {
         return this.params;
     }
 
-    public String appendQueryString(String url) {
-        return Encoder.appendQuery(url, params);
-    }
-
     private NextParams put(final StreamPart part) {
         this.parts.add(part);
         return this;
     }
 
-    public HttpEntity getHttpEntity() {
+    private HttpEntity createHttpEntity() {
         HttpEntity entity = null;
         if (hasParts()) {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-            builder.setCharset(Charsets.UTF_8);
+            builder.setCharset(Charset.forName(encoding));
             for (StreamPart part : parts) {
                 final File file = part.getFile();
                 if (file != null) {
@@ -128,12 +126,19 @@ final class NextParams implements Consts {
             entity = builder.build();
         } else if (hasParams()) {
             try {
-                entity = new UrlEncodedFormEntity(params, Charsets.ENCODING_UTF_8);
+                entity = new UrlEncodedFormEntity(params, encoding);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
         }
         return entity;
+    }
+
+    public HttpEntity getHttpEntity() {
+        if (mEntity == null) {
+            mEntity = createHttpEntity();
+        }
+        return mEntity;
     }
 
     private boolean hasParts() {

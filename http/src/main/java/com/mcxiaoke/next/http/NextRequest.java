@@ -15,6 +15,8 @@
  */
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.Charsets;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import java.io.File;
@@ -33,15 +35,22 @@ import java.util.Map;
 public final class NextRequest {
     URL url;
     String method;
+    String encoding;
     Map<String, String> headers;
     NextParams body;
     ProgressCallback callback;
     Object tag;
-    volatile URI uri; // Lazily initialized.
+    volatile URI uri;
+
+
+    NextResponse execute() throws IOException {
+        return NextClient.getDefault().execute(this);
+    }
 
     NextRequest(Builder builder) {
         this.url = builder.url;
         this.method = builder.method;
+        this.encoding = builder.encoding;
         this.headers = builder.headers;
         this.body = builder.body;
         this.callback = builder.callback;
@@ -50,10 +59,6 @@ public final class NextRequest {
 
     public static Builder newBuilder() {
         return new Builder();
-    }
-
-    public NextResponse execute() throws IOException {
-        return NextClient.getDefault().execute(this);
     }
 
     public URL url() {
@@ -71,6 +76,10 @@ public final class NextRequest {
 
     public String method() {
         return method;
+    }
+
+    public String encoding() {
+        return encoding;
     }
 
     public String host() {
@@ -93,16 +102,12 @@ public final class NextRequest {
         return body;
     }
 
+    public HttpEntity entity() {
+        return body.getHttpEntity();
+    }
+
     public List<NameValuePair> params() {
         return body.getParams();
-    }
-
-    public Object getTag() {
-        return tag;
-    }
-
-    public void setTag(final Object tag) {
-        this.tag = tag;
     }
 
     public String header(String name) {
@@ -140,6 +145,7 @@ public final class NextRequest {
     public static class Builder {
         URL url;
         String method;
+        String encoding;
         NextParams body;
         Map<String, String> headers;
         ProgressCallback callback;
@@ -148,8 +154,9 @@ public final class NextRequest {
         public Builder() {
 //            this.url=null;
             this.method = HttpMethod.METHOD_GET;
+            this.encoding = Charsets.ENCODING_UTF_8;
             this.headers = new HashMap<String, String>();
-            this.body = new NextParams();
+            this.body = new NextParams(this.encoding);
 //            this.callback=null;
 //            this.tag=null;
         }
@@ -157,6 +164,7 @@ public final class NextRequest {
         Builder(NextRequest request) {
             this.url = request.url;
             this.method = request.method;
+            this.encoding = request.encoding;
             this.headers = request.headers;
             this.body = request.body;
             this.callback = request.callback;
@@ -176,6 +184,15 @@ public final class NextRequest {
                 throw new IllegalArgumentException("create can not be null");
             }
             this.method = method;
+            return this;
+        }
+
+        public Builder encoding(final String encoding) {
+            if (method == null) {
+                throw new IllegalArgumentException("encoding can not be null");
+            }
+            this.encoding = encoding;
+            this.body.setEncoding(encoding);
             return this;
         }
 
@@ -288,6 +305,7 @@ public final class NextRequest {
         public NextRequest build() {
             if (this.url == null) throw new IllegalStateException("url can not be null");
             if (this.method == null) throw new IllegalStateException("method can not be null");
+            if (this.encoding == null) throw new IllegalStateException("encoding can not be null");
             return new NextRequest(this);
         }
     }

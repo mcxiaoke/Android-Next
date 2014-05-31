@@ -16,7 +16,7 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class NextClient implements Consts {
+public class NextClient implements Consts, Cloneable {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
     private Map<String, String> mHeaders;
@@ -100,8 +100,6 @@ public class NextClient implements Consts {
         this.mReadTimeout = READ_TIMEOUT;
         this.mProxy = Proxy.NO_PROXY;
         this.mHeaders = new HashMap<String, String>();
-//        this.mSSLSocketFactory = null; // default
-//        this.mHostnameVerifier = null; // default
     }
 
     public boolean isDebug() {
@@ -310,12 +308,27 @@ public class NextClient implements Consts {
         }
     }
 
+
+    @Override
+    public NextClient clone() {
+        try {
+            return (NextClient) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    private NextClient copyDefaults() {
+        NextClient client = clone();
+        return client;
+    }
+
     Caller newCaller(final NextRequest request) {
-        return new Caller(this, request);
+        return new Caller(copyDefaults(), request);
     }
 
     public NextResponse execute(final NextRequest request) throws IOException {
-        return new Caller(this, request).execute();
+        return newCaller(request).execute();
     }
 
     static final class SingletonHolder {
