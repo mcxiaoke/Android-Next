@@ -100,8 +100,6 @@ public class TaskQueueSamples extends BaseActivity {
     private Callable<String> getCallable(final String url, final boolean serial) {
         final int index = ++mCounter;
         println("Start http request. index:" + index + " serial:" + serial);
-        final Bundle extras = new Bundle();
-        extras.putInt("index", index);
         return new TaskCallable<String>(TAG) {
             @Override
             public String call() throws Exception {
@@ -109,7 +107,7 @@ public class TaskQueueSamples extends BaseActivity {
                 final NextResponse response = NextClient.get(url);
                 return response.string();
             }
-        };
+        }.putExtra("index", index);
     }
 
     private void clearText() {

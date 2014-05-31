@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import java.util.concurrent.Callable;
 
@@ -14,7 +15,7 @@ public abstract class TaskCallable<V> implements Callable<V> {
     private Bundle mExtras;
 
     public TaskCallable(String name) {
-        mName = name;
+        this(name, new Bundle());
     }
 
     public TaskCallable(String name, Bundle extras) {
@@ -22,19 +23,73 @@ public abstract class TaskCallable<V> implements Callable<V> {
         mExtras = extras;
     }
 
-    public Bundle getExtras() {
-        return mExtras;
-    }
-
-    public void setExtras(final Bundle extras) {
-        mExtras = extras;
-    }
-
     public String getName() {
         return mName;
     }
 
-    public void setName(final String name) {
+    public TaskCallable<V> setName(final String name) {
         mName = name;
+        return this;
     }
+
+    public Bundle getExtras() {
+        return mExtras;
+    }
+
+    public TaskCallable<V> putExtra(String name, boolean value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putBoolean(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtra(String name, int value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putInt(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtra(String name, long value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putLong(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtra(String name, String value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putString(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtra(String name, Parcelable value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putParcelable(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtra(String name, byte[] value) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putByteArray(name, value);
+        return this;
+    }
+
+    public TaskCallable<V> putExtras(Bundle extras) {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
+        mExtras.putAll(extras);
+        return this;
+    }
+
 }
