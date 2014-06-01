@@ -103,7 +103,7 @@ public class TaskQueueSamples extends BaseActivity {
         return new TaskCallable<String>(TAG) {
             @Override
             public String call() throws Exception {
-                SystemClock.sleep(RANDOM.nextInt() % 3000);
+                SystemClock.sleep(Math.abs(RANDOM.nextInt()) % 3000+2000);
                 final NextResponse response = NextClient.get(url);
                 return response.string();
             }
