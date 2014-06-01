@@ -28,6 +28,7 @@ final class Caller {
     private boolean mDebug;
     private NextClient mClient;
     private NextRequest mRequest;
+    private NextResponse mResponse;
 
     public Caller(final NextClient client, final NextRequest request) {
         this.mClient = client;
@@ -75,10 +76,12 @@ final class Caller {
         client.configConnection(conn);
         addRequestHeaders(conn);
         writeBody(entity, contentLength, conn);
-        NextResponse response = getResponse(conn);
+        final NextResponse response = getResponse(conn);
+
+        mResponse = response;
 
         if (mDebug) {
-            LogUtils.v(TAG, "[NextResponse] " + mRequest);
+            LogUtils.v(TAG, "[NextResponse] " + response);
         }
 
         return response;
@@ -98,9 +101,8 @@ final class Caller {
         final NextRequest request = mRequest;
         final HttpURLConnection connection;
         final String method = request.method();
-        final String completeUrl = request.completeUrl();
         final Proxy proxy = client.getProxy();
-        URL url = new URL(completeUrl);
+        final URL url = request.url();
         if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
             connection = (HttpURLConnection) url.openConnection();
         } else {
@@ -122,15 +124,14 @@ final class Caller {
         }
     }
 
-
     private void writeBody(final HttpEntity entity, final long length,
                            final HttpURLConnection conn) throws IOException {
         final ProgressCallback callback = mRequest.callback();
         if (HttpMethod.hasRequestBody(mRequest.method())) {
             conn.setDoOutput(true);
+            final OutputStream os = conn.getOutputStream();
             OutputStream outputStream = null;
             try {
-                final OutputStream os = conn.getOutputStream();
                 outputStream = new ProgressOutputStream(os, callback, length);
                 entity.writeTo(outputStream);
                 outputStream.flush();

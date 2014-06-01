@@ -199,7 +199,7 @@ class NextHeaders {
     static class DateParser {
 
         /**
-         * Most websites serve cookies in the blessed format. Eagerly create the
+         * Most websites serve cookies in the blessed formEncode. Eagerly create the
          * parser to ensure such cookies are on the fast path.
          */
         private static final ThreadLocal<DateFormat> STANDARD_DATE_FORMAT = new ThreadLocal<DateFormat>() {
@@ -213,7 +213,7 @@ class NextHeaders {
         };
 
         /**
-         * If we fail to parse a date in a non-standard format, try each of these
+         * If we fail to parse a date in a non-standard formEncode, try each of these
          * formats in sequence.
          */
         private static final String[] BROWSER_COMPATIBLE_DATE_FORMATS = new String[]{
@@ -231,7 +231,7 @@ class NextHeaders {
                 "EEE, dd-MM-yyyy HH:mm:ss z",
 
 			/*
-             * RI bug 6641315 claims a cookie of this format was once served by
+             * RI bug 6641315 claims a cookie of this formEncode was once served by
 			 * www.yahoo.com
 			 */
                 "EEE MMM d yyyy HH:mm:ss z",};

@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
+import com.mcxiaoke.next.annotation.NotThreadSafe;
 import com.mcxiaoke.next.http.entity.ContentType;
 import com.mcxiaoke.next.http.entity.mime.HttpMultipartMode;
 import com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder;
@@ -24,6 +25,7 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
+@NotThreadSafe
 public final class NextParams implements Consts {
 
 
@@ -48,8 +50,13 @@ public final class NextParams implements Consts {
         parts = new ArrayList<StreamPart>();
     }
 
+    private void invalidateEntity() {
+        mEntity = null;
+    }
+
     public void setEncoding(final String enc) {
         encoding = enc;
+        invalidateEntity();
     }
 
     public String getEncoding() {
@@ -59,6 +66,7 @@ public final class NextParams implements Consts {
 
     public NextParams query(String key, String value) {
         this.queries.add(new BasicNameValuePair(key, value));
+        invalidateEntity();
         return this;
     }
 
@@ -71,6 +79,7 @@ public final class NextParams implements Consts {
 
     public NextParams put(String key, String value) {
         this.params.add(new BasicNameValuePair(key, value));
+        invalidateEntity();
         return this;
     }
 
@@ -120,19 +129,23 @@ public final class NextParams implements Consts {
         this.queries.addAll(p.getQueries());
         this.params.addAll(p.getParams());
         this.parts.addAll(p.getParts());
+        invalidateEntity();
         return this;
     }
 
     void clearQueries() {
         this.queries.clear();
+        invalidateEntity();
     }
 
     void clearParams() {
         this.params.clear();
+        invalidateEntity();
     }
 
     void clearParts() {
         this.parts.clear();
+        invalidateEntity();
     }
 
     void clear() {
@@ -155,6 +168,7 @@ public final class NextParams implements Consts {
 
     private NextParams addPart(final StreamPart part) {
         this.parts.add(part);
+        invalidateEntity();
         return this;
     }
 

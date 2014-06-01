@@ -16,6 +16,7 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
+import com.mcxiaoke.next.annotation.NotThreadSafe;
 import com.mcxiaoke.next.collection.NoDuplicatesArrayList;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -23,8 +24,7 @@ import org.apache.http.NameValuePair;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -33,79 +33,83 @@ import java.util.Map;
 /**
  * http request
  */
+@NotThreadSafe
 public final class NextRequest {
-    private URL url;
-    private String method;
-    private Map<String, String> headers;
-    private NextParams params;
-    private ProgressCallback callback;
-    private Object tag;
-    private volatile URI uri;
-    private String completeUrl;
-
+    private String mOriginalUrl;
+    private String mMethod;
+    private Map<String, String> mHeaders;
+    private NextParams mParams;
+    private ProgressCallback mCallback;
+    private Object mTag;
+    private String mCompleteUrl;
+    private volatile URL mURL;
 
     NextResponse execute() throws IOException {
         return NextClient.getDefault().execute(this);
     }
 
     NextRequest(Builder builder) {
-        this.url = builder.url;
-        this.method = builder.method;
-        this.headers = builder.headers;
-        this.params = builder.params;
-        this.callback = builder.callback;
-        this.tag = builder.tag != null ? builder.tag : this;
+        this.mOriginalUrl = builder.originalUrl;
+        this.mMethod = builder.method;
+        this.mHeaders = builder.headers;
+        this.mParams = builder.params;
+        this.mCallback = builder.callback;
+        this.mTag = builder.tag != null ? builder.tag : this;
     }
 
     public static Builder newBuilder() {
         return new Builder();
     }
 
-    public URL url() {
-        return url;
+    public String originalUrl() {
+        return mOriginalUrl;
     }
 
-    public URI uri() {
+    public URL url() {
         try {
-            URI result = uri;
-            return result != null ? result : (uri = url.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("URI Syntax error: " + url);
+            URL result = mURL;
+            return result != null ? result : (mURL = new URL(completeUrl()));
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Malformed URL: " + mURL, e);
         }
     }
 
-    public String completeUrl() {
+    private String completeUrl() {
+        if (mCompleteUrl == null) {
+            mCompleteUrl = createCompleteUrl();
+        }
+        return mCompleteUrl;
+    }
+
+    private String createCompleteUrl() {
         // 去重
         final List<NameValuePair> list = new NoDuplicatesArrayList<NameValuePair>();
-        list.addAll(params.getQueries());
+        list.addAll(mParams.getQueries());
         // 支持BODY的HTTP METHOD不添加PARAMS到URL QUERY
         if (!HttpMethod.hasRequestBody(method())) {
-            list.addAll(params.getParams());
+            list.addAll(mParams.getParams());
         }
-        if (completeUrl == null) {
-            completeUrl = Encoder.appendQuery(url.toString(), list);
-        }
-        return completeUrl;
+        return Utils.appendQuery(mOriginalUrl, list);
     }
 
     public String method() {
-        return method;
+        return mMethod;
     }
 
     public String encoding() {
-        return params.getEncoding();
+        return mParams.getEncoding();
     }
 
     public String host() {
-        return url.getHost();
+        return mURL.getHost();
     }
 
     public String protocol() {
-        return url.getProtocol();
+        return mURL.getProtocol();
     }
 
     public ProgressCallback callback() {
-        return callback;
+        return mCallback;
     }
 
     public boolean isHttps() {
@@ -113,23 +117,23 @@ public final class NextRequest {
     }
 
     public Map<String, String> headers() {
-        return headers;
+        return mHeaders;
     }
 
-    public NextParams params() {
-        return params;
+    NextParams params() {
+        return mParams;
     }
 
     public HttpEntity entity() {
-        return params.entity();
+        return mParams.entity();
     }
 
     public String header(String name) {
-        return headers.get(name);
+        return mHeaders.get(name);
     }
 
     public Object tag() {
-        return tag;
+        return mTag;
     }
 
     Builder copyToBuilder() {
@@ -139,11 +143,11 @@ public final class NextRequest {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Request{");
-        sb.append("url=").append(completeUrl());
-        sb.append(", method='").append(method()).append('\'');
-        sb.append(", headers=").append(headers());
-        sb.append(", params=").append(params());
-        sb.append(", tag=").append(tag());
+        sb.append("mURL=").append(completeUrl());
+        sb.append(", mMethod='").append(method()).append('\'');
+        sb.append(", mHeaders=").append(headers());
+        sb.append(", mParams=").append(params());
+        sb.append(", mTag=").append(tag());
         sb.append('}');
         return sb.toString();
     }
@@ -158,7 +162,7 @@ public final class NextRequest {
      */
 
     public static class Builder {
-        URL url;
+        String originalUrl;
         String method;
         String encoding;
         NextParams params;
@@ -167,29 +171,29 @@ public final class NextRequest {
         Object tag;
 
         public Builder() {
-//            this.url=null;
+//            this.mURL=null;
             this.method = HttpMethod.METHOD_GET;
             this.encoding = Charsets.ENCODING_UTF_8;
             this.headers = new HashMap<String, String>();
             this.params = new NextParams(this.encoding);
-//            this.callback=null;
-//            this.tag=null;
+//            this.mCallback=null;
+//            this.mTag=null;
         }
 
         Builder(NextRequest request) {
-            this.url = request.url;
-            this.method = request.method;
-            this.headers = request.headers;
-            this.params = request.params;
-            this.callback = request.callback;
-            this.tag = request.tag != null ? request.tag : this;
+            this.originalUrl = request.mOriginalUrl;
+            this.method = request.mMethod;
+            this.headers = request.mHeaders;
+            this.params = request.mParams;
+            this.callback = request.mCallback;
+            this.tag = request.mTag != null ? request.mTag : this;
         }
 
-        public Builder url(String uriString) {
-            if (uriString == null) {
+        public Builder url(String url) {
+            if (url == null) {
                 throw new IllegalArgumentException("url can not be null");
             }
-            this.url = Utils.toURL(uriString);
+            this.originalUrl = url;
             return this;
         }
 
@@ -198,7 +202,7 @@ public final class NextRequest {
                 throw new IllegalArgumentException("create can not be null");
             }
             if (!HttpMethod.METHODS.contains(method)) {
-                throw new IllegalArgumentException("unsupported method: " + method);
+                throw new IllegalArgumentException("unsupported mMethod: " + method);
 
             }
             this.method = method;
@@ -331,8 +335,8 @@ public final class NextRequest {
         }
 
         public NextRequest build() {
-            if (this.url == null) throw new IllegalStateException("url can not be null");
-            if (this.method == null) throw new IllegalStateException("method can not be null");
+            if (this.originalUrl == null) throw new IllegalStateException("mURL can not be null");
+            if (this.method == null) throw new IllegalStateException("mMethod can not be null");
             if (this.encoding == null) throw new IllegalStateException("encoding can not be null");
             return new NextRequest(this);
         }

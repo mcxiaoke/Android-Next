@@ -53,8 +53,8 @@ interface HeaderValueFormatter {
      *
      * @param buffer the buffer to append to, or
      *               <code>null</code> to create a new buffer
-     * @param elems  the header elements to format
-     * @param quote  <code>true</code> to always format with quoted values,
+     * @param elems  the header elements to formEncode
+     * @param quote  <code>true</code> to always formEncode with quoted values,
      *               <code>false</code> to use quotes only when necessary
      * @return a buffer with the formatted header elements.
      * If the <code>buffer</code> argument was not <code>null</code>,
@@ -69,8 +69,8 @@ interface HeaderValueFormatter {
      *
      * @param buffer the buffer to append to, or
      *               <code>null</code> to create a new buffer
-     * @param elem   the header element to format
-     * @param quote  <code>true</code> to always format with quoted values,
+     * @param elem   the header element to formEncode
+     * @param quote  <code>true</code> to always formEncode with quoted values,
      *               <code>false</code> to use quotes only when necessary
      * @return a buffer with the formatted header element.
      * If the <code>buffer</code> argument was not <code>null</code>,
@@ -87,8 +87,8 @@ interface HeaderValueFormatter {
      *
      * @param buffer the buffer to append to, or
      *               <code>null</code> to create a new buffer
-     * @param nvps   the parameters (name-value pairs) to format
-     * @param quote  <code>true</code> to always format with quoted values,
+     * @param nvps   the parameters (name-value pairs) to formEncode
+     * @param quote  <code>true</code> to always formEncode with quoted values,
      *               <code>false</code> to use quotes only when necessary
      * @return a buffer with the formatted parameters.
      * If the <code>buffer</code> argument was not <code>null</code>,
@@ -103,8 +103,8 @@ interface HeaderValueFormatter {
      *
      * @param buffer the buffer to append to, or
      *               <code>null</code> to create a new buffer
-     * @param nvp    the name-value pair to format
-     * @param quote  <code>true</code> to always format with a quoted value,
+     * @param nvp    the name-value pair to formEncode
+     * @param quote  <code>true</code> to always formEncode with a quoted value,
      *               <code>false</code> to use quotes only when necessary
      * @return a buffer with the formatted name-value pair.
      * If the <code>buffer</code> argument was not <code>null</code>,

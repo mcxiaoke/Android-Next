@@ -70,8 +70,8 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Formats an array of header elements.
      *
-     * @param elems     the header elements to format
-     * @param quote     <code>true</code> to always format with quoted values,
+     * @param elems     the header elements to formEncode
+     * @param quote     <code>true</code> to always formEncode with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter the formatter to use, or <code>null</code>
      *                  for the {@link #INSTANCE default}
@@ -87,8 +87,8 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Formats a header element.
      *
-     * @param elem      the header element to format
-     * @param quote     <code>true</code> to always format with quoted values,
+     * @param elem      the header element to formEncode
+     * @param quote     <code>true</code> to always formEncode with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter the formatter to use, or <code>null</code>
      *                  for the {@link #INSTANCE default}
@@ -104,8 +104,8 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Formats a set of parameters.
      *
-     * @param nvps      the parameters to format
-     * @param quote     <code>true</code> to always format with quoted values,
+     * @param nvps      the parameters to formEncode
+     * @param quote     <code>true</code> to always formEncode with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter the formatter to use, or <code>null</code>
      *                  for the {@link #INSTANCE default}
@@ -121,8 +121,8 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Formats a name-value pair.
      *
-     * @param nvp       the name-value pair to format
-     * @param quote     <code>true</code> to always format with a quoted value,
+     * @param nvp       the name-value pair to formEncode
+     * @param quote     <code>true</code> to always formEncode with a quoted value,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter the formatter to use, or <code>null</code>
      *                  for the {@link #INSTANCE default}
@@ -238,7 +238,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of formatted header elements.
      *
-     * @param elems the header elements to format, or <code>null</code>
+     * @param elems the header elements to formEncode, or <code>null</code>
      * @return a length estimate, in number of characters
      */
     protected int estimateElementsLen(final HeaderElement[] elems) {
@@ -257,7 +257,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of a formatted header element.
      *
-     * @param elem the header element to format, or <code>null</code>
+     * @param elem the header element to formEncode, or <code>null</code>
      * @return a length estimate, in number of characters
      */
     protected int estimateHeaderElementLen(final HeaderElement elem) {
@@ -286,7 +286,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of formatted parameters.
      *
-     * @param nvps the parameters to format, or <code>null</code>
+     * @param nvps the parameters to formEncode, or <code>null</code>
      * @return a length estimate, in number of characters
      */
     protected int estimateParametersLen(final NameValuePair[] nvps) {
@@ -305,7 +305,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of a formatted name-value pair.
      *
-     * @param nvp the name-value pair to format, or <code>null</code>
+     * @param nvp the name-value pair to formEncode, or <code>null</code>
      * @return a length estimate, in number of characters
      */
     protected int estimateNameValuePairLen(final NameValuePair nvp) {
@@ -330,7 +330,7 @@ class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @param buffer the buffer to append to, never <code>null</code>
      * @param value  the value to append, never <code>null</code>
-     * @param quote  <code>true</code> to always format with quotes,
+     * @param quote  <code>true</code> to always formEncode with quotes,
      *               <code>false</code> to use quotes only when necessary
      */
     protected void doFormatValue(final CharArrayBuffer buffer,

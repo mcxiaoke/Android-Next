@@ -1,5 +1,8 @@
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.http.util.URIBuilder;
+import org.apache.http.NameValuePair;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -8,10 +11,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 /**
  * User: mcxiaoke
@@ -78,6 +83,17 @@ final class Utils {
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(
                     "Security exception configuring SSL context", e);
+        }
+    }
+
+
+    public static String appendQuery(String url, Collection<NameValuePair> params) {
+        try {
+            URIBuilder builder = new URIBuilder(url);
+            builder.addParameters(params);
+            return builder.toString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("URI Syntax error:" + url, e);
         }
     }
 }
