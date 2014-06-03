@@ -37,6 +37,7 @@ import java.util.Map;
 public final class NextRequest {
     private String mOriginalUrl;
     private String mMethod;
+    private String mEncoding;
     private Map<String, String> mHeaders;
     private NextParams mParams;
     private ProgressCallback mCallback;
@@ -51,8 +52,10 @@ public final class NextRequest {
     NextRequest(Builder builder) {
         this.mOriginalUrl = builder.originalUrl;
         this.mMethod = builder.method;
+        this.mEncoding = builder.encoding;
         this.mHeaders = builder.headers;
         this.mParams = builder.params;
+        this.mParams.setEncoding(builder.encoding);
         this.mCallback = builder.callback;
         this.mTag = builder.tag != null ? builder.tag : this;
     }
@@ -183,6 +186,7 @@ public final class NextRequest {
         Builder(NextRequest request) {
             this.originalUrl = request.mOriginalUrl;
             this.method = request.mMethod;
+            this.encoding = request.mEncoding;
             this.headers = request.mHeaders;
             this.params = request.mParams;
             this.callback = request.mCallback;
@@ -202,7 +206,7 @@ public final class NextRequest {
                 throw new IllegalArgumentException("create can not be null");
             }
             if (!HttpMethod.METHODS.contains(method)) {
-                throw new IllegalArgumentException("unsupported mMethod: " + method);
+                throw new IllegalArgumentException("unsupported method: " + method);
 
             }
             this.method = method;
@@ -210,11 +214,10 @@ public final class NextRequest {
         }
 
         public Builder encoding(final String encoding) {
-            if (method == null) {
+            if (encoding == null) {
                 throw new IllegalArgumentException("encoding can not be null");
             }
             this.encoding = encoding;
-            this.params.setEncoding(encoding);
             return this;
         }
 
