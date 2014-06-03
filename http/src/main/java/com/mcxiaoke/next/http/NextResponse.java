@@ -13,8 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -31,19 +33,45 @@ public class NextResponse implements Closeable {
     private final int mContentLength;
     private final String mContentType;
     private final InputStream mStream;
-    private final Map<String, List<String>> mHeaders;
+    private final Map<String, String> mHeaders;
     private byte[] mBytes;
     private boolean mConsumed;
 
     NextResponse(int code, String message,
                  int contentLength, String contentType,
-                 final Map<String, List<String>> headers, InputStream is) {
+                 final Map<String, List<String>> rawHeaders, InputStream is) {
         this.mStatusCode = code;
         this.mMessage = message;
         this.mContentLength = contentLength;
         this.mContentType = contentType;
-        this.mHeaders = headers;
+        this.mHeaders = new HashMap<String, String>();
         this.mStream = new BufferedInputStream(is);
+        cleanHeaders(rawHeaders);
+    }
+
+    /**
+     * clean headers, remove null key entry, remove multi value
+     *
+     * @param rawHeaders Raw Headers
+     */
+    private void cleanHeaders(Map<String, List<String>> rawHeaders) {
+        if (rawHeaders == null || rawHeaders.isEmpty()) {
+            return;
+        }
+        final Map<String, String> headers = new HashMap<String, String>();
+        Set<Entry<String, List<String>>> entrySet = rawHeaders.entrySet();
+        for (Entry<String, List<String>> entry : entrySet) {
+            final String key = entry.getKey();
+            if (StringUtils.isEmpty(key)) {
+                continue;
+            }
+            final List<String> values = entry.getValue();
+            if (values == null || values.isEmpty()) {
+                continue;
+            }
+            final String value = values.get(0);
+            mHeaders.put(key, value);
+        }
     }
 
     public boolean successful() {
@@ -70,13 +98,12 @@ public class NextResponse implements Closeable {
         return mContentType;
     }
 
-    public Map<String, List<String>> headers() {
+    public Map<String, String> headers() {
         return mHeaders;
     }
 
     public String header(String name) {
-        List<String> value = mHeaders.get(name);
-        return value != null ? value.get(0) : null;
+        return mHeaders.get(name);
     }
 
     public String location() {
@@ -148,7 +175,7 @@ public class NextResponse implements Closeable {
     }
 
     public String dumpHeaders() {
-        Map<String, List<String>> headers = headers();
+        Map<String, String> headers = headers();
         if (headers == null || headers.isEmpty()) {
             return Consts.EMPTY_STRING;
         }
@@ -156,7 +183,7 @@ public class NextResponse implements Closeable {
         Set<String> keySet = headers.keySet();
         for (String key : keySet) {
             if (key != null) {
-                builder.append(key).append(":").append(headers.get(key).get(0)).append("; ");
+                builder.append(key).append(":").append(headers.get(key)).append("; ");
             }
         }
         return builder.toString();
