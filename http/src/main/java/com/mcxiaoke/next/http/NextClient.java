@@ -101,6 +101,7 @@ public class NextClient implements Consts, Cloneable {
         this.mReadTimeout = READ_TIMEOUT;
         this.mProxy = Proxy.NO_PROXY;
         this.mHeaders = new HashMap<String, String>();
+        acceptGzipEncoding();
     }
 
     public boolean isDebug() {
@@ -146,9 +147,7 @@ public class NextClient implements Consts, Cloneable {
      * @param value the header value
      */
     public NextClient addHeader(String key, String value) {
-        if (!mHeaders.containsKey(key)) {
-            this.mHeaders.put(key, value);
-        }
+        this.mHeaders.put(key, value);
         return this;
     }
 

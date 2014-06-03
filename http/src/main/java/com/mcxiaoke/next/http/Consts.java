@@ -13,8 +13,8 @@ public interface Consts {
 
     public static final int BUFFER_SIZE = 10 * 1024;
 
-    public static final int CONNECT_TIMEOUT = 30 * 1000;
-    public static final int READ_TIMEOUT = 30 * 1000;
+    public static final int CONNECT_TIMEOUT = 10 * 1000;
+    public static final int READ_TIMEOUT = 20 * 1000;
 
     public static final String DEFAULT_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String EMPTY_STRING = "";
