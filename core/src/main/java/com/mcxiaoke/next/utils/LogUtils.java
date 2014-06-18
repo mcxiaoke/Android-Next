@@ -379,7 +379,7 @@ public final class LogUtils {
 
         private void addCsvHeader(final StringBuilder csv) {
             if (dateFormat == null)
-                dateFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault());
+                dateFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US);
             if (date == null) {
                 if (null == mDate)
                     mDate = new Date();
