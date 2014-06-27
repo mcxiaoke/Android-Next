@@ -3,8 +3,8 @@ apply plugin: 'android'
 dependencies {
     compile project(":core")
     compile project(":ui")
-    compile "com.android.support:support-v4:+"
-    compile 'com.jakewharton:butterknife:4.0.+'
+    compile "com.android.support:support-v4:19.1.0"
+    compile 'com.jakewharton:butterknife:5.1.1'
 }
 
 loadProperties("signing.properties")
