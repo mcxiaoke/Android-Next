@@ -53,6 +53,7 @@ class AdapterWrapper extends BaseAdapter {
         });
     }
 
+
     /**
      * Get the data item associated with the specified
      * position in the data set.
@@ -91,6 +92,22 @@ class AdapterWrapper extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
         return (wrapped.getItemViewType(position));
+    }
+
+
+    /**
+     * Get hasStableIds info from wrapped adapter.
+     *
+     * @return has stable ids
+     */
+    @Override
+    public boolean hasStableIds() {
+        return wrapped.hasStableIds();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return wrapped.isEmpty();
     }
 
     /**
