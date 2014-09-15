@@ -1,6 +1,6 @@
 package com.mcxiaoke.next.ui.widget;
 
-import android.content.ActivityNotFoundException;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,9 +9,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.view.ActionProvider;
 import android.util.Log;
+import android.view.ActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -37,6 +38,7 @@ import java.util.List;
  * 高级版的ShareActionProvider
  * 支持自定义优先显示的分享目标
  */
+@TargetApi(VERSION_CODES.ICE_CREAM_SANDWICH)
 public class AdvancedShareActionProvider extends ActionProvider implements MenuItem.OnMenuItemClickListener {
     public static final boolean DEBUG = BuildConfig.DEBUG;
     public static final String TAG = AdvancedShareActionProvider.class.getSimpleName();
@@ -65,6 +67,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     private List<ShareTarget> mExtraTargets = new ArrayList<ShareTarget>();
 
     private List<ShareTarget> mShareTargets = new ArrayList<ShareTarget>();
+
 
     public AdvancedShareActionProvider(Context context) {
         super(context);
@@ -227,6 +230,15 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
     }
 
+    public List<ShareTarget> getShareTargets() {
+        return mShareTargets;
+    }
+
+    public List<ShareTarget> getDefaultShareTargets() {
+        int length = Math.min(mDefaultLength, mShareTargets.size());
+        return mShareTargets.subList(0, length);
+    }
+
     /**
      * 重新加载目标Activity列表
      */
@@ -311,11 +323,6 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     @Override
     public View onCreateActionView() {
         return null;
-    }
-
-    @Override
-    public boolean onPerformDefaultAction() {
-        return super.onPerformDefaultAction();
     }
 
     @Override
