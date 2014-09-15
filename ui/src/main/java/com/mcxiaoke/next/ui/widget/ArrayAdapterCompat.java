@@ -160,6 +160,16 @@ public abstract class ArrayAdapterCompat<T> extends BaseAdapter implements Filte
         if (mNotifyOnChange) notifyDataSetChanged();
     }
 
+    public void setAll(Collection<? extends T> collection) {
+        clear();
+        addAll(collection);
+    }
+
+    public void setAll(T... items) {
+        clear();
+        addAll(items);
+    }
+
     /**
      * Adds the specified Collection at the end of the array.
      *
