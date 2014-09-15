@@ -265,8 +265,8 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     private void sortShareTargets() {
         if (mShareTargets.size() > 0) {
             if (DEBUG) {
-                Log.v(TAG, "sortActivities() mShareTargets size=" + mShareTargets.size());
-                Log.v(TAG, "sortActivities() mExtraPackages size=" + mExtraPackages.size());
+                Log.v(TAG, "sortShareTargets() mShareTargets size=" + mShareTargets.size());
+                Log.v(TAG, "sortShareTargets() mExtraPackages size=" + mExtraPackages.size());
             }
             for (String pkg : mExtraPackages) {
                 ShareTarget target = findShareTarget(pkg);
@@ -285,6 +285,11 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
             mExtraTargets.clear();
             mExtraPackages.clear();
             mToRemovePackages.clear();
+
+            final int size = mShareTargets.size();
+            for (int i = 0; i < size; i++) {
+                mShareTargets.get(i).id = i;
+            }
         }
     }
 
