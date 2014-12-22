@@ -324,12 +324,13 @@ public final class NextRequest {
             return url(url).method(method);
         }
 
-        public void callback(final ProgressCallback pc) {
+        public Builder callback(final ProgressCallback pc) {
             if (callback == null) {
                 this.callback = ProgressCallback.DEFAULT;
             } else {
                 this.callback = pc;
             }
+            return this;
         }
 
         public Builder tag(Object tag) {
