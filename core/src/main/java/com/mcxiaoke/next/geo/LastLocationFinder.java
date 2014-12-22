@@ -27,7 +27,7 @@ import java.util.List;
 public class LastLocationFinder {
 
     protected static String TAG = LastLocationFinder.class.getSimpleName();
-    protected static String SINGLE_LOCATION_UPDATE_ACTION = BuildConfig.PACKAGE_NAME
+    protected static String SINGLE_LOCATION_UPDATE_ACTION = BuildConfig.APPLICATION_ID
             + ".action.SINGLE_LOCATION_UPDATE_ACTION";
 
     protected PendingIntent pendingIntent;
