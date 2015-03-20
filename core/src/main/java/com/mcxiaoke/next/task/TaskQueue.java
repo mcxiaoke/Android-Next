@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import com.mcxiaoke.next.utils.LogUtils;
+import com.mcxiaoke.next.utils.StringUtils;
 import com.mcxiaoke.next.utils.ThreadUtils;
 
 import java.util.ArrayList;
@@ -461,6 +462,65 @@ public final class TaskQueue {
                 mUiHandler = null;
             }
         }
+    }
+
+    /**
+     * 获取当前实例的详细信息
+     *
+     * @param logcat 是否输出到logcat
+     * @return
+     */
+    public String dump(final boolean logcat) {
+        final StringBuilder builder = new StringBuilder();
+
+        final ThreadPoolExecutor executor = mExecutor;
+
+        // thread pool info
+        final int corePoolSize = executor.getCorePoolSize();
+        final int poolSize = executor.getPoolSize();
+        final int activeCount = executor.getActiveCount();
+        final long taskCount = executor.getTaskCount();
+        final long completedCount = executor.getCompletedTaskCount();
+        final boolean isShutdown = executor.isShutdown();
+        final boolean isTerminated = executor.isTerminated();
+        builder.append(TAG).append("[ ");
+        builder.append("ThreadPool:{")
+                .append(" CorePoolSize:").append(corePoolSize).append(";")
+                .append(" PoolSize:").append(poolSize).append(";")
+                .append(" isShutdown:").append(isShutdown).append(";")
+                .append(" isTerminated:").append(isTerminated).append(";")
+                .append(" activeCount:").append(activeCount).append(";")
+                .append(" taskCount:").append(taskCount).append(";")
+                .append(" completedCount:").append(completedCount).append(";")
+                .append("}\n");
+
+//        private Map<Integer, List<String>> mCallerMap;
+//        private Map<String, TaskRunnable> mTaskMap;
+        // caller map
+        final Map<Integer, List<String>> callerMap = mCallerMap;
+        builder.append("CallerMap:{");
+        for (Map.Entry<Integer, List<String>> entry : callerMap.entrySet()) {
+            builder.append(" caller:").append(entry.getKey())
+                    .append(", tags:").append(StringUtils.toString(entry.getValue())).append(";");
+        }
+        builder.append("}\n");
+        builder.append("]");
+
+        // task map
+        Map<String, TaskRunnable> taskMap = mTaskMap;
+        builder.append("TaskMap:{");
+        for (Map.Entry<String, TaskRunnable> entry : taskMap.entrySet()) {
+            builder.append(" tag:").append(entry.getKey())
+                    .append(", runnable:").append(entry.getValue()).append(";");
+        }
+        builder.append("}\n");
+
+        final String info = builder.toString();
+
+        if (logcat) {
+            LogUtils.d(TAG, info);
+        }
+        return info;
     }
 
     public static interface Success<Result> {

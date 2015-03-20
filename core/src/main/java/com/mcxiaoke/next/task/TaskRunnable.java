@@ -297,7 +297,7 @@ final class TaskRunnable<Result> implements Runnable {
      * 回调，任务执行成功
      * 注意：回调函数在UI线程运行
      *
-     * @param result   任务执行结果
+     * @param result 任务执行结果
      */
     private void notifySuccess(final Result result) {
         if (mDebug) {
@@ -364,16 +364,21 @@ final class TaskRunnable<Result> implements Runnable {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder("TaskRunnable{");
-        builder.append("mResult=").append(mResult);
-        builder.append(", mThrowable=").append(mThrowable);
-        builder.append(", mTag='").append(mTag).append('\'');
-        builder.append(", mSerial=").append(mSerial);
-        builder.append(", mCancelled=").append(mCancelled);
-        builder.append(", mStatus=").append(mStatus);
-        builder.append(", mDuration=").append(getDuration());
-        builder.append('}');
-        return builder.toString();
+        return "TaskRunnable{" +
+                "mFuture=" + mFuture +
+                ", mResult=" + mResult +
+                ", mThrowable=" + mThrowable +
+                ", mSequence=" + mSequence +
+                ", mHashCode=" + mHashCode +
+                ", mTag='" + mTag + '\'' +
+                ", mCheckCaller=" + mCheckCaller +
+                ", mSerial=" + mSerial +
+                ", mCancelled=" + mCancelled +
+                ", mDebug=" + mDebug +
+                ", mStatus=" + mStatus +
+                ", mStartTime=" + mStartTime +
+                ", mEndTime=" + mEndTime +
+                '}';
     }
 
     /**
