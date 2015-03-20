@@ -230,7 +230,7 @@ public abstract class MultiIntentService extends Service {
      * 此方法在非UI线程执行
      *
      * @param intent Intent
-     * @param id     ID，可以用于取消任务
+     * @param tag    TAG，可以用于取消任务
      */
     protected abstract void onHandleIntent(final Intent intent, final String tag);
 

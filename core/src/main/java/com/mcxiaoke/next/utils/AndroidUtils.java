@@ -558,6 +558,10 @@ public final class AndroidUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
+    public static boolean hasLollipop() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
     @TargetApi(11)
     public static void setStrictMode(boolean enable) {
         if (!enable) {

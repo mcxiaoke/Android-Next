@@ -1,34 +1,9 @@
 apply plugin: 'com.android.library'
 
-//configurations {
-//    provided
-//}
-
 dependencies {
     compile project(":core")
-//    provided 'com.google.code.gson:gson:+'
-//    provided 'com.squareup.okhttp:okhttp:+'
-//    provided 'com.squareup.okhttp:okhttp-urlconnection:+'
 }
 
-//sourceSets {
-//    main {
-//        compileClasspath += configurations.provided
-//    }
-//}
-
-//android.libraryVariants.all { variant ->
-//    def name = variant.buildType.name
-//
-//    // Only attach a jar for non-debug build types.
-//    if (!name.equals(com.android.builder.BuilderConstants.DEBUG)) {
-//        def task = project.tasks.create "jar${name.capitalize()}", Jar
-//        task.dependsOn variant.javaCompile
-//        task.from variant.javaCompile.destinationDir
-//        artifacts.add('archives', task);
-//    }
-//}
-
-apply from: 'https://raw.github.com/mcxiaoke/gradle-mvn-push/master/jar.gradle'
+apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/jar.gradle'
 apply from: '../base.gradle'
 

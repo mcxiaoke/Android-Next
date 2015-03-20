@@ -60,7 +60,6 @@ public class LastLocationFinder {
      * Returns the most accurate and timely previously detected location.
      * Where the last result is beyond the specified maximum distance or
      * latency a one-off location update is returned via the {@link LocationListener}
-     * specified in {@link setChangedLocationListener}.
      *
      * @param minDistance Minimum distance before we require a location update.
      * @param minTime     Minimum time required between location updates.
@@ -111,7 +110,6 @@ public class LastLocationFinder {
      * This {@link BroadcastReceiver} listens for a single location
      * update before unregistering itself.
      * The oneshot location update is returned via the {@link LocationListener}
-     * specified in {@link setChangedLocationListener}.
      */
     protected BroadcastReceiver singleUpdateReceiver = new BroadcastReceiver() {
         @Override

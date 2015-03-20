@@ -246,8 +246,7 @@ public class NextClient implements Consts, Cloneable {
     /**
      * Sets the add timeout for the underlying {@link java.net.HttpURLConnection}
      *
-     * @param duration duration of the timeout
-     * @param unit     unit of time (milliseconds, seconds, etc)
+     * @param millis duration of the timeout
      */
     public NextClient setConnectTimeout(int millis) {
         this.mConnectTimeout = millis;
@@ -261,8 +260,7 @@ public class NextClient implements Consts, Cloneable {
     /**
      * Sets the read timeout for the underlying {@link java.net.HttpURLConnection}
      *
-     * @param duration duration of the timeout
-     * @param unit     unit of time (milliseconds, seconds, etc)
+     * @param millis duration of the timeout
      */
     public NextClient setReadTimeout(int millis) {
         this.mReadTimeout = millis;

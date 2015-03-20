@@ -113,7 +113,7 @@ final class TaskRunnable<Result> implements Runnable {
     /**
      * 检查Caller的生命周期，是否Alive
      *
-     * @return
+     * @return is active
      */
     @SuppressLint("NewApi")
     private boolean isCallerAlive() {
@@ -298,8 +298,6 @@ final class TaskRunnable<Result> implements Runnable {
      * 注意：回调函数在UI线程运行
      *
      * @param result   任务执行结果
-     * @param callback 任务回调接口
-     * @param <Result> 类型参数，任务结果类型
      */
     private void notifySuccess(final Result result) {
         if (mDebug) {
@@ -322,8 +320,6 @@ final class TaskRunnable<Result> implements Runnable {
      * 注意：回调函数在UI线程运行
      *
      * @param exception 失败原因，异常
-     * @param callback  任务回调接口
-     * @param <Result>  类型参数，任务结果类型
      */
     private void notifyFailure(final Throwable exception) {
         if (mDebug) {

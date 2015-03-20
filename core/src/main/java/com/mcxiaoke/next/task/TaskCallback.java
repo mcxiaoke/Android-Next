@@ -35,7 +35,7 @@ public interface TaskCallback<Result> {
     /**
      * 回调，任务执行失败
      *
-     * @param e      失败原因，异常
+     * @param ex      失败原因，异常
      * @param extras 附加结果，需要返回额外的信息时会用到
      */
     public void onTaskFailure(Throwable ex, final Bundle extras);
