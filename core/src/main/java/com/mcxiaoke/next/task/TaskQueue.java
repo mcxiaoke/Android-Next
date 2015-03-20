@@ -3,6 +3,7 @@ package com.mcxiaoke.next.task;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
+import android.os.Looper;
 import android.os.Message;
 import com.mcxiaoke.next.utils.LogUtils;
 import com.mcxiaoke.next.utils.StringUtils;
@@ -39,6 +40,7 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "NextExecutor()");
         }
+        ensureThread();
         ensureData();
         ensureHandler();
         ensureExecutor();
@@ -58,6 +60,12 @@ public final class TaskQueue implements Callback {
             if (o == null) {
                 throw new NullPointerException("argument can not be null.");
             }
+        }
+    }
+
+    private void ensureThread() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw new IllegalStateException("TaskQueue instance must be created on main thread");
         }
     }
 
