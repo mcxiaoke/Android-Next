@@ -78,7 +78,7 @@ public final class TaskQueue {
      * 对于Fragment，检查Fragment.isAdded()
      * 如果不满足条件，取消回调
      *
-     * @param checkCaller
+     * @param enable enable
      */
     public void setEnableCallerAliveCheck(boolean enable) {
         mEnableCallerAliveCheck = enable;
@@ -114,7 +114,7 @@ public final class TaskQueue {
      * @param callback 回调接口
      * @param caller   调用方，一般为Fragment或Activity
      * @param <Result> 类型参数，异步任务执行结果
-     * @param Object   类型参数，调用对象
+     * @param caller   类型参数，调用对象
      * @return 返回内部生成的此次任务的NextRunnable
      */
     private <Result> TaskRunnable<Result> enqueue(
@@ -166,7 +166,7 @@ public final class TaskQueue {
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
-     * @param <Caller> Caller
+     * @param caller   Caller
      * @return Tag
      */
     public <Result> String add(final Callable<Result> callable, final Object caller) {
@@ -188,7 +188,7 @@ public final class TaskQueue {
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
-     * @param <Caller> Caller
+     * @param caller   Caller
      * @return Tag
      */
     public <Result> String addSerially(final Callable<Result> callable, final Object caller) {
@@ -360,11 +360,11 @@ public final class TaskQueue {
      * @param runnable 任务Runnable
      * @return 返回任务对应的Future对象
      */
-    private Future<?> smartSubmit(final TaskRunnable unit) {
-        if (unit.isSerial()) {
-            return submitSerial(unit);
+    private Future<?> smartSubmit(final TaskRunnable runnable) {
+        if (runnable.isSerial()) {
+            return submitSerial(runnable);
         } else {
-            return submit(unit);
+            return submit(runnable);
         }
     }
 
