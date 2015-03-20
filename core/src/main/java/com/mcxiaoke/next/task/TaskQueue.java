@@ -2,7 +2,7 @@ package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.Handler.Callback;
 import android.os.Message;
 import com.mcxiaoke.next.utils.LogUtils;
 import com.mcxiaoke.next.utils.StringUtils;
@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * User: mcxiaoke
  * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14 2014-05-29
  */
-public final class TaskQueue {
+public final class TaskQueue implements Callback {
     public static final String TAG = TaskQueue.class.getSimpleName();
     // 某一个线程运行结束时需要从TaskMap里移除
     public static final int MSG_TASK_DONE = 4001;
@@ -411,31 +411,30 @@ public final class TaskQueue {
      */
     private void ensureHandler() {
         if (mUiHandler == null) {
-            mUiHandler = new Handler(Looper.getMainLooper()) {
-                @Override
-                public void handleMessage(final Message msg) {
-                    super.handleMessage(msg);
-                    if (mDebug) {
-                        LogUtils.v(TAG, "handleMessage() what=" + msg.what);
-                    }
-                    switch (msg.what) {
-                        case MSG_TASK_DONE: {
-//                            if (mDebug) {
-//                                LogUtils.v(TAG, "========EXECUTOR STATUS START========");
-//                                logExecutor("Executor", mExecutor);
-//                                logExecutor("SerialExecutor", mSerialExecutor);
-//                                LogUtils.v(TAG, "========EXECUTOR STATUS END===========");
-//                            }
-                            final String tag = (String) msg.obj;
-                            remove(tag);
-                        }
-                        break;
-                        default:
-                            break;
-                    }
-                }
-            };
+            mUiHandler = new Handler(this);
         }
+    }
+
+    @Override
+    public boolean handleMessage(final Message msg) {
+        if (mDebug) {
+            LogUtils.v(TAG, "handleMessage() what=" + msg.what);
+        }
+        switch (msg.what) {
+            case MSG_TASK_DONE: {
+                final String tag = (String) msg.obj;
+                if (mDebug) {
+                    LogUtils.v(TAG, "handleMessage() tag:" + tag);
+                    logExecutor("Executor", mExecutor);
+                    logExecutor("SerialExecutor", mSerialExecutor);
+                }
+                remove(tag);
+            }
+            break;
+            default:
+                break;
+        }
+        return true;
     }
 
     /**
