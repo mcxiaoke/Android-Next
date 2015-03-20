@@ -11,6 +11,10 @@ Tasks, Views, Widgets, Http, Utils
 
 ## 最新版本
 
+* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:core:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Ccore%7C1.0.6%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:http:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Chttp%7C1.0.6%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:ui:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Cui%7C1.0.6%7Cjar) 
+
 已经部署到Maven Central，可以直接使用
 
 - **1.0.6** 2015.03.20 细节调整
@@ -35,7 +39,7 @@ Gradle集成方法：
     compile 'com.mcxiaoke.next:ui:1.0.+'
     
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extra-abc:1.0.+'
+    compile 'com.mcxiaoke.next:extras-abc:1.0.+'
     
     
 ```
