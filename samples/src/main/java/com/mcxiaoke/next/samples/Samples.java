@@ -66,14 +66,23 @@ public class Samples extends BaseActivity {
         mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
+        mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
         mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
         mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
+
+        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
+        mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
+        mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
+        mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
+
+        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
+        mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
+        mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
+        mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
     }
 
     private void initListView() {

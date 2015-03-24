@@ -58,6 +58,10 @@
             android:label="@string/app_name" />
 
         <activity
+            android:name="com.mcxiaoke.next.samples.ListViewExtendSamples"
+            android:label="@string/app_name" />
+
+        <activity
             android:name="com.mcxiaoke.next.samples.StickyHeaderSamples"
             android:label="@string/app_name" />
 
