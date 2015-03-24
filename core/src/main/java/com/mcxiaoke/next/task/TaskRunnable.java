@@ -6,10 +6,11 @@ import android.app.Fragment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import com.mcxiaoke.next.utils.AndroidUtils;
 import com.mcxiaoke.next.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -128,15 +129,40 @@ final class TaskRunnable<Result> implements Runnable {
             return !((Activity) caller).isFinishing();
         }
 
-        if (caller instanceof android.support.v4.app.Fragment) {
-            return ((android.support.v4.app.Fragment) caller).isAdded();
+        if (caller instanceof Fragment) {
+            return ((Fragment) caller).isAdded();
         }
-        if (AndroidUtils.hasIceCreamSandwich()) {
-            if (caller instanceof Fragment) {
-                return ((Fragment) caller).isAdded();
+
+        return isAddedCompat(caller);
+    }
+
+    private boolean isAddedCompat(final Object caller) {
+        try {
+            final Class<?> fragmentClass = Class.forName("android.support.v4.app.Fragment");
+            final Class<?> clazz = caller.getClass();
+            if (caller == fragmentClass) {
+                final Method method = clazz.getMethod("isAdded", clazz);
+                return (boolean) method.invoke(caller);
+            }
+        } catch (InvocationTargetException e) {
+            if (mDebug) {
+                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
+            }
+        } catch (NoSuchMethodException e) {
+            if (mDebug) {
+                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
+            }
+        } catch (IllegalAccessException e) {
+            if (mDebug) {
+                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
+            }
+        } catch (ClassNotFoundException e) {
+            if (mDebug) {
+                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
             }
         }
-        return true;
+
+        return false;
     }
 
     @Override

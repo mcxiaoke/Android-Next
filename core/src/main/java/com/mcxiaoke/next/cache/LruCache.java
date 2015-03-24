@@ -8,10 +8,10 @@ import java.util.Map;
  * Time: 17:21
  */
 class LruCache<K, V> implements IMemoryCache<K, V> {
-    private android.support.v4.util.LruCache<K, V> cache;
+    private LruCacheCompat<K, V> cache;
 
     public LruCache(int maxSize) {
-        cache = new android.support.v4.util.LruCache<K, V>(maxSize);
+        cache = new LruCacheCompat<K, V>(maxSize);
     }
 
     @Override
