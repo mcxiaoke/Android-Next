@@ -34,8 +34,7 @@ public final class LogUtils {
      */
     public static final int LEVEL_OFF = Integer.MAX_VALUE;
 
-    public static final String TAG_DEBUG = "DEBUG";
-    public static final String TAG_TRACE = "TRACE";
+    public static final String TAG_DEBUG = "LogUtils";
     private static final String FILE_LOG_DIR = "logs";
 
     private static Map<String, Long> sTraceMap = new HashMap<String, Long>();
@@ -58,6 +57,10 @@ public final class LogUtils {
     public static void setFileLoggingLevel(Context appContext, int level) {
         sFileLoggingLevel = level;
         openFileLogger(appContext);
+    }
+
+    public static void e(Throwable t) {
+        e(TAG_DEBUG, t);
     }
 
     public static void e(String tag, Throwable e) {
@@ -103,7 +106,6 @@ public final class LogUtils {
         }
     }
 
-
     public static void d(String format, Object... args) {
         if (needLog(Log.DEBUG)) {
             Log.d(TAG_DEBUG, buildMessage(format, args));
@@ -122,7 +124,6 @@ public final class LogUtils {
         }
     }
 
-
     public static void e(String format, Object... args) {
         if (needLog(Log.ERROR)) {
             Log.e(TAG_DEBUG, buildMessage(format, args));
@@ -133,6 +134,126 @@ public final class LogUtils {
         if (needLog(Log.ERROR)) {
             Log.e(TAG_DEBUG, buildMessage(format, args), tr);
         }
+    }
+
+    public static void e(Class<?> clz, String message) {
+        e(clz.getSimpleName(), message);
+    }
+
+    public static void w(Class<?> clz, String message) {
+        w(clz.getSimpleName(), message);
+    }
+
+    public static void i(Class<?> clz, String message) {
+        i(clz.getSimpleName(), message);
+    }
+
+    public static void d(Class<?> clz, String message) {
+        d(clz.getSimpleName(), message);
+    }
+
+    public static void v(Class<?> clz, String message) {
+        v(clz.getSimpleName(), message);
+    }
+
+    public static void e(Class<?> clz, Throwable t) {
+        e(clz.getSimpleName(), t);
+    }
+
+    public static void e(String message) {
+        if (needLog(Log.ERROR)) {
+            Log.e(TAG_DEBUG, getMethodInfo(4));
+            Log.e(TAG_DEBUG, "Message:\t" + message);
+        }
+    }
+
+    public static void w(String message) {
+        if (needLog(Log.WARN)) {
+            Log.w(TAG_DEBUG, getMethodInfo(4));
+            Log.w(TAG_DEBUG, "Message:\t" + message);
+        }
+    }
+
+    public static void i(String message) {
+        if (needLog(Log.INFO)) {
+            Log.i(TAG_DEBUG, getMethodInfo(4));
+            Log.i(TAG_DEBUG, "Message:\t" + message);
+        }
+    }
+
+    public static void d(String message) {
+        if (needLog(Log.DEBUG)) {
+            Log.d(TAG_DEBUG, getMethodInfo(4));
+            Log.d(TAG_DEBUG, "Message:\t" + message);
+        }
+    }
+
+    public static void v(String message) {
+        if (needLog(Log.VERBOSE)) {
+            Log.v(TAG_DEBUG, getMethodInfo(4));
+            Log.v(TAG_DEBUG, "Message:\t" + message);
+        }
+    }
+
+    private static String getMethodInfo(int index) {
+        final Thread current = Thread.currentThread();
+        final StackTraceElement[] stack = current.getStackTrace();
+        final StackTraceElement element = stack[index];
+        if (!element.isNativeMethod()) {
+            final String className = element.getClassName();
+            final String fileName = element.getFileName();
+            final int lineNumber = element.getLineNumber();
+            final String methodName = element.getMethodName();
+            return "Method:\t" + className + "." + methodName + "() (" + fileName + ":" + lineNumber + ")";
+        }
+        return "";
+    }
+
+    /**
+     * 获取StackTrace信息
+     */
+    private static String buildMessage(String format, Object... args) {
+        String msg = (args == null) ? format : String.format(Locale.US, format, args);
+        StackTraceElement[] trace = new Throwable().fillInStackTrace().getStackTrace();
+
+        String caller = "<unknown>";
+        // Walk up the stack looking for the first caller outside of VolleyLog.
+        // It will be at least two frames up, so start there.
+        for (int i = 2; i < trace.length; i++) {
+            Class<?> clazz = trace[i].getClass();
+            if (!clazz.equals(LogUtils.class)) {
+                String callingClass = trace[i].getClassName();
+                callingClass = callingClass.substring(callingClass.lastIndexOf('.') + 1);
+                callingClass = callingClass.substring(callingClass.lastIndexOf('$') + 1);
+
+                caller = callingClass + "." + trace[i].getMethodName();
+                break;
+            }
+        }
+        return String.format(Locale.US, "[%d] %s: %s",
+                Thread.currentThread().getId(), caller, msg);
+    }
+
+    public static void startTrace(String operation) {
+        sTraceMap.put(operation, System.currentTimeMillis());
+    }
+
+    public static void stopTrace(String operation) {
+        Long start = sTraceMap.remove(operation);
+        if (start != null) {
+            long end = System.currentTimeMillis();
+            long interval = end - start;
+            Log.v(TAG_DEBUG, operation + " use time: " + interval + "ms");
+        }
+    }
+
+    public static void removeTrace(String key) {
+        sTraceMap.remove(key);
+    }
+
+    public static void clearTrace() {
+        sTraceMap.clear();
+        Log.v(TAG_DEBUG, "trace is cleared.");
     }
 
 
@@ -247,100 +368,6 @@ public final class LogUtils {
         return dir;
     }
 
-    /**
-     * 获取StackTrace信息
-     */
-    private static String buildMessage(String format, Object... args) {
-        String msg = (args == null) ? format : String.format(Locale.US, format, args);
-        StackTraceElement[] trace = new Throwable().fillInStackTrace().getStackTrace();
-
-        String caller = "<unknown>";
-        // Walk up the stack looking for the first caller outside of VolleyLog.
-        // It will be at least two frames up, so start there.
-        for (int i = 2; i < trace.length; i++) {
-            Class<?> clazz = trace[i].getClass();
-            if (!clazz.equals(LogUtils.class)) {
-                String callingClass = trace[i].getClassName();
-                callingClass = callingClass.substring(callingClass.lastIndexOf('.') + 1);
-                callingClass = callingClass.substring(callingClass.lastIndexOf('$') + 1);
-
-                caller = callingClass + "." + trace[i].getMethodName();
-                break;
-            }
-        }
-        return String.format(Locale.US, "[%d] %s: %s",
-                Thread.currentThread().getId(), caller, msg);
-    }
-
-    public static void e(Class<?> clz, String message) {
-        e(clz.getSimpleName(), message);
-    }
-
-    public static void w(Class<?> clz, String message) {
-        w(clz.getSimpleName(), message);
-    }
-
-    public static void i(Class<?> clz, String message) {
-        i(clz.getSimpleName(), message);
-    }
-
-    public static void d(Class<?> clz, String message) {
-        d(clz.getSimpleName(), message);
-    }
-
-    public static void v(Class<?> clz, String message) {
-        v(clz.getSimpleName(), message);
-    }
-
-    public static void e(Class<?> clz, Throwable t) {
-        e(clz.getSimpleName(), t);
-    }
-
-    public static void e(String message) {
-        e(TAG_DEBUG, message);
-    }
-
-    public static void w(String message) {
-        w(TAG_DEBUG, message);
-    }
-
-    public static void i(String message) {
-        i(TAG_DEBUG, message);
-    }
-
-    public static void d(String message) {
-        d(TAG_DEBUG, message);
-    }
-
-    public static void v(String message) {
-        v(TAG_DEBUG, message);
-    }
-
-    public static void e(Throwable t) {
-        e(TAG_DEBUG, t);
-    }
-
-    public static void startTrace(String operation) {
-        sTraceMap.put(operation, System.currentTimeMillis());
-    }
-
-    public static void stopTrace(String operation) {
-        Long start = sTraceMap.remove(operation);
-        if (start != null) {
-            long end = System.currentTimeMillis();
-            long interval = end - start;
-            Log.v(TAG_TRACE, operation + " use time: " + interval + "ms");
-        }
-    }
-
-    public static void removeTrace(String key) {
-        sTraceMap.remove(key);
-    }
-
-    public static void clearTrace() {
-        sTraceMap.clear();
-        Log.v(TAG_TRACE, "trace is cleared.");
-    }
 
     public void clearLogFiles(Context context) {
         File logDir = createFileLogDirIfNeeded(context);
