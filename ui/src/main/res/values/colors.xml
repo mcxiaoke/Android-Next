@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="spv_text_primary">#ff000000</color>
+    <color name="spv_text_secondary">#ff666666</color>
 </resources>

@@ -6,14 +6,4 @@
     <item type="id" name="spv_progress_bar" />
     <item type="id" name="spv_progress_text" />
 
-    <color name="spv_text_primary">#ff000000</color>
-    <color name="spv_text_secondary">#ff666666</color>
-
-    <dimen name="spv_padding">8dp</dimen>
-    <dimen name="spv_prefered_height">60dp</dimen>
-    <dimen name="spv_font_size">16sp</dimen>
-
-    <string name="spv_default_text">点击加载更多</string>
-    <string name="spv_default_progress_text">正在加载…</string>
-
 </resources>

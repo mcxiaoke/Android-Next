@@ -1,4 +1,7 @@
 <resources>
     <string name="share_action_provider_expand_label">See all…</string>
     <string name="share_action_provider_target_not_found">Target Activity Not Found!</string>
+
+    <string name="spv_default_text">Load More</string>
+    <string name="spv_default_progress_text">Loading…</string>
 </resources>
