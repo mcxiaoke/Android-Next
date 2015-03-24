@@ -650,7 +650,7 @@ public final class AndroidUtils {
     }
 
 
-    private static Signature getSignature(Context context) {
+    public static Signature getSignature(Context context) {
         final PackageManager pm = context.getPackageManager();
         PackageInfo info = null;
         try {
@@ -669,8 +669,6 @@ public final class AndroidUtils {
         if (DEBUG) {
             LogUtils.v(TAG, "getSignature() " + signature);
         }
-
-
         return signature;
     }
 
@@ -681,19 +679,22 @@ public final class AndroidUtils {
         }
         final StringBuilder builder = new StringBuilder();
         try {
+            final byte[] signatureBytes = signature.toByteArray();
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            final InputStream is = new ByteArrayInputStream(signature.toByteArray());
+            final InputStream is = new ByteArrayInputStream(signatureBytes);
             X509Certificate cert = (X509Certificate) certFactory.generateCertificate(is);
-            final byte[] pubKey = cert.getPublicKey().getEncoded();
-            final String md5 = CryptoUtils.HASH.md5(pubKey);
-            final String sha1 = CryptoUtils.HASH.sha1(pubKey);
-            String signNumber = cert.getSerialNumber().toString();
-//            builder.append("SignName:").append(cert.getSigAlgName()).append("\n");
+            final String chars = signature.toCharsString();
+            final String hex = CryptoUtils.HEX.encodeHex(signatureBytes, false);
+            final String md5 = CryptoUtils.HASH.md5(signatureBytes);
+            final String sha1 = CryptoUtils.HASH.sha1(signatureBytes);
+            builder.append("SignName:").append(cert.getSigAlgName()).append("\n");
+            builder.append("Chars:").append(chars).append("\n");
+            builder.append("Hex:").append(hex).append("\n");
             builder.append("MD5:").append(md5).append("\n");
             builder.append("SHA1:").append(sha1).append("\n");
-//            builder.append("SignNumber:").append(signNumber).append("\n");
+            builder.append("SignNumber:").append(cert.getSerialNumber()).append("\n");
             builder.append("SubjectDN:").append(cert.getSubjectDN().getName()).append("\n");
-//            builder.append("IssuerDN:").append(cert.getIssuerDN().getName()).append("\n");
+            builder.append("IssuerDN:").append(cert.getIssuerDN().getName()).append("\n");
         } catch (Exception e) {
             LogUtils.e(TAG, "parseSignature() ex=" + e);
         }

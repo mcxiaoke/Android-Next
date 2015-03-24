@@ -20,6 +20,8 @@ import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
+import com.mcxiaoke.next.utils.AndroidUtils;
+import com.mcxiaoke.next.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +61,7 @@ public class Samples extends BaseActivity {
         cache.put(key, "dgdsgdsgdsgsdgsdgsdgsdgsdgsdsdgsgsdg");
         String data = cache.get(key);
         System.out.print(data);
+        LogUtils.i(TAG, AndroidUtils.getSignatureInfo(this));
     }
 
     private void initSamples() {

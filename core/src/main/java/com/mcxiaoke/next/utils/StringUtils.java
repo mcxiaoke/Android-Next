@@ -1365,6 +1365,28 @@ public abstract class StringUtils {
         return toString(arr, ",");
     }
 
+    private final static char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_DIGITS[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_DIGITS[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    public static byte[] hexToBytes(String text) {
+        int len = text.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(text.charAt(i), 16) << 4)
+                    + Character.digit(text.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
     /**
      * 比较两个字符串是否相等，任何一个为null则返回false
      *
