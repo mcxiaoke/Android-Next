@@ -8,16 +8,15 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import com.mcxiaoke.next.ui.BuildConfig;
 
 /**
  * User: mcxiaoke
- * Date: 13-8-14
+ * Date: 15-2-24
  * Time: 下午9:32
  */
 public class ListViewExtend extends ListView implements AbsListView.OnScrollListener {
     public static final String TAG = ListViewExtend.class.getSimpleName();
-    public static final boolean DEBUG = BuildConfig.DEBUG;
+    public static final boolean DEBUG = false;
 
     public static final int MODE_NONE = 0;
     public static final int MODE_MANUAL = 1;

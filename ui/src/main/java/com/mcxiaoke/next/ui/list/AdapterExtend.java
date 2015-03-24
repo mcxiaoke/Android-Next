@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
-import com.mcxiaoke.next.ui.BuildConfig;
 import com.mcxiaoke.next.ui.internal.AdapterWrapper;
 import com.mcxiaoke.next.ui.list.ListViewExtend.OnRefreshListener;
 import com.mcxiaoke.next.ui.view.SimpleProgressView;
@@ -33,7 +32,7 @@ import com.mcxiaoke.next.ui.view.SimpleProgressView;
  */
 class AdapterExtend extends AdapterWrapper {
     private static final String TAG = AdapterExtend.class.getSimpleName();
-    private static final boolean DEBUG = BuildConfig.DEBUG;
+    private static final boolean DEBUG = false;
 
     private Context mContext;
     private boolean mEnableRefreshing;
