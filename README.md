@@ -11,15 +11,25 @@ Tasks, Views, Widgets, Http, Utils
 
 ## 最新版本
 
-* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:core:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Ccore%7C1.0.6%7Cjar) 
-* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:http:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Chttp%7C1.0.6%7Cjar) 
-* [![Maven Central](http://img.shields.io/badge/2015.03.20-com.mcxiaoke.next:ui:1.0.6-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Cui%7C1.0.6%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.03.24-com.mcxiaoke.next:core:1.0.7-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Ccore%7C1.0.7%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.03.24-com.mcxiaoke.next:http:1.0.7-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Chttp%7C1.0.7%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.03.24-com.mcxiaoke.next:ui:1.0.7-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Cui%7C1.0.7%7Cjar) 
 
 已经部署到Maven Central，可以直接使用
 
-- **1.0.6** 2015.03.20 细节调整
-- **1.0.5** 2014.12.22 补充完整的文档
-- **1.0.4** 2014.09.15 发布到github
+- **1.0.7** 2015.03.24
+    * core: 优化TaskQueue，去掉对support-v4的依赖
+    * core: 微调LogUtils，其它细节调整
+    * ui: 微调EndlessListView，新增ListViewExtend
+    
+- **1.0.6** 2015.03.20
+    * 细节调整
+    
+- **1.0.5** 2014.12.22
+    * 补充完整的文档
+    
+- **1.0.4** 2014.09.15
+    * 发布到github
 
 ------
 
