@@ -47,7 +47,7 @@ public final class LogUtils {
     private LogUtils() {
     }
 
-    private static boolean isLoggable(int level) {
+    private static boolean needLog(int level) {
         return level >= sLoggingLevel;
     }
 
@@ -61,76 +61,76 @@ public final class LogUtils {
     }
 
     public static void e(String tag, Throwable e) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(tag, "", e);
 
         }
     }
 
     public static void e(String tag, String message) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(tag, message);
         }
     }
 
     public static void w(String tag, String message) {
-        if (isLoggable(Log.WARN)) {
+        if (needLog(Log.WARN)) {
             Log.w(tag, message);
         }
     }
 
     public static void i(String tag, String message) {
-        if (isLoggable(Log.INFO)) {
+        if (needLog(Log.INFO)) {
             Log.i(tag, message);
         }
     }
 
     public static void d(String tag, String message) {
-        if (isLoggable(Log.DEBUG)) {
+        if (needLog(Log.DEBUG)) {
             Log.d(tag, message);
         }
     }
 
     public static void v(String tag, String message) {
-        if (isLoggable(Log.VERBOSE)) {
+        if (needLog(Log.VERBOSE)) {
             Log.v(tag, message);
         }
     }
 
     public static void v(String format, Object... args) {
-        if (isLoggable(Log.VERBOSE)) {
+        if (needLog(Log.VERBOSE)) {
             Log.v(TAG_DEBUG, buildMessage(format, args));
         }
     }
 
 
     public static void d(String format, Object... args) {
-        if (isLoggable(Log.DEBUG)) {
+        if (needLog(Log.DEBUG)) {
             Log.d(TAG_DEBUG, buildMessage(format, args));
         }
     }
 
     public static void i(String format, Object... args) {
-        if (isLoggable(Log.INFO)) {
+        if (needLog(Log.INFO)) {
             Log.i(TAG_DEBUG, buildMessage(format, args));
         }
     }
 
     public static void w(String format, Object... args) {
-        if (isLoggable(Log.WARN)) {
+        if (needLog(Log.WARN)) {
             Log.w(TAG_DEBUG, buildMessage(format, args));
         }
     }
 
 
     public static void e(String format, Object... args) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(TAG_DEBUG, buildMessage(format, args));
         }
     }
 
     public static void e(Throwable tr, String format, Object... args) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(TAG_DEBUG, buildMessage(format, args), tr);
         }
     }
@@ -144,7 +144,7 @@ public final class LogUtils {
     }
 
     public static void fe(String tag, String message, Throwable e) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(tag, "", e);
 
         }
@@ -156,7 +156,7 @@ public final class LogUtils {
     }
 
     public static void fe(String tag, String message) {
-        if (isLoggable(Log.ERROR)) {
+        if (needLog(Log.ERROR)) {
             Log.e(tag, message);
         }
         if (isFileLoggable(Log.ERROR)) {
@@ -167,7 +167,7 @@ public final class LogUtils {
     }
 
     public static void fw(String tag, String message) {
-        if (isLoggable(Log.WARN)) {
+        if (needLog(Log.WARN)) {
             Log.w(tag, message);
         }
         if (isFileLoggable(Log.WARN)) {
@@ -178,7 +178,7 @@ public final class LogUtils {
     }
 
     public static void fi(String tag, String message) {
-        if (isLoggable(Log.INFO)) {
+        if (needLog(Log.INFO)) {
             Log.i(tag, message);
         }
         if (isFileLoggable(Log.INFO)) {
@@ -189,7 +189,7 @@ public final class LogUtils {
     }
 
     public static void fd(String tag, String message) {
-        if (isLoggable(Log.DEBUG)) {
+        if (needLog(Log.DEBUG)) {
             Log.d(tag, message);
         }
         if (isFileLoggable(Log.DEBUG)) {
@@ -200,7 +200,7 @@ public final class LogUtils {
     }
 
     public static void fv(String tag, String message) {
-        if (isLoggable(Log.VERBOSE)) {
+        if (needLog(Log.VERBOSE)) {
             Log.v(tag, message);
         }
         if (isFileLoggable(Log.VERBOSE)) {
