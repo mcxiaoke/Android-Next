@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
+import com.mcxiaoke.next.extras.BuildConfig;
+import com.mcxiaoke.next.extras.R;
 
 import java.util.ArrayList;
 import java.util.Collection;
