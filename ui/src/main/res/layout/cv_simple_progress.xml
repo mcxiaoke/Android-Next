@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/endless_view"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_weight="1.0"
     android:gravity="center_vertical"
-    android:minHeight="@dimen/endless_footer_prefered_height"
-    android:padding="@dimen/endless_footer_padding">
+    android:minHeight="@dimen/spv_prefered_height"
+    android:padding="@dimen/spv_padding">
 
     <TextView
-        android:id="@id/endless_text"
+        android:id="@id/spv_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="@dimen/endless_footer_font_size"
-        android:textColor="@color/endless_text_secondary"
-        android:padding="@dimen/endless_footer_padding"
+        android:textSize="@dimen/spv_font_size"
+        android:textColor="@color/spv_text_secondary"
+        android:padding="@dimen/spv_padding"
         android:visibility="gone"
-        android:text="@string/endless_footer_load_more" />
+        android:text="@string/spv_default_text" />
 
     <LinearLayout
-        android:id="@id/endless_progress"
+        android:id="@id/spv_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -30,19 +30,20 @@
         android:visibility="gone">
 
         <ProgressBar
-            android:id="@id/endless_progress_bar"
+            android:id="@id/spv_progress_bar"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true" />
 
         <TextView
-            android:id="@id/endless_progress_text"
+            android:id="@id/spv_progress_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/endless_footer_padding"
-            android:text="@string/endless_footer_loading"
-            android:textSize="@dimen/endless_footer_font_size" />
+            android:layout_marginLeft="@dimen/spv_padding"
+            android:text="@string/spv_default_progress_text"
+            android:textSize="@dimen/spv_font_size"
+            tools:ignore="RtlHardcoded" />
     </LinearLayout>
 
 </LinearLayout>

@@ -9,7 +9,7 @@ import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.mcxiaoke.next.ui.BuildConfig;
-import com.mcxiaoke.next.ui.internal.FooterViewHelper;
+import com.mcxiaoke.next.ui.view.SimpleProgressView;
 
 /**
  * User: mcxiaoke
@@ -31,7 +31,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
         void onFooterIdle(EndlessListView listView);
     }
 
-    private FooterViewHelper mFooterViewHelper;
+    private SimpleProgressView mFooter;
     private EndlessAdapter mEndlessAdapter;
     private OnScrollListener mOnScrollListener;
     private OnFooterRefreshListener mOnRefreshListener;
@@ -60,7 +60,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
 
     private void initialize(Context context) {
 //        mGestureDetector = new GestureDetector(getContext(), new XYScrollDetector());
-        mFooterViewHelper = new FooterViewHelper(context);
+        mFooter = new SimpleProgressView(context);
         setFadingEdgeLength(0);
         super.setOnScrollListener(this);
     }
@@ -73,7 +73,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
     @Override
     public void setAdapter(ListAdapter adapter) {
         mEndlessAdapter = new EndlessAdapter(getContext(), adapter);
-        mEndlessAdapter.setFooterView(mFooterViewHelper.getFooterView());
+        mEndlessAdapter.setFooterView(mFooter);
         mEndlessAdapter.setFooterStateChangeListener(this);
 
         super.setAdapter(mEndlessAdapter);
@@ -116,7 +116,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
             Log.v(TAG, "showFooterText() text=" + text);
         }
         mEndlessAdapter.setState(EndlessAdapter.FooterState.IDLE, true);
-        mFooterViewHelper.showText(text);
+        mFooter.showText(text);
     }
 
     /**
@@ -134,7 +134,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
             return;
         }
         mEndlessAdapter.setState(EndlessAdapter.FooterState.PROGRESS, needNotify);
-        mFooterViewHelper.showProgress();
+        mFooter.showProgress();
     }
 
     public void showFooterEmpty() {
@@ -142,7 +142,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
             Log.v(TAG, "showFooterEmpty() isRefreshing=" + isRefreshing());
         }
         mEndlessAdapter.setState(EndlessAdapter.FooterState.NONE, true);
-        mFooterViewHelper.showEmpty();
+        mFooter.showEmpty();
     }
 
     private boolean isRefreshing() {
@@ -150,16 +150,16 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
     }
 
     private void checkFooterClick() {
-        if (mFooterViewHelper != null) {
+        if (mFooter != null) {
             if (isClickRefresh()) {
-                mFooterViewHelper.setOnClickListener(new OnClickListener() {
+                mFooter.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         setRefreshing(true);
                     }
                 });
             } else {
-                mFooterViewHelper.setOnClickListener(null);
+                mFooter.setOnClickListener(null);
             }
         }
     }
