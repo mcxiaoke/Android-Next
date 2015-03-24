@@ -216,15 +216,27 @@ public final class TaskQueue implements Callback {
     }
 
     private <Result> void addToTaskMap(final TaskRunnable<Result> runnable) {
-
         final String tag = runnable.getTag();
         if (mDebug) {
             LogUtils.v(TAG, "addToTaskMap() tag=" + tag);
         }
         Future<?> future = smartSubmit(runnable);
         runnable.setFuture(future);
+        addTagToTaskMap(tag, runnable);
+    }
+
+    private <Result> void addTagToTaskMap(final String tag, final TaskRunnable<Result> runnable) {
         synchronized (mLock) {
             mTaskMap.put(tag, runnable);
+        }
+    }
+
+    private void removeTagFromTaskMap(final String tag) {
+//        if (mDebug) {
+//            LogUtils.v(TAG, "removeTagFromTaskMap() tag=" + tag);
+//        }
+        synchronized (mLock) {
+            mTaskMap.remove(tag);
         }
     }
 
@@ -236,6 +248,11 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "addToCallerMap() tag=" + tag);
         }
+        addTagToCallerMap(hashCode, tag);
+
+    }
+
+    private void addTagToCallerMap(final int hashCode, final String tag) {
         List<String> tags = mCallerMap.get(hashCode);
         if (tags == null) {
             tags = new ArrayList<String>();
@@ -246,7 +263,18 @@ public final class TaskQueue implements Callback {
         synchronized (mLock) {
             tags.add(tag);
         }
+    }
 
+    private void removeTagFromCallerMap(final int hashCode, final String tag) {
+//        if (mDebug) {
+//            LogUtils.v(TAG, "removeTagFromCallerMap() hashCode=" + hashCode + " tag=" + tag);
+//        }
+        List<String> tags = mCallerMap.get(hashCode);
+        if (tags != null) {
+            synchronized (mLock) {
+                tags.remove(tag);
+            }
+        }
     }
 
     /**
@@ -358,9 +386,10 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
-        synchronized (mLock) {
-            mTaskMap.remove(tag);
-        }
+        final String hashCodeStr = tag.split(TaskRunnable.SEPARATOR)[1];
+        final int hashCode = Integer.valueOf(hashCodeStr);
+        removeTagFromTaskMap(tag);
+        removeTagFromCallerMap(hashCode, tag);
     }
 
     /**

@@ -415,11 +415,11 @@ final class TaskRunnable<Result> implements Runnable {
      */
     private String buildTag(final Object caller) {
         // caller的key是hashcode
-        // tag的组成:className+hashcode+timestamp+seq
+        // tag的组成 className::hashcode::timestamp::seq
         final int sequence = mSequence;
         final int hashCode = mHashCode;
         final String className = caller.getClass().getSimpleName();
-        final long timestamp = SystemClock.elapsedRealtime();
+        final long timestamp = System.currentTimeMillis();
 
 //        if (mDebug) {
 //            LogUtils.v(TAG, "buildTag() class=" + className + " seq=" + sequence);
