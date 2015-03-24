@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.ui.endless;
+package com.mcxiaoke.next.ui.internal;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,7 +13,7 @@ import com.mcxiaoke.next.ui.R;
  * Date: 13-8-15
  * Time: 下午12:02
  */
-class FooterViewHelper {
+public class FooterViewHelper {
 
     private ViewGroup footerView;
     private TextView textView;
@@ -37,19 +37,17 @@ class FooterViewHelper {
     }
 
     public void showProgress() {
-        textView.setVisibility(View.GONE);
-        progressView.setVisibility(View.VISIBLE);
         showProgress(false);
     }
 
-    private void showProgress(boolean showProgressText) {
+    public void showProgress(boolean withText) {
         footerView.setVisibility(View.VISIBLE);
         textView.setVisibility(View.GONE);
         progressView.setVisibility(View.VISIBLE);
-        progressTextView.setVisibility(showProgressText ? View.VISIBLE : View.GONE);
+        progressTextView.setVisibility(withText ? View.VISIBLE : View.GONE);
     }
 
-    public void showText() {
+    private void showText() {
         footerView.setVisibility(View.VISIBLE);
         progressView.setVisibility(View.GONE);
         textView.setVisibility(View.VISIBLE);
@@ -67,6 +65,10 @@ class FooterViewHelper {
 
     public void showEmpty() {
         showText("");
+    }
+
+    public void hide() {
+        footerView.setVisibility(View.GONE);
     }
 
     public void setOnClickListener(View.OnClickListener listener) {

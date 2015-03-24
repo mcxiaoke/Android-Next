@@ -13,7 +13,7 @@
  limitations under the License.
  */
 
-package com.mcxiaoke.next.ui.endless;
+package com.mcxiaoke.next.ui.internal;
 
 import android.database.DataSetObserver;
 import android.view.View;
@@ -31,7 +31,7 @@ import android.widget.ListAdapter;
  * Date: 13-8-14
  * Time: 下午9:32
  */
-class AdapterWrapper extends BaseAdapter {
+public class AdapterWrapper extends BaseAdapter {
     private ListAdapter wrapped = null;
 
     /**

@@ -9,6 +9,7 @@ import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.mcxiaoke.next.ui.BuildConfig;
+import com.mcxiaoke.next.ui.internal.FooterViewHelper;
 
 /**
  * User: mcxiaoke
