@@ -45,9 +45,8 @@ final class Caller {
     }
 
     private NextResponse executeInternal() throws IOException {
-        intercept();
         // re config request
-        final NextClient client = mClient;
+
         final Builder builder = mRequest.copyToBuilder();
         final HttpEntity entity = mRequest.entity();
         long contentLength = -1;
@@ -71,7 +70,11 @@ final class Caller {
             LogUtils.v(TAG, "[NextRequest] " + mRequest);
         }
 
-
+        final NextClient client = mClient;
+        final NextInterceptor interceptor = client.getInterceptor();
+        if (interceptor != null) {
+            interceptor.preIntercept(mRequest);
+        }
         HttpURLConnection conn = createConnection();
         client.configConnection(conn);
         addRequestHeaders(conn);
@@ -79,6 +82,9 @@ final class Caller {
         final NextResponse response = getResponse(conn);
 
         mResponse = response;
+        if (interceptor != null) {
+            interceptor.postIntercept(mResponse);
+        }
 
         if (mDebug) {
             LogUtils.v(TAG, "[NextResponse] " + response);
@@ -86,15 +92,6 @@ final class Caller {
 
         return response;
     }
-
-    private void intercept() {
-        final NextInterceptor interceptor = mClient.getInterceptor();
-        // intercept before create connection
-        if (interceptor != null) {
-            interceptor.intercept(mRequest);
-        }
-    }
-
 
     private HttpURLConnection createConnection() throws IOException {
         final NextClient client = mClient;

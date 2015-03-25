@@ -16,10 +16,10 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class NextClient implements Consts, Cloneable {
+public class NextClient implements Consts {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
-    private String mUserAgent;
+    private Map<String, String> mParams;
     private Map<String, String> mHeaders;
     private boolean mUseCaches;
     private boolean mTrustAllCerts;
@@ -42,14 +42,6 @@ public class NextClient implements Consts, Cloneable {
 
     public static NextClient getDefault() {
         return SingletonHolder.INSTANCE;
-    }
-
-    public static NextResponse head(String url) throws IOException {
-        return NextRequest.newBuilder().head(url).build().execute();
-    }
-
-    public static NextResponse head(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().head(url).params(params).build().execute();
     }
 
     public static NextResponse get(String url) throws IOException {
@@ -84,14 +76,6 @@ public class NextClient implements Consts, Cloneable {
         return NextRequest.newBuilder().put(url).params(params).build().execute();
     }
 
-    public static NextResponse patch(String url) throws IOException {
-        return NextRequest.newBuilder().patch(url).build().execute();
-    }
-
-    public static NextResponse patch(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().patch(url).params(params).build().execute();
-    }
-
     private void initDefaults() {
         this.mUseCaches = true; // default
         this.mTrustAllCerts = false;
@@ -100,6 +84,7 @@ public class NextClient implements Consts, Cloneable {
         this.mConnectTimeout = CONNECT_TIMEOUT;
         this.mReadTimeout = READ_TIMEOUT;
         this.mProxy = Proxy.NO_PROXY;
+        this.mParams = new HashMap<String, String>();
         this.mHeaders = new HashMap<String, String>();
         acceptGzipEncoding();
     }
@@ -112,8 +97,16 @@ public class NextClient implements Consts, Cloneable {
         mDebug = debug;
     }
 
+    public String getClientHeader(final String key) {
+        return mHeaders.get(key);
+    }
+
     public String getUserAgent() {
-        return mUserAgent;
+        return getClientHeader(USER_AGENT);
+    }
+
+    public String getAuthorization() {
+        return getClientHeader(AUTHORIZATION);
     }
 
     public CookieManager getCookieManager() {
@@ -140,23 +133,47 @@ public class NextClient implements Consts, Cloneable {
         mHostnameVerifier = hostnameVerifier;
     }
 
+    public NextClient addClientParam(String key, String value) {
+        this.mParams.put(key, value);
+        return this;
+    }
+
+    public NextClient removeClientParam(String key) {
+        this.mParams.remove(key);
+        return this;
+    }
+
+    public NextClient addClientParams(Map<String, String> map) {
+        this.mParams.putAll(map);
+        return this;
+    }
+
+    public Map<String, String> getClientParams() {
+        return this.mParams;
+    }
+
     /**
      * Add an HTTP Header to the Request
      *
      * @param key   the header name
      * @param value the header value
      */
-    public NextClient addHeader(String key, String value) {
+    public NextClient addClientHeader(String key, String value) {
         this.mHeaders.put(key, value);
         return this;
     }
 
-    public NextClient addHeaders(Map<String, String> map) {
+    public NextClient removeClientHeader(String key) {
+        this.mHeaders.remove(key);
+        return this;
+    }
+
+    public NextClient addClientHeaders(Map<String, String> map) {
         this.mHeaders.putAll(map);
         return this;
     }
 
-    public Map<String, String> getHeaders() {
+    public Map<String, String> getClientHeaders() {
         return this.mHeaders;
     }
 
@@ -176,20 +193,26 @@ public class NextClient implements Consts, Cloneable {
     }
 
     public NextClient acceptGzipEncoding() {
-        addHeader(ACCEPT_ENCODING, ENCODING_GZIP);
+        addClientHeader(ACCEPT_ENCODING, ENCODING_GZIP);
         return this;
     }
 
     public NextClient setUserAgent(final String userAgent) {
-        mUserAgent = userAgent;
         if (userAgent != null) {
-            addHeader(USER_AGENT, userAgent);
+            addClientHeader(USER_AGENT, userAgent);
+        }
+        return this;
+    }
+
+    public NextClient setAuthorization(final String authorization) {
+        if (authorization != null) {
+            addClientHeader(AUTHORIZATION, authorization);
         }
         return this;
     }
 
     public NextClient setReferer(final String referer) {
-        addHeader(REFERER, referer);
+        addClientHeader(REFERER, referer);
         return this;
     }
 
@@ -311,23 +334,8 @@ public class NextClient implements Consts, Cloneable {
         }
     }
 
-
-    @Override
-    public NextClient clone() {
-        try {
-            return (NextClient) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-
-    private NextClient copyDefaults() {
-        NextClient client = clone();
-        return client;
-    }
-
     Caller newCaller(final NextRequest request) {
-        return new Caller(copyDefaults(), request);
+        return new Caller(this, request);
     }
 
     public NextResponse execute(final NextRequest request) throws IOException {

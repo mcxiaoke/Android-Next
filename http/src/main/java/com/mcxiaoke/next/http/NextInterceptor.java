@@ -6,5 +6,7 @@ package com.mcxiaoke.next.http;
  * Time: 11:22
  */
 public interface NextInterceptor {
-    void intercept(final NextRequest request);
+    void preIntercept(final NextRequest request);
+
+    void postIntercept(final NextResponse response);
 }
