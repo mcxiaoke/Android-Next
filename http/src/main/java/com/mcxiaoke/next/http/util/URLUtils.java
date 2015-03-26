@@ -55,7 +55,7 @@ import java.util.Scanner;
  *
  * @since 4.0
  */
-public class URLUtils {
+class URLUtils {
 
     /**
      * The default HTML form content type.
@@ -536,7 +536,7 @@ public class URLUtils {
      * Encode/escape www-url-form-encoded content.
      * <p/>
      * Uses the {@link #URLENCODER} set of characters, rather than
-     * the {@link #UNRSERVED} set; this is for compatibilty with previous
+     * the UNRSERVED set; this is for compatibilty with previous
      * releases, URLEncoder.encode() and most browsers.
      *
      * @param content the content to encode, will convert space to '+'
@@ -554,7 +554,7 @@ public class URLUtils {
      * Encode/escape www-url-form-encoded content.
      * <p/>
      * Uses the {@link #URLENCODER} set of characters, rather than
-     * the {@link #UNRSERVED} set; this is for compatibilty with previous
+     * the UNRSERVED set; this is for compatibilty with previous
      * releases, URLEncoder.encode() and most browsers.
      *
      * @param content the content to encode, will convert space to '+'

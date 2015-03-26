@@ -1,22 +1,34 @@
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.utils.IOUtils;
+import com.mcxiaoke.next.utils.LogUtils;
+import com.mcxiaoke.next.utils.StringUtils;
+import org.apache.http.HttpEntity;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 /**
  * User: mcxiaoke
  * Date: 14-2-8
  * Time: 11:22
  */
-public class NextClient implements Consts {
+public class NextClient implements HttpConsts {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
     private Map<String, String> mParams;
@@ -29,51 +41,58 @@ public class NextClient implements Consts {
     private int mReadTimeout;
     private Proxy mProxy;
     private CookieManager mCookieManager;
-    private NextInterceptor mInterceptor;
+    private RequestInterceptor mInterceptor;
     private SSLSocketFactory mSSLSocketFactory;
     private HostnameVerifier mHostnameVerifier;
+    private WeakReference<NextRequest> mRequestRef;
+    private WeakReference<NextResponse> mResponseRef;
 
-    /**
-     * Creates a new Http Client
-     */
-    public NextClient() {
-        initDefaults();
+    static final class SingletonHolder {
+        public static final NextClient INSTANCE = new NextClient();
     }
+
 
     public static NextClient getDefault() {
         return SingletonHolder.INSTANCE;
     }
 
     public static NextResponse get(String url) throws IOException {
-        return NextRequest.newBuilder().get(url).build().execute();
+        return NextClient.getDefault().execute(NextRequest.get(url));
     }
 
     public static NextResponse get(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().get(url).params(params).build().execute();
+        return NextClient.getDefault().execute(NextRequest.get(url).params(params));
     }
 
     public static NextResponse delete(String url) throws IOException {
-        return NextRequest.newBuilder().delete(url).build().execute();
+        return NextClient.getDefault().execute(NextRequest.delete(url));
     }
 
     public static NextResponse delete(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().delete(url).params(params).build().execute();
+        return NextClient.getDefault().execute(NextRequest.delete(url).params(params));
     }
 
     public static NextResponse post(String url) throws IOException {
-        return NextRequest.newBuilder().post(url).build().execute();
+        return NextClient.getDefault().execute(NextRequest.post(url));
     }
 
     public static NextResponse post(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().post(url).params(params).build().execute();
+        return NextClient.getDefault().execute(NextRequest.post(url).params(params));
     }
 
     public static NextResponse put(String url) throws IOException {
-        return NextRequest.newBuilder().put(url).build().execute();
+        return NextClient.getDefault().execute(NextRequest.put(url));
     }
 
     public static NextResponse put(String url, NextParams params) throws IOException {
-        return NextRequest.newBuilder().put(url).params(params).build().execute();
+        return NextClient.getDefault().execute(NextRequest.put(url).params(params));
+    }
+
+    /**
+     * Creates a new Http Client
+     */
+    public NextClient() {
+        initDefaults();
     }
 
     private void initDefaults() {
@@ -93,8 +112,9 @@ public class NextClient implements Consts {
         return mDebug;
     }
 
-    public void setDebug(boolean debug) {
+    public NextClient setDebug(boolean debug) {
         mDebug = debug;
+        return this;
     }
 
     public String getClientHeader(final String key) {
@@ -113,8 +133,9 @@ public class NextClient implements Consts {
         return mCookieManager;
     }
 
-    public void setCookieManager(final CookieManager cm) {
+    public NextClient setCookieManager(final CookieManager cm) {
         this.mCookieManager = cm;
+        return this;
     }
 
     public SSLSocketFactory getTrustedSSLSocketFactory() {
@@ -125,12 +146,14 @@ public class NextClient implements Consts {
         return mHostnameVerifier;
     }
 
-    public void setSSLSocketFactory(final SSLSocketFactory SSLSocketFactory) {
+    public NextClient setSSLSocketFactory(final SSLSocketFactory SSLSocketFactory) {
         mSSLSocketFactory = SSLSocketFactory;
+        return this;
     }
 
-    public void setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
+    public NextClient setHostnameVerifier(final HostnameVerifier hostnameVerifier) {
         mHostnameVerifier = hostnameVerifier;
+        return this;
     }
 
     public NextClient addClientParam(String key, String value) {
@@ -291,31 +314,73 @@ public class NextClient implements Consts {
     }
 
 
-    public NextInterceptor getInterceptor() {
+    public RequestInterceptor getInterceptor() {
         return mInterceptor;
     }
 
-    public NextClient setInterceptor(NextInterceptor interceptor) {
+    public NextClient setInterceptor(RequestInterceptor interceptor) {
         this.mInterceptor = interceptor;
         return this;
     }
 
-    void configConnection(HttpURLConnection conn) {
-        applyClientConfig(conn);
-        applyHttpsConfig(conn);
-        applyClientHeaders(conn);
+    public NextResponse execute(final NextRequest request) throws IOException {
+        return executeInternal(request);
     }
 
-    private void applyClientConfig(HttpURLConnection conn) {
-        conn.setUseCaches(mUseCaches);
-        conn.setInstanceFollowRedirects(mFollowRedirects);
-        conn.setConnectTimeout(mConnectTimeout);
-        conn.setReadTimeout(mReadTimeout);
+    private NextResponse executeInternal(final NextRequest request) throws IOException {
+        // config request
+        final boolean isDebug = mDebug || request.isDebug();
+        final RequestInterceptor interceptor = getInterceptor();
+        if (interceptor != null) {
+            interceptor.intercept(request);
+        }
+
+        if (isDebug) {
+            LogUtils.v(TAG, "[Request]\n" + request.dump());
+        }
+
+        HttpURLConnection conn = openConnection(request);
+
+        final Map<String, String> clientHeaders = mHeaders;
+        for (Map.Entry<String, String> entry : clientHeaders.entrySet()) {
+            conn.setRequestProperty(entry.getKey(), entry.getValue());
+        }
+
+        final Map<String, String> requestHeaders = request.getHeaders();
+        for (Map.Entry<String, String> entry : requestHeaders.entrySet()) {
+            conn.setRequestProperty(entry.getKey(), entry.getValue());
+        }
+        if (isDebug) {
+            LogUtils.v(TAG, "[Request Headers]\n"
+                    + StringUtils.toString(conn.getRequestProperties(), "\n"));
+        }
+        addBodyIfNeeds(request, conn);
+        final NextResponse response = getResponse(conn);
+        if (isDebug) {
+            LogUtils.v(TAG, "[Response Headers]\n"
+                    + StringUtils.toString(response.headers(), "\n"));
+        }
+        return response;
     }
 
-    private void applyHttpsConfig(HttpURLConnection conn) {
-        if (conn instanceof HttpsURLConnection) {
-            final HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+    private HttpURLConnection openConnection(final NextRequest request) throws IOException {
+        final HttpURLConnection connection;
+        final String method = request.getMethod();
+        final Proxy proxy = getProxy();
+        final URL url = request.getURL();
+        if (proxy == null || Proxy.NO_PROXY.equals(proxy)) {
+            connection = (HttpURLConnection) url.openConnection();
+        } else {
+            connection = (HttpURLConnection) url.openConnection(proxy);
+        }
+        connection.setRequestMethod(method);
+        connection.setUseCaches(mUseCaches);
+        connection.setInstanceFollowRedirects(mFollowRedirects);
+        connection.setConnectTimeout(mConnectTimeout);
+        connection.setReadTimeout(mReadTimeout);
+
+        if (connection instanceof HttpsURLConnection) {
+            final HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
             final SSLSocketFactory sslSocketFactory = mSSLSocketFactory;
             final HostnameVerifier hostnameVerifier = mHostnameVerifier;
             if (sslSocketFactory != null) {
@@ -325,25 +390,84 @@ public class NextClient implements Consts {
                 httpsConn.setHostnameVerifier(hostnameVerifier);
             }
         }
+
+        if (mDebug) {
+            LogUtils.v(TAG, "createConnection() url=" + url + " method=" + method);
+        }
+        return connection;
     }
 
-    private void applyClientHeaders(HttpURLConnection conn) {
-        final Map<String, String> clientHeaders = mHeaders;
-        for (Map.Entry<String, String> entry : clientHeaders.entrySet()) {
-            conn.setRequestProperty(entry.getKey(), entry.getValue());
+    private void addBodyIfNeeds(final NextRequest request,
+                                final HttpURLConnection conn) throws IOException {
+
+        final HttpEntity entity = request.getEntity();
+        if (request.isDebug()) {
+            LogUtils.v(TAG, "addBodyIfNeeds() entity=" + entity);
+        }
+        if (entity != null) {
+            long contentLength = -1;
+            String contentType;
+            if (entity.getContentType() != null) {
+                contentType = entity.getContentType().getValue();
+            } else {
+                contentType = HttpConsts.DEFAULT_CONTENT_TYPE;
+            }
+            contentLength = entity.getContentLength();
+            if (contentType != null) {
+                conn.addRequestProperty(HttpConsts.CONTENT_TYPE, contentType);
+            }
+//            if (contentLength != -1) {
+//                conn.addRequestProperty(Consts.CONTENT_LENGTH, Long.toString(contentLength));
+//            } else {
+//                conn.addRequestProperty(Consts.TRANSFER_ENCODING, "chunked");
+//            }
+
+            conn.setDoOutput(true);
+            final ProgressCallback callback = request.getCallback();
+            final OutputStream os = conn.getOutputStream();
+            final long length = entity.getContentLength();
+            OutputStream outputStream = null;
+            try {
+                outputStream = new ProgressOutputStream(os, callback, length);
+                entity.writeTo(outputStream);
+                outputStream.flush();
+            } finally {
+                IOUtils.closeQuietly(outputStream);
+            }
         }
     }
 
-    Caller newCaller(final NextRequest request) {
-        return new Caller(this, request);
-    }
+    private NextResponse getResponse(HttpURLConnection conn) throws IOException {
+        final int code = conn.getResponseCode();
+        final String message = conn.getResponseMessage();
+        final int contentLength = conn.getContentLength();
+        final String contentType = conn.getContentType();
+        final String contentEncoding = conn.getContentEncoding();
 
-    public NextResponse execute(final NextRequest request) throws IOException {
-        return newCaller(request).execute();
-    }
+        boolean isGzip = HttpConsts.ENCODING_GZIP.equalsIgnoreCase(contentEncoding);
 
-    static final class SingletonHolder {
-        public static final NextClient INSTANCE = new NextClient();
+        Map<String, List<String>> rawHeaders = conn.getHeaderFields();
+
+        InputStream httpStream;
+        if (Utils.isSuccess(code)) {
+            httpStream = conn.getInputStream();
+        } else {
+            httpStream = conn.getErrorStream();
+        }
+
+        if (httpStream == null) {
+            httpStream = new ByteArrayInputStream(new byte[0]);
+        }
+
+        InputStream stream;
+        if (isGzip) {
+            stream = new GZIPInputStream(httpStream);
+        } else {
+            stream = httpStream;
+        }
+
+        return new NextResponse(code, message, contentLength,
+                contentType, rawHeaders, stream);
     }
 
 }

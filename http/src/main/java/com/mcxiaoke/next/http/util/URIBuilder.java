@@ -83,7 +83,7 @@ public class URIBuilder {
     /**
      * Construct an instance from the provided URL.
      *
-     * @param uri
+     * @param url
      */
     public URIBuilder(final URL url) throws URISyntaxException {
         super();

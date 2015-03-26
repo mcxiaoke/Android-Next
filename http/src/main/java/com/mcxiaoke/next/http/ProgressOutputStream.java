@@ -10,7 +10,7 @@ import java.io.OutputStream;
  * Date: 14-5-30
  * Time: 14:40
  */
-public class ProgressOutputStream extends ProxyOutputStream {
+class ProgressOutputStream extends ProxyOutputStream {
     private ProgressCallback callback;
     private long totalSize;
     private long currentSize;

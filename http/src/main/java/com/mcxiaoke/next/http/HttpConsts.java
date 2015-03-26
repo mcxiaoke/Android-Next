@@ -2,19 +2,22 @@ package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
 
+import java.nio.charset.Charset;
+
 /**
  * User: mcxiaoke
  * Date: 14-2-8
  * Time: 11:56
  */
-public interface Consts {
+public interface HttpConsts {
 
     public static final String ENCODING_UTF8 = Charsets.ENCODING_UTF_8;
+    public static final Charset CHARSET_UTF8 = Charsets.UTF_8;
 
     public static final int BUFFER_SIZE = 10 * 1024;
 
     public static final int CONNECT_TIMEOUT = 10 * 1000;
-    public static final int READ_TIMEOUT = 20 * 1000;
+    public static final int READ_TIMEOUT = 10 * 1000;
 
     public static final String DEFAULT_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String EMPTY_STRING = "";

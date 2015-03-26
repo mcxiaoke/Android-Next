@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -1286,10 +1287,17 @@ public abstract class StringUtils {
         Set<Map.Entry<K, V>> items = map.entrySet();
         StringBuilder sb = new StringBuilder();
         Iterator<Map.Entry<K, V>> it = items.iterator();
+        List<String> strings = new ArrayList<String>();
         while (it.hasNext()) {
             Map.Entry<K, V> entry = it.next();
-            sb.append(prefix).append(entry.getKey()).append("=").append(entry.getValue()).append(suffix);
-            if (it.hasNext()) {
+            strings.add(entry.getKey() + "=" + entry.getValue());
+        }
+
+        Collections.sort(strings);
+        ListIterator<String> it2 = strings.listIterator();
+        while (it2.hasNext()) {
+            sb.append(prefix).append(it2.next()).append(suffix);
+            if (it2.hasNext()) {
                 sb.append(delim);
             }
         }

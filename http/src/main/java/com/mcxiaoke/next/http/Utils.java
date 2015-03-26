@@ -1,5 +1,7 @@
 package com.mcxiaoke.next.http;
 
+import android.net.Uri;
+import android.net.Uri.Builder;
 import com.mcxiaoke.next.http.util.URIBuilder;
 import org.apache.http.NameValuePair;
 
@@ -95,5 +97,13 @@ final class Utils {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("URI Syntax error:" + url, e);
         }
+    }
+
+    public static String appendQuery2(String url, Collection<NameValuePair> params) {
+        Builder builder = Uri.parse(url).buildUpon();
+        for (NameValuePair pair : params) {
+            builder.appendQueryParameter(pair.getName(), pair.getValue());
+        }
+        return builder.toString();
     }
 }

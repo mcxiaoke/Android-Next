@@ -10,6 +10,7 @@ import com.mcxiaoke.next.utils.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.File;
@@ -26,7 +27,7 @@ import java.util.Map;
  * Time: 11:22
  */
 @NotThreadSafe
-public final class NextParams implements Consts {
+public final class NextParams implements HttpConsts {
 
 
     private String encoding;
@@ -36,6 +37,8 @@ public final class NextParams implements Consts {
     private List<NameValuePair> params;
     // BODY PARAM
     private List<StreamPart> parts;
+    // RAW BODY
+    private byte[] mBody;
     // HTTP ENTITY
     private HttpEntity mEntity;
 
@@ -63,6 +66,29 @@ public final class NextParams implements Consts {
         return encoding;
     }
 
+    public NextParams removeParam(String key) {
+        this.params.remove(key);
+        return this;
+    }
+
+    public NextParams removeQuery(String key) {
+        this.queries.remove(key);
+        return this;
+    }
+
+    public NextParams body(final byte[] body) {
+        this.mBody = body;
+        invalidateEntity();
+        return this;
+    }
+
+    public NextParams body(final String body, final Charset charset) {
+        return body(body.getBytes(charset));
+    }
+
+    public NextParams body(final String body) {
+        return body(body, CHARSET_UTF8);
+    }
 
     public NextParams query(String key, String value) {
         this.queries.add(new BasicNameValuePair(key, value));
@@ -173,37 +199,51 @@ public final class NextParams implements Consts {
     }
 
     private HttpEntity createHttpEntity() {
-        HttpEntity entity = null;
-        if (hasParts()) {
+        HttpEntity entity;
+        // first check raw bytes body
+        if (mBody != null && mBody.length > 0) {
+            entity = new ByteArrayEntity(mBody);
+        }
+        // then check multipart body
+        else if (hasParts()) {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.setCharset(Charset.forName(encoding));
             for (StreamPart part : parts) {
                 final File file = part.getFile();
                 if (file != null) {
-                    builder.addBinaryBody(part.getName(), part.getFile(), part.getContentType(), part.getFileName());
+                    builder.addBinaryBody(part.getName(), part.getFile(),
+                            part.getContentType(), part.getFileName());
                     continue;
                 }
                 final byte[] bytes = part.getBytes();
                 if (bytes != null) {
-                    builder.addBinaryBody(part.getName(), part.getBytes(), part.getContentType(), part.getFileName());
+                    builder.addBinaryBody(part.getName(), part.getBytes(),
+                            part.getContentType(), part.getFileName());
                     continue;
                 }
                 final InputStream stream = part.getStream();
                 if (stream != null) {
-                    builder.addBinaryBody(part.getName(), part.getStream(), part.getContentType(), part.getFileName());
+                    builder.addBinaryBody(part.getName(), part.getStream(),
+                            part.getContentType(), part.getFileName());
                 }
             }
             for (NameValuePair param : params) {
                 builder.addTextBody(param.getName(), param.getValue());
             }
             entity = builder.build();
-        } else if (hasParams()) {
+        }
+        // then check form parameters
+        else if (hasParams()) {
             try {
                 entity = new UrlEncodedFormEntity(params, encoding);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
+        }
+        // no entity
+        else {
+            entity = null;
         }
         return entity;
     }
@@ -223,12 +263,22 @@ public final class NextParams implements Consts {
         return params.size() > 0;
     }
 
+    @Override
     public String toString() {
+        return "NextParams{" +
+                "encoding='" + encoding + '\'' +
+                ", queries=" + queries +
+                ", params=" + params +
+                ", parts=" + parts +
+                '}';
+    }
+
+    public String dump() {
         StringBuilder builder = new StringBuilder();
-        builder.append("encoding:").append(getEncoding()).append(",");
-        builder.append("queries:[").append(StringUtils.toString(getQueries())).append("],");
-        builder.append("params:[").append(StringUtils.toString(getParams())).append("],");
-        builder.append("parts:[").append(StringUtils.toString(getParts())).append("]");
+        builder.append("encoding:").append(getEncoding()).append("\n");
+        builder.append("queries:[").append(StringUtils.toString(getQueries())).append("]\n");
+        builder.append("params:[").append(StringUtils.toString(getParams())).append("]\n");
+        builder.append("parts:[").append(StringUtils.toString(getParts())).append("]\n");
         return builder.toString();
     }
 

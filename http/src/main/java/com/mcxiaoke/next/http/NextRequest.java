@@ -15,17 +15,14 @@
  */
 package com.mcxiaoke.next.http;
 
-import com.mcxiaoke.next.Charsets;
-import com.mcxiaoke.next.annotation.NotThreadSafe;
 import com.mcxiaoke.next.collection.NoDuplicatesArrayList;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,316 +30,262 @@ import java.util.Map;
 /**
  * http request
  */
-@NotThreadSafe
 public final class NextRequest {
-    private String mOriginalUrl;
-    private String mMethod;
-    private String mEncoding;
-    private Map<String, String> mHeaders;
-    private NextParams mParams;
-    private ProgressCallback mCallback;
-    private Object mTag;
-    private String mCompleteUrl;
-    private volatile URL mURL;
+    private boolean debug;
+    private String method;
+    private String originalUrl;
+    private String encoding;
+    private Map<String, String> headers;
+    private NextParams params;
+    private ProgressCallback callback;
+    private Object tag;
 
-    NextResponse execute() throws IOException {
-        return NextClient.getDefault().execute(this);
+    public static NextRequest get(final String url) {
+        return new NextRequest(HttpMethod.METHOD_GET, url);
     }
 
-    NextRequest(Builder builder) {
-        this.mOriginalUrl = builder.originalUrl;
-        this.mMethod = builder.method;
-        this.mEncoding = builder.encoding;
-        this.mHeaders = builder.headers;
-        this.mParams = builder.params;
-        this.mParams.setEncoding(builder.encoding);
-        this.mCallback = builder.callback;
-        this.mTag = builder.tag != null ? builder.tag : this;
+    public static NextRequest delete(final String url) {
+        return new NextRequest(HttpMethod.METHOD_DELETE, url);
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    public static NextRequest post(final String url) {
+        return new NextRequest(HttpMethod.METHOD_POST, url);
     }
 
-    public String originalUrl() {
-        return mOriginalUrl;
+    public static NextRequest put(final String url) {
+        return new NextRequest(HttpMethod.METHOD_PUT, url);
     }
 
-    public URL url() {
-        try {
-            URL result = mURL;
-            return result != null ? result : (mURL = new URL(completeUrl()));
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("Malformed URL: " + mURL, e);
+    public NextRequest(final String method, String url) {
+        headers = new HashMap<String, String>();
+        params = new NextParams();
+        method(method).url(url);
+    }
+
+    public NextRequest debug(final boolean debug) {
+        this.debug = debug;
+        return this;
+    }
+
+    public NextRequest method(final String method) {
+        if (!HttpMethod.isValid(method)) {
+            throw new IllegalArgumentException("invalid http method: " + method);
         }
+        this.method = method;
+        return this;
     }
 
-    private String completeUrl() {
-        if (mCompleteUrl == null) {
-            mCompleteUrl = createCompleteUrl();
+    public NextRequest url(final String url) {
+        if (url == null) {
+            throw new NullPointerException("url is null or empty");
         }
-        return mCompleteUrl;
+        this.originalUrl = url;
+        return this;
+    }
+
+    public NextRequest encoding(final String encoding) {
+        if (encoding == null) {
+            throw new IllegalArgumentException("encoding can not be null");
+        }
+        this.encoding = encoding;
+        return this;
+    }
+
+    public NextRequest callback(final ProgressCallback callback) {
+        this.callback = callback;
+        return this;
+    }
+
+    public NextRequest tag(final String tag) {
+        this.tag = tag;
+        return this;
+    }
+
+    public NextRequest userAgent(final String userAgent) {
+        return header(HttpConsts.USER_AGENT, userAgent);
+    }
+
+    public NextRequest authorization(final String authorization) {
+        return header(HttpConsts.AUTHORIZATION, authorization);
+    }
+
+    public NextRequest header(String name, String value) {
+        this.headers.put(name, value);
+        return this;
+    }
+
+    public NextRequest headers(Map<String, String> headers) {
+        this.headers.putAll(headers);
+        return this;
+    }
+
+    public NextRequest query(String key, String value) {
+        this.params.query(key, value);
+        return this;
+    }
+
+    public NextRequest queries(Map<String, String> map) {
+        this.params.queries(map);
+        return this;
+    }
+
+    public NextRequest param(String key, String value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    public NextRequest params(Map<String, String> map) {
+        this.params.putAll(map);
+        return this;
+    }
+
+    public NextRequest params(NextParams params) {
+        this.params.putAll(params);
+        return this;
+    }
+
+    public NextRequest param(String key, File file) {
+        this.params.put(key, file);
+        return this;
+    }
+
+    public NextRequest param(String key, File file, String mimeType) {
+        this.params.put(key, file, mimeType);
+        return this;
+    }
+
+    public NextRequest param(String key, File file, String mimeType, String fileName) {
+        this.params.put(key, file, mimeType, fileName);
+        return this;
+    }
+
+    public NextRequest param(String key, byte[] bytes) {
+        this.params.put(key, bytes);
+        return this;
+    }
+
+    public NextRequest param(String key, byte[] bytes, String mimeType) {
+        this.params.put(key, bytes, mimeType);
+        return this;
+    }
+
+    public NextRequest param(String key, InputStream stream) {
+        this.params.put(key, stream);
+        return this;
+    }
+
+    public NextRequest param(String key, InputStream stream, String mimeType) {
+        this.params.put(key, stream, mimeType);
+        return this;
+    }
+
+    public NextRequest removeHeader(String key) {
+        this.headers.remove(key);
+        return this;
+    }
+
+    public NextRequest removeParam(String key) {
+        this.params.removeParam(key);
+        return this;
+    }
+
+    public NextRequest body(final byte[] body) {
+        this.params.body(body);
+        return this;
+    }
+
+    public NextRequest body(final String body, final Charset charset) {
+        this.params.body(body, charset);
+        return this;
+    }
+
+    public NextRequest body(final String body) {
+        this.params.body(body);
+        return this;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public Object getTag() {
+        return tag;
+    }
+
+    public String getOriginalUrl() {
+        return originalUrl;
+    }
+
+    public String getCompleteUrl() {
+        return createCompleteUrl();
+    }
+
+    public URL getURL() {
+        return Utils.toURL(createCompleteUrl());
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public NextParams getParams() {
+        return params;
+    }
+
+    public ProgressCallback getCallback() {
+        return callback;
+    }
+
+    public HttpEntity getEntity() {
+        if (HttpMethod.hasRequestBody(method)) {
+            return params.entity();
+        }
+        return null;
     }
 
     private String createCompleteUrl() {
         // 去重
         final List<NameValuePair> list = new NoDuplicatesArrayList<NameValuePair>();
-        list.addAll(mParams.getQueries());
+        list.addAll(params.getQueries());
         // 支持BODY的HTTP METHOD不添加PARAMS到URL QUERY
-        if (!HttpMethod.hasRequestBody(method())) {
-            list.addAll(mParams.getParams());
+        if (!HttpMethod.hasRequestBody(method)) {
+            list.addAll(params.getParams());
         }
-        return Utils.appendQuery(mOriginalUrl, list);
-    }
-
-    public String method() {
-        return mMethod;
-    }
-
-    public String encoding() {
-        return mParams.getEncoding();
-    }
-
-    public String host() {
-        return mURL.getHost();
-    }
-
-    public String protocol() {
-        return mURL.getProtocol();
-    }
-
-    public ProgressCallback callback() {
-        return mCallback;
-    }
-
-    public boolean isHttps() {
-        return ("https").equals(protocol());
-    }
-
-    public Map<String, String> headers() {
-        return mHeaders;
-    }
-
-    NextParams params() {
-        return mParams;
-    }
-
-    public HttpEntity entity() {
-        return mParams.entity();
-    }
-
-    public String header(String name) {
-        return mHeaders.get(name);
-    }
-
-    public Object tag() {
-        return mTag;
-    }
-
-    Builder copyToBuilder() {
-        return new Builder(this);
+        return Utils.appendQuery(originalUrl, list);
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Request{");
-        sb.append("mURL=").append(completeUrl());
-        sb.append(", mMethod='").append(method()).append('\'');
-        sb.append(", mHeaders=").append(headers());
-        sb.append(", mParams=").append(params());
-        sb.append(", mTag=").append(tag());
-        sb.append('}');
-        return sb.toString();
+        return "NextRequest{" +
+                "debug=" + debug +
+                ", method='" + method + '\'' +
+                ", originalUrl='" + originalUrl + '\'' +
+                ", completeUrl='" + getCompleteUrl() + '\'' +
+                ", encoding='" + encoding + '\'' +
+                ", headers=" + headers +
+                ", params=" + params +
+                ", tag=" + tag +
+                '}';
     }
 
-
-    /**
-     * ************************************************
-     * <p/>
-     * REQUEST BUILDER
-     * <p/>
-     * **************************************************
-     */
-
-    public static class Builder {
-        String originalUrl;
-        String method;
-        String encoding;
-        NextParams params;
-        Map<String, String> headers;
-        ProgressCallback callback;
-        Object tag;
-
-        public Builder() {
-//            this.mURL=null;
-            this.method = HttpMethod.METHOD_GET;
-            this.encoding = Charsets.ENCODING_UTF_8;
-            this.headers = new HashMap<String, String>();
-            this.params = new NextParams(this.encoding);
-//            this.mCallback=null;
-//            this.mTag=null;
-        }
-
-        Builder(NextRequest request) {
-            this.originalUrl = request.mOriginalUrl;
-            this.method = request.mMethod;
-            this.encoding = request.mEncoding;
-            this.headers = request.mHeaders;
-            this.params = request.mParams;
-            this.callback = request.mCallback;
-            this.tag = request.mTag != null ? request.mTag : this;
-        }
-
-        public Builder url(String url) {
-            if (url == null) {
-                throw new IllegalArgumentException("url can not be null");
-            }
-            this.originalUrl = url;
-            return this;
-        }
-
-        public Builder method(final String method) {
-            if (method == null) {
-                throw new IllegalArgumentException("create can not be null");
-            }
-            if (!HttpMethod.METHODS.contains(method)) {
-                throw new IllegalArgumentException("unsupported method: " + method);
-
-            }
-            this.method = method;
-            return this;
-        }
-
-        public Builder encoding(final String encoding) {
-            if (encoding == null) {
-                throw new IllegalArgumentException("encoding can not be null");
-            }
-            this.encoding = encoding;
-            return this;
-        }
-
-        public Builder header(String name, String value) {
-            this.headers.put(name, value);
-            return this;
-        }
-
-        public Builder removeHeader(String name) {
-            this.headers.remove(name);
-            return this;
-        }
-
-        public Builder headers(Map<String, String> headers) {
-            this.headers.putAll(headers);
-            return this;
-        }
-
-        public Builder query(String key, String value) {
-            this.params.query(key, value);
-            return this;
-        }
-
-        public Builder queries(Map<String, String> map) {
-            this.params.queries(map);
-            return this;
-        }
-
-        public Builder param(String key, String value) {
-            this.params.put(key, value);
-            return this;
-        }
-
-        public Builder params(Map<String, String> map) {
-            this.params.putAll(map);
-            return this;
-        }
-
-        public Builder params(NextParams params) {
-            this.params.putAll(params);
-            return this;
-        }
-
-        public Builder param(String key, File file) {
-            this.params.put(key, file);
-            return this;
-        }
-
-        public Builder param(String key, File file, String mimeType) {
-            this.params.put(key, file, mimeType);
-            return this;
-        }
-
-        public Builder param(String key, File file, String mimeType, String fileName) {
-            this.params.put(key, file, mimeType, fileName);
-            return this;
-        }
-
-        public Builder param(String key, byte[] bytes) {
-            this.params.put(key, bytes);
-            return this;
-        }
-
-        public Builder param(String key, byte[] bytes, String mimeType) {
-            this.params.put(key, bytes, mimeType);
-            return this;
-        }
-
-        public Builder param(String key, InputStream stream) {
-            this.params.put(key, stream);
-            return this;
-        }
-
-        public Builder param(String key, InputStream stream, String mimeType) {
-            this.params.put(key, stream, mimeType);
-            return this;
-        }
-
-        public Builder head(String url) {
-            return create(url, HttpMethod.METHOD_HEAD);
-        }
-
-        public Builder get(String url) {
-            return create(url, HttpMethod.METHOD_GET);
-        }
-
-        public Builder delete(String url) {
-            return create(url, HttpMethod.METHOD_DELETE);
-        }
-
-        public Builder post(String url) {
-            return create(url, HttpMethod.METHOD_POST);
-        }
-
-        public Builder put(String url) {
-            return create(url, HttpMethod.METHOD_PUT);
-        }
-
-        public Builder patch(String url) {
-            return create(url, HttpMethod.METHOD_PATCH);
-        }
-
-        private Builder create(final String url, final String method) {
-            return url(url).method(method);
-        }
-
-        public Builder callback(final ProgressCallback pc) {
-            if (callback == null) {
-                this.callback = ProgressCallback.DEFAULT;
-            } else {
-                this.callback = pc;
-            }
-            return this;
-        }
-
-        public Builder tag(Object tag) {
-            this.tag = tag;
-            return this;
-        }
-
-        public NextRequest build() {
-            if (this.originalUrl == null) throw new IllegalStateException("mURL can not be null");
-            if (this.method == null) throw new IllegalStateException("mMethod can not be null");
-            if (this.encoding == null) throw new IllegalStateException("encoding can not be null");
-            return new NextRequest(this);
-        }
+    public String dump() {
+        return "NextRequest{" +
+                "\ndebug=" + debug +
+                "\n method='" + method + '\'' +
+                "\noriginalUrl='" + originalUrl + '\'' +
+                "\ncompleteUrl='" + getCompleteUrl() + '\'' +
+                "\nencoding='" + encoding + '\'' +
+                "\nheaders=" + headers +
+                "\nparams=" + params.dump() +
+                "\ntag=" + tag +
+                '}';
     }
 }

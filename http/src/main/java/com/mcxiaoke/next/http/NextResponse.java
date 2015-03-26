@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,13 @@ import java.util.Set;
 public class NextResponse implements Closeable {
     public static final String TAG = NextClient.TAG;
 
-    private final int mStatusCode;
-    private final String mMessage;
-    private final int mContentLength;
-    private final String mContentType;
-    private final InputStream mStream;
-    private final Map<String, String> mHeaders;
+    private Date mCreatedAt;
+    private int mStatusCode;
+    private String mMessage;
+    private int mContentLength;
+    private String mContentType;
+    private InputStream mStream;
+    private Map<String, String> mHeaders;
     private byte[] mBytes;
     private boolean mConsumed;
 
@@ -46,6 +48,7 @@ public class NextResponse implements Closeable {
         this.mContentType = contentType;
         this.mHeaders = new HashMap<String, String>();
         this.mStream = new BufferedInputStream(is);
+        this.mCreatedAt = new Date();
         cleanHeaders(rawHeaders);
     }
 
@@ -72,6 +75,10 @@ public class NextResponse implements Closeable {
             final String value = values.get(0);
             mHeaders.put(key, value);
         }
+    }
+
+    public Date createdAt() {
+        return mCreatedAt;
     }
 
     public boolean successful() {
@@ -107,7 +114,7 @@ public class NextResponse implements Closeable {
     }
 
     public String location() {
-        return header(Consts.LOCATION);
+        return header(HttpConsts.LOCATION);
     }
 
     private InputStream getInputStream() {
@@ -166,6 +173,46 @@ public class NextResponse implements Closeable {
         IOUtils.closeQuietly(mStream);
     }
 
+    // for debug and test
+    public void setStatusCode(final int statusCode) {
+        mStatusCode = statusCode;
+    }
+
+    // for debug and test
+    public void setMessage(final String message) {
+        mMessage = message;
+    }
+
+    // for debug and test
+    public void setContentLength(final int contentLength) {
+        mContentLength = contentLength;
+    }
+
+    // for debug and test
+    public void setContentType(final String contentType) {
+        mContentType = contentType;
+    }
+
+    // for debug and test
+    public void setStream(final InputStream stream) {
+        mStream = stream;
+    }
+
+    // for debug and test
+    public void setHeaders(final Map<String, String> headers) {
+        mHeaders = headers;
+    }
+
+    // for debug and test
+    public void setConsumed(final boolean consumed) {
+        mConsumed = consumed;
+    }
+
+    // for debug and test
+    public void setBytes(final byte[] bytes) {
+        mBytes = bytes;
+    }
+
     public String dumpContent() {
         try {
             return StringUtils.safeSubString(string(), 256);
@@ -177,13 +224,13 @@ public class NextResponse implements Closeable {
     public String dumpHeaders() {
         Map<String, String> headers = headers();
         if (headers == null || headers.isEmpty()) {
-            return Consts.EMPTY_STRING;
+            return HttpConsts.EMPTY_STRING;
         }
         StringBuilder builder = new StringBuilder();
         Set<String> keySet = headers.keySet();
         for (String key : keySet) {
             if (key != null) {
-                builder.append(key).append(":").append(headers.get(key)).append("; ");
+                builder.append(key).append("=").append(headers.get(key)).append("\n");
             }
         }
         return builder.toString();
@@ -191,14 +238,14 @@ public class NextResponse implements Closeable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Response{");
-        sb.append("mStatusCode=").append(mStatusCode);
-        sb.append(", mMessage='").append(mMessage);
-        sb.append(", mContentLength=").append(mContentLength);
-        sb.append(", mContentType='").append(mContentType);
-        sb.append(", mConsumed=").append(mConsumed);
-        sb.append(", mHeaders='").append(dumpHeaders());
-        sb.append('}');
-        return sb.toString();
+        return "NextResponse{" +
+                "mCreatedAt=" + mCreatedAt +
+                ", mStatusCode=" + mStatusCode +
+                ", mMessage='" + mMessage + '\'' +
+                ", mContentLength=" + mContentLength +
+                ", mContentType='" + mContentType + '\'' +
+                ", mConsumed=" + mConsumed +
+                ", mHeaders=" + dumpHeaders() +
+                '}';
     }
 }

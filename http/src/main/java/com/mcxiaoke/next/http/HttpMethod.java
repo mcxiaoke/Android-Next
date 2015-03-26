@@ -36,6 +36,10 @@ public final class HttpMethod {
     private HttpMethod() {
     }
 
+    public static boolean isValid(final String method) {
+        return METHODS.contains(method);
+    }
+
     // ref: HttpEntityEnclosingRequestBase
     // 只有POST PUT PATCH可以带BODY
     public static boolean hasRequestBody(String method) {

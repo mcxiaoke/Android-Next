@@ -5,7 +5,7 @@ package com.mcxiaoke.next.http;
  * Date: 14-5-31
  * Time: 18:14
  */
-public class HttpException extends RuntimeException {
+class HttpException extends RuntimeException {
 
     public HttpException() {
         super();

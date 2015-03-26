@@ -1,20 +1,17 @@
 package com.mcxiaoke.next.samples.http;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
-import com.mcxiaoke.next.Charsets;
+import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.http.ProgressCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
+import com.mcxiaoke.next.samples.SampleUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 /**
  * User: mcxiaoke
@@ -29,54 +26,84 @@ public class NextClientSamples extends BaseActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
-            final String url = "http://moment.douban.com/app/";
-
-            // simple use
-            // NextResponse response = NextClient.get(url);
-
-            // advanced use
-            final NextClient client = new NextClient();
-            final NextRequest request = NextRequest.newBuilder()
-                    .url(url)
-                    .encoding("UTF-8")
-                    .method("GET")
-                    .header("X-UDID", "cxgdg4543gd64tgdgs2tgdgst4")
-                    .param("image", new File("IMG_20141222.jpg"), "image/jpeg")
-                    .param("param1", "value1")
-                            // http progress callback, for monitor upload/download file progress
-                    .callback(new ProgressCallback() {
-                        @Override
-                        public void onProgress(final long currentSize, final long totalSize) {
-                            Log.v(TAG, "http progress: " + currentSize * 100 / totalSize);
-                        }
-                    }).build();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+//                    testGet();
+//                    testPost();
+                    testPostJson();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
 
 
-            final NextResponse response = client.execute(request);
-            // get response meta-data
-            Log.v(TAG, "http response successful: " + response.successful());
-            Log.v(TAG, "http response statusCode: " + response.code());
-            Log.v(TAG, "http response statusMessage: " + response.message());
-            Log.v(TAG, "http response contentLength: " + response.contentLength());
-            Log.v(TAG, "http response contentType: " + response.contentType());
-            // get 301/302/30x location header
-            Log.v(TAG, "http response location: " + response.location());
-            Log.v(TAG, "http response Server:" + response.header("Server"));
-            Log.v(TAG, "http response Connection: " + response.header("Connection"));
-            // get body as string
-            Log.v(TAG, "http response content: " + response.string());
-            // get body as  bytes
-            final byte[] bytes = response.bytes();
-            final Bitmap bitmap1 = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            // get body as  stream
-            final InputStream stream = response.stream();
-            final Bitmap bitmap2 = BitmapFactory.decodeStream(stream);
-            // get body as reader
-            final InputStreamReader reader = response.reader(Charsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    }
 
+    private void testGet() throws IOException {
+        final String url = "https://api.douban.com/v2/user/1000001";
+        final NextRequest request = new NextRequest(HttpMethod.METHOD_GET, url)
+                .tag(TAG).debug(true)
+                .encoding("UTF-8")
+                .query("platform", "Android")
+                .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .param("douban", "yes")
+                .query("app_version", "1.5.2");
+        final NextClient client = new NextClient().setTrustAllCerts().setTrustAllHosts();
+//
+
+        final NextResponse response = client.execute(request);
+        // get body as string
+        Log.v(TAG, "http response content: "
+                + SampleUtils.prettyPrintJson(response.string()));
+    }
+
+    private void testPostForm() throws IOException {
+        final String url = "https://moment.douban.com/api/post/114309/like";
+        final NextRequest request = new NextRequest(HttpMethod.METHOD_POST, url)
+                .tag(TAG).debug(true)
+                .encoding("UTF-8")
+                .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .query("platform", "Android")
+                .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .param("version", "6")
+                .query("app_version", "1.2.3");
+        final NextClient client = new NextClient().setTrustAllCerts().setTrustAllHosts();
+        final NextResponse response = client.execute(request);
+        // get body as string
+        Log.v(TAG, "http response content: "
+                + SampleUtils.prettyPrintJson(response.string()));
+    }
+
+    private void testPostJson() throws JSONException, IOException {
+        final String url = "https://api.github.com/gists";
+        final NextRequest request = new NextRequest(HttpMethod.METHOD_POST, url)
+                .tag(TAG).debug(true)
+                .encoding("UTF-8")
+                .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .query("platform", "Android")
+                .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .param("version", "6")
+                .query("app_version", "1.2.3");
+        JSONObject file1 = new JSONObject();
+        file1.put("content", "gsgdsgsdgsdgsdgdsg gsdgjdslgk根深蒂固送到公司的");
+        JSONObject file2 = new JSONObject();
+        file2.put("content", "421414gsgdsgsdgsdgsdgdsg gsfdsfsddgjdslgk根深蒂固送到公司的");
+        JSONObject files = new JSONObject();
+        files.put("file1.txt", file1);
+        files.put("file2.md", file2);
+        JSONObject json = new JSONObject();
+        json.put("description", "this is a gist for http post test");
+        json.put("public", true);
+        json.put("files", files);
+        Log.v(TAG, "json string: " + json.toString());
+        request.body(json.toString());
+        final NextClient client = new NextClient().setTrustAllCerts().setTrustAllHosts();
+        final NextResponse response = client.execute(request);
+        // get body as string
+        Log.v(TAG, "http response content: "
+                + SampleUtils.prettyPrintJson(response.string()));
     }
 }
