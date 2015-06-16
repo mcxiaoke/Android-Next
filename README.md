@@ -287,7 +287,6 @@ Gradle集成方法：
             }
         }).with(this).start();
 
-        /**
         Task.create(callable) // 设置Task Callable
                 .callback(callback) // 设置TaskCallback
                 .with(caller) // 设置Task Caller
@@ -295,7 +294,6 @@ Gradle集成方法：
                 .success(success) // 设置任务成功回调，如果callback!=null，忽略
                 .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
                 .start(); // 开始执行异步任务
-         **/
 
 ```
 
