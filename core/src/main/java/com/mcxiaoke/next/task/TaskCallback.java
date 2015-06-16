@@ -16,29 +16,38 @@ import android.os.Bundle;
 public interface TaskCallback<Result> {
 
     /**
-     * 任务所在的线程开始执行
-     * 注意：不是添加到线程池的时间，是run()方法开始运行的时间
+     * 任务所在的线程执行开始
+     * 注意：此方法运行在异步任务所在线程
      *
      * @param tag    TASK TAG
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    public void onTaskStarted(final String tag, final Bundle extras);
+    void onTaskStarted(final String tag, final Bundle extras);
 
     /**
-     * 回调，任务执行完成
+     * 任务所在的线程执行完成
+     * 注意：此方法运行在异步任务所在线程
+     *
+     * @param result TASK RESULT
+     * @param extras 附加结果，需要返回多种结果时会用到
+     */
+    void onTaskFinished(final Result result, final Bundle extras);
+
+    /**
+     * 回调，任务执行完成，运行在主线程
      *
      * @param result 执行结果
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    public void onTaskSuccess(Result result, final Bundle extras);
+    void onTaskSuccess(Result result, final Bundle extras);
 
     /**
-     * 回调，任务执行失败
+     * 回调，任务执行失败，运行在主线程
      *
-     * @param ex      失败原因，异常
+     * @param ex     失败原因，异常
      * @param extras 附加结果，需要返回额外的信息时会用到
      */
-    public void onTaskFailure(Throwable ex, final Bundle extras);
+    void onTaskFailure(Throwable ex, final Bundle extras);
 
 
 }

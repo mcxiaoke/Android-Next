@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.task;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -122,13 +121,12 @@ public final class TaskQueue implements Callback {
      * @param callable Callable对象，任务的实际操作
      * @param callback 回调接口
      * @param caller   调用方，一般为Fragment或Activity
+     * @param serial   是否按顺序执行任务
      * @param <Result> 类型参数，异步任务执行结果
-     * @param caller   类型参数，调用对象
-     * @return 返回内部生成的此次任务的NextRunnable
+     * @return 返回内部生成的此次任务的TAG
      */
-    private <Result> TaskRunnable<Result> enqueue(
-            final boolean serial, final Callable<Result> callable,
-            final TaskCallback<Result> callback, final Object caller) {
+    private <Result> String enqueue(final Callable<Result> callable, final TaskCallback<Result> callback,
+                                    final Object caller, final boolean serial) {
 
         checkArguments(callable, caller);
         ensureData();
@@ -156,7 +154,15 @@ public final class TaskQueue implements Callback {
         addToTaskMap(runnable);
         addToCallerMap(runnable);
 
-        return runnable;
+        return runnable.getTag();
+    }
+
+    public <Result> String execute(final Callable<Result> callable, final TaskCallback<Result> callback,
+                                   final Object caller, final boolean serially) {
+        if (mDebug) {
+            LogUtils.v(TAG, "execute()");
+        }
+        return enqueue(callable, callback, caller, serially);
     }
 
     public <Result> String add(final Callable<Result> callable,
@@ -165,8 +171,7 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
         }
-        final TaskRunnable<Result> runnable = enqueue(false, callable, callback, caller);
-        return runnable.getTag();
+        return enqueue(callable, callback, caller, false);
     }
 
     /**
@@ -187,8 +192,7 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "addSerially()");
         }
-        final TaskRunnable<Result> runnable = enqueue(true, callable, callback, caller);
-        return runnable.getTag();
+        return enqueue(callable, callback, caller, true);
     }
 
     /**
@@ -559,106 +563,9 @@ public final class TaskQueue implements Callback {
         return info;
     }
 
-    public interface Success<Result> {
-        void onSuccess(final Result result, final Bundle extras);
-    }
-
-    public interface Failure {
-        void onFailure(Throwable throwable, final Bundle extras);
-    }
-
     // 延迟加载
     private static final class SingletonHolder {
         static final TaskQueue DEFAULT = new TaskQueue();
-    }
-
-    /**
-     * Builder模式，链式调用
-     *
-     * @param <Result> Result
-     */
-    public static class Builder<Result> {
-        private Object mCaller;
-        private TaskCallback<Result> mCallback;
-        private Success<Result> mSuccess;
-        private Failure mFailure;
-        private Callable<Result> mCallable;
-
-        public <Caller> Builder() {
-        }
-
-        public <Caller> Builder(Caller caller) {
-            with(caller);
-        }
-
-        public String execute() {
-            if (mCaller == null) {
-                throw new NullPointerException("caller can not be null.");
-            }
-            if (mCallable == null) {
-                throw new NullPointerException("callable can not be null.");
-            }
-            if (mCallback == null) {
-                mCallback = new TaskCallback<Result>() {
-                    @Override
-                    public void onTaskStarted(final String tag, final Bundle extras) {
-                    }
-
-                    @Override
-                    public void onTaskSuccess(final Result result, final Bundle extras) {
-                        if (mSuccess != null) {
-                            mSuccess.onSuccess(result, extras);
-                        }
-                    }
-
-                    @Override
-                    public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                        if (mFailure != null) {
-                            mFailure.onFailure(ex, extras);
-                        }
-                    }
-                };
-            }
-            return TaskQueue.getDefault().add(mCallable, mCallback, mCaller);
-        }
-
-        public <Caller> Builder with(final Caller caller) {
-            mCaller = caller;
-            return this;
-        }
-
-        public Builder callable(Callable<Result> callable) {
-            if (mCaller != null) {
-                throw new IllegalStateException("callable is already set.");
-            }
-            mCallable = callable;
-            return this;
-        }
-
-        public Builder success(final Success<Result> success) {
-            if (mCallback != null) {
-                throw new IllegalStateException("callback is already set.");
-            }
-            mSuccess = success;
-            return this;
-        }
-
-        public Builder failure(final Failure failure) {
-            if (mCallback != null) {
-                throw new IllegalStateException("callback is already set.");
-            }
-            mFailure = failure;
-            return this;
-        }
-
-        public Builder callback(final TaskCallback<Result> callback) {
-            if (mSuccess != null || mFailure != null) {
-                throw new IllegalStateException("success or failure callback is already set.");
-            }
-            mCallback = callback;
-            return this;
-        }
-
     }
 
 }

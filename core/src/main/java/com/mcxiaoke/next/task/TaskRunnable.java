@@ -9,7 +9,6 @@ import android.os.SystemClock;
 import com.mcxiaoke.next.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -144,19 +143,7 @@ final class TaskRunnable<Result> implements Runnable {
                 final Method method = clazz.getMethod("isAdded", clazz);
                 return (boolean) method.invoke(caller);
             }
-        } catch (InvocationTargetException e) {
-            if (mDebug) {
-                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
-            }
-        } catch (NoSuchMethodException e) {
-            if (mDebug) {
-                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
-            }
-        } catch (IllegalAccessException e) {
-            if (mDebug) {
-                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
-            }
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             if (mDebug) {
                 LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
             }
@@ -173,9 +160,7 @@ final class TaskRunnable<Result> implements Runnable {
                     + " thread=" + Thread.currentThread().getName() + " tag=" + getTag());
             mStartTime = SystemClock.elapsedRealtime();
         }
-
-        notifyStarted();
-
+        preProcess();
         final Callable<Result> callable = mCallable;
         Result result = null;
         Throwable throwable = null;
@@ -203,10 +188,9 @@ final class TaskRunnable<Result> implements Runnable {
             taskCancelled = isTaskCancelled();
         }
 
-        mResult = result;
         mThrowable = throwable;
-
-
+        mResult = result;
+        postProcess();
         notifyDone();
 
         // if task not cancelled and caller alive, notify callback
@@ -302,21 +286,29 @@ final class TaskRunnable<Result> implements Runnable {
         return Thread.currentThread().isInterrupted();
     }
 
-    private void notifyStarted() {
-        if (mDebug) {
-            LogUtils.v(TAG, "notifyStarted() tag=" + getTag());
-        }
+    private void preProcess() {
         final String tag = getTag();
+        if (mDebug) {
+            LogUtils.v(TAG, "preProcess() tag=" + tag);
+        }
         final TaskCallable<Result> callable = mCallable;
         final TaskCallback<Result> callback = mCallback;
-        postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (callback != null) {
-                    callback.onTaskStarted(tag, callable.getExtras());
-                }
-            }
-        });
+        if (callback != null) {
+            callback.onTaskStarted(tag, callable.getExtras());
+        }
+    }
+
+    private void postProcess() {
+        final String tag = getTag();
+        if (mDebug) {
+            LogUtils.v(TAG, "postProcess() tag=" + tag);
+        }
+        final TaskCallable<Result> callable = mCallable;
+        final TaskCallback<Result> callback = mCallback;
+        final Result result = mResult;
+        if (callback != null) {
+            callback.onTaskFinished(result, callable.getExtras());
+        }
     }
 
     /**

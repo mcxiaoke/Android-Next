@@ -15,6 +15,11 @@ public class SimpleTaskCallback<Result> implements TaskCallback<Result> {
     }
 
     @Override
+    public void onTaskFinished(final Result result, final Bundle extras) {
+
+    }
+
+    @Override
     public void onTaskSuccess(final Result result, final Bundle extras) {
 
     }
