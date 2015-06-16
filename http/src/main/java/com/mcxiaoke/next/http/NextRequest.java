@@ -20,6 +20,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -260,6 +261,10 @@ public final class NextRequest {
             list.addAll(params.getParams());
         }
         return Utils.appendQuery(originalUrl, list);
+    }
+
+    public NextResponse execute() throws IOException {
+        return NextClient.getDefault().execute(this);
     }
 
     @Override

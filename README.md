@@ -317,22 +317,20 @@ Gradle集成方法：
 
             // advanced use
             final NextClient client = new NextClient();
-            final NextRequest request = NextRequest.newBuilder()
-                    .url(url)
+            final NextRequest request = NextRequest.post(url)
                     .encoding("UTF-8")
                     .method("POST")
                     .header("X-UDID", "cxgdg4543gd64tgdgs2tgdgst4")
                     .param("image", new File("IMG_20141222.jpg"), "image/jpeg")
                     .param("param1", "value1")
-                            // http progress callback, for monitor upload/download file progress
+                            // http progress callback
+                            // for monitor upload/download file progress
                     .callback(new ProgressCallback() {
                         @Override
                         public void onProgress(final long currentSize, final long totalSize) {
-                            Log.v(TAG, "http progress: " + currentSize * 100 / totalSize);
+                            Log.v("HTTP", "http progress: " + currentSize * 100 / totalSize);
                         }
-                    }).build();
-
-
+                    });
             final NextResponse response = client.execute(request);
             // get response meta-data
             Log.v(TAG, "http response successful: " + response.successful());
