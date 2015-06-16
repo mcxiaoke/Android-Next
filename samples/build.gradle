@@ -4,6 +4,7 @@ dependencies {
     compile project(":core")
     compile project(":http")
     compile project(":ui")
+    compile project(":recycler")
     compile "com.android.support:support-v4:19.1.0"
     compile 'com.jakewharton:butterknife:5.1.1'
     compile 'com.google.code.gson:gson:2.3.1'

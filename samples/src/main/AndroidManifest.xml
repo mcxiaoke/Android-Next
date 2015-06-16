@@ -54,6 +54,10 @@
             android:label="@string/app_name" />
 
         <activity
+            android:name="com.mcxiaoke.next.samples.EndlessRecyclerViewSamples"
+            android:label="@string/app_name" />
+
+        <activity
             android:name="com.mcxiaoke.next.samples.ListViewExtendSamples"
             android:label="@string/app_name" />
 

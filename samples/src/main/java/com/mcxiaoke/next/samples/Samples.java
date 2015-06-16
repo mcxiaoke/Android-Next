@@ -66,26 +66,22 @@ public class Samples extends BaseActivity {
 
     private void initSamples() {
         mSampleListData = new ArrayList<SampleInfo>();
-        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
+        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
         mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
 
-        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
+        mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
+        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
+        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
         mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
         mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
 
-        mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
-        mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
-        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
-        mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
-        mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
-        mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
     }
 
     private void initListView() {
