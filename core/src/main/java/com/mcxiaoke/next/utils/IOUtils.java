@@ -1080,8 +1080,8 @@ public final class IOUtils {
     /**
      * read file
      *
-     * @param file        file
-     * @param charsetName The name of a supported {@link java.nio.charset.Charset </code>charset<code>}
+     * @param file    file
+     * @param charset The name of a supported {@link java.nio.charset.Charset </code>charset<code>}
      * @return if file not exist, return null, else return content of file
      * @throws IOException if an error occurs while operator BufferedReader
      */
@@ -1148,7 +1148,7 @@ public final class IOUtils {
      * @param filePath
      * @param stream
      * @return
-     * @see {@link #writeFile(String, InputStream, boolean)}
+     * @see {@link #writeStream(String, InputStream, boolean)}
      */
     public static boolean writeStream(String filePath, InputStream stream) throws IOException {
         return writeStream(filePath, stream, false);
@@ -1157,9 +1157,9 @@ public final class IOUtils {
     /**
      * write file
      *
-     * @param file   the file to be opened for writing.
-     * @param stream the input stream
-     * @param append if <code>true</code>, then bytes will be written to the end of the file rather than the beginning
+     * @param filePath the file to be opened for writing.
+     * @param stream   the input stream
+     * @param append   if <code>true</code>, then bytes will be written to the end of the file rather than the beginning
      * @return return true
      * @throws IOException if an error occurs while operator FileOutputStream
      */
@@ -1173,7 +1173,7 @@ public final class IOUtils {
      * @param file
      * @param stream
      * @return
-     * @see {@link #writeFile(File, InputStream, boolean)}
+     * @see {@link #writeStream(File, InputStream, boolean)}
      */
     public static boolean writeStream(File file, InputStream stream) throws IOException {
         return writeStream(file, stream, false);
@@ -1383,11 +1383,6 @@ public final class IOUtils {
      * @param filePath
      * @return true if the necessary directories have been created or the target directory already exists, false one of
      * the directories can not be created.
-     * <ul>
-     * <li>if {@link FileUtils#getFolderName(String)} return null, return false</li>
-     * <li>if target directory already exists, return true</li>
-     * <li>return {@link java.io.File#makeFolder}</li>
-     * </ul>
      */
     public static boolean makeDirs(String filePath) {
         String folderName = getFolderName(filePath);

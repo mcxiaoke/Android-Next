@@ -559,11 +559,11 @@ public final class TaskQueue implements Callback {
         return info;
     }
 
-    public static interface Success<Result> {
+    public interface Success<Result> {
         void onSuccess(final Result result, final Bundle extras);
     }
 
-    public static interface Failure {
+    public interface Failure {
         void onFailure(Throwable throwable, final Bundle extras);
     }
 

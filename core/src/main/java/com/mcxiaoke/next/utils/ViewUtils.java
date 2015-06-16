@@ -3,6 +3,7 @@ package com.mcxiaoke.next.utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -175,6 +176,18 @@ public class ViewUtils {
 
     public static int pxToDp(Context context, int px) {
         return (int) ((px / context.getResources().getDisplayMetrics().density) + 0.5);
+    }
+
+    public static int pxToDp(float px) {
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        float dp = px / (metrics.densityDpi / 160f);
+        return Math.round(dp);
+    }
+
+    public static int dpToPx(float dp) {
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        float px = dp * (metrics.densityDpi / 160f);
+        return Math.round(px);
     }
 
     @SuppressWarnings({"unchecked", "UnusedDeclaration"})

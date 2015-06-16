@@ -24,6 +24,7 @@ import java.util.List;
  * return the newest location (where one exists) and setup a oneshot
  * location update to find the current location.
  */
+@SuppressWarnings("ResourceType")
 public class LastLocationFinder {
 
     protected static String TAG = LastLocationFinder.class.getSimpleName();
@@ -106,7 +107,9 @@ public class LastLocationFinder {
 
     public void setLocationListener(LocationListener li) {
         locationListener = li;
-    }    /**
+    }
+
+    /**
      * This {@link BroadcastReceiver} listens for a single location
      * update before unregistering itself.
      * The oneshot location update is returned via the {@link LocationListener}

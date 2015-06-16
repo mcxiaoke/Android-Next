@@ -1,7 +1,6 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
-import com.mcxiaoke.next.annotation.NotThreadSafe;
 import com.mcxiaoke.next.http.entity.ContentType;
 import com.mcxiaoke.next.http.entity.mime.HttpMultipartMode;
 import com.mcxiaoke.next.http.entity.mime.MultipartEntityBuilder;
@@ -26,7 +25,6 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-@NotThreadSafe
 public final class NextParams implements HttpConsts {
 
 

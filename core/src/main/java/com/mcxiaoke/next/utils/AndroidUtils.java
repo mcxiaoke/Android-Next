@@ -3,14 +3,11 @@ package com.mcxiaoke.next.utils;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -22,7 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Bundle;
+import android.os.Build.VERSION_CODES;
 import android.os.Environment;
 import android.os.StatFs;
 import android.os.StrictMode;
@@ -39,19 +36,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -64,15 +50,9 @@ public final class AndroidUtils {
     public static final boolean DEBUG = BuildConfig.DEBUG;
     public static final String TAG = AndroidUtils.class.getSimpleName();
 
-    public static final String PREFIX_IMAGE = "IMG_";
-    public static final String EXTENSION_JPEG = ".jpg";
-    public static final String EXTENSION_PNG = ".png";
     public static final String FILENAME_NOMEDIA = ".nomedia";
 
-    public static final DateFormat IMG_FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
-
     public static final int HEAP_SIZE_LARGE = 48 * 1024 * 1024;
-    public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SAFE_FILENAME_PATTERN = Pattern.compile("[\\w%+,./=_-]+");
 
     private AndroidUtils() {
@@ -90,40 +70,6 @@ public final class AndroidUtils {
         return SAFE_FILENAME_PATTERN.matcher(file.getPath()).matches();
     }
 
-    /**
-     * 保存在 /sdcard/Pictures/xxx，用于普通的保存图片
-     */
-    public static File createPictureFile(String dirName) {
-        String timeStamp = IMG_FILE_NAME_FORMAT.format(new Date());
-        String imageFileName = PREFIX_IMAGE + timeStamp + EXTENSION_JPEG;
-        return new File(getPicturesDir(dirName), imageFileName);
-    }
-
-    /**
-     * 保存在 /sdcard/DCIM/xxx，用于拍照图片保存
-     */
-    public static File createMediaFile(String dirName) {
-        String timeStamp = IMG_FILE_NAME_FORMAT.format(new Date());
-        String imageFileName = PREFIX_IMAGE + timeStamp + EXTENSION_JPEG;
-        return new File(getMediaDir(dirName), imageFileName);
-    }
-
-    public static File getPicturesDir(String dirName) {
-        File picturesDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), dirName);
-        if (!picturesDir.exists()) {
-            picturesDir.mkdirs();
-        }
-        return picturesDir;
-    }
-
-    public static File getMediaDir(String dirName) {
-        File dcim = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_DCIM);
-        File mediaDir = new File(dcim, dirName);
-        if (!mediaDir.exists()) {
-            mediaDir.mkdirs();
-        }
-        return mediaDir;
-    }
 
     public static File getCacheDir(Context context) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -359,6 +305,7 @@ public final class AndroidUtils {
      * @param args Optional arguments to pass to {@link AsyncTask#execute(Object[])}.
      * @param <T>  Task argument type.
      */
+    @SuppressWarnings("unchecked")
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static <T> void execute(AsyncTask<T, ?, ?> task, T... args) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
@@ -390,97 +337,6 @@ public final class AndroidUtils {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
     }
 
-    // 魅族开发指南推荐的判断是否存在SmartBar的方法
-    public static boolean hasSmartBar() {
-        try {
-            // 新型号可用反射调用Build.hasSmartBar()
-            Method method = Class.forName("android.os.Build").getMethod("hasSmartBar");
-            return (Boolean) method.invoke(null);
-        } catch (Exception e) {
-            // 反射不到Build.hasSmartBar()，则用Build.DEVICE判断
-            return Build.DEVICE.equals("mx2");
-        }
-    }
-
-    public static void insertText(final EditText editText, final String text) {
-        int start = Math.max(editText.getSelectionStart(), 0);
-        if (DEBUG) {
-            LogUtils.v(TAG, "insertText() start=" + start + "  text=" + text);
-        }
-        editText.getText().insert(start, text);
-    }
-
-    public static void replaceSelectionText(final EditText editText, final String text) {
-        int start = Math.max(editText.getSelectionStart(), 0);
-        int end = Math.max(editText.getSelectionEnd(), 0);
-        if (DEBUG) {
-            LogUtils.v(TAG, "replaceSelectionText() start=" + start + " end=" + end + " text=" + text);
-        }
-        editText.getText().replace(Math.min(start, end), Math.max(start, end),
-                text, 0, text.length());
-    }
-
-
-    public static String dumpPreferences(SharedPreferences sp) {
-        Map<String, String> map = new HashMap<String, String>();
-        Map<String, ?> sps = sp.getAll();
-        List<String> keys = new ArrayList<String>(sps.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            Object object = sps.get(key);
-            String value = String.valueOf(object);
-            map.put(key, value);
-        }
-        return StringUtils.toString(map, "\n");
-    }
-
-    public static String dumpIntent(Intent intent) {
-
-        StringBuilder builder = new StringBuilder();
-        if (intent != null) {
-            builder.append("Intent: {\n");
-            builder.append("Action=").append(intent.getAction()).append("\n");
-            builder.append("Data=").append(intent.getData()).append("\n");
-            String categories = StringUtils.toString(intent.getCategories());
-            builder.append("Categories=[").append(categories).append("]\n");
-            builder.append("Component=").append(intent.getComponent()).append("\n");
-            builder.append("Type=").append(intent.getType()).append("\n");
-            builder.append("Package=").append(intent.getPackage()).append("\n");
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                Set<String> keys = bundle.keySet();
-                for (String key : keys) {
-                    builder.append("Extra={").append(key).append("=").append(bundle.get(key)).append("}\n");
-                }
-            }
-            builder.append("}\n");
-        }
-
-        return builder.toString();
-    }
-
-    /**
-     * Checks whether the recording service is currently running.
-     *
-     * @param ctx the current context
-     * @return true if the service is running, false otherwise
-     */
-    public static boolean isServiceRunning(Context ctx, Class<?> cls) {
-        ActivityManager activityManager = (ActivityManager) ctx
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> services = activityManager
-                .getRunningServices(Integer.MAX_VALUE);
-
-        for (ActivityManager.RunningServiceInfo serviceInfo : services) {
-            ComponentName componentName = serviceInfo.service;
-            String serviceName = componentName.getClassName();
-            if (serviceName.equals(cls.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static void setFullScreen(final Activity activity,
                                      final boolean fullscreen) {
         if (fullscreen) {
@@ -505,8 +361,7 @@ public final class AndroidUtils {
         }
     }
 
-    public static void lockScreenOrientation(final Activity context) {
-        boolean portrait = false;
+    public static void lockScreenOrientation(final Activity context, final boolean portrait) {
         if (portrait) {
             context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else {
@@ -520,26 +375,7 @@ public final class AndroidUtils {
     }
 
     public static void unlockScreenOrientation(final Activity context) {
-        boolean portrait = false;
-        if (!portrait) {
-            context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        }
-    }
-
-    public static boolean hasGingerbread() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-    }
-
-    public static boolean hasHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-
-    public static boolean isPreHoneycomb() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
-    }
-
-    public static boolean hasHoneycombMR1() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
+        context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     public static boolean hasIceCreamSandwich() {
@@ -558,8 +394,17 @@ public final class AndroidUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
+    public static boolean isPreLollipop() {
+        return Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP;
+    }
+
     public static boolean hasLollipop() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    @SuppressWarnings({"ResourceType", "unchecked"})
+    public <T> T getSystemService(final Context context, final String name) {
+        return (T) context.getSystemService(name);
     }
 
     @TargetApi(11)
@@ -567,18 +412,16 @@ public final class AndroidUtils {
         if (!enable) {
             return;
         }
-        if (hasGingerbread()) {
-            StrictMode.ThreadPolicy.Builder threadPolicyBuilder =
-                    new StrictMode.ThreadPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog();
-            StrictMode.VmPolicy.Builder vmPolicyBuilder =
-                    new StrictMode.VmPolicy.Builder()
-                            .detectAll()
-                            .penaltyLog();
-            StrictMode.setThreadPolicy(threadPolicyBuilder.build());
-            StrictMode.setVmPolicy(vmPolicyBuilder.build());
-        }
+        StrictMode.ThreadPolicy.Builder threadPolicyBuilder =
+                new StrictMode.ThreadPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog();
+        StrictMode.VmPolicy.Builder vmPolicyBuilder =
+                new StrictMode.VmPolicy.Builder()
+                        .detectAll()
+                        .penaltyLog();
+        StrictMode.setThreadPolicy(threadPolicyBuilder.build());
+        StrictMode.setVmPolicy(vmPolicyBuilder.build());
     }
 
 
@@ -596,40 +439,16 @@ public final class AndroidUtils {
         activity.startActivity(intent);
     }
 
-    public static void enableHttpResponseCache(Context context, String dirName) {
-        try {
-            File httpCacheDir = new File(context.getCacheDir(), dirName);
-//            HttpResponseCache.install(httpCacheDir, HTTP_CACHE_SIZE);
-            Class.forName("android.net.http.HttpResponseCache")
-                    .getMethod("install", File.class, long.class)
-                    .invoke(null, httpCacheDir, dirName);
-        } catch (Exception httpResponseCacheNotAvailable) {
-            LogUtils.e("HTTP response cache is unavailable.");
-        }
-    }
-
-    public static void enableComponent(Context context, Class<?> clazz) {
-        setComponent(context, clazz, true);
-    }
-
-    public static void disableComponent(Context context, Class<?> clazz) {
-        setComponent(context, clazz, false);
-    }
-
-    public static void setComponent(Context context, Class<?> clazz, boolean enable) {
-        ComponentName receiver = new ComponentName(context, clazz);
-        PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(receiver,
-                enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-        );
-    }
-
     public static Intent getBatteryStatus(Context context) {
         Context appContext = context.getApplicationContext();
         return appContext.registerReceiver(null,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+    }
+
+    public static float getBatteryLevel(Intent batteryIntent) {
+        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        return level / (float) scale;
     }
 
     public static String getBatteryInfo(Intent batteryIntent) {
@@ -650,7 +469,8 @@ public final class AndroidUtils {
     }
 
 
-    public static Signature getSignature(Context context) {
+    @SuppressLint("PackageManagerGetSignatures")
+    private static Signature getPackageSignature(Context context) {
         final PackageManager pm = context.getPackageManager();
         PackageInfo info = null;
         try {
@@ -672,8 +492,20 @@ public final class AndroidUtils {
         return signature;
     }
 
+    public static String getSignature(Context context) {
+        final Signature signature = getPackageSignature(context);
+        if (signature != null) {
+            try {
+                return CryptoUtils.HASH.sha1(signature.toByteArray());
+            } catch (Exception e) {
+                LogUtils.e(TAG, "getSignature() ex=" + e);
+            }
+        }
+        return "";
+    }
+
     public static String getSignatureInfo(Context context) {
-        final Signature signature = getSignature(context);
+        final Signature signature = getPackageSignature(context);
         if (signature == null) {
             return "";
         }

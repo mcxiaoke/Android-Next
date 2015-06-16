@@ -16,11 +16,16 @@
 
 package com.mcxiaoke.next.utils;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -1331,6 +1336,62 @@ public abstract class StringUtils {
      */
     public static String toString(Collection<?> coll) {
         return toString(coll, ",");
+    }
+
+
+    public static String toString(final Bundle bundle) {
+        if (bundle == null || bundle.isEmpty()) {
+            return "{}";
+        }
+        StringBuilder builder = new StringBuilder();
+        final List<String> keys = new ArrayList<>(bundle.keySet());
+        Collections.sort(keys);
+        builder.append("{");
+        for (String key : keys) {
+            builder.append(key).append(" = ").append(bundle.get(key)).append(", ");
+        }
+        builder.append("}");
+        return builder.toString();
+    }
+
+
+    public static String toString(SharedPreferences sp) {
+        Map<String, String> map = new HashMap<String, String>();
+        Map<String, ?> sps = sp.getAll();
+        List<String> keys = new ArrayList<String>(sps.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            Object object = sps.get(key);
+            String value = String.valueOf(object);
+            map.put(key, value);
+        }
+        return toString(map, ",");
+    }
+
+    public static String toString(Intent intent) {
+
+        StringBuilder builder = new StringBuilder();
+        if (intent != null) {
+            builder.append("Intent: {");
+            builder.append("Action=").append(intent.getAction()).append(", ");
+            builder.append("Data=").append(intent.getData()).append(", ");
+            String categories = StringUtils.toString(intent.getCategories());
+            builder.append("Categories=[").append(categories).append("], ");
+            builder.append("Component=").append(intent.getComponent()).append(", ");
+            builder.append("Type=").append(intent.getType()).append(", ");
+            builder.append("Package=").append(intent.getPackage()).append(", ");
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                Set<String> keys = bundle.keySet();
+                for (String key : keys) {
+                    builder.append("Extra={").append(key).append("=")
+                            .append(bundle.get(key)).append("}");
+                }
+            }
+            builder.append("}");
+        }
+
+        return builder.toString();
     }
 
     public static <K, V> String toString(Map<K, V> map) {

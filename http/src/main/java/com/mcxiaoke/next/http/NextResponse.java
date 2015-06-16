@@ -1,7 +1,6 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
-import com.mcxiaoke.next.annotation.NotThreadSafe;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.StringUtils;
 
@@ -25,7 +24,6 @@ import java.util.Set;
  * Date: 14-2-8
  * Time: 11:22
  */
-@NotThreadSafe
 public class NextResponse implements Closeable {
     public static final String TAG = NextClient.TAG;
 
