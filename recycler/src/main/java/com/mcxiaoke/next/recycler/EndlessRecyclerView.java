@@ -218,7 +218,7 @@ public class EndlessRecyclerView extends RecyclerView {
         return this;
     }
 
-    private void showProgress() {
+    public void showProgress() {
         if (mViewState.getMode() != MODE_NONE) {
             mLoading = true;
             mViewState.setDisplay(DISPLAY_PROGRESS);

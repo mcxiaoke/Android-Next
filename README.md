@@ -21,6 +21,7 @@ Tasks, Views, Widgets, Http, Utils
     * core: 优化TaskQueue，调整接口，添加新的辅助类Task，支持链式调用
     * core: 重构MemoryCache，精简结构，缓存对象支持设置过期时间
     * core: 添加一些工具类，如PackageUtils和TrafficUtils
+    * recycler: 增加EndlessRecyclerView，支持底部自动加载更多
     * 细节调整，更新示例和说明文档
 
 - **1.0.8** 2015.05.18
@@ -56,6 +57,10 @@ Gradle集成方法：
     
     // ui UI组件, 格式:aar
     compile 'com.mcxiaoke.next:ui:1.0.+'
+
+    // 1.0.9版新增
+    // recycler EndlessRecyclerView, 格式:aar
+    compile 'com.mcxiaoke.next:recycler:1.0.+'
     
     // extra-abc 依赖support-v7 AppCompat 格式:aar
     compile 'com.mcxiaoke.next:extras-abc:1.0.+'
@@ -73,8 +78,6 @@ Gradle集成方法：
 #### core 核心组件
 
 包含异步任务组件，缓存组件，基础Activity和Service，还有一些工具类，按Java包介绍如下：
-
-- **com.mcxiaoke.next.annotation** 两个简单的Annotation，标注是否线程安全，纯标注用
 
 - **com.mcxiaoke.next.app** 基础类，包含:
     * NextBaseActivity 基础Activity，添加了一些ActionBar相关的封装方法
@@ -160,6 +163,14 @@ Gradle集成方法：
 
 - **ArrayAdapterCompat** 增强版的ArrayAdapter，支持2.3以上版本，增加很多实用方法
 
+#### recycler EndlessRecyclerView组件
+
+这个模块是RecyclerView相关组件
+
+- **EndlessRecyclerView** 支持滚动到列表底部自动加载更多的RecyclerView
+- **RecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
+- **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
+- **HeaderFooterRecyclerArrayAdapter** 支持添加Header和Footer的ArrayAdapter
 
 ------
 
@@ -171,6 +182,37 @@ Gradle集成方法：
 ------
 
 ## 使用说明
+
+#### EndlessRecyclerView
+
+```java
+
+        mRecyclerAdapter = new StringRecyclerAdapter(this, new ArrayList<String>());
+        mRecyclerAdapter.addAll(buildData());
+        // 设置RecyclerView.Adapter
+        mEndlessRecyclerView.setAdapter(mRecyclerAdapter);
+        // 设置自动加载更多的回调
+        mEndlessRecyclerView.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(final EndlessRecyclerView view) {
+                doLoadMore();
+            }
+        });
+        // 是否启用滚动到底部自动加载更多功能
+        mEndlessRecyclerView.enable(true);
+        //底部Footer显示正在加载中
+        mEndlessRecyclerView.showProgress();
+        // 底部Footer显示为空
+        mEndlessRecyclerView.showEmpty();
+        // 底部Footer显示文本
+        mEndlessRecyclerView.showText("no more data");
+        // 里列表底部多少个就开始自动加载更多
+        mEndlessRecyclerView.setLoadMoreThreshold(3);
+        // 加载更多数据完成时调用此方法
+        mEndlessRecyclerView.onComplete();
+
+```
+
 
 #### 高级分享模块
 

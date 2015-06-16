@@ -26,9 +26,9 @@ public class EndlessRecyclerViewSamples extends BaseActivity {
     public static final String TAG = EndlessRecyclerViewSamples.class.getSimpleName();
 
     @InjectView(android.R.id.list)
-    EndlessRecyclerView mEndlessListView;
+    EndlessRecyclerView mEndlessRecyclerView;
 
-    private StringRecyclerAdapter mArrayAdapter;
+    private StringRecyclerAdapter mRecyclerAdapter;
 
     private int mIndex;
 
@@ -41,14 +41,14 @@ public class EndlessRecyclerViewSamples extends BaseActivity {
         getActionBar().setTitle(TAG);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initListView();
+        initRecyclerView();
     }
 
-    private void initListView() {
-        mArrayAdapter = new StringRecyclerAdapter(this, new ArrayList<String>());
-        mArrayAdapter.addAll(buildData());
-        mEndlessListView.setAdapter(mArrayAdapter);
-        mEndlessListView.setOnLoadMoreListener(new OnLoadMoreListener() {
+    private void initRecyclerView() {
+        mRecyclerAdapter = new StringRecyclerAdapter(this, new ArrayList<String>());
+        mRecyclerAdapter.addAll(buildData());
+        mEndlessRecyclerView.setAdapter(mRecyclerAdapter);
+        mEndlessRecyclerView.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(final EndlessRecyclerView view) {
                 doLoadMore();
@@ -81,18 +81,18 @@ public class EndlessRecyclerViewSamples extends BaseActivity {
             public void onTaskSuccess(List<String> strings, Bundle extras) {
                 super.onTaskSuccess(strings, extras);
                 if (strings != null) {
-                    mArrayAdapter.addAll(strings);
-                    mEndlessListView.onComplete();
+                    mRecyclerAdapter.addAll(strings);
+                    mEndlessRecyclerView.onComplete();
                 } else {
-                    mEndlessListView.enable(false);
-                    mEndlessListView.showText("没有更多数据了。");
+                    mEndlessRecyclerView.enable(false);
+                    mEndlessRecyclerView.showText("没有更多数据了。");
                 }
             }
 
             @Override
             public void onTaskFailure(Throwable e, Bundle extras) {
                 super.onTaskFailure(e, extras);
-                mEndlessListView.showEmpty();
+                mEndlessRecyclerView.showEmpty();
             }
         };
         TaskQueue.getDefault().add(callable, callback, this);
