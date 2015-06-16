@@ -11,6 +11,8 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import com.mcxiaoke.next.cache.IMemoryCache;
+import com.mcxiaoke.next.cache.MemoryCache;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
@@ -60,6 +62,12 @@ public class TaskQueueSamples extends BaseActivity {
         ButterKnife.inject(this);
         mEditText.setText("https://api.github.com/users/mcxiaoke");
         TaskQueue.getDefault().setDebug(true);
+
+        final IMemoryCache<String, String> cache = MemoryCache.mapCache();
+        cache.put("key", "value");
+        cache.put("hello", "world");
+        Log.v(TAG, "cache key" + "=" + cache.get("key"));
+        Log.v(TAG, "cache hello" + "=" + cache.get("hello"));
     }
 
     private int mCounter;
@@ -139,13 +147,13 @@ public class TaskQueueSamples extends BaseActivity {
         }).with(this).start();
 
         /**
-        Task.create(callable) // 设置Task Callable
-                .callback(callback) // 设置TaskCallback
-                .with(caller) // 设置Task Caller
-                .serial(serially) // 设置是否顺序执行
-                .success(success) // 设置任务成功回调，如果callback!=null，忽略
-                .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
-                .start(); // 开始执行异步任务
+         Task.create(callable) // 设置Task Callable
+         .callback(callback) // 设置TaskCallback
+         .with(caller) // 设置Task Caller
+         .serial(serially) // 设置是否顺序执行
+         .success(success) // 设置任务成功回调，如果callback!=null，忽略
+         .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
+         .start(); // 开始执行异步任务
          **/
     }
 

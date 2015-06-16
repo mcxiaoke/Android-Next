@@ -363,14 +363,17 @@ Gradle集成方法：
 ```java
 
         // create memory cache, internally using map
-        final IMemoryCache<String, Object> memoryCache = CacheFactory.createCache();
+        final IMemoryCache<String,String> memoryCache= MemoryCache.mapCache();
         // create memory cache, internally using lru cache
-        // final IMemoryCache<String,Object> memoryCache=CacheFactory.createLruCache(100);
+        // final IMemoryCache<String,String> memoryCache= MemoryCache.lruCache(100);
         memoryCache.put("strKey", "value");
         memoryCache.put("intKey", 123);
         memoryCache.put("boolKey", false);
         memoryCache.put("objKey", new TaskQueue());
-        final String value = (String) memoryCache.get("strKey");
+        memoryCache.put("boolKey", false);
+        // expires in 300 seconds
+        memoryCache.put("canExpireKey", "hello, world", 300*1000L);
+        final String value = memoryCache.get("strKey");
 
         final Context context = mockContext();
         // default disc cache, use /data/data/package-name/cache/.disc/ dir
