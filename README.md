@@ -246,6 +246,57 @@ Gradle集成方法：
         // cancel all task
         TaskQueue.getDefault().cancelAll();
 
+        // sample for Task helper class
+        final String testUrl = "https://api.github.com/users/mcxiaoke";
+
+        Task.create(new Callable<JSONObject>() {
+            @Override
+            public JSONObject call() throws Exception {
+                final String response = NextClient.get(testUrl).string();
+                return new JSONObject(response);
+            }
+        }).callback(new SimpleTaskCallback<JSONObject>() {
+            @Override
+            public void onTaskSuccess(final JSONObject result, final Bundle extras) {
+                super.onTaskSuccess(result, extras);
+                Log.v("Task", "onTaskSuccess() result=" + result);
+            }
+
+            @Override
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                super.onTaskFailure(ex, extras);
+                Log.e("Task", "onTaskFailure() error=" + ex);
+            }
+        }).with(this).serial(false).start();
+
+        Task.create(new Callable<JSONObject>() {
+            @Override
+            public JSONObject call() throws Exception {
+                final String response = NextClient.get(testUrl).string();
+                return new JSONObject(response);
+            }
+        }).success(new Success<JSONObject>() {
+            @Override
+            public void onSuccess(final JSONObject result, final Bundle extras) {
+                Log.v("Task", "onSuccess() result=" + result);
+            }
+        }).failure(new Failure() {
+            @Override
+            public void onFailure(final Throwable ex, final Bundle extras) {
+                Log.e("Task", "onFailure() error=" + ex);
+            }
+        }).with(this).start();
+
+        /**
+        Task.create(callable) // 设置Task Callable
+                .callback(callback) // 设置TaskCallback
+                .with(caller) // 设置Task Caller
+                .serial(serially) // 设置是否顺序执行
+                .success(success) // 设置任务成功回调，如果callback!=null，忽略
+                .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
+                .start(); // 开始执行异步任务
+         **/
+
 ```
 
 

@@ -13,6 +13,7 @@
         android:orientation="horizontal">
 
         <EditText
+            android:textSize="12sp"
             android:hint="@string/edit_hint_url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

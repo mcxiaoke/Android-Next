@@ -2,6 +2,7 @@ package com.mcxiaoke.next.samples.core;
 
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -15,10 +16,14 @@ import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
+import com.mcxiaoke.next.task.Task;
+import com.mcxiaoke.next.task.Task.Failure;
+import com.mcxiaoke.next.task.Task.Success;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.utils.StringUtils;
+import org.json.JSONObject;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -53,6 +58,7 @@ public class TaskQueueSamples extends BaseActivity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.act_next_executor);
         ButterKnife.inject(this);
+        mEditText.setText("https://api.github.com/users/mcxiaoke");
         TaskQueue.getDefault().setDebug(true);
     }
 
@@ -78,21 +84,69 @@ public class TaskQueueSamples extends BaseActivity {
             }
         };
 
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        Task.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
+        Task.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
+
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
 
         TaskQueue.getDefault().add(getCallable(url, false), callback, this);
         TaskQueue.getDefault().add(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
+
+
+    }
+
+    private void taskDemo() {
+        final String testUrl = "https://api.github.com/users/mcxiaoke";
+
+        Task.create(new Callable<JSONObject>() {
+            @Override
+            public JSONObject call() throws Exception {
+                final String response = NextClient.get(testUrl).string();
+                return new JSONObject(response);
+            }
+        }).callback(new SimpleTaskCallback<JSONObject>() {
+            @Override
+            public void onTaskSuccess(final JSONObject result, final Bundle extras) {
+                super.onTaskSuccess(result, extras);
+                Log.v("Task", "onTaskSuccess() result=" + result);
+            }
+
+            @Override
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                super.onTaskFailure(ex, extras);
+                Log.e("Task", "onTaskFailure() error=" + ex);
+            }
+        }).with(this).serial(false).start();
+
+        Task.create(new Callable<JSONObject>() {
+            @Override
+            public JSONObject call() throws Exception {
+                final String response = NextClient.get(testUrl).string();
+                return new JSONObject(response);
+            }
+        }).success(new Success<JSONObject>() {
+            @Override
+            public void onSuccess(final JSONObject result, final Bundle extras) {
+                Log.v("Task", "onSuccess() result=" + result);
+            }
+        }).failure(new Failure() {
+            @Override
+            public void onFailure(final Throwable ex, final Bundle extras) {
+                Log.e("Task", "onFailure() error=" + ex);
+            }
+        }).with(this).start();
+
+        /**
+        Task.create(callable) // 设置Task Callable
+                .callback(callback) // 设置TaskCallback
+                .with(caller) // 设置Task Caller
+                .serial(serially) // 设置是否顺序执行
+                .success(success) // 设置任务成功回调，如果callback!=null，忽略
+                .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
+                .start(); // 开始执行异步任务
+         **/
     }
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());
@@ -103,7 +157,7 @@ public class TaskQueueSamples extends BaseActivity {
         return new TaskCallable<String>(TAG) {
             @Override
             public String call() throws Exception {
-                SystemClock.sleep(Math.abs(RANDOM.nextInt()) % 3000+2000);
+                SystemClock.sleep(Math.abs(RANDOM.nextInt()) % 3000 + 2000);
                 final NextResponse response = NextClient.get(url);
                 return response.string();
             }
