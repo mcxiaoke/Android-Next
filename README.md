@@ -90,7 +90,8 @@ Gradle集成方法：
 
 - **com.mcxiaoke.next.task** 包含异步任务执行模块相关的类，详细的使用见后面的说明
     * TaskQueue 核心类，对外接口，支持单例使用
-    * TaskCallback 回调接口
+    * Task 辅助类，对外接口，方便链式调用
+    * TaskCallback 任务回调接口
 
 
 - **com.mcxiaoke.next.utils** 包含了很多使用简单但又非常有用的小工具类:
@@ -101,11 +102,13 @@ Gradle集成方法：
     * IOUtils IO操作工具类，包含常用的文件复制/字符串/数组/列表/数据流读写方法
     * MimeUtils MIME工具类，支持根据文件扩展名获取MIME类型
     * NetworkUtils 网络工具类，支持获取网络类型，设置代理等
-    * ProxyUtils WebView代理设置工具类，这个可能已经失效了
     * ReflectionUtils Java反射相关的工具类
     * StringUtils 字符串工具类，支持常用的字符串合并/分割/比较/转换/判断等操作
     * ViewUtils View相关的几个工具方法，例如getScreenRawSize/getActionBarHeightInDp/getStatusBarHeightInDp/getResourceValue等
     * ZipUtils 支持ZIP文件压缩/解压缩
+    * PackageUtils Package相关的工具类，App是否安装，是否运行，启用和禁用组件等
+    * TrafficUtils App流量使用统计工具类
+    
     
 
 ------    
@@ -215,18 +218,23 @@ Gradle集成方法：
         final TaskCallback<String> callback=new SimpleTaskCallback<String>() {
             @Override
             public void onTaskStarted(final String tag, final Bundle extras) {
-                // task started, main thread
+                // task started, on task execute thread
+            }
+            
+            @Override
+            public void onTaskFinished(final String result, final Bundle extras) {
+                // task started, on task execute thread
             }
 
             @Override
-            public void onTaskSuccess(final String value, final Bundle extras) {
-                // task success, main thread
-                mTextView.setText(value);
+            public void onTaskSuccess(final String result, final Bundle extras) {
+                // task success, on main thread
+                mTextView.setText(result);
             }
 
             @Override
             public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                // task failure, main thread
+                // task failure, on main thread
             }
         };
         // add task, execute concurrently
