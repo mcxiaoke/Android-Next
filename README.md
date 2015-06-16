@@ -11,14 +11,20 @@ Tasks, Views, Widgets, Http, Utils
 
 ## 最新版本
 
-* [![Maven Central](http://img.shields.io/badge/2015.05.18-com.mcxiaoke.next:core:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Ccore%7C1.0.8%7Cjar) 
-* [![Maven Central](http://img.shields.io/badge/2015.05.18-com.mcxiaoke.next:http:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Chttp%7C1.0.8%7Cjar) 
-* [![Maven Central](http://img.shields.io/badge/2015.05.18-com.mcxiaoke.next:ui:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Cui%7C1.0.8%7Cjar) 
+* [![Maven Central](http://img.shields.io/badge/2015.06.16-com.mcxiaoke.next:core:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Ccore%7C1.0.9%7Cjar)
+* [![Maven Central](http://img.shields.io/badge/2015.06.16-com.mcxiaoke.next:http:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Chttp%7C1.0.9%7Cjar)
+* [![Maven Central](http://img.shields.io/badge/2015.06.16-com.mcxiaoke.next:ui:1.0.8-brightgreen.svg)](http://search.maven.org/#artifactdetails%7Ccom.mcxiaoke.next%7Cui%7C1.0.9%7Cjar)
 
 已经部署到Maven Central，可以直接使用
 
-- **1.0.8**
-    * 移除所有的ic_launcher.png，修复appt报错问题
+- **1.0.9** 2015.06.16
+    * core: 优化TaskQueue，调整接口，添加新的辅助类Task，支持链式调用
+    * core: 重构MemoryCache，精简结构，缓存对象支持设置过期时间
+    * core: 添加一些工具类，如PackageUtils和TrafficUtils
+    * 细节调整，更新示例和说明文档
+
+- **1.0.8** 2015.05.18
+    * ui: 移除所有的ic_launcher.png，修复appt报错问题
 
 - **1.0.7** 2015.03.24
     * core: 优化TaskQueue，去掉对support-v4的依赖
