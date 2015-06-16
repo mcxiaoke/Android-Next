@@ -9,25 +9,40 @@ import java.util.Map;
  * Time: 17:21
  */
 class MapCache<K, V> implements IMemoryCache<K, V> {
-    private Map<K, V> cache;
+    private Map<K, CacheEntry<V>> cache;
 
     public MapCache() {
-        cache = new HashMap<K, V>();
+        cache = new HashMap<K, CacheEntry<V>>();
     }
 
     @Override
     public V get(K key) {
-        return cache.get(key);
+        final CacheEntry<V> entry = cache.get(key);
+        if (entry == null || entry.isExpired()) {
+            remove(key);
+            return null;
+        }
+        return entry.data;
     }
 
     @Override
     public V put(K key, V value) {
-        return cache.put(key, value);
+        final CacheEntry<V> entry = new CacheEntry<V>(value);
+        final CacheEntry<V> ret = cache.put(key, entry);
+        return ret == null ? null : ret.data;
+    }
+
+    @Override
+    public V put(final K key, final V value, final long expires) {
+        final CacheEntry<V> entry = new CacheEntry<V>(value, expires);
+        final CacheEntry<V> ret = cache.put(key, entry);
+        return ret == null ? null : ret.data;
     }
 
     @Override
     public V remove(K key) {
-        return cache.remove(key);
+        final CacheEntry<V> ret = cache.remove(key);
+        return ret == null ? null : ret.data;
     }
 
     @Override
@@ -47,7 +62,15 @@ class MapCache<K, V> implements IMemoryCache<K, V> {
 
     @Override
     public Map<K, V> snapshot() {
-        return new HashMap<K, V>(cache);
+        final Map<K, V> map = new HashMap<K, V>();
+        for (final Map.Entry<K, CacheEntry<V>> entry : cache.entrySet()) {
+            final CacheEntry<V> c = entry.getValue();
+            if (c == null || c.isExpired()) {
+                continue;
+            }
+            map.put(entry.getKey(), c.data);
+        }
+        return map;
     }
 
 }

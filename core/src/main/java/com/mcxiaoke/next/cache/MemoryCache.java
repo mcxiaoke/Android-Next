@@ -12,8 +12,11 @@ public class MemoryCache implements IMemoryCache<String, Object> {
 
     IMemoryCache<String, Object> mCacheStore;
 
-    // Private constructor prevents instantiation from other classes
-    private MemoryCache(IMemoryCache<String, Object> cache) {
+    public MemoryCache() {
+        this(CacheFactory.createCache());
+    }
+
+    public MemoryCache(IMemoryCache<String, Object> cache) {
         this.mCacheStore = cache;
     }
 
@@ -28,6 +31,14 @@ public class MemoryCache implements IMemoryCache<String, Object> {
 
     public static MemoryCache create() {
         return create(CacheFactory.createCache());
+    }
+
+    public static MemoryCache createMapCache() {
+        return create(CacheFactory.createCache());
+    }
+
+    public static MemoryCache createLruCache(int maxSize) {
+        return create(CacheFactory.createLruCache(maxSize));
     }
 
     public static MemoryCache create(IMemoryCache<String, Object> cache) {
@@ -65,6 +76,11 @@ public class MemoryCache implements IMemoryCache<String, Object> {
     @Override
     public Object put(String key, Object value) {
         return this.mCacheStore.put(key, value);
+    }
+
+    @Override
+    public Object put(final String key, final Object value, final long expires) {
+        return this.mCacheStore.put(key, value, expires);
     }
 
     @Override

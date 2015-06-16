@@ -25,6 +25,14 @@ public interface IMemoryCache<K, V> {
     V put(K key, V value);
 
     /**
+     * Caches {@code value} for {@code key} with expires. The value is moved to the head of
+     * the queue.
+     *
+     * @return the previous value mapped by {@code key}.
+     */
+    V put(K key, V value, long expires);
+
+    /**
      * Removes the entry for {@code key} if it exists.
      *
      * @return the previous value mapped by {@code key}.
@@ -32,19 +40,18 @@ public interface IMemoryCache<K, V> {
     V remove(K key);
 
     /**
-     * Clear the cache, calling {@link #entryRemoved} on each removed entry.
+     * Clear the cache, calling {@link #remove} on each removed entry.
      */
     void clear();
 
     /**
-     * For caches that do not override {@link #sizeOf}, this returns the number
-     * of entries in the cache. For all other caches, this returns the sum of
+     * For all other caches, this returns the sum of
      * the sizes of the entries in this cache.
      */
     int size();
 
     /**
-     * For caches that do not override {@link #sizeOf}, this returns the maximum
+     * For caches that do not override {@link #size}, this returns the maximum
      * number of entries in the cache. For all other caches, this returns the
      * maximum sum of the sizes of the entries in this cache.
      */
