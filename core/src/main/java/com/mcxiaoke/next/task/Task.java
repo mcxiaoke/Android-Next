@@ -1,116 +1,316 @@
 package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import com.mcxiaoke.next.utils.AndroidUtils;
 
-import java.util.concurrent.Callable;
+import java.lang.ref.WeakReference;
 
 /**
+ * 表示一个异步任务
  * User: mcxiaoke
- * Date: 15/6/16
- * Time: 11:50
+ * Date: 15/6/17
+ * Time: 12:16
  */
 public class Task<Result> {
+    /**
+     * 内部使用的TaskCallback
+     */
+    private final TaskCallback<Result> mCb;
+    /**
+     * 回调接口执行的线程Handler，默认是主线程
+     */
+    private final Handler mHandler;
+    /**
+     * 执行任务的队列，默认是 TaskQueue.getDefault()
+     */
+    private final TaskQueue mQueue;
+    /**
+     * 任务的调用者的弱引用
+     */
+    private final WeakReference<Object> mCallerRef;
+    /**
+     * 任务的回调接口
+     */
+    private final TaskCallback<Result> mCallback;
+    /**
+     * 任务的Callable对象
+     */
+    private final TaskCallable<Result> mCallable;
+    /**
+     * 任务成功的回调
+     */
+    private final Success<Result> mSuccess;
+    /**
+     * 任务失败的回调
+     */
+    private final Failure mFailure;
+    /**
+     * 是否检查调用者
+     */
+    private final boolean mCheck;
+    /**
+     * 是否按顺序执行
+     */
+    final boolean mSerial;
+    /**
+     * 调用者的hashcode
+     */
+    final int mHashCode;
+    /**
+     * 此任务的唯一TAG
+     */
+    final String mTag;
+    /**
+     * 任务线程是否已启动
+     */
+    private boolean mStarted;
 
-    public interface Success<Result> {
-        void onSuccess(final Result result, final Bundle extras);
-    }
-
-    public interface Failure {
-        void onFailure(Throwable throwable, final Bundle extras);
-    }
-
-    private Object mCaller;
-    private TaskCallback<Result> mCallback;
-    private Success<Result> mSuccess;
-    private Failure mFailure;
-    private Callable<Result> mCallable;
-    private boolean mSerially;
-
-    public static <Result> Task<Result> create(Callable<Result> callable) {
-        return new Task<Result>().call(callable);
-    }
-
-    Task() {
-    }
-
-    public String start() {
-        if (mCaller == null) {
+    public Task(final TaskBuilder<Result> builder) {
+        if (builder.caller == null) {
             throw new NullPointerException("caller can not be null.");
         }
-        if (mCallable == null) {
+        if (builder.callable == null) {
             throw new NullPointerException("callable can not be null.");
         }
-        if (mCallback == null) {
-            mCallback = new TaskCallback<Result>() {
-                @Override
-                public void onTaskStarted(final String tag, final Bundle extras) {
-                }
+        if (builder.handler == null) {
+            this.mHandler = new Handler(Looper.getMainLooper());
+        } else {
+            this.mHandler = builder.handler;
+        }
+        if (builder.queue == null) {
+            this.mQueue = TaskQueue.getDefault();
+        } else {
+            this.mQueue = builder.queue;
+        }
+        this.mCallerRef = new WeakReference<Object>(builder.caller);
+        this.mCallable = builder.callable;
+        this.mCallback = builder.callback;
+        this.mSuccess = builder.success;
+        this.mFailure = builder.failure;
+        this.mCheck = builder.check;
+        this.mSerial = builder.serial;
+        this.mHashCode = System.identityHashCode(builder.caller);
+        this.mTag = TaskHelper.buildTag(builder.caller);
+        this.mCb = new Callbacks<Result>(this);
+    }
 
-                @Override
-                public void onTaskFinished(final Result result, final Bundle extras) {
-                }
+    /**
+     * 获取任务TAG
+     *
+     * @return TAG
+     */
+    public String getTag() {
+        return mTag;
+    }
 
-                @Override
-                public void onTaskSuccess(final Result result, final Bundle extras) {
-                    if (mSuccess != null) {
-                        mSuccess.onSuccess(result, extras);
-                    }
-                }
+    /**
+     * 任务是否顺序执行
+     *
+     * @return 是否顺序执行
+     */
+    public boolean isSerial() {
+        return mSerial;
+    }
 
+    /**
+     * 获取任务调用者hashcode
+     *
+     * @return caller hashcode
+     */
+    public int getHashCode() {
+        return mHashCode;
+    }
+
+    /**
+     * 将任务添加到线程池，开始执行
+     *
+     * @return TAG
+     */
+    public String start() {
+        if (mStarted) {
+            throw new IllegalStateException("task has been executed already");
+        }
+        return mQueue.enqueue(this);
+    }
+
+    /**
+     * 取消执行当前任务，从线程池移除
+     *
+     * @return 是否成功取消
+     */
+    public boolean cancel() {
+        return mQueue.cancel(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "mTag='" + mTag + '\'' +
+                ", mHashCode=" + mHashCode +
+                ", mCheck=" + mCheck +
+                ", mCallback=" + mCallback +
+                ", mQueue=" + mQueue +
+                ", mSerial=" + mSerial +
+                '}';
+    }
+
+    void post(final Runnable runnable) {
+        this.mHandler.post(runnable);
+    }
+
+    Result call() throws Exception {
+        return mCallable.call();
+    }
+
+
+    void onDone(final TaskStatus<Result> status) {
+        mQueue.remove(mTag, mHashCode);
+    }
+
+    void onStarted(final TaskStatus<Result> future) {
+        mStarted = true;
+        if (!isInvalidCaller()) {
+            final Runnable runnable = new Runnable() {
                 @Override
-                public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                    if (mFailure != null) {
-                        mFailure.onFailure(ex, extras);
+                public void run() {
+                    if (mCb != null) {
+                        mCb.onTaskStarted(future, mCallable.getExtras());
                     }
                 }
             };
+            post(runnable);
+
         }
-        return TaskQueue.getDefault().execute(mCallable, mCallback, mCaller, mSerially);
     }
 
-    public <Caller> Task<Result> with(final Caller caller) {
-        if (mCaller != null) {
-            throw new IllegalStateException("caller is already set.");
+    void onCancelled(final TaskStatus<Result> future) {
+        if (!isInvalidCaller()) {
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mCb != null) {
+                        mCb.onTaskCancelled(future, mCallable.getExtras());
+                    }
+                }
+            };
+            post(runnable);
         }
-        mCaller = caller;
-        return this;
     }
 
-    public Task<Result> call(final Callable<Result> callable) {
-        if (mCallable != null) {
-            throw new IllegalStateException("callable is already set.");
+    void onFinished(final TaskStatus<Result> future) {
+        if (!isInvalidCaller()) {
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mCb != null) {
+                        mCb.onTaskFinished(future, mCallable.getExtras());
+                    }
+                }
+            };
+            post(runnable);
         }
-        mCallable = callable;
-        return this;
     }
 
-    public Task<Result> success(final Success<Result> success) {
-        if (mSuccess != null) {
-            throw new IllegalStateException("success is already set.");
+    void onSuccess(final TaskStatus<Result> future) {
+        if (!isInvalidCaller()) {
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mCb != null) {
+                        mCb.onTaskSuccess(future.data, mCallable.getExtras());
+                    }
+                }
+            };
+            post(runnable);
         }
-        mSuccess = success;
-        return this;
     }
 
-    public Task<Result> failure(final Failure failure) {
-        if (mFailure != null) {
-            throw new IllegalStateException("failure is already set.");
+    void onFailure(final TaskStatus<Result> future) {
+        if (!isInvalidCaller()) {
+            final Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mCb != null) {
+                        mCb.onTaskFailure(future.error, mCallable.getExtras());
+                    }
+                }
+            };
+            post(runnable);
         }
-        mFailure = failure;
-        return this;
     }
 
-    public Task<Result> callback(final TaskCallback<Result> callback) {
-        if (mCallback != null) {
-            throw new IllegalStateException("callback is already set.");
-        }
-        mCallback = callback;
-        return this;
+    boolean isInvalidCaller() {
+        final Object caller = mCallerRef.get();
+        return caller == null || mCheck && !AndroidUtils.isActive(mCallerRef);
     }
 
-    public Task<Result> serial(final boolean serially) {
-        mSerially = serially;
-        return this;
+    /**
+     * 内部使用的TaskCallback，转发结果用
+     *
+     * @param <Result> 任务结果的类型参数
+     */
+    static class Callbacks<Result> implements TaskCallback<Result> {
+        private WeakReference<Task<Result>> taskRef;
+
+        public Callbacks(final Task<Result> task) {
+            this.taskRef = new WeakReference<Task<Result>>(task);
+        }
+
+        @Override
+        public void onTaskStarted(final TaskStatus<Result> status, final Bundle extras) {
+            final Task<Result> taskInfo = taskRef.get();
+            if (taskInfo != null) {
+                if (taskInfo.mCallback != null) {
+                    taskInfo.mCallback.onTaskStarted(status, extras);
+                }
+            }
+        }
+
+        @Override
+        public void onTaskFinished(final TaskStatus<Result> status, final Bundle extras) {
+            final Task<Result> taskInfo = taskRef.get();
+            if (taskInfo != null) {
+                if (taskInfo.mCallback != null) {
+                    taskInfo.mCallback.onTaskFinished(status, extras);
+                }
+            }
+        }
+
+        @Override
+        public void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras) {
+            final Task<Result> taskInfo = taskRef.get();
+            if (taskInfo != null) {
+                if (taskInfo.mCallback != null) {
+                    taskInfo.mCallback.onTaskCancelled(status, extras);
+                }
+            }
+        }
+
+        @Override
+        public void onTaskSuccess(final Result result, final Bundle extras) {
+            final Task<Result> taskInfo = taskRef.get();
+            if (taskInfo != null) {
+                if (taskInfo.mSuccess != null) {
+                    taskInfo.mSuccess.onSuccess(result, extras);
+                } else if (taskInfo.mCallback != null) {
+                    taskInfo.mCallback.onTaskSuccess(result, extras);
+                }
+            }
+        }
+
+        @Override
+        public void onTaskFailure(final Throwable ex, final Bundle extras) {
+            final Task<Result> taskInfo = taskRef.get();
+            if (taskInfo != null) {
+                if (taskInfo.mFailure != null) {
+                    taskInfo.mFailure.onFailure(ex, extras);
+                } else if (taskInfo.mCallback != null) {
+                    taskInfo.mCallback.onTaskFailure(ex, extras);
+                }
+            }
+        }
     }
 
 }

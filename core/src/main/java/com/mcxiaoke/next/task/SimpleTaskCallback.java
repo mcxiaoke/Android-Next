@@ -10,12 +10,17 @@ import android.os.Bundle;
 public class SimpleTaskCallback<Result> implements TaskCallback<Result> {
 
     @Override
-    public void onTaskStarted(final String tag, final Bundle extras) {
+    public void onTaskStarted(final TaskStatus<Result> status, final Bundle extras) {
 
     }
 
     @Override
-    public void onTaskFinished(final Result result, final Bundle extras) {
+    public void onTaskFinished(final TaskStatus<Result> status, final Bundle extras) {
+
+    }
+
+    @Override
+    public void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras) {
 
     }
 

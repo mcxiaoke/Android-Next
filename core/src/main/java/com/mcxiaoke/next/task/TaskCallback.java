@@ -16,25 +16,35 @@ import android.os.Bundle;
 public interface TaskCallback<Result> {
 
     /**
-     * 任务所在的线程执行开始
-     * 注意：此方法运行在异步任务所在线程
+     * 任务开始
+     * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param tag    TASK TAG
+     * @param status TASK STATUS
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskStarted(final String tag, final Bundle extras);
+    void onTaskStarted(final TaskStatus<Result> status, final Bundle extras);
 
     /**
-     * 任务所在的线程执行完成
-     * 注意：此方法运行在异步任务所在线程
+     * 任务完成
+     * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param result TASK RESULT
+     * @param status TASK STATUS
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskFinished(final Result result, final Bundle extras);
+    void onTaskFinished(final TaskStatus<Result> status, final Bundle extras);
 
     /**
-     * 回调，任务执行完成，运行在主线程
+     * 任务取消
+     * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
+     *
+     * @param status TASK STATUS
+     * @param extras 附加结果，需要返回多种结果时会用到
+     */
+    void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras);
+
+    /**
+     * 回调，任务执行完成
+     * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param result 执行结果
      * @param extras 附加结果，需要返回多种结果时会用到
@@ -42,7 +52,8 @@ public interface TaskCallback<Result> {
     void onTaskSuccess(Result result, final Bundle extras);
 
     /**
-     * 回调，任务执行失败，运行在主线程
+     * 回调，任务执行失败
+     * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param ex     失败原因，异常
      * @param extras 附加结果，需要返回额外的信息时会用到

@@ -18,12 +18,12 @@ import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
-import com.mcxiaoke.next.task.Task;
-import com.mcxiaoke.next.task.Task.Failure;
-import com.mcxiaoke.next.task.Task.Success;
+import com.mcxiaoke.next.task.TaskBuilder;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
+import com.mcxiaoke.next.task.Failure;
 import com.mcxiaoke.next.task.TaskQueue;
+import com.mcxiaoke.next.task.Success;
 import com.mcxiaoke.next.utils.StringUtils;
 import org.json.JSONObject;
 
@@ -92,8 +92,8 @@ public class TaskQueueSamples extends BaseActivity {
             }
         };
 
-        Task.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
-        Task.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
+        TaskBuilder.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
 
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
@@ -108,7 +108,7 @@ public class TaskQueueSamples extends BaseActivity {
     private void taskDemo() {
         final String testUrl = "https://api.github.com/users/mcxiaoke";
 
-        Task.create(new Callable<JSONObject>() {
+        TaskBuilder.create(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
                 final String response = NextClient.get(testUrl).string();
@@ -128,7 +128,7 @@ public class TaskQueueSamples extends BaseActivity {
             }
         }).with(this).serial(false).start();
 
-        Task.create(new Callable<JSONObject>() {
+        TaskBuilder.create(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
                 final String response = NextClient.get(testUrl).string();
@@ -144,16 +144,21 @@ public class TaskQueueSamples extends BaseActivity {
             public void onFailure(final Throwable ex, final Bundle extras) {
                 Log.e("Task", "onFailure() error=" + ex);
             }
-        }).with(this).start();
+        }).serial(true).with(this).start();
 
         /**
-         Task.create(callable) // 设置Task Callable
+        TaskBuilder.create(callable) // 设置Callable
+         .with(caller) // 设置Caller
+         .run(callable) // 设置Callable
          .callback(callback) // 设置TaskCallback
-         .with(caller) // 设置Task Caller
-         .serial(serially) // 设置是否顺序执行
-         .success(success) // 设置任务成功回调，如果callback!=null，忽略
-         .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
-         .start(); // 开始执行异步任务
+         .success(success) //设置任务成功回调
+         .failure(failure) //设置任务失败回调
+         .check(false) //设置是否检查Caller
+         .dispatch(handler)// 回调方法所在线程，默认是主线程
+         .serial(false) // 是否按顺序依次执行
+         .on(queue) // 设置自定义的TaskQueue
+         .build() // 生成 TaskInfo 对象
+         .start(); // 开始运行任务
          **/
     }
 
