@@ -1,9 +1,6 @@
 
 ## EndlessRecyclerView
 
-
-#### EndlessRecyclerView组件
-
 - **EndlessRecyclerView** 支持滚动到列表底部自动加载更多的RecyclerView
 - **RecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
 - **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
