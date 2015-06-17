@@ -1,7 +1,5 @@
 package com.mcxiaoke.next.task;
 
-import com.mcxiaoke.next.utils.AndroidUtils;
-
 /**
  * User: mcxiaoke
  * Date: 15/6/17
@@ -11,6 +9,8 @@ class TaskHelper {
 
     public static final String SEPARATOR = "::";
     private static volatile int sSequence = 0;
+
+
 
     /**
      * 根据Caller生成对应的TAG，hashcode+类名+timestamp+seq
@@ -33,11 +33,7 @@ class TaskHelper {
         return builder.toString();
     }
 
-    static int incSequence() {
+    private static int incSequence() {
         return ++sSequence;
-    }
-
-    static boolean validCaller(final TaskInfo task) {
-        return task.caller != null && (!task.check || AndroidUtils.isActive(task.caller));
     }
 }

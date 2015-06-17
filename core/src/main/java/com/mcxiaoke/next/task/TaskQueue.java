@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.task;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -27,28 +25,13 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public final class TaskQueue implements Callback {
 
-    public interface Success<Result> {
-        void onSuccess(final Result result, final Bundle extras);
-    }
-
-    public interface Failure {
-        void onFailure(Throwable throwable, final Bundle extras);
-    }
-
-    public enum TaskStatus {
-        IDLE, RUNNING, CANCELLED, FAILURE, SUCCESS
-    }
-
     public static final String TAG = TaskQueue.class.getSimpleName();
-    // 某一个线程运行结束时需要从TaskMap里移除
-    public static final int MSG_TASK_DONE = 4001;
     private final Object mLock = new Object();
     private ThreadPoolExecutor mExecutor;
     private ThreadPoolExecutor mSerialExecutor;
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
     private Map<String, TaskRunnable> mTaskMap;
-    private boolean mCallerCheck;
     private boolean mDebug;
 
     static final class SingletonHolder {
@@ -77,14 +60,6 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "handleMessage() what=" + msg.what);
         }
-        switch (msg.what) {
-            case MSG_TASK_DONE: {
-                remove((String) msg.obj);
-            }
-            break;
-            default:
-                break;
-        }
         return true;
     }
 
@@ -94,17 +69,6 @@ public final class TaskQueue implements Callback {
      *
      *******************************************************************/
 
-    /**
-     * 是否检查Android组件生命周期
-     * 对于Activity，检查Activity.isFinishing()
-     * 对于Fragment，检查Fragment.isAdded()
-     * 如果不满足条件，取消回调
-     *
-     * @param enable enable
-     */
-    public void setCallerCheck(boolean enable) {
-        mCallerCheck = enable;
-    }
 
     /**
      * debug开关
@@ -134,8 +98,6 @@ public final class TaskQueue implements Callback {
     }
 
     /**
-     * 没有回调
-     *
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
@@ -154,8 +116,6 @@ public final class TaskQueue implements Callback {
     }
 
     /**
-     * 没有回调
-     *
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
@@ -171,8 +131,8 @@ public final class TaskQueue implements Callback {
      * @param tag 任务的TAG
      * @return 是否正在运行
      */
-    public boolean isActive(String tag) {
-        TaskRunnable nr = mTaskMap.get(tag);
+    public boolean isRunning(String tag) {
+        final TaskRunnable nr = mTaskMap.get(tag);
         return nr != null && nr.isRunning();
     }
 
@@ -271,17 +231,14 @@ public final class TaskQueue implements Callback {
         final boolean isTerminated = executor.isTerminated();
         builder.append(TAG).append("[ ");
         builder.append("ThreadPool:{")
-                .append(" CorePoolSize:").append(corePoolSize).append(";")
-                .append(" PoolSize:").append(poolSize).append(";")
+                .append(" coreSize:").append(corePoolSize).append(";")
+                .append(" poolSize:").append(poolSize).append(";")
                 .append(" isShutdown:").append(isShutdown).append(";")
                 .append(" isTerminated:").append(isTerminated).append(";")
                 .append(" activeCount:").append(activeCount).append(";")
                 .append(" taskCount:").append(taskCount).append(";")
                 .append(" completedCount:").append(completedCount).append(";")
                 .append("}\n");
-
-//        private Map<Integer, List<String>> mCallerMap;
-//        private Map<String, TaskRunnable> mTaskMap;
         // caller map
         final Map<Integer, List<String>> callerMap = mCallerMap;
         builder.append("CallerMap:{");
@@ -322,16 +279,17 @@ public final class TaskQueue implements Callback {
      * @param <Result> 类型参数，异步任务执行结果
      * @return 返回内部生成的此次任务的TAG
      */
-    <Result> String enqueue(final TaskInfo<Result> task) {
+    <Result> String enqueue(final Task<Result> task) {
         if (mDebug) {
             LogUtils.v(TAG, "enqueue() task=" + task);
         }
-        final TaskRunnable runnable = new RunnableImplB<Result>
-                (task, mUiHandler, mDebug);
-        addToTaskMap(runnable);
-        addToCallerMap(runnable);
+        final TaskRunnable runnable = new TaskRunnable<Result>
+                (task, mDebug);
 
-        return runnable.getTag();
+        addTagToTaskMap(task.mTag, runnable);
+        addTagToCallerMap(task.mHashCode, task.mTag);
+        smartSubmit(runnable);
+        return task.mTag;
     }
 
     /**
@@ -347,71 +305,14 @@ public final class TaskQueue implements Callback {
     <Result> String enqueue(final Callable<Result> callable,
                             final TaskCallback<Result> callback,
                             final Object caller, final boolean serial) {
-        checkArguments(callable, caller);
-        checkExecutor();
-        if (mDebug) {
-            LogUtils.v(TAG, "enqueue() serial=" + serial);
-        }
-        final Handler handler = mUiHandler;
-        final boolean enable = mCallerCheck;
-
-        final TaskCallable<Result> nextCallable;
-        if (callable instanceof TaskCallable) {
-            nextCallable = (TaskCallable<Result>) callable;
-        } else {
-            nextCallable = new WrappedCallable<Result>(callable);
-        }
-
-        final TaskRunnable runnable = new RunnableImplA<Result>
-                (handler, enable, serial, nextCallable,
-                        callback, caller, mDebug);
-
-        addToTaskMap(runnable);
-        addToCallerMap(runnable);
-
-        return runnable.getTag();
+        return TaskBuilder.create(callable).with(caller).callback(callback)
+                .serial(serial).on(this).build().start();
     }
 
-
-    <Result> boolean cancel(final TaskInfo<Result> task) {
-        return cancel(task.tag);
-    }
-
-    private <Result> void addToTaskMap(final TaskRunnable runnable) {
-        final String tag = runnable.getTag();
-        if (mDebug) {
-            LogUtils.v(TAG, "addToTaskMap() tag=" + tag);
-        }
-        Future<?> future = smartSubmit(runnable);
-        runnable.setFuture(future);
-        addTagToTaskMap(tag, runnable);
-    }
-
-    private <Result> void addTagToTaskMap(final String tag, final TaskRunnable runnable) {
+    private void addTagToTaskMap(final String tag, final TaskRunnable runnable) {
         synchronized (mLock) {
             mTaskMap.put(tag, runnable);
         }
-    }
-
-    private void removeTagFromTaskMap(final String tag) {
-//        if (mDebug) {
-//            LogUtils.v(TAG, "removeTagFromTaskMap() tag=" + tag);
-//        }
-        synchronized (mLock) {
-            mTaskMap.remove(tag);
-        }
-    }
-
-    private <Result> void addToCallerMap(final TaskRunnable runnable) {
-        // caller的key是hashcode
-        // tag的组成:className+hashcode+timestamp+sequenceNumber
-        final int hashCode = runnable.getHashCode();
-        final String tag = runnable.getTag();
-        if (mDebug) {
-            LogUtils.v(TAG, "addToCallerMap() tag=" + tag);
-        }
-        addTagToCallerMap(hashCode, tag);
-
     }
 
     private void addTagToCallerMap(final int hashCode, final String tag) {
@@ -427,18 +328,6 @@ public final class TaskQueue implements Callback {
         }
     }
 
-    private void removeTagFromCallerMap(final int hashCode, final String tag) {
-//        if (mDebug) {
-//            LogUtils.v(TAG, "removeTagFromCallerMap() hashCode=" + hashCode + " tag=" + tag);
-//        }
-        List<String> tags = mCallerMap.get(hashCode);
-        if (tags != null) {
-            synchronized (mLock) {
-                tags.remove(tag);
-            }
-        }
-    }
-
     /**
      * 取消所有的Runnable对应的任务
      */
@@ -451,7 +340,18 @@ public final class TaskQueue implements Callback {
         }
         synchronized (mLock) {
             mTaskMap.clear();
+            mCallerMap.clear();
         }
+    }
+
+
+    boolean cancel(final Task task) {
+        return cancel(task.mTag);
+    }
+
+
+    void remove(final Task task) {
+        remove(task.getTag(), task.getHashCode());
     }
 
     /**
@@ -459,7 +359,7 @@ public final class TaskQueue implements Callback {
      *
      * @param tag 任务TAG
      */
-    private void remove(String tag) {
+    void remove(final String tag) {
         if (mDebug) {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
@@ -468,21 +368,26 @@ public final class TaskQueue implements Callback {
         remove(tag, hashCode);
     }
 
-    private void remove(String tag, int hashCode) {
-        removeTagFromTaskMap(tag);
-        removeTagFromCallerMap(hashCode, tag);
+    void remove(final String tag, int hashCode) {
+        synchronized (mLock) {
+            mTaskMap.remove(tag);
+        }
+        List<String> tags = mCallerMap.get(hashCode);
+        if (tags != null) {
+            synchronized (mLock) {
+                tags.remove(tag);
+            }
+        }
     }
 
     /**
      * 将任务添加到线程池执行
      *
      * @param runnable 任务Runnable
-     * @return 返回任务对应的Future对象
      */
-    private Future<?> smartSubmit(final TaskRunnable runnable) {
+    private void smartSubmit(final TaskRunnable runnable) {
         checkExecutor();
-        return runnable.isSerial() ? mSerialExecutor.submit(runnable) :
-                mExecutor.submit(runnable);
+        runnable.execute(runnable.isSerial() ? mSerialExecutor : mExecutor);
     }
 
     /**

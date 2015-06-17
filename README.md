@@ -99,7 +99,8 @@ Gradle集成方法：
 
 - **com.mcxiaoke.next.task** 包含异步任务执行模块相关的类，详细的使用见后面的说明
     * TaskQueue 核心类，对外接口，支持单例使用
-    * Task 辅助类，对外接口，方便链式调用
+    * Task 核心类，表示单个异步任务对象
+    * TaskBuilder 对外接口，链式调用
     * TaskCallback 任务回调接口
 
 
@@ -343,13 +344,18 @@ Gradle集成方法：
             }
         }).with(this).start();
 
-        Task.create(callable) // 设置Task Callable
-                .callback(callback) // 设置TaskCallback
-                .with(caller) // 设置Task Caller
-                .serial(serially) // 设置是否顺序执行
-                .success(success) // 设置任务成功回调，如果callback!=null，忽略
-                .failure(failure) // 设置任务失败回调，如果callback!=null，忽略
-                .start(); // 开始执行异步任务
+        TaskBuilder.create(callable) // 设置Callable
+         .with(caller) // 设置Caller
+         .run(callable) // 设置Callable
+         .callback(callback) // 设置TaskCallback
+         .success(success) //设置任务成功回调
+         .failure(failure) //设置任务失败回调
+         .check(false) //设置是否检查Caller
+         .dispatch(handler)// 回调方法所在线程，默认是主线程
+         .serial(false) // 是否按顺序依次执行
+         .on(queue) // 设置自定义的TaskQueue
+         .build() // 生成 TaskInfo 对象
+         .start(); // 开始运行任务
 
 ```
 
