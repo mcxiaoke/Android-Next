@@ -50,6 +50,11 @@ public class Task<Result> {
      * 是否检查调用者
      */
     private final boolean mCheck;
+
+    /**
+     * 延迟执行的毫秒数
+     */
+    private final long mDelayMillis;
     /**
      * 是否按顺序执行
      */
@@ -66,6 +71,7 @@ public class Task<Result> {
      * 任务线程是否已启动
      */
     private boolean mStarted;
+
 
     public Task(final TaskBuilder<Result> builder) {
         if (builder.caller == null) {
@@ -90,6 +96,7 @@ public class Task<Result> {
         this.mSuccess = builder.success;
         this.mFailure = builder.failure;
         this.mCheck = builder.check;
+        this.mDelayMillis = builder.delayMillis;
         this.mSerial = builder.serial;
         this.mHashCode = System.identityHashCode(builder.caller);
         this.mTag = TaskHelper.buildTag(builder.caller);
@@ -132,7 +139,19 @@ public class Task<Result> {
         if (mStarted) {
             throw new IllegalStateException("task has been executed already");
         }
-        return mQueue.enqueue(this);
+        final Task<Result> task = this;
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mQueue.enqueue(task);
+            }
+        };
+        if (mDelayMillis > 0) {
+            mHandler.postDelayed(runnable, mDelayMillis);
+        } else {
+            runnable.run();
+        }
+        return mTag;
     }
 
     /**
@@ -156,17 +175,20 @@ public class Task<Result> {
                 '}';
     }
 
-    void post(final Runnable runnable) {
-        this.mHandler.post(runnable);
-    }
-
     Result call() throws Exception {
         return mCallable.call();
     }
 
 
     void onDone(final TaskStatus<Result> status) {
-        mQueue.remove(mTag, mHashCode);
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                mQueue.remove(mTag, mHashCode);
+            }
+        };
+        mHandler.post(runnable);
+
     }
 
     void onStarted(final TaskStatus<Result> future) {
@@ -180,7 +202,7 @@ public class Task<Result> {
                     }
                 }
             };
-            post(runnable);
+            mHandler.post(runnable);
 
         }
     }
@@ -195,7 +217,7 @@ public class Task<Result> {
                     }
                 }
             };
-            post(runnable);
+            mHandler.post(runnable);
         }
     }
 
@@ -209,7 +231,7 @@ public class Task<Result> {
                     }
                 }
             };
-            post(runnable);
+            mHandler.post(runnable);
         }
     }
 
@@ -223,7 +245,7 @@ public class Task<Result> {
                     }
                 }
             };
-            post(runnable);
+            mHandler.post(runnable);
         }
     }
 
@@ -237,7 +259,7 @@ public class Task<Result> {
                     }
                 }
             };
-            post(runnable);
+            mHandler.post(runnable);
         }
     }
 

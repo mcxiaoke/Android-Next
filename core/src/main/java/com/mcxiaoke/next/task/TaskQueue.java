@@ -349,11 +349,6 @@ public final class TaskQueue implements Callback {
         return cancel(task.mTag);
     }
 
-
-    void remove(final Task task) {
-        remove(task.getTag(), task.getHashCode());
-    }
-
     /**
      * 从队列移除某个任务
      *
@@ -369,6 +364,9 @@ public final class TaskQueue implements Callback {
     }
 
     void remove(final String tag, int hashCode) {
+        if (mDebug) {
+            LogUtils.v(TAG, "remove tag at " + Thread.currentThread().getName());
+        }
         synchronized (mLock) {
             mTaskMap.remove(tag);
         }
