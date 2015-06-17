@@ -25,12 +25,22 @@ public class Task<Result> {
     private Failure mFailure;
     private Callable<Result> mCallable;
     private boolean mSerially;
+    private boolean mStarted;
+    private String mTag;
 
     public static <Result> Task<Result> create(Callable<Result> callable) {
         return new Task<Result>().call(callable);
     }
 
     Task() {
+    }
+
+    public void cancel() {
+        if (mStarted) {
+            TaskQueue.getDefault().cancel(mTag);
+            mStarted = false;
+            mTag = null;
+        }
     }
 
     public String start() {
@@ -65,7 +75,10 @@ public class Task<Result> {
                 }
             };
         }
-        return TaskQueue.getDefault().execute(mCallable, mCallback, mCaller, mSerially);
+        final String tag = TaskQueue.getDefault().execute(mCallable, mCallback, mCaller, mSerially);
+        mTag = tag;
+        mStarted = true;
+        return tag;
     }
 
     public <Caller> Task<Result> with(final Caller caller) {

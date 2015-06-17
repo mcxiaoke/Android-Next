@@ -9,6 +9,7 @@ import com.mcxiaoke.next.utils.StringUtils;
 import com.mcxiaoke.next.utils.ThreadUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * 一个用于执行异步任务的类，单例，支持检查Caller，支持按照Caller和Tag取消对应的任务
  * User: mcxiaoke
- * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25 2014-05-14 2014-05-29
+ * Date: 2013-7-1 2013-7-25 2014-03-04 2014-03-25
+ * Date: 2014-05-14 2014-05-29 2015-06-15
  */
 public final class TaskQueue implements Callback {
     public static final String TAG = TaskQueue.class.getSimpleName();
@@ -32,53 +34,51 @@ public final class TaskQueue implements Callback {
     private Handler mUiHandler;
     private Map<Integer, List<String>> mCallerMap;
     private Map<String, TaskRunnable> mTaskMap;
-    private boolean mEnableCallerAliveCheck;
+    private boolean mCallerCheck;
     private boolean mDebug;
 
-    public TaskQueue() {
-        if (mDebug) {
-            LogUtils.v(TAG, "NextExecutor()");
-        }
-        ensureThread();
-        ensureData();
-        ensureHandler();
-        ensureExecutor();
+    static final class SingletonHolder {
+        static final TaskQueue INSTANCE = new TaskQueue();
     }
 
     public static TaskQueue getDefault() {
-        return SingletonHolder.DEFAULT;
+        return SingletonHolder.INSTANCE;
     }
 
-    /**
-     * 检查参数非空
-     *
-     * @param args 参数列表
-     */
-    private static void checkArguments(final Object... args) {
-        for (Object o : args) {
-            if (o == null) {
-                throw new NullPointerException("argument can not be null.");
+    public TaskQueue() {
+        LogUtils.v(TAG, "TaskQueue()");
+        init();
+        checkThread();
+        checkExecutor();
+    }
+
+    private void init() {
+        mTaskMap = new ConcurrentHashMap<String, TaskRunnable>();
+        mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
+        mUiHandler = new Handler(this);
+    }
+
+    @Override
+    public boolean handleMessage(final Message msg) {
+        if (mDebug) {
+            LogUtils.v(TAG, "handleMessage() what=" + msg.what);
+        }
+        switch (msg.what) {
+            case MSG_TASK_DONE: {
+                remove((String) msg.obj);
             }
+            break;
+            default:
+                break;
         }
+        return true;
     }
 
-    private void ensureThread() {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            throw new IllegalStateException("TaskQueue instance must be created on main thread");
-        }
-    }
-
-    private void ensureData() {
-//        if (mDebug) {
-//            LogUtils.v(TAG, "ensureData()");
-//        }
-        if (mTaskMap == null) {
-            mTaskMap = new ConcurrentHashMap<String, TaskRunnable>();
-        }
-        if (mCallerMap == null) {
-            mCallerMap = new ConcurrentHashMap<Integer, List<String>>();
-        }
-    }
+    /********************************************************************
+     *
+     * PUBLIC METHODS
+     *
+     *******************************************************************/
 
     /**
      * 是否检查Android组件生命周期
@@ -88,8 +88,8 @@ public final class TaskQueue implements Callback {
      *
      * @param enable enable
      */
-    public void setEnableCallerAliveCheck(boolean enable) {
-        mEnableCallerAliveCheck = enable;
+    public void setCallerCheck(boolean enable) {
+        mCallerCheck = enable;
     }
 
     /**
@@ -101,63 +101,8 @@ public final class TaskQueue implements Callback {
         mDebug = debug;
     }
 
-    private void logExecutor(final String name, final ThreadPoolExecutor executor) {
-        final int corePoolSize = executor.getCorePoolSize();
-        final int poolSize = executor.getPoolSize();
-        final int activeCount = executor.getActiveCount();
-        final long taskCount = executor.getTaskCount();
-        final long completedCount = executor.getCompletedTaskCount();
-        final boolean isShutdown = executor.isShutdown();
-        final boolean isTerminated = executor.isTerminated();
-        LogUtils.v(TAG, name + " CorePoolSize:" + corePoolSize + " PoolSize:" + poolSize);
-        LogUtils.v(TAG, name + " isShutdown:" + isShutdown + " isTerminated:" + isTerminated);
-        LogUtils.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
-                + " completedCount:" + completedCount);
-    }
-
-    /**
-     * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
-     *
-     * @param callable Callable对象，任务的实际操作
-     * @param callback 回调接口
-     * @param caller   调用方，一般为Fragment或Activity
-     * @param serial   是否按顺序执行任务
-     * @param <Result> 类型参数，异步任务执行结果
-     * @return 返回内部生成的此次任务的TAG
-     */
-    private <Result> String enqueue(final Callable<Result> callable, final TaskCallback<Result> callback,
-                                    final Object caller, final boolean serial) {
-
-        checkArguments(callable, caller);
-        ensureData();
-        ensureHandler();
-        ensureExecutor();
-
-        if (mDebug) {
-            LogUtils.v(TAG, "enqueue() serial=" + serial);
-        }
-
-        final Handler handler = mUiHandler;
-        final boolean enable = mEnableCallerAliveCheck;
-
-        final TaskCallable<Result> nextCallable;
-        if (callable instanceof TaskCallable) {
-            nextCallable = (TaskCallable<Result>) callable;
-        } else {
-            nextCallable = new TaskCallableWrapper<Result>(callable);
-        }
-
-        final TaskRunnable<Result> runnable = new TaskRunnable<Result>
-                (handler, enable, serial, nextCallable, callback, caller);
-        runnable.setDebug(mDebug);
-
-        addToTaskMap(runnable);
-        addToCallerMap(runnable);
-
-        return runnable.getTag();
-    }
-
-    public <Result> String execute(final Callable<Result> callable, final TaskCallback<Result> callback,
+    public <Result> String execute(final Callable<Result> callable,
+                                   final TaskCallback<Result> callback,
                                    final Object caller, final boolean serially) {
         if (mDebug) {
             LogUtils.v(TAG, "execute()");
@@ -180,7 +125,6 @@ public final class TaskQueue implements Callback {
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
-     * @param caller   Caller
      * @return Tag
      */
     public <Result> String add(final Callable<Result> callable, final Object caller) {
@@ -201,7 +145,6 @@ public final class TaskQueue implements Callback {
      * @param callable Callable
      * @param caller   Caller
      * @param <Result> Result
-     * @param caller   Caller
      * @return Tag
      */
     public <Result> String addSerially(final Callable<Result> callable, final Object caller) {
@@ -217,6 +160,183 @@ public final class TaskQueue implements Callback {
     public boolean isActive(String tag) {
         TaskRunnable nr = mTaskMap.get(tag);
         return nr != null && nr.isRunning();
+    }
+
+    /**
+     * 取消TAG对应的任务
+     *
+     * @param tag 任务TAG
+     * @return 任务是否存在
+     */
+    public boolean cancel(String tag) {
+        if (mDebug) {
+            LogUtils.v(TAG, "cancel() tag=" + tag);
+        }
+        boolean result = false;
+        final TaskRunnable runnable;
+        synchronized (mLock) {
+            runnable = mTaskMap.remove(tag);
+        }
+        if (runnable != null) {
+            result = runnable.cancel();
+        }
+        return result;
+    }
+
+    /**
+     * 取消由该调用方发起的所有任务
+     * 建议在Fragment或Activity的onDestroy中调用
+     *
+     * @param caller 任务调用方
+     * @return 返回取消的数目
+     */
+    public int cancelAll(Object caller) {
+        if (mDebug) {
+            LogUtils.v(TAG, "cancelAll() caller=" + caller.getClass().getSimpleName());
+        }
+        int cancelledCount = 0;
+        final int hashCode = System.identityHashCode(caller);
+        final List<String> tags;
+        synchronized (mLock) {
+            tags = mCallerMap.remove(hashCode);
+        }
+        if (tags == null || tags.isEmpty()) {
+            return cancelledCount;
+        }
+        for (String tag : tags) {
+            cancel(tag);
+            ++cancelledCount;
+        }
+        if (mDebug) {
+            LogUtils.v(TAG, "cancelAll() cancelledCount=" + cancelledCount);
+        }
+
+        return cancelledCount;
+    }
+
+    /**
+     * 设置自定义的ExecutorService
+     *
+     * @param executor ExecutorService
+     */
+    public void setExecutor(final ThreadPoolExecutor executor) {
+        if (executor == null) {
+            throw new NullPointerException("executor must not be null.");
+        }
+        mExecutor = executor;
+    }
+
+    /**
+     * 便利任务列表，取消所有任务
+     */
+    public void cancelAll() {
+        if (mDebug) {
+            LogUtils.v(TAG, "cancelAll()");
+        }
+        cancelAllInternal();
+    }
+
+    /**
+     * 获取当前实例的详细信息
+     *
+     * @param logcat 是否输出到logcat
+     * @return dump output
+     */
+    public String dump(final boolean logcat) {
+        final StringBuilder builder = new StringBuilder();
+
+        final ThreadPoolExecutor executor = mExecutor;
+
+        // thread pool info
+        final int corePoolSize = executor.getCorePoolSize();
+        final int poolSize = executor.getPoolSize();
+        final int activeCount = executor.getActiveCount();
+        final long taskCount = executor.getTaskCount();
+        final long completedCount = executor.getCompletedTaskCount();
+        final boolean isShutdown = executor.isShutdown();
+        final boolean isTerminated = executor.isTerminated();
+        builder.append(TAG).append("[ ");
+        builder.append("ThreadPool:{")
+                .append(" CorePoolSize:").append(corePoolSize).append(";")
+                .append(" PoolSize:").append(poolSize).append(";")
+                .append(" isShutdown:").append(isShutdown).append(";")
+                .append(" isTerminated:").append(isTerminated).append(";")
+                .append(" activeCount:").append(activeCount).append(";")
+                .append(" taskCount:").append(taskCount).append(";")
+                .append(" completedCount:").append(completedCount).append(";")
+                .append("}\n");
+
+//        private Map<Integer, List<String>> mCallerMap;
+//        private Map<String, TaskRunnable> mTaskMap;
+        // caller map
+        final Map<Integer, List<String>> callerMap = mCallerMap;
+        builder.append("CallerMap:{");
+        for (Map.Entry<Integer, List<String>> entry : callerMap.entrySet()) {
+            builder.append(" caller:").append(entry.getKey())
+                    .append(", tags:").append(StringUtils.toString(entry.getValue())).append(";");
+        }
+        builder.append("}\n");
+        builder.append("]");
+
+        // task map
+        Map<String, TaskRunnable> taskMap = mTaskMap;
+        builder.append("TaskMap:{");
+        for (Map.Entry<String, TaskRunnable> entry : taskMap.entrySet()) {
+            builder.append(" tag:").append(entry.getKey())
+                    .append(", runnable:").append(entry.getValue()).append(";");
+        }
+        builder.append("}\n");
+
+        final String info = builder.toString();
+
+        if (logcat) {
+            LogUtils.d(TAG, info);
+        }
+        return info;
+    }
+
+    /********************************************************************
+     *
+     * PRIVATE METHODS
+     *
+     *******************************************************************/
+
+    /**
+     * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
+     *
+     * @param callable Callable对象，任务的实际操作
+     * @param callback 回调接口
+     * @param caller   调用方，一般为Fragment或Activity
+     * @param serial   是否按顺序执行任务
+     * @param <Result> 类型参数，异步任务执行结果
+     * @return 返回内部生成的此次任务的TAG
+     */
+    private <Result> String enqueue(final Callable<Result> callable,
+                                    final TaskCallback<Result> callback,
+                                    final Object caller, final boolean serial) {
+        checkArguments(callable, caller);
+        checkExecutor();
+        if (mDebug) {
+            LogUtils.v(TAG, "enqueue() serial=" + serial);
+        }
+        final Handler handler = mUiHandler;
+        final boolean enable = mCallerCheck;
+
+        final TaskCallable<Result> nextCallable;
+        if (callable instanceof TaskCallable) {
+            nextCallable = (TaskCallable<Result>) callable;
+        } else {
+            nextCallable = new TaskCallableWrapper<Result>(callable);
+        }
+
+        final TaskRunnable<Result> runnable = new TaskRunnable<Result>
+                (handler, enable, serial, nextCallable, callback, caller);
+        runnable.setDebug(mDebug);
+
+        addToTaskMap(runnable);
+        addToCallerMap(runnable);
+
+        return runnable.getTag();
     }
 
     private <Result> void addToTaskMap(final TaskRunnable<Result> runnable) {
@@ -282,103 +402,18 @@ public final class TaskQueue implements Callback {
     }
 
     /**
-     * 便利任务列表，取消所有任务
-     */
-    public void cancelAll() {
-        if (mDebug) {
-            LogUtils.v(TAG, "cancelAll()");
-        }
-        cancelAllInternal();
-    }
-
-    /**
      * 取消所有的Runnable对应的任务
      */
     private void cancelAllInternal() {
-        Collection<TaskRunnable> runnables = mTaskMap.values();
-        for (TaskRunnable runnable : runnables) {
-            if (runnable != null) {
-                runnable.cancel();
+        final Collection<TaskRunnable> tasks = mTaskMap.values();
+        for (TaskRunnable task : tasks) {
+            if (task != null) {
+                task.cancel();
             }
         }
         synchronized (mLock) {
             mTaskMap.clear();
         }
-    }
-
-    /**
-     * 取消TAG对应的任务
-     *
-     * @param tag 任务TAG
-     * @return 任务是否存在
-     */
-    public boolean cancel(String tag) {
-        if (mDebug) {
-            LogUtils.v(TAG, "cancel() tag=" + tag);
-        }
-        boolean result = false;
-        final TaskRunnable runnable;
-        synchronized (mLock) {
-            runnable = mTaskMap.remove(tag);
-        }
-        if (runnable != null) {
-            result = runnable.cancel();
-        }
-        return result;
-    }
-
-    /**
-     * 取消由该调用方发起的所有任务
-     * 建议在Fragment或Activity的onDestroy中调用
-     *
-     * @param caller 任务调用方
-     * @return 返回取消的数目
-     */
-    public <Caller> int cancelAll(Caller caller) {
-        if (mDebug) {
-            LogUtils.v(TAG, "cancelAll() caller=" + caller.getClass().getSimpleName());
-        }
-        int cancelledCount = 0;
-        final int hashCode = System.identityHashCode(caller);
-        final List<String> tags;
-        synchronized (mLock) {
-            tags = mCallerMap.remove(hashCode);
-        }
-        if (tags == null || tags.isEmpty()) {
-            return cancelledCount;
-        }
-
-        for (String tag : tags) {
-            cancel(tag);
-            ++cancelledCount;
-        }
-
-        if (mDebug) {
-            LogUtils.v(TAG, "cancelAll() cancelledCount=" + cancelledCount);
-        }
-
-        return cancelledCount;
-    }
-
-    /**
-     * 设置自定义的ExecutorService
-     *
-     * @param executor ExecutorService
-     */
-    public void setExecutor(final ThreadPoolExecutor executor) {
-        mExecutor = executor;
-    }
-
-    /**
-     * 取消所有任务，关闭TaskExecutor
-     */
-    public void destroy() {
-        if (mDebug) {
-            LogUtils.v(TAG, "destroy()");
-        }
-        cancelAll();
-        destroyHandler();
-        destroyExecutor();
     }
 
     /**
@@ -403,79 +438,21 @@ public final class TaskQueue implements Callback {
      * @return 返回任务对应的Future对象
      */
     private Future<?> smartSubmit(final TaskRunnable runnable) {
-        if (runnable.isSerial()) {
-            return submitSerial(runnable);
-        } else {
-            return submit(runnable);
-        }
-    }
-
-    private Future<?> submit(final Runnable runnable) {
-        ensureHandler();
-        ensureExecutor();
-        return mExecutor.submit(runnable);
-    }
-
-    private <T> Future<T> submit(final Callable<T> callable) {
-        ensureHandler();
-        ensureExecutor();
-        return mExecutor.submit(callable);
-    }
-
-    private Future<?> submitSerial(final Runnable runnable) {
-        ensureHandler();
-        ensureExecutor();
-        return mSerialExecutor.submit(runnable);
-    }
-
-    private <T> Future<T> submitSerial(final Callable<T> callable) {
-        ensureHandler();
-        ensureExecutor();
-        return mSerialExecutor.submit(callable);
+        checkExecutor();
+        return runnable.isSerial() ? mSerialExecutor.submit(runnable) :
+                mExecutor.submit(runnable);
     }
 
     /**
      * 检查并初始化ExecutorService
      */
-    private void ensureExecutor() {
+    private void checkExecutor() {
         if (mExecutor == null || mExecutor.isShutdown()) {
-            mExecutor = ThreadUtils.newCachedThreadPool("next");
+            mExecutor = ThreadUtils.newCachedThreadPool("task-default");
         }
         if (mSerialExecutor == null || mSerialExecutor.isShutdown()) {
-            mSerialExecutor = ThreadUtils.newSingleThreadExecutor("next-serial");
+            mSerialExecutor = ThreadUtils.newSingleThreadExecutor("task-serial");
         }
-    }
-
-    /**
-     * 检查并初始化Handler，主线程处理消息
-     * TODO 考虑把所有的操作都放到一个单独的线程，避免cancelAll等操作堵塞住线程
-     */
-    private void ensureHandler() {
-        if (mUiHandler == null) {
-            mUiHandler = new Handler(this);
-        }
-    }
-
-    @Override
-    public boolean handleMessage(final Message msg) {
-        if (mDebug) {
-            LogUtils.v(TAG, "handleMessage() what=" + msg.what);
-        }
-        switch (msg.what) {
-            case MSG_TASK_DONE: {
-                final String tag = (String) msg.obj;
-                if (mDebug) {
-                    LogUtils.v(TAG, "handleMessage() tag:" + tag);
-                    logExecutor("Executor", mExecutor);
-                    logExecutor("SerialExecutor", mSerialExecutor);
-                }
-                remove(tag);
-            }
-            break;
-            default:
-                break;
-        }
-        return true;
     }
 
     /**
@@ -483,11 +460,11 @@ public final class TaskQueue implements Callback {
      */
     private void destroyExecutor() {
         if (mExecutor != null) {
-            mExecutor.shutdownNow();
+            mExecutor.shutdown();
             mExecutor = null;
         }
         if (mSerialExecutor != null) {
-            mSerialExecutor.shutdownNow();
+            mSerialExecutor.shutdown();
             mSerialExecutor = null;
         }
     }
@@ -504,18 +481,30 @@ public final class TaskQueue implements Callback {
         }
     }
 
+    /********************************************************************
+     * STATIC METHODS
+     *******************************************************************/
+
+    private static void checkThread() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            throw new IllegalStateException("TaskQueue instance must be created on main thread");
+        }
+    }
+
     /**
-     * 获取当前实例的详细信息
+     * 检查参数非空
      *
-     * @param logcat 是否输出到logcat
-     * @return
+     * @param args 参数列表
      */
-    public String dump(final boolean logcat) {
-        final StringBuilder builder = new StringBuilder();
+    private static void checkArguments(final Object... args) {
+        for (Object o : args) {
+            if (o == null) {
+                throw new NullPointerException("argument can not be null " + Arrays.toString(args));
+            }
+        }
+    }
 
-        final ThreadPoolExecutor executor = mExecutor;
-
-        // thread pool info
+    private static void logExecutor(final String name, final ThreadPoolExecutor executor) {
         final int corePoolSize = executor.getCorePoolSize();
         final int poolSize = executor.getPoolSize();
         final int activeCount = executor.getActiveCount();
@@ -523,49 +512,10 @@ public final class TaskQueue implements Callback {
         final long completedCount = executor.getCompletedTaskCount();
         final boolean isShutdown = executor.isShutdown();
         final boolean isTerminated = executor.isTerminated();
-        builder.append(TAG).append("[ ");
-        builder.append("ThreadPool:{")
-                .append(" CorePoolSize:").append(corePoolSize).append(";")
-                .append(" PoolSize:").append(poolSize).append(";")
-                .append(" isShutdown:").append(isShutdown).append(";")
-                .append(" isTerminated:").append(isTerminated).append(";")
-                .append(" activeCount:").append(activeCount).append(";")
-                .append(" taskCount:").append(taskCount).append(";")
-                .append(" completedCount:").append(completedCount).append(";")
-                .append("}\n");
-
-//        private Map<Integer, List<String>> mCallerMap;
-//        private Map<String, TaskRunnable> mTaskMap;
-        // caller map
-        final Map<Integer, List<String>> callerMap = mCallerMap;
-        builder.append("CallerMap:{");
-        for (Map.Entry<Integer, List<String>> entry : callerMap.entrySet()) {
-            builder.append(" caller:").append(entry.getKey())
-                    .append(", tags:").append(StringUtils.toString(entry.getValue())).append(";");
-        }
-        builder.append("}\n");
-        builder.append("]");
-
-        // task map
-        Map<String, TaskRunnable> taskMap = mTaskMap;
-        builder.append("TaskMap:{");
-        for (Map.Entry<String, TaskRunnable> entry : taskMap.entrySet()) {
-            builder.append(" tag:").append(entry.getKey())
-                    .append(", runnable:").append(entry.getValue()).append(";");
-        }
-        builder.append("}\n");
-
-        final String info = builder.toString();
-
-        if (logcat) {
-            LogUtils.d(TAG, info);
-        }
-        return info;
-    }
-
-    // 延迟加载
-    private static final class SingletonHolder {
-        static final TaskQueue DEFAULT = new TaskQueue();
+        LogUtils.v(TAG, name + " CorePoolSize:" + corePoolSize + " PoolSize:" + poolSize);
+        LogUtils.v(TAG, name + " isShutdown:" + isShutdown + " isTerminated:" + isTerminated);
+        LogUtils.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
+                + " completedCount:" + completedCount);
     }
 
 }

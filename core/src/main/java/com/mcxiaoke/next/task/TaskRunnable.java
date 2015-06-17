@@ -1,15 +1,13 @@
 package com.mcxiaoke.next.task;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Fragment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import com.mcxiaoke.next.utils.AndroidUtils;
 import com.mcxiaoke.next.utils.LogUtils;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -116,40 +114,8 @@ final class TaskRunnable<Result> implements Runnable {
      * @return is active
      */
     @SuppressLint("NewApi")
-    private boolean isCallerAlive() {
-        if (!mCheckCaller) {
-            return true;
-        }
-        final Object caller = mWeakCaller.get();
-        if (caller == null) {
-            return false;
-        }
-        if (caller instanceof Activity) {
-            return !((Activity) caller).isFinishing();
-        }
-
-        if (caller instanceof Fragment) {
-            return ((Fragment) caller).isAdded();
-        }
-
-        return isAddedCompat(caller);
-    }
-
-    private boolean isAddedCompat(final Object caller) {
-        try {
-            final Class<?> fragmentClass = Class.forName("android.support.v4.app.Fragment");
-            final Class<?> clazz = caller.getClass();
-            if (caller == fragmentClass) {
-                final Method method = clazz.getMethod("isAdded", clazz);
-                return (boolean) method.invoke(caller);
-            }
-        } catch (Exception e) {
-            if (mDebug) {
-                LogUtils.e(TAG, "isFragmentAdded() ex=" + e);
-            }
-        }
-
-        return false;
+    private boolean isCallerActive() {
+        return !mCheckCaller || AndroidUtils.isActive(mWeakCaller.get());
     }
 
     @Override
@@ -194,7 +160,7 @@ final class TaskRunnable<Result> implements Runnable {
         notifyDone();
 
         // if task not cancelled and caller alive, notify callback
-        final boolean callerAlive = isCallerAlive();
+        final boolean callerAlive = isCallerActive();
         if (!taskCancelled && callerAlive) {
             if (throwable != null) {
                 notifyFailure(throwable);
