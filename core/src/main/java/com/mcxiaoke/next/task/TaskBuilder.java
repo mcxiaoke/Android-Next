@@ -20,6 +20,7 @@ public class TaskBuilder<Result> {
     Failure failure;
     boolean serial;
     boolean check;
+    long delayMillis;
 
     /**
      * 根据Callable初始化TaskBuilder
@@ -107,6 +108,17 @@ public class TaskBuilder<Result> {
      */
     public TaskBuilder<Result> check(final boolean check) {
         this.check = check;
+        return this;
+    }
+
+    /**
+     * 延迟执行
+     *
+     * @param millis 延迟的毫秒数
+     * @return TaskBuilder
+     */
+    public TaskBuilder<Result> delay(final long millis) {
+        this.delayMillis = millis;
         return this;
     }
 
