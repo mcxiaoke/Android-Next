@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.task;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -25,6 +26,19 @@ import java.util.concurrent.ThreadPoolExecutor;
  * Date: 2014-05-14 2014-05-29 2015-06-15
  */
 public final class TaskQueue implements Callback {
+
+    public interface Success<Result> {
+        void onSuccess(final Result result, final Bundle extras);
+    }
+
+    public interface Failure {
+        void onFailure(Throwable throwable, final Bundle extras);
+    }
+
+    public enum TaskStatus {
+        IDLE, RUNNING, CANCELLED, FAILURE, SUCCESS
+    }
+
     public static final String TAG = TaskQueue.class.getSimpleName();
     // 某一个线程运行结束时需要从TaskMap里移除
     public static final int MSG_TASK_DONE = 4001;
@@ -302,6 +316,25 @@ public final class TaskQueue implements Callback {
      *******************************************************************/
 
     /**
+     * 执行异步任务
+     *
+     * @param task     任务对象
+     * @param <Result> 类型参数，异步任务执行结果
+     * @return 返回内部生成的此次任务的TAG
+     */
+    <Result> String enqueue(final TaskInfo<Result> task) {
+        if (mDebug) {
+            LogUtils.v(TAG, "enqueue() task=" + task);
+        }
+        final TaskRunnable runnable = new RunnableImplB<Result>
+                (task, mUiHandler, mDebug);
+        addToTaskMap(runnable);
+        addToCallerMap(runnable);
+
+        return runnable.getTag();
+    }
+
+    /**
      * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
      *
      * @param callable Callable对象，任务的实际操作
@@ -311,9 +344,9 @@ public final class TaskQueue implements Callback {
      * @param <Result> 类型参数，异步任务执行结果
      * @return 返回内部生成的此次任务的TAG
      */
-    private <Result> String enqueue(final Callable<Result> callable,
-                                    final TaskCallback<Result> callback,
-                                    final Object caller, final boolean serial) {
+    <Result> String enqueue(final Callable<Result> callable,
+                            final TaskCallback<Result> callback,
+                            final Object caller, final boolean serial) {
         checkArguments(callable, caller);
         checkExecutor();
         if (mDebug) {
@@ -326,12 +359,12 @@ public final class TaskQueue implements Callback {
         if (callable instanceof TaskCallable) {
             nextCallable = (TaskCallable<Result>) callable;
         } else {
-            nextCallable = new TaskCallableWrapper<Result>(callable);
+            nextCallable = new WrappedCallable<Result>(callable);
         }
 
-        final TaskRunnable<Result> runnable = new TaskRunnable<Result>
-                (handler, enable, serial, nextCallable, callback, caller);
-        runnable.setDebug(mDebug);
+        final TaskRunnable runnable = new RunnableImplA<Result>
+                (handler, enable, serial, nextCallable,
+                        callback, caller, mDebug);
 
         addToTaskMap(runnable);
         addToCallerMap(runnable);
@@ -339,7 +372,12 @@ public final class TaskQueue implements Callback {
         return runnable.getTag();
     }
 
-    private <Result> void addToTaskMap(final TaskRunnable<Result> runnable) {
+
+    <Result> boolean cancel(final TaskInfo<Result> task) {
+        return cancel(task.tag);
+    }
+
+    private <Result> void addToTaskMap(final TaskRunnable runnable) {
         final String tag = runnable.getTag();
         if (mDebug) {
             LogUtils.v(TAG, "addToTaskMap() tag=" + tag);
@@ -349,7 +387,7 @@ public final class TaskQueue implements Callback {
         addTagToTaskMap(tag, runnable);
     }
 
-    private <Result> void addTagToTaskMap(final String tag, final TaskRunnable<Result> runnable) {
+    private <Result> void addTagToTaskMap(final String tag, final TaskRunnable runnable) {
         synchronized (mLock) {
             mTaskMap.put(tag, runnable);
         }
@@ -364,7 +402,7 @@ public final class TaskQueue implements Callback {
         }
     }
 
-    private <Result> void addToCallerMap(final TaskRunnable<Result> runnable) {
+    private <Result> void addToCallerMap(final TaskRunnable runnable) {
         // caller的key是hashcode
         // tag的组成:className+hashcode+timestamp+sequenceNumber
         final int hashCode = runnable.getHashCode();
@@ -425,8 +463,12 @@ public final class TaskQueue implements Callback {
         if (mDebug) {
             LogUtils.v(TAG, "remove() tag=" + tag);
         }
-        final String hashCodeStr = tag.split(TaskRunnable.SEPARATOR)[1];
+        final String hashCodeStr = tag.split(TaskHelper.SEPARATOR)[1];
         final int hashCode = Integer.valueOf(hashCodeStr);
+        remove(tag, hashCode);
+    }
+
+    private void remove(String tag, int hashCode) {
         removeTagFromTaskMap(tag);
         removeTagFromCallerMap(hashCode, tag);
     }

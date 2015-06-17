@@ -18,9 +18,9 @@ import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
-import com.mcxiaoke.next.task.Task;
-import com.mcxiaoke.next.task.Task.Failure;
-import com.mcxiaoke.next.task.Task.Success;
+import com.mcxiaoke.next.task.TaskBuilder;
+import com.mcxiaoke.next.task.TaskBuilder.Failure;
+import com.mcxiaoke.next.task.TaskBuilder.Success;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
@@ -92,8 +92,8 @@ public class TaskQueueSamples extends BaseActivity {
             }
         };
 
-        Task.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
-        Task.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
+        TaskBuilder.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
 
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
         TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
@@ -108,7 +108,7 @@ public class TaskQueueSamples extends BaseActivity {
     private void taskDemo() {
         final String testUrl = "https://api.github.com/users/mcxiaoke";
 
-        Task.create(new Callable<JSONObject>() {
+        TaskBuilder.create(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
                 final String response = NextClient.get(testUrl).string();
@@ -128,7 +128,7 @@ public class TaskQueueSamples extends BaseActivity {
             }
         }).with(this).serial(false).start();
 
-        Task.create(new Callable<JSONObject>() {
+        TaskBuilder.create(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
                 final String response = NextClient.get(testUrl).string();
