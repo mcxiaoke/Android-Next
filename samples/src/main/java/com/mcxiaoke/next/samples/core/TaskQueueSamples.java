@@ -17,13 +17,14 @@ import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
+import com.mcxiaoke.next.task.Failure;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
+import com.mcxiaoke.next.task.Success;
 import com.mcxiaoke.next.task.TaskBuilder;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
-import com.mcxiaoke.next.task.Failure;
 import com.mcxiaoke.next.task.TaskQueue;
-import com.mcxiaoke.next.task.Success;
+import com.mcxiaoke.next.task.TaskStatus;
 import com.mcxiaoke.next.utils.StringUtils;
 import org.json.JSONObject;
 
@@ -108,7 +109,7 @@ public class TaskQueueSamples extends BaseActivity {
     private void taskDemo() {
         final String testUrl = "https://api.github.com/users/mcxiaoke";
 
-        TaskBuilder.create(new Callable<JSONObject>() {
+        TaskBuilder.create(JSONObject.class).action(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
                 final String response = NextClient.get(testUrl).string();
@@ -147,9 +148,9 @@ public class TaskQueueSamples extends BaseActivity {
         }).serial(true).with(this).start();
 
         /**
-        TaskBuilder.create(callable) // 设置Callable
+         TaskBuilder.create(callable) // 设置Callable
          .with(caller) // 设置Caller
-         .run(callable) // 设置Callable
+         .action(callable) // 设置Callable/Runnable
          .callback(callback) // 设置TaskCallback
          .success(success) //设置任务成功回调
          .failure(failure) //设置任务失败回调
@@ -160,6 +161,33 @@ public class TaskQueueSamples extends BaseActivity {
          .build() // 生成 TaskInfo 对象
          .start(); // 开始运行任务
          **/
+
+        TaskBuilder.create(String.class).callback(new TaskCallback<String>() {
+            @Override
+            public void onTaskStarted(final TaskStatus<String> status, final Bundle extras) {
+
+            }
+
+            @Override
+            public void onTaskFinished(final TaskStatus<String> status, final Bundle extras) {
+
+            }
+
+            @Override
+            public void onTaskCancelled(final TaskStatus<String> status, final Bundle extras) {
+
+            }
+
+            @Override
+            public void onTaskSuccess(final String s, final Bundle extras) {
+
+            }
+
+            @Override
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+
+            }
+        }).start();
     }
 
     private static final Random RANDOM = new Random(System.currentTimeMillis());

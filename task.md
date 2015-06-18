@@ -99,9 +99,9 @@
             }
         }).with(this).start();
 
-        TaskBuilder.create(callable) // 设置Callable
+        TaskBuilder.create(resultType|callable|callback) // 创建TaskBuilder
          .with(caller) // 设置Caller
-         .run(callable) // 设置Callable
+         .action(callable|runnable) // 设置Callable|Runnable
          .callback(callback) // 设置TaskCallback
          .success(success) //设置任务成功回调
          .failure(failure) //设置任务失败回调
@@ -109,8 +109,11 @@
          .dispatch(handler)// 回调方法所在线程，默认是主线程
          .serial(false) // 是否按顺序依次执行
          .on(queue) // 设置自定义的TaskQueue
-         .build() // 生成 TaskInfo 对象
-         .start(); // 开始运行任务
+         .delay(millis) // 设置任务延迟开始
+         .extras(bundle); // 添加额外参数，会通过callback返回
+         .build() // 生成Task对象
+         .start() //开始任务
+         .cancel()// 取消任务
 
 ```
 

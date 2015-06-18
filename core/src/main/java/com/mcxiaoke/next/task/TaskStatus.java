@@ -6,7 +6,7 @@ package com.mcxiaoke.next.task;
  * Date: 15/6/17
  * Time: 12:17
  */
-class TaskStatus<Result> {
+public class TaskStatus<Result> {
 
     public static final int IDLE = 0; // 空闲，初始化
     public static final int RUNNING = 1;  // 线程正在运行
@@ -17,7 +17,7 @@ class TaskStatus<Result> {
     /**
      * 任务的TAG
      */
-    final String tag;
+    final TaskTag tag;
     /**
      * 任务当前状态
      */
@@ -35,7 +35,7 @@ class TaskStatus<Result> {
     // 任务异常
     Throwable error;
 
-    public TaskStatus(final String tag) {
+    public TaskStatus(final TaskTag tag) {
         this.tag = tag;
         this.status = IDLE;
     }
@@ -48,10 +48,6 @@ class TaskStatus<Result> {
         return status == CANCELLED;
     }
 
-    public boolean isRunning() {
-        return status == RUNNING;
-    }
-
     public long getDuration() {
         if (endTime < startTime) {
             return 0;
@@ -59,16 +55,8 @@ class TaskStatus<Result> {
         return endTime - startTime;
     }
 
-    public String getTag() {
-        return tag;
-    }
-
-    public long getEndTime() {
-        return endTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
+    public String getName() {
+        return tag.getName();
     }
 
     public int getStatus() {

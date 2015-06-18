@@ -3,7 +3,6 @@ package com.mcxiaoke.next.task;
 import android.os.SystemClock;
 import com.mcxiaoke.next.utils.LogUtils;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 /**
@@ -11,27 +10,22 @@ import java.util.concurrent.Future;
  * Date: 14-5-14
  * Time: 17:12
  */
-final class TaskRunnable<Result> implements Runnable {
-    private static final String CLASS_TAG = TaskRunnable.class.getSimpleName();
-    private static final String TAG = TaskQueue.TAG;
+final class TaskRunnable<Result> implements ITaskRunnable {
+    private static final String TAG = "TaskQueue.Runnable";
 
     private Future<?> mFuture;
     private boolean mDebug;
 
-    private Task<Result> mTaskInfo;
+    private Task<Result> mTask;
     private TaskStatus<Result> mStatus;
 
     TaskRunnable(final Task<Result> task, final boolean debug) {
-        mTaskInfo = task;
-        mStatus = new TaskStatus<Result>(task.mTag);
+        mTask = task;
+        mStatus = new TaskStatus<Result>(task.getTag());
         mDebug = debug;
         if (mDebug) {
             LogUtils.v(TAG, "TaskRunnable() task=" + task);
         }
-    }
-
-    void execute(final ExecutorService executor) {
-        mFuture = executor.submit(this);
     }
 
     /**
@@ -49,31 +43,30 @@ final class TaskRunnable<Result> implements Runnable {
         mStatus.status = TaskStatus.RUNNING;
         mStatus.startTime = SystemClock.elapsedRealtime();
         if (mDebug) {
-            LogUtils.v(TAG, "run() start, thread=" + Thread.currentThread().getName()
-                    + " tag=" + mStatus.tag);
+            LogUtils.v(TAG, "run() start, thread=" + Thread.currentThread().getName());
         }
         onTaskStarted();
         Result result = null;
         Throwable error = null;
         if (!isTaskCancelled()) {
             try {
-                result = mTaskInfo.call();
+                result = mTask.call();
             } catch (Exception e) {
                 error = e;
             }
         } else {
             if (mDebug) {
                 LogUtils.v(TAG, "run() task is cancelled, ignore task, thread="
-                        + Thread.currentThread().getName() + " tag=" + mStatus.tag);
+                        + Thread.currentThread().getName());
             }
         }
         mStatus.endTime = SystemClock.elapsedRealtime();
         mStatus.data = result;
         mStatus.error = error;
-
         if (isTaskCancelled()) {
             onTaskCancelled();
         } else {
+            mStatus.status = error == null ? TaskStatus.SUCCESS : TaskStatus.FAILURE;
             onTaskFinished();
             if (error != null) {
                 onTaskFailure(error);
@@ -81,15 +74,13 @@ final class TaskRunnable<Result> implements Runnable {
                 onTaskSuccess(result);
             }
         }
-        if (!mStatus.isCancelled()) {
-            mStatus.status = error == null ? TaskStatus.SUCCESS : TaskStatus.FAILURE;
-        }
         if (mDebug) {
-            LogUtils.v(TAG, "run() end duration:" + mStatus.getDuration() + "ms tag=" + mStatus.tag);
+            LogUtils.v(TAG, "run() end duration:" + mStatus.getDuration() + "ms");
         }
         onDone();
     }
 
+    @Override
     public boolean cancel() {
         if (mDebug) {
             LogUtils.v(TAG, "cancel()");
@@ -102,19 +93,16 @@ final class TaskRunnable<Result> implements Runnable {
         return result;
     }
 
-    public boolean isSerial() {
-        return mTaskInfo.mSerial;
+    @Override
+    public void setFuture(final Future<?> future) {
+        mFuture = future;
     }
 
-    public boolean isRunning() {
-        return mStatus.isRunning();
-    }
-
-    public boolean isCancelled() {
+    private boolean isCancelled() {
         return mStatus.isCancelled();
     }
 
-    public boolean isInterrupted() {
+    private boolean isInterrupted() {
         return Thread.currentThread().isInterrupted();
     }
 
@@ -122,14 +110,14 @@ final class TaskRunnable<Result> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskStarted()");
         }
-        mTaskInfo.onStarted(mStatus);
+        mTask.onStarted(mStatus);
     }
 
     private void onTaskCancelled() {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskCancelled()");
         }
-        mTaskInfo.onCancelled(mStatus);
+        mTask.onCancelled(mStatus);
     }
 
 
@@ -137,7 +125,7 @@ final class TaskRunnable<Result> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskFinished()");
         }
-        mTaskInfo.onFinished(mStatus);
+        mTask.onFinished(mStatus);
     }
 
     /**
@@ -149,7 +137,7 @@ final class TaskRunnable<Result> implements Runnable {
         if (mDebug) {
             LogUtils.v(TAG, "onTaskSuccess()");
         }
-        mTaskInfo.onSuccess(mStatus);
+        mTask.onSuccess(mStatus);
     }
 
     /**
@@ -161,10 +149,10 @@ final class TaskRunnable<Result> implements Runnable {
         if (mDebug) {
             LogUtils.e(TAG, "onTaskFailure() error=" + ex);
         }
-        mTaskInfo.onFailure(mStatus);
+        mTask.onFailure(mStatus);
     }
 
     private void onDone() {
-        mTaskInfo.onDone(mStatus);
+        mTask.onDone(mStatus);
     }
 }

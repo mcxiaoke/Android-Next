@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.task;
 
+import android.os.Bundle;
 import android.os.Handler;
 
 import java.util.concurrent.Callable;
@@ -12,7 +13,7 @@ import java.util.concurrent.Callable;
 public class TaskBuilder<Result> {
 
     Handler handler;
-    TaskQueue queue;
+    TaskQueueImpl queue;
     Object caller;
     TaskCallable<Result> callable;
     TaskCallback<Result> callback;
@@ -21,6 +22,18 @@ public class TaskBuilder<Result> {
     boolean serial;
     boolean check;
     long delayMillis;
+    Bundle extras;
+
+    /**
+     * 根据结果类型初始化TaskBuilder
+     *
+     * @param resultType Result Type
+     * @param <Result>   Result Type
+     * @return TaskBuilder
+     */
+    public static <Result> TaskBuilder<Result> create(Class<Result> resultType) {
+        return new TaskBuilder<Result>();
+    }
 
     /**
      * 根据Callable初始化TaskBuilder
@@ -30,7 +43,7 @@ public class TaskBuilder<Result> {
      * @return TaskBuilder
      */
     public static <Result> TaskBuilder<Result> create(Callable<Result> callable) {
-        return new TaskBuilder<Result>().run(callable);
+        return new TaskBuilder<Result>().action(callable);
     }
 
     /**
@@ -53,7 +66,7 @@ public class TaskBuilder<Result> {
      * @return Task
      */
     public Task<Result> build() {
-        return new Task<Result>(this);
+        return TaskFactory.createTask(this);
     }
 
     /**
@@ -61,7 +74,7 @@ public class TaskBuilder<Result> {
      *
      * @return TAG
      */
-    public String start() {
+    public TaskTag start() {
         return build().start();
     }
 
@@ -93,7 +106,7 @@ public class TaskBuilder<Result> {
      * @param queue TaskQueue
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> on(final TaskQueue queue) {
+    public TaskBuilder<Result> on(final TaskQueueImpl queue) {
         this.queue = queue;
         return this;
     }
@@ -123,12 +136,23 @@ public class TaskBuilder<Result> {
     }
 
     /**
+     * 设置额外参数，会通过callback返回
+     *
+     * @param extras 延迟的毫秒数
+     * @return TaskBuilder
+     */
+    public TaskBuilder<Result> extras(final Bundle extras) {
+        this.extras = extras;
+        return this;
+    }
+
+    /**
      * 设置需要执行的任务
      *
      * @param callable Callable
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> run(final Callable<Result> callable) {
+    public TaskBuilder<Result> action(final Callable<Result> callable) {
         if (callable instanceof TaskCallable) {
             this.callable = (TaskCallable<Result>) callable;
         } else {
@@ -143,7 +167,7 @@ public class TaskBuilder<Result> {
      * @param runnable Runnable
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> run(final Runnable runnable) {
+    public TaskBuilder<Result> action(final Runnable runnable) {
         this.callable = new WrappedRunnable<Result>(runnable);
         return this;
     }
@@ -193,4 +217,5 @@ public class TaskBuilder<Result> {
         this.serial = serial;
         return this;
     }
+
 }

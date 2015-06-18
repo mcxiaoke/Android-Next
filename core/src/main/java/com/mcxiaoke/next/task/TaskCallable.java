@@ -33,6 +33,9 @@ public abstract class TaskCallable<V> implements Callable<V> {
     }
 
     public Bundle getExtras() {
+        if (mExtras == null) {
+            mExtras = new Bundle();
+        }
         return mExtras;
     }
 
