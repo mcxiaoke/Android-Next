@@ -3,7 +3,6 @@ package com.mcxiaoke.next.task;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import com.mcxiaoke.next.utils.AndroidUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -280,7 +279,7 @@ class TaskImpl<Result> extends Task<Result> {
 
     boolean isInvalidCaller() {
         final Object caller = mCallerRef.get();
-        return caller == null || mCheck && !AndroidUtils.isActive(mCallerRef);
+        return caller == null || mCheck && !Utils.isActive(caller);
     }
 
 

@@ -14,8 +14,8 @@ package com.mcxiaoke.next.utils;
 
 import java.io.DataInput;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Vector;
 
@@ -274,7 +274,7 @@ public class ImageType {
 
     /**
      * Call this method after you have provided an input stream or file
-     * using {@link #setInput(java.io.InputStream)} or {@link #setInput(java.io.DataInput)}.
+     * using {@link #setInput(InputStream)} or {@link #setInput(DataInput)}.
      * If true is returned, the file format was known and information
      * on the file's content can be retrieved using the various getXyz methods.
      *
@@ -1164,7 +1164,7 @@ public class ImageType {
     /**
      * Set the input stream to the argument stream (or file).
      * Note that {@link java.io.RandomAccessFile} implements
-     * {@link java.io.DataInput}.
+     * {@link DataInput}.
      *
      * @param dataInput the input stream to read from
      */

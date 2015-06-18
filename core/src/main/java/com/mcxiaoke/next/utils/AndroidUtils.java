@@ -3,7 +3,6 @@ package com.mcxiaoke.next.utils;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -31,13 +30,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.mcxiaoke.next.BuildConfig;
+import com.mcxiaoke.next.core.BuildConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.regex.Pattern;
@@ -102,7 +100,7 @@ public final class AndroidUtils {
     @SuppressLint("NewApi")
     public static String getPath(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        final boolean isKitKat = Build.VERSION.SDK_INT >= VERSION_CODES.KITKAT;
 
         if (DEBUG) {
             LogUtils.v(TAG, "getRealPath() uri=" + uri + " isKitKat=" + isKitKat);
@@ -308,9 +306,9 @@ public final class AndroidUtils {
      * @param <T>  Task argument type.
      */
     @SuppressWarnings("unchecked")
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @TargetApi(VERSION_CODES.HONEYCOMB)
     public static <T> void execute(AsyncTask<T, ?, ?> task, T... args) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < VERSION_CODES.HONEYCOMB) {
             task.execute(args);
         } else {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args);
@@ -381,19 +379,19 @@ public final class AndroidUtils {
     }
 
     public static boolean hasIceCreamSandwich() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        return Build.VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     public static boolean isPreIceCreamSandwich() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+        return Build.VERSION.SDK_INT < VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     public static boolean hasJellyBean() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+        return Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN;
     }
 
     public static boolean hasKitkat() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        return Build.VERSION.SDK_INT >= VERSION_CODES.KITKAT;
     }
 
     public static boolean isPreLollipop() {
@@ -401,7 +399,7 @@ public final class AndroidUtils {
     }
 
     public static boolean hasLollipop() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP;
     }
 
     @SuppressWarnings({"ResourceType", "unchecked"})
@@ -541,36 +539,5 @@ public final class AndroidUtils {
 
         return text;
     }
-
-    @TargetApi(VERSION_CODES.HONEYCOMB)
-    public static boolean isActive(final Object caller) {
-        if (caller == null) {
-            return false;
-        }
-        if (caller instanceof Activity) {
-            return !((Activity) caller).isFinishing();
-        }
-
-        if (caller instanceof Fragment) {
-            return ((Fragment) caller).isAdded();
-        }
-
-        return isAddedCompat(caller);
-    }
-
-    private static boolean isAddedCompat(final Object caller) {
-        try {
-            final Class<?> fragmentClass = Class.forName("android.support.v4.app.Fragment");
-            final Class<?> clazz = caller.getClass();
-            if (caller == fragmentClass) {
-                final Method method = clazz.getMethod("isAdded", clazz);
-                return (boolean) method.invoke(caller);
-            }
-        } catch (Exception ignored) {
-        }
-
-        return false;
-    }
-
 
 }

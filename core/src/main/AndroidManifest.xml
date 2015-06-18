@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mcxiaoke.next">
-
-    <uses-sdk android:minSdkVersion="10" />
+<manifest package="com.mcxiaoke.next.core">
 
     <application />
 </manifest>

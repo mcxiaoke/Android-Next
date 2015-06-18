@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.task;
 
 import android.os.SystemClock;
-import com.mcxiaoke.next.utils.LogUtils;
+import android.util.Log;
 
 import java.util.concurrent.Future;
 
@@ -24,7 +24,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         mStatus = new TaskStatus<Result>(task.getTag());
         mDebug = debug;
         if (mDebug) {
-            LogUtils.v(TAG, "TaskRunnable() task=" + task);
+            Log.v(TAG, "TaskRunnable() task=" + task);
         }
     }
 
@@ -43,7 +43,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         mStatus.status = TaskStatus.RUNNING;
         mStatus.startTime = SystemClock.elapsedRealtime();
         if (mDebug) {
-            LogUtils.v(TAG, "run() start, thread=" + Thread.currentThread().getName());
+            Log.v(TAG, "run() start, thread=" + Thread.currentThread().getName());
         }
         onTaskStarted();
         Result result = null;
@@ -56,7 +56,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
             }
         } else {
             if (mDebug) {
-                LogUtils.v(TAG, "run() task is cancelled, ignore task, thread="
+                Log.v(TAG, "run() task is cancelled, ignore task, thread="
                         + Thread.currentThread().getName());
             }
         }
@@ -75,7 +75,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
             }
         }
         if (mDebug) {
-            LogUtils.v(TAG, "run() end duration:" + mStatus.getDuration() + "ms");
+            Log.v(TAG, "run() end duration:" + mStatus.getDuration() + "ms");
         }
         onDone();
     }
@@ -83,7 +83,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
     @Override
     public boolean cancel() {
         if (mDebug) {
-            LogUtils.v(TAG, "cancel()");
+            Log.v(TAG, "cancel()");
         }
         mStatus.status = TaskStatus.CANCELLED;
         boolean result = false;
@@ -108,14 +108,14 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     private void onTaskStarted() {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskStarted()");
+            Log.v(TAG, "onTaskStarted()");
         }
         mTask.onStarted(mStatus);
     }
 
     private void onTaskCancelled() {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskCancelled()");
+            Log.v(TAG, "onTaskCancelled()");
         }
         mTask.onCancelled(mStatus);
     }
@@ -123,7 +123,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     private void onTaskFinished() {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskFinished()");
+            Log.v(TAG, "onTaskFinished()");
         }
         mTask.onFinished(mStatus);
     }
@@ -135,7 +135,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
      */
     private void onTaskSuccess(final Result result) {
         if (mDebug) {
-            LogUtils.v(TAG, "onTaskSuccess()");
+            Log.v(TAG, "onTaskSuccess()");
         }
         mTask.onSuccess(mStatus);
     }
@@ -147,7 +147,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
      */
     private void onTaskFailure(final Throwable ex) {
         if (mDebug) {
-            LogUtils.e(TAG, "onTaskFailure() error=" + ex);
+            Log.e(TAG, "onTaskFailure() error=" + ex);
         }
         mTask.onFailure(mStatus);
     }

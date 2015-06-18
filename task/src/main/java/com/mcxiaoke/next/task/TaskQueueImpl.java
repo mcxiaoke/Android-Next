@@ -2,9 +2,7 @@ package com.mcxiaoke.next.task;
 
 import android.os.Handler;
 import android.os.Looper;
-import com.mcxiaoke.next.utils.LogUtils;
-import com.mcxiaoke.next.utils.StringUtils;
-import com.mcxiaoke.next.utils.ThreadUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +40,7 @@ final class TaskQueueImpl extends TaskQueue {
     }
 
     public TaskQueueImpl() {
-        LogUtils.v(TAG, "TaskQueue()");
+        Log.v(TAG, "TaskQueue()");
         init();
         checkThread();
         checkExecutor();
@@ -93,7 +91,7 @@ final class TaskQueueImpl extends TaskQueue {
                                final TaskCallback<Result> callback,
                                final Object caller) {
         if (mDebug) {
-            LogUtils.v(TAG, "execute()");
+            Log.v(TAG, "execute()");
         }
         return execute(callable, callback, caller, false).getName();
     }
@@ -113,7 +111,7 @@ final class TaskQueueImpl extends TaskQueue {
     public <Result> String addSerially(final Callable<Result> callable,
                                        final TaskCallback<Result> callback, final Object caller) {
         if (mDebug) {
-            LogUtils.v(TAG, "addSerially()");
+            Log.v(TAG, "addSerially()");
         }
         return execute(callable, callback, caller, true).getName();
     }
@@ -176,7 +174,7 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     public void cancelAll() {
         if (mDebug) {
-            LogUtils.v(TAG, "cancelAll()");
+            Log.v(TAG, "cancelAll()");
         }
         cancelAllInQueue();
     }
@@ -216,7 +214,7 @@ final class TaskQueueImpl extends TaskQueue {
         builder.append("Groups:{");
         for (Map.Entry<String, List<String>> entry : callerMap.entrySet()) {
             builder.append(" group:").append(entry.getKey())
-                    .append(", tags:").append(StringUtils.toString(entry.getValue())).append(";");
+                    .append(", tags:").append(Utils.toString(entry.getValue())).append(";");
         }
         builder.append("}\n");
         builder.append("]");
@@ -233,7 +231,7 @@ final class TaskQueueImpl extends TaskQueue {
         final String info = builder.toString();
 
         if (logcat) {
-            LogUtils.d(TAG, info);
+            Log.d(TAG, info);
         }
         return info;
     }
@@ -254,7 +252,7 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     <Result> TaskTag execute(final Task<Result> task) {
         if (mDebug) {
-            LogUtils.v(TAG, "execute() task=" + task);
+            Log.v(TAG, "execute() task=" + task);
         }
         final ITaskRunnable runnable = new TaskRunnable<Result>
                 (task, mDebug);
@@ -293,7 +291,7 @@ final class TaskQueueImpl extends TaskQueue {
      */
     private void cancelAllInQueue() {
         if (mDebug) {
-            LogUtils.v(TAG, "cancelAllInQueue()");
+            Log.v(TAG, "cancelAllInQueue()");
         }
         final Collection<ITaskRunnable> tasks = mNames.values();
         for (ITaskRunnable task : tasks) {
@@ -309,14 +307,14 @@ final class TaskQueueImpl extends TaskQueue {
 
     int cancelByCaller(final Object caller) {
         if (mDebug) {
-            LogUtils.v(TAG, "cancelByCaller() caller=" + caller);
+            Log.v(TAG, "cancelByCaller() caller=" + caller);
         }
         return cancelByGroup(TaskTag.getGroup(caller));
     }
 
     int cancelByGroup(final String group) {
         if (mDebug) {
-            LogUtils.v(TAG, "cancelByGroup() group=" + group);
+            Log.v(TAG, "cancelByGroup() group=" + group);
         }
         int count = 0;
         final List<String> tags;
@@ -331,14 +329,14 @@ final class TaskQueueImpl extends TaskQueue {
             ++count;
         }
         if (mDebug) {
-            LogUtils.v(TAG, "cancelByGroup() count=" + count);
+            Log.v(TAG, "cancelByGroup() count=" + count);
         }
         return count;
     }
 
     boolean cancelByName(final String name) {
         if (mDebug) {
-            LogUtils.v(TAG, "cancel() name=" + name);
+            Log.v(TAG, "cancel() name=" + name);
         }
         boolean result = false;
         final ITaskRunnable runnable;
@@ -354,7 +352,7 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     void remove(final TaskTag tag) {
         if (mDebug) {
-            LogUtils.v(TAG, "remove " + tag + " at thread:" + Thread.currentThread().getName());
+            Log.v(TAG, "remove " + tag + " at thread:" + Thread.currentThread().getName());
         }
         synchronized (mLock) {
             mNames.remove(tag.getName());
@@ -388,10 +386,10 @@ final class TaskQueueImpl extends TaskQueue {
      */
     private void checkExecutor() {
         if (mExecutor == null || mExecutor.isShutdown()) {
-            mExecutor = ThreadUtils.newCachedThreadPool("task-default");
+            mExecutor = Utils.newCachedThreadPool("task-default");
         }
         if (mSerialExecutor == null || mSerialExecutor.isShutdown()) {
-            mSerialExecutor = ThreadUtils.newSingleThreadExecutor("task-serial");
+            mSerialExecutor = Utils.newSingleThreadExecutor("task-serial");
         }
     }
 
@@ -452,9 +450,9 @@ final class TaskQueueImpl extends TaskQueue {
         final long completedCount = executor.getCompletedTaskCount();
         final boolean isShutdown = executor.isShutdown();
         final boolean isTerminated = executor.isTerminated();
-        LogUtils.v(TAG, name + " CorePoolSize:" + corePoolSize + " PoolSize:" + poolSize);
-        LogUtils.v(TAG, name + " isShutdown:" + isShutdown + " isTerminated:" + isTerminated);
-        LogUtils.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
+        Log.v(TAG, name + " CorePoolSize:" + corePoolSize + " PoolSize:" + poolSize);
+        Log.v(TAG, name + " isShutdown:" + isShutdown + " isTerminated:" + isTerminated);
+        Log.v(TAG, name + " activeCount:" + activeCount + " taskCount:" + taskCount
                 + " completedCount:" + completedCount);
     }
 

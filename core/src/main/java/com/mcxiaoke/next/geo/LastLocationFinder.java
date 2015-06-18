@@ -9,7 +9,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import com.mcxiaoke.next.BuildConfig;
+import com.mcxiaoke.next.core.BuildConfig;
 
 import java.util.List;
 

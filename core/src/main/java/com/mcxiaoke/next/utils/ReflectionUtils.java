@@ -76,7 +76,7 @@ public abstract class ReflectionUtils {
     };
 
     /**
-     * Attempt to find a {@link java.lang.reflect.Field field} on the supplied {@link Class} with the
+     * Attempt to find a {@link Field field} on the supplied {@link Class} with the
      * supplied {@code name}. Searches all superclasses up to {@link Object}.
      *
      * @param clazz the class to introspect
@@ -88,7 +88,7 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Attempt to find a {@link java.lang.reflect.Field field} on the supplied {@link Class} with the
+     * Attempt to find a {@link Field field} on the supplied {@link Class} with the
      * supplied {@code name} and/or {@link Class type}. Searches all superclasses
      * up to {@link Object}.
      *
@@ -114,9 +114,9 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Set the field represented by the supplied {@link java.lang.reflect.Field field object} on the
+     * Set the field represented by the supplied {@link Field field object} on the
      * specified {@link Object target object} to the specified {@code value}.
-     * In accordance with {@link java.lang.reflect.Field#set(Object, Object)} semantics, the new value
+     * In accordance with {@link Field#set(Object, Object)} semantics, the new value
      * is automatically unwrapped if the underlying field has a primitive type.
      * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException(Exception)}.
      *
@@ -135,8 +135,8 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Get the field represented by the supplied {@link java.lang.reflect.Field field object} on the
-     * specified {@link Object target object}. In accordance with {@link java.lang.reflect.Field#get(Object)}
+     * Get the field represented by the supplied {@link Field field object} on the
+     * specified {@link Object target object}. In accordance with {@link Field#get(Object)}
      * semantics, the returned value is automatically wrapped if the underlying field
      * has a primitive type.
      * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException(Exception)}.
@@ -156,9 +156,9 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Attempt to find a {@link java.lang.reflect.Method} on the supplied class with the supplied name
+     * Attempt to find a {@link Method} on the supplied class with the supplied name
      * and no parameters. Searches all superclasses up to {@code Object}.
-     * <p>Returns {@code null} if no {@link java.lang.reflect.Method} can be found.
+     * <p>Returns {@code null} if no {@link Method} can be found.
      *
      * @param clazz the class to introspect
      * @param name  the name of the method
@@ -169,9 +169,9 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Attempt to find a {@link java.lang.reflect.Method} on the supplied class with the supplied name
+     * Attempt to find a {@link Method} on the supplied class with the supplied name
      * and parameter types. Searches all superclasses up to {@code Object}.
-     * <p>Returns {@code null} if no {@link java.lang.reflect.Method} can be found.
+     * <p>Returns {@code null} if no {@link Method} can be found.
      *
      * @param clazz      the class to introspect
      * @param name       the name of the method
@@ -197,23 +197,23 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Invoke the specified {@link java.lang.reflect.Method} against the supplied target object with no arguments.
-     * The target object can be {@code null} when invoking a static {@link java.lang.reflect.Method}.
+     * Invoke the specified {@link Method} against the supplied target object with no arguments.
+     * The target object can be {@code null} when invoking a static {@link Method}.
      * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException}.
      *
      * @param method the method to invoke
      * @param target the target object to invoke the method on
      * @return the invocation result, if any
-     * @see #invokeMethod(java.lang.reflect.Method, Object, Object[])
+     * @see #invokeMethod(Method, Object, Object[])
      */
     public static Object invokeMethod(Method method, Object target) {
         return invokeMethod(method, target, new Object[0]);
     }
 
     /**
-     * Invoke the specified {@link java.lang.reflect.Method} against the supplied target object with the
+     * Invoke the specified {@link Method} against the supplied target object with the
      * supplied arguments. The target object can be {@code null} when invoking a
-     * static {@link java.lang.reflect.Method}.
+     * static {@link Method}.
      * <p>Thrown exceptions are handled via a call to {@link #handleReflectionException}.
      *
      * @param method the method to invoke
@@ -231,29 +231,29 @@ public abstract class ReflectionUtils {
     }
 
     /**
-     * Invoke the specified JDBC API {@link java.lang.reflect.Method} against the supplied target
+     * Invoke the specified JDBC API {@link Method} against the supplied target
      * object with no arguments.
      *
      * @param method the method to invoke
      * @param target the target object to invoke the method on
      * @return the invocation result, if any
-     * @throws java.sql.SQLException the JDBC API SQLException to rethrow (if any)
-     * @see #invokeJdbcMethod(java.lang.reflect.Method, Object, Object[])
+     * @throws SQLException the JDBC API SQLException to rethrow (if any)
+     * @see #invokeJdbcMethod(Method, Object, Object[])
      */
     public static Object invokeJdbcMethod(Method method, Object target) throws SQLException {
         return invokeJdbcMethod(method, target, new Object[0]);
     }
 
     /**
-     * Invoke the specified JDBC API {@link java.lang.reflect.Method} against the supplied target
+     * Invoke the specified JDBC API {@link Method} against the supplied target
      * object with the supplied arguments.
      *
      * @param method the method to invoke
      * @param target the target object to invoke the method on
      * @param args   the invocation arguments (may be {@code null})
      * @return the invocation result, if any
-     * @throws java.sql.SQLException the JDBC API SQLException to rethrow (if any)
-     * @see #invokeMethod(java.lang.reflect.Method, Object, Object[])
+     * @throws SQLException the JDBC API SQLException to rethrow (if any)
+     * @see #invokeMethod(Method, Object, Object[])
      */
     public static Object invokeJdbcMethod(Method method, Object target, Object... args) throws SQLException {
         try {
@@ -308,7 +308,7 @@ public abstract class ReflectionUtils {
 
     /**
      * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target exception</em> of an {@link java.lang.reflect.InvocationTargetException}. Should
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
      * only be called if no checked exception is expected to be thrown by the
      * target method.
      * <p>Rethrows the underlying exception cast to an {@link RuntimeException} or
@@ -330,7 +330,7 @@ public abstract class ReflectionUtils {
 
     /**
      * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target exception</em> of an {@link java.lang.reflect.InvocationTargetException}. Should
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
      * only be called if no checked exception is expected to be thrown by the
      * target method.
      * <p>Rethrows the underlying exception cast to an {@link Exception} or
@@ -434,7 +434,7 @@ public abstract class ReflectionUtils {
      * SecurityManager (if active).
      *
      * @param field the field to make accessible
-     * @see java.lang.reflect.Field#setAccessible
+     * @see Field#setAccessible
      */
     public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers()) || !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
@@ -450,7 +450,7 @@ public abstract class ReflectionUtils {
      * SecurityManager (if active).
      *
      * @param method the method to make accessible
-     * @see java.lang.reflect.Method#setAccessible
+     * @see Method#setAccessible
      */
     public static void makeAccessible(Method method) {
         if ((!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
@@ -466,7 +466,7 @@ public abstract class ReflectionUtils {
      * SecurityManager (if active).
      *
      * @param ctor the constructor to make accessible
-     * @see java.lang.reflect.Constructor#setAccessible
+     * @see Constructor#setAccessible
      */
     public static void makeAccessible(Constructor<?> ctor) {
         if ((!Modifier.isPublic(ctor.getModifiers()) || !Modifier.isPublic(ctor.getDeclaringClass().getModifiers()))
@@ -479,11 +479,11 @@ public abstract class ReflectionUtils {
      * Perform the given callback operation on all matching methods of the given
      * class and superclasses.
      * <p>The same named method occurring on subclass and superclass will appear
-     * twice, unless excluded by a {@link ReflectionUtils.MethodFilter}.
+     * twice, unless excluded by a {@link MethodFilter}.
      *
      * @param clazz class to start looking at
      * @param mc    the callback to invoke for each method
-     * @see #doWithMethods(Class, ReflectionUtils.MethodCallback, ReflectionUtils.MethodFilter)
+     * @see #doWithMethods(Class, MethodCallback, MethodFilter)
      */
     public static void doWithMethods(Class<?> clazz, MethodCallback mc) throws IllegalArgumentException {
         doWithMethods(clazz, mc, null);
@@ -493,7 +493,7 @@ public abstract class ReflectionUtils {
      * Perform the given callback operation on all matching methods of the given
      * class and superclasses (or given interface and super-interfaces).
      * <p>The same named method occurring on subclass and superclass will appear
-     * twice, unless excluded by the specified {@link ReflectionUtils.MethodFilter}.
+     * twice, unless excluded by the specified {@link MethodFilter}.
      *
      * @param clazz class to start looking at
      * @param mc    the callback to invoke for each method

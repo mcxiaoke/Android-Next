@@ -5,7 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.TrafficStats;
-import com.mcxiaoke.next.BuildConfig;
+import com.mcxiaoke.next.core.BuildConfig;
 
 import java.util.HashMap;
 import java.util.Map;

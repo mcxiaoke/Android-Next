@@ -1,4 +1,6 @@
-include ':core', ':http'
+include ':core'
+include ':task'
+include ':http'
 include ':ui'
 include ':recycler'
 include ':extras-abc'

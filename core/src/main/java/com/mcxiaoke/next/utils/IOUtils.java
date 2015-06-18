@@ -830,15 +830,15 @@ public final class IOUtils {
     /**
      * Skip the requested number of characters or fail if there are not enough left.
      * <p/>
-     * This allows for the possibility that {@link java.io.Reader#skip(long)} may
+     * This allows for the possibility that {@link Reader#skip(long)} may
      * not skip as many characters as requested (most likely because of reaching EOF).
      *
      * @param input  stream to skip
      * @param toSkip the number of characters to skip
-     * @throws java.io.IOException      if there is a problem reading the file
+     * @throws IOException      if there is a problem reading the file
      * @throws IllegalArgumentException if toSkip is negative
-     * @throws java.io.EOFException     if the number of characters skipped was incorrect
-     * @see java.io.Reader#skip(long)
+     * @throws EOFException     if the number of characters skipped was incorrect
+     * @see Reader#skip(long)
      * @since 2.0
      */
     public static void skipFully(Reader input, long toSkip) throws IOException {
@@ -852,14 +852,14 @@ public final class IOUtils {
      * Read characters from an input character stream.
      * This implementation guarantees that it will read as many characters
      * as possible before giving up; this may not always be the case for
-     * subclasses of {@link java.io.Reader}.
+     * subclasses of {@link Reader}.
      *
      * @param input  where to read input from
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
      * @return actual length read; may be less than requested if EOF was reached
-     * @throws java.io.IOException if a read error occurs
+     * @throws IOException if a read error occurs
      * @since 2.2
      */
     public static int read(Reader input, char[] buffer, int offset, int length) throws IOException {
@@ -882,12 +882,12 @@ public final class IOUtils {
      * Read characters from an input character stream.
      * This implementation guarantees that it will read as many characters
      * as possible before giving up; this may not always be the case for
-     * subclasses of {@link java.io.Reader}.
+     * subclasses of {@link Reader}.
      *
      * @param input  where to read input from
      * @param buffer destination
      * @return actual length read; may be less than requested if EOF was reached
-     * @throws java.io.IOException if a read error occurs
+     * @throws IOException if a read error occurs
      * @since 2.2
      */
     public static int read(Reader input, char[] buffer) throws IOException {
@@ -898,14 +898,14 @@ public final class IOUtils {
      * Read bytes from an input stream.
      * This implementation guarantees that it will read as many bytes
      * as possible before giving up; this may not always be the case for
-     * subclasses of {@link java.io.InputStream}.
+     * subclasses of {@link InputStream}.
      *
      * @param input  where to read input from
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
      * @return actual length read; may be less than requested if EOF was reached
-     * @throws java.io.IOException if a read error occurs
+     * @throws IOException if a read error occurs
      * @since 2.2
      */
     public static int read(InputStream input, byte[] buffer, int offset, int length) throws IOException {
@@ -928,12 +928,12 @@ public final class IOUtils {
      * Read bytes from an input stream.
      * This implementation guarantees that it will read as many bytes
      * as possible before giving up; this may not always be the case for
-     * subclasses of {@link java.io.InputStream}.
+     * subclasses of {@link InputStream}.
      *
      * @param input  where to read input from
      * @param buffer destination
      * @return actual length read; may be less than requested if EOF was reached
-     * @throws java.io.IOException if a read error occurs
+     * @throws IOException if a read error occurs
      * @since 2.2
      */
     public static int read(InputStream input, byte[] buffer) throws IOException {
@@ -943,16 +943,16 @@ public final class IOUtils {
     /**
      * Read the requested number of characters or fail if there are not enough left.
      * <p/>
-     * This allows for the possibility that {@link java.io.Reader#read(char[], int, int)} may
+     * This allows for the possibility that {@link Reader#read(char[], int, int)} may
      * not read as many characters as requested (most likely because of reaching EOF).
      *
      * @param input  where to read input from
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
-     * @throws java.io.IOException      if there is a problem reading the file
+     * @throws IOException      if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws java.io.EOFException     if the number of characters read was incorrect
+     * @throws EOFException     if the number of characters read was incorrect
      * @since 2.2
      */
     public static void readFully(Reader input, char[] buffer, int offset, int length) throws IOException {
@@ -965,14 +965,14 @@ public final class IOUtils {
     /**
      * Read the requested number of characters or fail if there are not enough left.
      * <p/>
-     * This allows for the possibility that {@link java.io.Reader#read(char[], int, int)} may
+     * This allows for the possibility that {@link Reader#read(char[], int, int)} may
      * not read as many characters as requested (most likely because of reaching EOF).
      *
      * @param input  where to read input from
      * @param buffer destination
-     * @throws java.io.IOException      if there is a problem reading the file
+     * @throws IOException      if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws java.io.EOFException     if the number of characters read was incorrect
+     * @throws EOFException     if the number of characters read was incorrect
      * @since 2.2
      */
     public static void readFully(Reader input, char[] buffer) throws IOException {
@@ -982,16 +982,16 @@ public final class IOUtils {
     /**
      * Read the requested number of bytes or fail if there are not enough left.
      * <p/>
-     * This allows for the possibility that {@link java.io.InputStream#read(byte[], int, int)} may
+     * This allows for the possibility that {@link InputStream#read(byte[], int, int)} may
      * not read as many bytes as requested (most likely because of reaching EOF).
      *
      * @param input  where to read input from
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
-     * @throws java.io.IOException      if there is a problem reading the file
+     * @throws IOException      if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws java.io.EOFException     if the number of bytes read was incorrect
+     * @throws EOFException     if the number of bytes read was incorrect
      * @since 2.2
      */
     public static void readFully(InputStream input, byte[] buffer, int offset, int length) throws IOException {
@@ -1004,14 +1004,14 @@ public final class IOUtils {
     /**
      * Read the requested number of bytes or fail if there are not enough left.
      * <p/>
-     * This allows for the possibility that {@link java.io.InputStream#read(byte[], int, int)} may
+     * This allows for the possibility that {@link InputStream#read(byte[], int, int)} may
      * not read as many bytes as requested (most likely because of reaching EOF).
      *
      * @param input  where to read input from
      * @param buffer destination
-     * @throws java.io.IOException      if there is a problem reading the file
+     * @throws IOException      if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws java.io.EOFException     if the number of bytes read was incorrect
+     * @throws EOFException     if the number of bytes read was incorrect
      * @since 2.2
      */
     public static void readFully(InputStream input, byte[] buffer) throws IOException {
@@ -1081,7 +1081,7 @@ public final class IOUtils {
      * read file
      *
      * @param file    file
-     * @param charset The name of a supported {@link java.nio.charset.Charset </code>charset<code>}
+     * @param charset The name of a supported {@link Charset </code>charset<code>}
      * @return if file not exist, return null, else return content of file
      * @throws IOException if an error occurs while operator BufferedReader
      */

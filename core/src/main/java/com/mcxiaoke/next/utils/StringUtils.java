@@ -810,9 +810,9 @@ public abstract class StringUtils {
     }
 
     /**
-     * Parse the given <code>localeString</code> value into a {@link java.util.Locale}.
+     * Parse the given <code>localeString</code> value into a {@link Locale}.
      * <p/>
-     * This is the inverse operation of {@link java.util.Locale#toString Locale's
+     * This is the inverse operation of {@link Locale#toString Locale's
      * readString}.
      *
      * @param localeString the locale string, following <code>Locale's</code>
@@ -1121,7 +1121,7 @@ public abstract class StringUtils {
      * @param delimiters the delimiter characters, assembled as String (each of those
      *                   characters is individually considered as delimiter).
      * @return an array of the tokens
-     * @see java.util.StringTokenizer
+     * @see StringTokenizer
      * @see String#trim()
      * @see #delimitedListToStringArray
      */
@@ -1146,7 +1146,7 @@ public abstract class StringUtils {
      *                          consider subsequent delimiters as token in the first place).
      * @return an array of the tokens (<code>null</code> if the input String was
      * <code>null</code>)
-     * @see java.util.StringTokenizer
+     * @see StringTokenizer
      * @see String#trim()
      * @see #delimitedListToStringArray
      */
