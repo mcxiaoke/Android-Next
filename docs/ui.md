@@ -1,9 +1,15 @@
+## 集成方法
+
+```groovy
+    // ui UI组件, 格式:aar
+    compile 'com.mcxiaoke.next:ui:1.+'
+```
 
 ## UI组件
 
 一些常用的UI控件，可简化日常开发，包含：
 
-- **AlertDialogFragment和ProgressDialogFragment** 封装好的DialogFragmen，接口简单，同时有4.0版本和使用support-v4的版本
+- **AlertDialogFragment和ProgressDialogFragment** 封装好的DialogFragment，接口简单，同时有4.0版本和使用support-v4的版本
 
 - **EndlessListView** 封装的ListView，添加了支持加载更多数据的接口和FooterView展示
 

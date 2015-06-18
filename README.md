@@ -8,7 +8,13 @@ Android Next 公共组件库
 
 ### 最新版本
 
-* [![Maven Central](http://img.shields.io/badge/2015.06.16-com.mcxiaoke.next:1.0.9-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+* [![Maven Central](http://img.shields.io/badge/2015.06.18-com.mcxiaoke.next:1.1.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+
+- **1.1.0** 2015.06.18
+    * task: 完全重构TaskQueue组件，单独部署
+    * core: 移除未使用的类，移除task相关的类
+    * samples: 添加新的Task使用示例
+    * docs: 移动所有文档到docs子目录
 
 - **1.0.9** 2015.06.16
     * core: 优化TaskQueue，调整接口，添加新的辅助类Task，支持链式调用
@@ -35,28 +41,32 @@ Android Next 公共组件库
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.0.+'
+    compile 'com.mcxiaoke.next:core:1.1.+'
+    // v1.1.0 新增
+    // task 异步任务库，格式:jar和aar
+    compile 'com.mcxiaoke.next:task:1.1.+'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.0.+'
+    compile 'com.mcxiaoke.next:http:1.1.+'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.0.+'
+    compile 'com.mcxiaoke.next:ui:1.1.+'
+    // v1.0.9 新增
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.0.+'
+    compile 'com.mcxiaoke.next:recycler:1.1.+'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.0.+'
+    compile 'com.mcxiaoke.next:extras-abc:1.1.+'
     
 ```
 ------
 
 ### 使用说明
 
-* [异步任务 TaskQueue/TaskBuilder](task.md)
-* [高级分享 AdvancedShareActionProvider](share.md)
-* [HTTP组件 NextClient/NextRequest](http.md)
-* [缓存组件 MemoryCache/DisCache](cache.md)
-* [常用工具类 Utils/Misc](core.md)
-* [无限加载 EndlessRecyclerView](recycler.md)
-* [常用UI控件 Views/Widgets](ui.md)
+* [常用工具类 Utils/Misc](docs/core.md)
+* [异步任务 TaskQueue/TaskBuilder](docs/task.md)
+* [高级分享 AdvancedShareActionProvider](docs/share.md)
+* [HTTP组件 NextClient/NextRequest](docs/http.md)
+* [缓存组件 MemoryCache/DisCache](docs/cache.md)
+* [无限加载 EndlessRecyclerView](docs/recycler.md)
+* [常用UI控件 Views/Widgets](docs/ui.md)
 
 ------
 

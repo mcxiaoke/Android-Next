@@ -60,6 +60,8 @@ public class TaskStatus<Result> {
     }
 
     public int getStatus() {
+
+
         return status;
     }
 

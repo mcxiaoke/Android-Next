@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -24,8 +25,8 @@ final class TaskQueueImpl extends TaskQueue {
 
     public static final String TAG = "TaskQueue";
     private final Object mLock = new Object();
-    private ThreadPoolExecutor mExecutor;
-    private ThreadPoolExecutor mSerialExecutor;
+    private ExecutorService mExecutor;
+    private ExecutorService mSerialExecutor;
     private Handler mUiHandler;
     private Map<String, List<String>> mGroups;
     private Map<String, ITaskRunnable> mNames;
@@ -161,7 +162,7 @@ final class TaskQueueImpl extends TaskQueue {
      * @param executor ExecutorService
      */
     @Override
-    public void setExecutor(final ThreadPoolExecutor executor) {
+    public void setExecutor(final ExecutorService executor) {
         if (executor == null) {
             throw new NullPointerException("executor must not be null.");
         }
@@ -188,28 +189,38 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     public String dump(final boolean logcat) {
         final StringBuilder builder = new StringBuilder();
-
-        final ThreadPoolExecutor executor = mExecutor;
-
-        // thread pool info
-        final int corePoolSize = executor.getCorePoolSize();
-        final int poolSize = executor.getPoolSize();
-        final int activeCount = executor.getActiveCount();
-        final long taskCount = executor.getTaskCount();
-        final long completedCount = executor.getCompletedTaskCount();
-        final boolean isShutdown = executor.isShutdown();
-        final boolean isTerminated = executor.isTerminated();
-        builder.append(TAG).append("[ ");
-        builder.append("ThreadPool:{")
-                .append(" coreSize:").append(corePoolSize).append(";")
-                .append(" poolSize:").append(poolSize).append(";")
-                .append(" isShutdown:").append(isShutdown).append(";")
-                .append(" isTerminated:").append(isTerminated).append(";")
-                .append(" activeCount:").append(activeCount).append(";")
-                .append(" taskCount:").append(taskCount).append(";")
-                .append(" completedCount:").append(completedCount).append(";")
-                .append("}\n");
-        // caller map
+        if (mExecutor instanceof ThreadPoolExecutor) {
+            // thread pool info
+            final ThreadPoolExecutor executor = (ThreadPoolExecutor) mExecutor;
+            final int corePoolSize = executor.getCorePoolSize();
+            final int poolSize = executor.getPoolSize();
+            final int activeCount = executor.getActiveCount();
+            final long taskCount = executor.getTaskCount();
+            final long completedCount = executor.getCompletedTaskCount();
+            final boolean isShutdown = executor.isShutdown();
+            final boolean isTerminated = executor.isTerminated();
+            builder.append(TAG).append("[ ");
+            builder.append("ThreadPool:{")
+                    .append(" coreSize:").append(corePoolSize).append(";")
+                    .append(" poolSize:").append(poolSize).append(";")
+                    .append(" isShutdown:").append(isShutdown).append(";")
+                    .append(" isTerminated:").append(isTerminated).append(";")
+                    .append(" activeCount:").append(activeCount).append(";")
+                    .append(" taskCount:").append(taskCount).append(";")
+                    .append(" completedCount:").append(completedCount).append(";")
+                    .append("}\n");
+        } else {
+            // thread pool info
+            final ExecutorService executor = mExecutor;
+            final boolean isShutdown = executor.isShutdown();
+            final boolean isTerminated = executor.isTerminated();
+            builder.append(TAG).append("[ ");
+            builder.append("ThreadPool:{")
+                    .append(" isShutdown:").append(isShutdown).append(";")
+                    .append(" isTerminated:").append(isTerminated).append(";")
+                    .append("}\n");
+        }
+        // group map
         final Map<String, List<String>> callerMap = mGroups;
         builder.append("Groups:{");
         for (Map.Entry<String, List<String>> entry : callerMap.entrySet()) {
@@ -231,7 +242,7 @@ final class TaskQueueImpl extends TaskQueue {
         final String info = builder.toString();
 
         if (logcat) {
-            Log.d(TAG, info);
+            Log.v(TAG, info);
         }
         return info;
     }

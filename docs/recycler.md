@@ -1,3 +1,10 @@
+## 集成方法
+
+```groovy
+    // v1.0.9 新增
+    // recycler EndlessRecyclerView, 格式:aar
+    compile 'com.mcxiaoke.next:recycler:1.+'
+```
 
 ## EndlessRecyclerView
 

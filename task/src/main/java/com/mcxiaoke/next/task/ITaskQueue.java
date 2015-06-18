@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.task;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
 
 /**
  * User: mcxiaoke
@@ -15,6 +15,14 @@ interface ITaskQueue {
      * @param debug 是否开启DEBUG模式
      */
     void setDebug(boolean debug);
+
+
+    /**
+     * 设置自定义的ExecutorService
+     *
+     * @param executor ExecutorService
+     */
+    void setExecutor(ExecutorService executor);
 
     <Result> TaskTag execute(final Callable<Result> callable,
                              final TaskCallback<Result> callback,
@@ -67,13 +75,6 @@ interface ITaskQueue {
      * @return 返回取消的数目
      */
     int cancelAll(Object caller);
-
-    /**
-     * 设置自定义的ExecutorService
-     *
-     * @param executor ExecutorService
-     */
-    void setExecutor(ThreadPoolExecutor executor);
 
     /**
      * 便利任务列表，取消所有任务

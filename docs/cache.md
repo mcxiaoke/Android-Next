@@ -1,3 +1,9 @@
+## 集成方法
+
+```groovy
+    // core 核心库, 格式:jar和aar
+    compile 'com.mcxiaoke.next:core:1.+'
+```
 
 ## 缓存
 
@@ -8,6 +14,7 @@
         final IMemoryCache<String,String> memoryCache= MemoryCache.mapCache();
         // create memory cache, internally using lru cache
         // final IMemoryCache<String,String> memoryCache= MemoryCache.lruCache(100);
+
         memoryCache.put("strKey", "value");
         memoryCache.put("intKey", 123);
         memoryCache.put("boolKey", false);
@@ -24,6 +31,7 @@
         //final DiscCache discCache=new DiscCache(context,"json-cache");
         // use custom /sdcard/Android/data/package-name/cache/json-cache/ dir
         //final DiscCache discCache=new DiscCache(context,"json-cache",DiscCache.MODE_EXTERNAL);
+
         discCache.setCacheDir("dirName");
         discCache.setCharset("UTF-8");
         discCache.setFileNameGenerator(nameGenerator);
@@ -31,6 +39,7 @@
         discCache.put("bytes", bytes);
         discCache.put("stream", new ByteArrayInputStream(bytes));
         discCache.put("text", "some text for cache");
+
         final byte[] bytesValue = discCache.getBytes("bytes");
         final File file = discCache.getFile("stream");
         final String stringValue = discCache.get("text");

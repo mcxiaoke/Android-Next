@@ -1,3 +1,9 @@
+## 集成方法
+
+```groovy
+    // ui UI组件, 格式:aar
+    compile 'com.mcxiaoke.next:ui:1.+'
+```
 
 ## AdvancedShareActionProvider
 
