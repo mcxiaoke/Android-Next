@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 public class TaskBuilder<Result> {
 
     Handler handler;
-    TaskQueueImpl queue;
+    TaskQueue queue;
     Object caller;
     TaskCallable<Result> callable;
     TaskCallback<Result> callback;
@@ -57,7 +57,26 @@ public class TaskBuilder<Result> {
         return new TaskBuilder<Result>().callback(callback);
     }
 
+    /**
+     * 根据Callable,Callback,Caller初始化TaskBuilder
+     *
+     * @param callable callable
+     * @param callback callback
+     * @param caller   caller
+     * @param <Result> Result Type
+     * @return TaskBuilder
+     */
+    public static <Result> TaskBuilder<Result> create(Callable<Result> callable,
+                                                      TaskCallback<Result> callback,
+                                                      Object caller) {
+        return new TaskBuilder<Result>().action(callable).callback(callback).with(caller);
+    }
+
     private TaskBuilder() {
+    }
+
+    Task<Result> create() {
+        return TaskFactory.createTask(this);
     }
 
     /**
@@ -65,8 +84,8 @@ public class TaskBuilder<Result> {
      *
      * @return Task
      */
-    public Task<Result> build() {
-        return TaskFactory.createTask(this);
+    public TaskFuture build() {
+        return create();
     }
 
     /**
@@ -74,8 +93,8 @@ public class TaskBuilder<Result> {
      *
      * @return TAG
      */
-    public TaskTag start() {
-        return build().start();
+    public String start() {
+        return create().start();
     }
 
     /**
@@ -106,7 +125,7 @@ public class TaskBuilder<Result> {
      * @param queue TaskQueue
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> on(final TaskQueueImpl queue) {
+    public TaskBuilder<Result> on(final TaskQueue queue) {
         this.queue = queue;
         return this;
     }

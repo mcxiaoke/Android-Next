@@ -1,8 +1,7 @@
 package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.SystemClock;
 
 import java.lang.ref.WeakReference;
 
@@ -12,56 +11,12 @@ import java.lang.ref.WeakReference;
  * Date: 15/6/17
  * Time: 12:16
  */
-class TaskImpl<Result> extends Task<Result> {
+class TaskImpl<Result> implements Task<Result> {
+    final TaskInfo<Result> mInfo;
     /**
      * 内部使用的TaskCallback
      */
-    private final TaskCallback<Result> mCb;
-    /**
-     * 回调接口执行的线程Handler，默认是主线程
-     */
-    private final Handler mHandler;
-    /**
-     * 执行任务的队列，默认是 TaskQueue.getDefault()
-     */
-    private final TaskQueue mQueue;
-    /**
-     * 任务的调用者的弱引用
-     */
-    private final WeakReference<Object> mCallerRef;
-    /**
-     * 任务的回调接口
-     */
-    private final TaskCallback<Result> mCallback;
-    /**
-     * 任务的Callable对象
-     */
-    private final TaskCallable<Result> mCallable;
-    /**
-     * 任务成功的回调
-     */
-    private final Success<Result> mSuccess;
-    /**
-     * 任务失败的回调
-     */
-    private final Failure mFailure;
-    /**
-     * 是否检查调用者
-     */
-    private final boolean mCheck;
-
-    /**
-     * 延迟执行的毫秒数
-     */
-    private final long mDelayMillis;
-    /**
-     * 是否按顺序执行
-     */
-    private final boolean mSerial;
-    /**
-     * 此任务的唯一TAG
-     */
-    private final TaskTag mTag;
+    final TaskCallback<Result> mCb;
     /**
      * 任务是否已启动
      */
@@ -72,38 +27,34 @@ class TaskImpl<Result> extends Task<Result> {
      */
     private volatile boolean mCancelled;
 
+    /**
+     * 任务当前状态
+     */
+    private int mStatus;
+    /**
+     * 线程启动时间
+     */
+    private long mStartTime;
+    /**
+     * 线程结束时间
+     */
+    private long mEndTime;
+
 
     public TaskImpl(final TaskBuilder<Result> builder) {
-        if (builder.caller == null) {
-            throw new NullPointerException("caller can not be null.");
-        }
-        if (builder.callable == null) {
-            throw new NullPointerException("callable can not be null.");
-        }
-        if (builder.handler == null) {
-            this.mHandler = new Handler(Looper.getMainLooper());
-        } else {
-            this.mHandler = builder.handler;
-        }
-        if (builder.queue == null) {
-            this.mQueue = TaskQueue.getDefault();
-        } else {
-            this.mQueue = builder.queue;
-        }
-        this.mCallerRef = new WeakReference<Object>(builder.caller);
-        this.mCallable = builder.callable;
-        this.mCallback = builder.callback;
-        this.mSuccess = builder.success;
-        this.mFailure = builder.failure;
-        this.mCheck = builder.check;
-        this.mDelayMillis = builder.delayMillis;
-        this.mSerial = builder.serial;
-        this.mTag = new TaskTag(builder.caller);
-        this.mCb = new Callbacks<Result>(this);
+        mInfo = new TaskInfo<Result>(builder);
+        mCb = new Callbacks<Result>(mInfo);
+        mStatus = IDLE;
+        mStartTime = 0;
+        mEndTime = 0;
+    }
 
-        if (builder.extras != null) {
-            this.mCallable.putExtras(builder.extras);
-        }
+    private void execute() {
+        mInfo.queue.execute(this);
+    }
+
+    private void remove() {
+        mInfo.queue.remove(this);
     }
 
     /**
@@ -113,22 +64,17 @@ class TaskImpl<Result> extends Task<Result> {
      */
     @Override
     public boolean isSerial() {
-        return mSerial;
-    }
-
-    @Override
-    public TaskTag getTag() {
-        return mTag;
+        return mInfo.serial;
     }
 
     @Override
     public String getGroup() {
-        return mTag.getGroup();
+        return mInfo.tag.getGroup();
     }
 
     @Override
     public String getName() {
-        return mTag.getName();
+        return mInfo.tag.getName();
     }
 
     /**
@@ -137,7 +83,7 @@ class TaskImpl<Result> extends Task<Result> {
      * @return TAG
      */
     @Override
-    public TaskTag start() {
+    public String start() {
         if (mConsumed) {
             throw new IllegalStateException("task has been executed already");
         }
@@ -148,12 +94,13 @@ class TaskImpl<Result> extends Task<Result> {
                 execute();
             }
         };
-        if (mDelayMillis > 0) {
-            mHandler.postDelayed(runnable, mDelayMillis);
+        final long delayMillis = mInfo.delayMillis;
+        if (delayMillis > 0) {
+            mInfo.handler.postDelayed(runnable, delayMillis);
         } else {
             runnable.run();
         }
-        return mTag;
+        return getName();
     }
 
     /**
@@ -164,122 +111,134 @@ class TaskImpl<Result> extends Task<Result> {
     @Override
     public boolean cancel() {
         mCancelled = true;
-        return mQueue.cancel(mTag.getName());
+        return mInfo.queue.cancel(mInfo.tag.getName());
+    }
+
+    @Override
+    public boolean isFinished() {
+        return mStatus == TaskFuture.FAILURE || mStatus == TaskFuture.SUCCESS;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return mStatus == TaskFuture.CANCELLED;
+    }
+
+    @Override
+    public long getDuration() {
+        if (mEndTime < mStartTime) {
+            return 0;
+        }
+        return mEndTime - mStartTime;
+    }
+
+    @Override
+    public int getStatus() {
+        return mStatus;
     }
 
     @Override
     public String toString() {
-        return "Task{" +
-                "mTag='" + mTag + '\'' +
-                ", mCheck=" + mCheck +
-                ", mSerial=" + mSerial +
+        return "Task{" + mInfo +
                 '}';
     }
 
-    private void execute() {
-        mQueue.execute(this);
+    @Override
+    public Result onExecute() throws Exception {
+        return mInfo.callable.call();
     }
 
     @Override
-    Result call() throws Exception {
-        return mCallable.call();
-    }
-
-    @Override
-    void onDone(final TaskStatus<Result> status) {
+    public void onDone() {
+        mEndTime = SystemClock.elapsedRealtime();
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mQueue.remove(mTag);
+                remove();
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
 
     }
 
     @Override
-    void onStarted(final TaskStatus<Result> future) {
+    public void onStarted() {
+        mStatus = TaskFuture.RUNNING;
+        mStartTime = SystemClock.elapsedRealtime();
         if (mCancelled || isInvalidCaller()) {
             return;
         }
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (mCb != null) {
-                    mCb.onTaskStarted(future, mCallable.getExtras());
-                }
+                mCb.onTaskStarted(getName(), mInfo.callable.getExtras());
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
     }
 
     @Override
-    void onCancelled(final TaskStatus<Result> future) {
+    public void onCancelled() {
+        mStatus = TaskFuture.CANCELLED;
         if (isInvalidCaller()) {
             return;
         }
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (mCb != null) {
-                    mCb.onTaskCancelled(future, mCallable.getExtras());
-                }
+                mCb.onTaskCancelled(getName(), mInfo.callable.getExtras());
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
     }
 
     @Override
-    void onFinished(final TaskStatus<Result> future) {
+    public void onFinished() {
         if (mCancelled || isInvalidCaller()) {
             return;
         }
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (mCb != null) {
-                    mCb.onTaskFinished(future, mCallable.getExtras());
-                }
+                mCb.onTaskFinished(getName(), mInfo.callable.getExtras());
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
     }
 
     @Override
-    void onSuccess(final TaskStatus<Result> future) {
+    public void onSuccess(final Result result) {
+        mStatus = TaskFuture.SUCCESS;
         if (mCancelled || isInvalidCaller()) {
             return;
         }
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (mCb != null) {
-                    mCb.onTaskSuccess(future.data, mCallable.getExtras());
-                }
+                mCb.onTaskSuccess(result, mInfo.callable.getExtras());
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
     }
 
     @Override
-    void onFailure(final TaskStatus<Result> future) {
+    public void onFailure(final Throwable error) {
+        mStatus = TaskFuture.FAILURE;
         if (mCancelled || isInvalidCaller()) {
             return;
         }
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                if (mCb != null) {
-                    mCb.onTaskFailure(future.error, mCallable.getExtras());
-                }
+                mCb.onTaskFailure(error, mInfo.callable.getExtras());
             }
         };
-        mHandler.post(runnable);
+        mInfo.handler.post(runnable);
     }
 
     boolean isInvalidCaller() {
-        final Object caller = mCallerRef.get();
-        return caller == null || mCheck && !Utils.isActive(caller);
+        final Object caller = mInfo.callerRef.get();
+        return caller == null || mInfo.check && !Utils.isActive(caller);
     }
 
 
@@ -289,62 +248,64 @@ class TaskImpl<Result> extends Task<Result> {
      * @param <Result> 任务结果的类型参数
      */
     static class Callbacks<Result> implements TaskCallback<Result> {
-        private WeakReference<TaskImpl<Result>> taskRef;
+        private WeakReference<TaskInfo<Result>> taskRef;
 
-        public Callbacks(final TaskImpl<Result> task) {
-            this.taskRef = new WeakReference<TaskImpl<Result>>(task);
+        public Callbacks(final TaskInfo<Result> task) {
+            this.taskRef = new WeakReference<TaskInfo<Result>>(task);
         }
 
         @Override
-        public void onTaskStarted(final TaskStatus<Result> status, final Bundle extras) {
-            final TaskImpl<Result> task = taskRef.get();
+        public void onTaskStarted(final String name, final Bundle extras) {
+            final TaskInfo<Result> task = taskRef.get();
             if (task != null) {
-                if (task.mCallback != null) {
-                    task.mCallback.onTaskStarted(status, extras);
+                if (task.callback != null) {
+                    task.callback.onTaskStarted(name, extras);
                 }
             }
         }
 
         @Override
-        public void onTaskFinished(final TaskStatus<Result> status, final Bundle extras) {
-            final TaskImpl<Result> task = taskRef.get();
+        public void onTaskFinished(final String name, final Bundle extras) {
+            final TaskInfo<Result> task = taskRef.get();
             if (task != null) {
-                if (task.mCallback != null) {
-                    task.mCallback.onTaskFinished(status, extras);
+                if (task.callback != null) {
+                    task.callback.onTaskFinished(name, extras);
                 }
             }
         }
 
         @Override
-        public void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras) {
-            final TaskImpl<Result> task = taskRef.get();
+        public void onTaskCancelled(final String name, final Bundle extras) {
+            final TaskInfo<Result> task = taskRef.get();
             if (task != null) {
-                if (task.mCallback != null) {
-                    task.mCallback.onTaskCancelled(status, extras);
+                if (task.callback != null) {
+                    task.callback.onTaskCancelled(name, extras);
                 }
             }
         }
 
         @Override
         public void onTaskSuccess(final Result result, final Bundle extras) {
-            final TaskImpl<Result> task = taskRef.get();
+            final TaskInfo<Result> task = taskRef.get();
             if (task != null) {
-                if (task.mSuccess != null) {
-                    task.mSuccess.onSuccess(result, extras);
-                } else if (task.mCallback != null) {
-                    task.mCallback.onTaskSuccess(result, extras);
+                if (task.success != null) {
+                    task.success.onSuccess(result, extras);
+                }
+                if (task.callback != null) {
+                    task.callback.onTaskSuccess(result, extras);
                 }
             }
         }
 
         @Override
         public void onTaskFailure(final Throwable ex, final Bundle extras) {
-            final TaskImpl<Result> task = taskRef.get();
+            final TaskInfo<Result> task = taskRef.get();
             if (task != null) {
-                if (task.mFailure != null) {
-                    task.mFailure.onFailure(ex, extras);
-                } else if (task.mCallback != null) {
-                    task.mCallback.onTaskFailure(ex, extras);
+                if (task.failure != null) {
+                    task.failure.onFailure(ex, extras);
+                }
+                if (task.callback != null) {
+                    task.callback.onTaskFailure(ex, extras);
                 }
             }
         }

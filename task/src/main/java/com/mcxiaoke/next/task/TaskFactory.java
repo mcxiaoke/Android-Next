@@ -7,11 +7,16 @@ package com.mcxiaoke.next.task;
  */
 final class TaskFactory {
 
-    public static TaskQueue createQueue() {
+    static TaskQueue createQueue() {
         return new TaskQueueImpl();
     }
 
-    public static <Result> Task<Result> createTask(final TaskBuilder<Result> builder) {
+    static <Result> Task<Result> createTask(final TaskBuilder<Result> builder) {
         return new TaskImpl<Result>(builder);
+    }
+
+    static <Result> ITaskRunnable createRunnable(final ITaskCallback<Result> callback, boolean debug) {
+        return new TaskRunnable<Result>
+                (callback, debug);
     }
 }

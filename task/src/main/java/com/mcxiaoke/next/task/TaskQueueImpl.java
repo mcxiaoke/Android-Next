@@ -80,11 +80,11 @@ final class TaskQueueImpl extends TaskQueue {
      * @return 返回内部生成的此次任务的TAG
      */
     @Override
-    public <Result> TaskTag execute(final Callable<Result> callable,
-                                    final TaskCallback<Result> callback,
-                                    final Object caller, final boolean serial) {
+    public <Result> String execute(final Callable<Result> callable,
+                                   final TaskCallback<Result> callback,
+                                   final Object caller, final boolean serial) {
         return execute(TaskBuilder.create(callable).with(caller).callback(callback)
-                .serial(serial).build());
+                .serial(serial).on(this).create());
     }
 
     @Override
@@ -94,7 +94,7 @@ final class TaskQueueImpl extends TaskQueue {
         if (mDebug) {
             Log.v(TAG, "execute()");
         }
-        return execute(callable, callback, caller, false).getName();
+        return execute(callable, callback, caller, false);
     }
 
     /**
@@ -114,7 +114,7 @@ final class TaskQueueImpl extends TaskQueue {
         if (mDebug) {
             Log.v(TAG, "addSerially()");
         }
-        return execute(callable, callback, caller, true).getName();
+        return execute(callable, callback, caller, true);
     }
 
     /**
@@ -137,11 +137,6 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     public boolean cancel(String name) {
         return cancelByName(name);
-    }
-
-    @Override
-    public boolean cancel(final TaskTag tag) {
-        return cancelByName(tag.getName());
     }
 
     /**
@@ -183,11 +178,10 @@ final class TaskQueueImpl extends TaskQueue {
     /**
      * 获取当前实例的详细信息
      *
-     * @param logcat 是否输出到logcat
      * @return dump output
      */
     @Override
-    public String dump(final boolean logcat) {
+    public String dump() {
         final StringBuilder builder = new StringBuilder();
         if (mExecutor instanceof ThreadPoolExecutor) {
             // thread pool info
@@ -240,10 +234,7 @@ final class TaskQueueImpl extends TaskQueue {
         builder.append("}\n");
 
         final String info = builder.toString();
-
-        if (logcat) {
-            Log.v(TAG, info);
-        }
+        Log.v(TAG, info);
         return info;
     }
 
@@ -256,26 +247,28 @@ final class TaskQueueImpl extends TaskQueue {
     /**
      * 执行异步任务
      *
-     * @param task     任务对象
-     * @param <Result> 类型参数，异步任务执行结果
+     * @param task 任务对象
      * @return 返回内部生成的此次任务的TAG
      */
     @Override
-    <Result> TaskTag execute(final Task<Result> task) {
+    String execute(final Task task) {
         if (mDebug) {
             Log.v(TAG, "execute() task=" + task);
         }
-        final ITaskRunnable runnable = new TaskRunnable<Result>
-                (task, mDebug);
-
+        final ITaskRunnable runnable = TaskFactory.createRunnable(task, mDebug);
         final boolean serial = task.isSerial();
-        final TaskTag tag = task.getTag();
-        addTagToTaskMap(tag.getName(), runnable);
-        addTagToCallerMap(tag);
+        final String group = task.getGroup();
+        final String name = task.getName();
+        addTagToTaskMap(name, runnable);
+        addTagToCallerMap(name, group);
         smartSubmit(runnable, serial);
-        return tag;
+        return name;
     }
 
+    @Override
+    boolean cancel(final TaskFuture task) {
+        return cancelByName(task.getName());
+    }
 
     private void addTagToTaskMap(final String tag, final ITaskRunnable runnable) {
         synchronized (mLock) {
@@ -283,9 +276,8 @@ final class TaskQueueImpl extends TaskQueue {
         }
     }
 
-    private void addTagToCallerMap(final TaskTag taskTag) {
-        final String group = taskTag.getGroup();
-        List<String> tags = mGroups.get(taskTag.getGroup());
+    private void addTagToCallerMap(final String name, final String group) {
+        List<String> tags = mGroups.get(group);
         if (tags == null) {
             tags = new ArrayList<String>();
             synchronized (mLock) {
@@ -293,7 +285,7 @@ final class TaskQueueImpl extends TaskQueue {
             }
         }
         synchronized (mLock) {
-            tags.add(taskTag.getName());
+            tags.add(name);
         }
     }
 
@@ -360,18 +352,19 @@ final class TaskQueueImpl extends TaskQueue {
         return result;
     }
 
+
     @Override
-    void remove(final TaskTag tag) {
+    void remove(final TaskFuture task) {
         if (mDebug) {
-            Log.v(TAG, "remove " + tag + " at thread:" + Thread.currentThread().getName());
+            Log.v(TAG, "remove " + task + " at thread:" + Thread.currentThread().getName());
         }
         synchronized (mLock) {
-            mNames.remove(tag.getName());
+            mNames.remove(task.getName());
         }
-        List<String> tags = mGroups.get(tag.getGroup());
+        List<String> tags = mGroups.get(task.getGroup());
         if (tags != null) {
             synchronized (mLock) {
-                tags.remove(tag.getName());
+                tags.remove(task.getName());
             }
         }
     }

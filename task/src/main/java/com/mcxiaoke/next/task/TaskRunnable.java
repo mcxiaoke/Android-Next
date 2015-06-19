@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.task;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.concurrent.Future;
@@ -15,13 +14,15 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     private Future<?> mFuture;
     private boolean mDebug;
+    private ITaskCallback<Result> mCallback;
+    private boolean mCancelled;
 
-    private Task<Result> mTask;
-    private TaskStatus<Result> mStatus;
+    TaskRunnable(final ITaskCallback<Result> task) {
+        this(task, false);
+    }
 
-    TaskRunnable(final Task<Result> task, final boolean debug) {
-        mTask = task;
-        mStatus = new TaskStatus<Result>(task.getTag());
+    TaskRunnable(final ITaskCallback<Result> task, final boolean debug) {
+        mCallback = task;
         mDebug = debug;
         if (mDebug) {
             Log.v(TAG, "TaskRunnable() task=" + task);
@@ -40,52 +41,35 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     @Override
     public void run() {
-        mStatus.status = TaskStatus.RUNNING;
-        mStatus.startTime = SystemClock.elapsedRealtime();
-        if (mDebug) {
-            Log.v(TAG, "run() start, thread=" + Thread.currentThread().getName());
-        }
         onTaskStarted();
         Result result = null;
         Throwable error = null;
         if (!isTaskCancelled()) {
             try {
-                result = mTask.call();
+                result = mCallback.onExecute();
             } catch (Exception e) {
                 error = e;
             }
-        } else {
-            if (mDebug) {
-                Log.v(TAG, "run() task is cancelled, ignore task, thread="
-                        + Thread.currentThread().getName());
-            }
         }
-        mStatus.endTime = SystemClock.elapsedRealtime();
-        mStatus.data = result;
-        mStatus.error = error;
         if (isTaskCancelled()) {
             onTaskCancelled();
         } else {
-            mStatus.status = error == null ? TaskStatus.SUCCESS : TaskStatus.FAILURE;
-            onTaskFinished();
             if (error != null) {
                 onTaskFailure(error);
             } else {
                 onTaskSuccess(result);
             }
-        }
-        if (mDebug) {
-            Log.v(TAG, "run() end duration:" + mStatus.getDuration() + "ms");
+            onTaskFinished();
         }
         onDone();
     }
 
     @Override
     public boolean cancel() {
+        mCancelled = true;
         if (mDebug) {
             Log.v(TAG, "cancel()");
         }
-        mStatus.status = TaskStatus.CANCELLED;
         boolean result = false;
         if (mFuture != null) {
             result = mFuture.cancel(true);
@@ -99,7 +83,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
     }
 
     private boolean isCancelled() {
-        return mStatus.isCancelled();
+        return mCancelled;
     }
 
     private boolean isInterrupted() {
@@ -110,14 +94,14 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.v(TAG, "onTaskStarted()");
         }
-        mTask.onStarted(mStatus);
+        mCallback.onStarted();
     }
 
     private void onTaskCancelled() {
         if (mDebug) {
             Log.v(TAG, "onTaskCancelled()");
         }
-        mTask.onCancelled(mStatus);
+        mCallback.onCancelled();
     }
 
 
@@ -125,7 +109,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.v(TAG, "onTaskFinished()");
         }
-        mTask.onFinished(mStatus);
+        mCallback.onFinished();
     }
 
     /**
@@ -137,7 +121,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.v(TAG, "onTaskSuccess()");
         }
-        mTask.onSuccess(mStatus);
+        mCallback.onSuccess(result);
     }
 
     /**
@@ -149,10 +133,10 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.e(TAG, "onTaskFailure() error=" + ex);
         }
-        mTask.onFailure(mStatus);
+        mCallback.onFailure(ex);
     }
 
     private void onDone() {
-        mTask.onDone(mStatus);
+        mCallback.onDone();
     }
 }

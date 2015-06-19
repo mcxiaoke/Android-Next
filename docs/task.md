@@ -9,85 +9,18 @@
 ## 异步任务
 
 包含异步任务执行模块相关的类，详细的使用见后面的说明
-    * TaskQueue 核心类，对外接口，支持单例使用
-    * Task 核心类，表示单个异步任务对象
-    * TaskTag Task的唯一不变表示
+    * TaskQueue 对外接口，支持单例使用
+    * Task 表示单个异步任务对象
     * TaskStatus Task的状态
     * TaskBuilder 对外接口，链式调用
     * TaskCallback 任务回调接口
 
-#### TaskQueue
+
+
+#### TaskBuilder
 
 ```java
 
-        // TaskQueue的接口定义见 com.mcxiaoke.next.task.ITaskQueue
-
-        // 使用默认TaskQueue
-        final TaskQueue taskQueue=TaskQueue.getDefault();
-        // 使用新的自定义TaskQueue
-        final TaskQueue taskQueue2=TaskQueue.createNew();
-        taskQueue2.setDebug(true);
-        taskQueue2.setExecutor(Executors.newCachedThreadPool());
-
-        // you can use TaskCallable or just Callable
-        final TaskCallable<String> callable=new TaskCallable<String>("name") {
-            @Override
-            public String call() throws Exception {
-                final String url="https://github.com/mcxiaoke/Android-Next/raw/master/README.md";
-                final NextResponse response=NextClient.get(url);
-                return response.string();
-            }
-        };
-        // task callback
-        final TaskCallback<String> callback=new SimpleTaskCallback<String>() {
-            @Override
-            public void onTaskStarted(final TaskStatus<String> status, final Bundle extras) {
-                // task started, on task execute thread
-            }
-
-            @Override
-            public void onTaskFinished(final TaskStatus<String> status, final Bundle extras) {
-                // task started, on task execute thread
-            }
-
-            @Override
-            public void onTaskSuccess(final String result, final Bundle extras) {
-                // task success, on main thread
-                mTextView.setText(result);
-            }
-
-            @Override
-            public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                // task failure, on main thread
-            }
-        };
-        // execute task
-        taskQueue.execute(callable,callback,caller,serial);
-         taskQueue
-        // add task, execute concurrently
-        taskQueue.add(callable,callback,caller);
-        // add task, execute serially
-        taskQueue.addSerially(callable, callback, caller);
-        // set custom task executor
-        taskQueue.setExecutor(executor);
-        // save task name for cancel the task
-        final String name=taskQueue.add(callable,callback,caller);
-        taskQueue.cancel(name);
-        // save task tag for cancel the task
-        final TaskTag tag=TaskBuilder.create(callable).with(caller).start();
-        taskQueue.cancel(tag);
-        // cancel the task by caller
-        taskQueue.cancelAll(caller);
-        // cancel all task
-        taskQueue.cancelAll();
-
-```
-
-#### Task/TaskBuilder
-
-```java
-
-        // Task的接口定义见 com.mcxiaoke.next.task.ITask
         // TaskBuilder的定义见 com.mcxiaoke.next.task.TaskBuilder
 
         // sample for Task helper class
@@ -149,24 +82,30 @@
 
 ```
 
-#### TaskStatus/TaskTag
+#### TaskFuture
 
 ```java
 
-        // TaskStatus的定义见 com.mcxiaoke.next.task.TaskStatus
-
-        // TaskStatus用法
-        TaskStatus<Result> taskStatus=xxx;
-        // 获取Task的唯一名字，可用于TaskQueue.cancel(name);
-        taskStatus.getName();
-        // 获取Task当前状态，取值见下面
-        taskStatus.getStatus();
-        // 获取Task的线程执行时长，任务结束后可用
-        taskStatus.getDuration();
-        // 获取Task线程的异常，任务结束后可用
-        taskStatus.getError();
-        // 获取Task产生的结果，任务结束后可用
-        taskStatus.getData();
+        // TaskFuture的接口定义见 com.mcxiaoke.next.task.TaskFuture
+        // TaskBuilder.build()返回一个TaskFuture对象，支持以下方法
+        // 获取Task的调用者
+        public String getGroup();
+        // 获取Task的名字，可用于 TaskQueue.cancel(name)
+        public String getName();
+        // 启动Task，开始执行
+        public String start();
+        // 取消Task，停止执行
+        public boolean cancel();
+        // Task是否是顺序执行
+        public boolean isSerial();
+        // Task是否已完成
+        public boolean isFinished();
+        // Task是否已取消
+        public boolean isCancelled();
+        // 获取Task执行时长
+        public long getDuration();
+        // 获取Task状态
+        public int getStatus();
 
         // status取值
         public static final int IDLE = 0; // 空闲，初始化
@@ -175,24 +114,81 @@
         public static final int FAILURE = 3; // 任务已失败
         public static final int SUCCESS = 4; // 任务已成功
 
-        // TaskTag的定义见 com.mcxiaoke.next.task.TaskTag
+```
 
-        // TaskTag用法
-        // Task.start()返回TaskTag对象
-        TaskTag tag=Task.start();
-        // 获取Task的调用对象的字符串表示
-        tag.getGroup();
-        // 获取Task的唯一名字
-        // 等同taskStatus.getName()
-        tag.getName();
-        // 获取Task的创建时间
-        tag.getCreatedAt();
-        // 获取Task的顺序号
-        tag.getSequence();
-        // 可用于取消Task
-        TaskQueue.cancel(tag);
+
+#### TaskQueue
+
+```java
+
+        // TaskQueue的接口定义见 com.mcxiaoke.next.task.ITaskQueue
+
+        // 使用默认TaskQueue
+        final TaskQueue taskQueue=TaskQueue.getDefault();
+        // 使用新的自定义TaskQueue
+        final TaskQueue taskQueue2=TaskQueue.createNew();
+        taskQueue2.setDebug(true);
+        taskQueue2.setExecutor(Executors.newCachedThreadPool());
+
+        // you can use TaskCallable or just Callable
+        final TaskCallable<String> callable=new TaskCallable<String>("name") {
+            @Override
+            public String call() throws Exception {
+                final String url="https://github.com/mcxiaoke/Android-Next/raw/master/README.md";
+                final NextResponse response=NextClient.get(url);
+                return response.string();
+            }
+        };
+        // task callback
+        final TaskCallback<String> callback=new SimpleTaskCallback<String>() {
+            @Override
+            public void onTaskStarted(final String name, final Bundle extras) {
+                // task started, default on main thread
+            }
+
+            @Override
+            public void onTaskFinished(final String name, final Bundle extras) {
+                // task finished, default on main thread
+            }
+
+            @Override
+            public void onTaskCancelled(final String name, final Bundle extras) {
+                // task cancelled, default on main thread
+            }
+
+            @Override
+            public void onTaskSuccess(final String result, final Bundle extras) {
+                // task success, default on main thread
+                mTextView.setText(result);
+            }
+
+            @Override
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                // task failure, default on main thread
+            }
+        };
+        // execute task
+        taskQueue.execute(callable,callback,caller,serial);
+         taskQueue
+        // add task, execute concurrently
+        taskQueue.add(callable,callback,caller);
+        // add task, execute serially
+        taskQueue.addSerially(callable, callback, caller);
+        // set custom task executor
+        taskQueue.setExecutor(executor);
+        // save task name for cancel the task
+        final String name=taskQueue.add(callable,callback,caller);
+        taskQueue.cancel(name);
+        // save task name for cancel the task
+        final String name=TaskBuilder.create(callable).with(caller).start();
+        taskQueue.cancel(name);
+        // cancel the task by caller
+        taskQueue.cancelAll(caller);
+        // cancel all task
+        taskQueue.cancelAll();
 
 ```
+
 
 #### TaskCallback
 
@@ -208,28 +204,28 @@ public interface TaskCallback<Result> {
      * 任务开始
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param status TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskStarted(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskStarted(final String name, final Bundle extras);
 
     /**
      * 任务完成
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param status TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskFinished(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskFinished(final String name, final Bundle extras);
 
     /**
      * 任务取消
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param status TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskCancelled(final String name, final Bundle extras);
 
     /**
      * 回调，任务执行完成

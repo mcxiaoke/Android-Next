@@ -24,7 +24,6 @@ import com.mcxiaoke.next.task.TaskBuilder;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
-import com.mcxiaoke.next.task.TaskStatus;
 import com.mcxiaoke.next.utils.StringUtils;
 import org.json.JSONObject;
 
@@ -102,8 +101,6 @@ public class TaskQueueSamples extends BaseActivity {
 
         TaskQueue.getDefault().add(getCallable(url, false), callback, this);
         TaskQueue.getDefault().add(getCallable(url, false), callback, this);
-
-
     }
 
     private void taskDemo() {
@@ -164,17 +161,17 @@ public class TaskQueueSamples extends BaseActivity {
 
         TaskBuilder.create(String.class).callback(new TaskCallback<String>() {
             @Override
-            public void onTaskStarted(final TaskStatus<String> status, final Bundle extras) {
+            public void onTaskStarted(final String name, final Bundle extras) {
 
             }
 
             @Override
-            public void onTaskFinished(final TaskStatus<String> status, final Bundle extras) {
+            public void onTaskFinished(final String name, final Bundle extras) {
 
             }
 
             @Override
-            public void onTaskCancelled(final TaskStatus<String> status, final Bundle extras) {
+            public void onTaskCancelled(final String name, final Bundle extras) {
 
             }
 

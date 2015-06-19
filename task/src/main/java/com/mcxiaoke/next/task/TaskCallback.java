@@ -19,28 +19,28 @@ public interface TaskCallback<Result> {
      * 任务开始
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param name   TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskStarted(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskStarted(final String name, final Bundle extras);
 
     /**
      * 任务完成
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param name   TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskFinished(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskFinished(final String name, final Bundle extras);
 
     /**
      * 任务取消
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
-     * @param status TASK STATUS
+     * @param name   TASK NAME
      * @param extras 附加结果，需要返回多种结果时会用到
      */
-    void onTaskCancelled(final TaskStatus<Result> status, final Bundle extras);
+    void onTaskCancelled(final String name, final Bundle extras);
 
     /**
      * 回调，任务执行完成

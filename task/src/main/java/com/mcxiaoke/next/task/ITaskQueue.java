@@ -24,7 +24,7 @@ interface ITaskQueue {
      */
     void setExecutor(ExecutorService executor);
 
-    <Result> TaskTag execute(final Callable<Result> callable,
+    <Result> String execute(final Callable<Result> callable,
                              final TaskCallback<Result> callback,
                              final Object caller, final boolean serial);
 
@@ -59,13 +59,6 @@ interface ITaskQueue {
      */
     boolean cancel(String name);
 
-    /**
-     * 取消TAG对应的任务
-     *
-     * @param tag 任务TAG
-     * @return 任务是否存在
-     */
-    boolean cancel(TaskTag tag);
 
     /**
      * 取消由该调用方发起的所有任务
@@ -83,9 +76,7 @@ interface ITaskQueue {
 
     /**
      * 获取当前实例的详细信息
-     *
-     * @param logcat 是否输出到logcat
      * @return dump output
      */
-    String dump(boolean logcat);
+    String dump();
 }

@@ -6,18 +6,7 @@ package com.mcxiaoke.next.task;
  * Date: 15/6/17
  * Time: 12:17
  */
-public class TaskStatus<Result> {
-
-    public static final int IDLE = 0; // 空闲，初始化
-    public static final int RUNNING = 1;  // 线程正在运行
-    public static final int CANCELLED = 2;  // 任务已取消
-    public static final int FAILURE = 3; // 任务已失败
-    public static final int SUCCESS = 4; // 任务已成功
-
-    /**
-     * 任务的TAG
-     */
-    final TaskTag tag;
+class TaskStatus<Result> {
     /**
      * 任务当前状态
      */
@@ -30,22 +19,17 @@ public class TaskStatus<Result> {
      * 线程结束时间
      */
     long endTime;
-    // 任务结果
-    Result data;
-    // 任务异常
-    Throwable error;
 
-    public TaskStatus(final TaskTag tag) {
-        this.tag = tag;
-        this.status = IDLE;
+    public TaskStatus() {
+        this.status = TaskFuture.IDLE;
     }
 
     public boolean isDone() {
-        return status != IDLE && status != RUNNING;
+        return status != TaskFuture.IDLE && status != TaskFuture.RUNNING;
     }
 
     public boolean isCancelled() {
-        return status == CANCELLED;
+        return status == TaskFuture.CANCELLED;
     }
 
     public long getDuration() {
@@ -55,30 +39,7 @@ public class TaskStatus<Result> {
         return endTime - startTime;
     }
 
-    public String getName() {
-        return tag.getName();
-    }
-
     public int getStatus() {
-
-
         return status;
-    }
-
-    public Result getData() {
-        return data;
-    }
-
-    public Throwable getError() {
-        return error;
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "status=" + status +
-                ", duration=" + getDuration() + "ms" +
-                ", tag='" + tag + '\'' +
-                '}';
     }
 }

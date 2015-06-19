@@ -19,9 +19,18 @@ public abstract class TaskQueue implements ITaskQueue {
         return TaskFactory.createQueue();
     }
 
-    abstract <Result> TaskTag execute(final Task<Result> task);
+    abstract String execute(final Task task);
 
-    abstract void remove(final TaskTag tag);
+    abstract void remove(final TaskFuture task);
+
+
+    /**
+     * 取消TAG对应的任务
+     *
+     * @param task 任务
+     * @return 任务是否存在
+     */
+    abstract boolean cancel(final TaskFuture task);
 
 
 }
