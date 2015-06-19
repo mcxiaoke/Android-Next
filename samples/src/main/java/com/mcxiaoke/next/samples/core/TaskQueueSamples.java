@@ -14,7 +14,6 @@ import butterknife.OnClick;
 import com.mcxiaoke.next.cache.IMemoryCache;
 import com.mcxiaoke.next.cache.MemoryCache;
 import com.mcxiaoke.next.http.NextClient;
-import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.task.Failure;
@@ -54,6 +53,8 @@ public class TaskQueueSamples extends BaseActivity {
 
     private boolean mRunning;
 
+    private Object mCaller = new Object();
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +62,6 @@ public class TaskQueueSamples extends BaseActivity {
         setContentView(R.layout.act_next_executor);
         ButterKnife.inject(this);
         mEditText.setText("https://api.github.com/users/mcxiaoke");
-        TaskQueue.getDefault().setDebug(true);
-
         final IMemoryCache<String, String> cache = MemoryCache.mapCache();
         cache.put("key", "value");
         cache.put("hello", "world");
@@ -74,33 +73,87 @@ public class TaskQueueSamples extends BaseActivity {
 
     private void doRequest() {
 
+        TaskQueue.setDebug(true);
+
         final String url = mEditText.getText().toString();
         if (StringUtils.isEmpty(url)) {
             showToast("url cannot be null.");
             return;
         }
 
-        final TaskCallback<String> callback = new SimpleTaskCallback<String>() {
+        final TaskCallback<String> callback = new TaskCallback<String>() {
+            @Override
+            public void onTaskCancelled(final String name, final Bundle extras) {
+                println("task cancelled " + name + " index:" + extras.getInt("index"));
+            }
+
+            @Override
+            public void onTaskStarted(final String name, final Bundle extras) {
+                println("task started " + name + " index:" + extras.getInt("index"));
+            }
+
+            @Override
+            public void onTaskFinished(final String name, final Bundle extras) {
+                println("task finished " + name + " index:" + extras.getInt("index"));
+            }
+
             @Override
             public void onTaskSuccess(final String result, final Bundle extras) {
-                println("success, end http request index:" + extras.getInt("index"));
+                println("task success, index:" + extras.getInt("index"));
             }
 
             @Override
             public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                println("failure, end http request index:" + extras.getInt("index"));
+                println("task failure index:" + extras.getInt("index"));
             }
         };
 
-        TaskBuilder.create(getCallable(url, true)).with(this).callback(callback).serial(true).start();
-        TaskBuilder.create(getCallable(url, false)).with(this).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, true)).with(this).check(true).callback(callback).serial(true).start();
+        TaskBuilder.create(getCallable(url, true)).with(mCaller).check(true).callback(callback).serial(true).start();
+        TaskBuilder.create(getCallable(url, true)).with(mEditText).check(true).callback(callback).serial(true).start();
+        TaskBuilder.create(getCallable(url, true)).with(new JSONObject()).check(true).callback(callback).serial(true).start();
 
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
-        TaskQueue.getDefault().addSerially(getCallable(url, true), callback, this);
+        TaskBuilder.create(getCallable(url, false)).with(this).check(true).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, false)).with(mCaller).check(true).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, false)).with(mEditText).check(true).callback(callback).serial(false).start();
+        TaskBuilder.create(getCallable(url, false)).with(new JSONObject()).check(true).callback(callback).serial(false).start();
 
-        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
-        TaskQueue.getDefault().add(getCallable(url, false), callback, this);
+        TaskBuilder.create(getCallable(url, true), callback, this).serial(true).start();
+        TaskBuilder.create(getCallable(url, false), callback, this).serial(false).start();
+        TaskBuilder.create(getCallable(url, true), callback, this).serial(true).start();
+        TaskBuilder.create(getCallable(url, false), callback, this).serial(false).start();
+        TaskBuilder.create(getCallable(url, true), callback, "hello1").serial(true).start();
+        TaskBuilder.create(getCallable(url, false), callback, "hello2").serial(false).start();
+        TaskBuilder.create(getCallable(url, true), callback, "hello3").serial(true).start();
+        TaskBuilder.create(getCallable(url, false), callback, "hello4").serial(false).start();
+
+        TaskQueue.getDefault().execute(getCallable(url, true), callback, new View(this), true);
+        TaskQueue.getDefault().execute(getCallable(url, true), callback, new View(this), true);
+
+//        final TaskQueue queue = TaskQueue.createNew();
+//        final JSONObject o1 = new JSONObject();
+//        final JSONObject o2 = new JSONObject();
+//        for (int i = 0; i < 100; i++) {
+//            queue.execute(getCallable(url, false), callback, o1, false);
+//            TaskBuilder.create(getCallable(url, true), callback, o2).on(queue).serial(false).start();
+//        }
+//
+//        TaskQueue.getDefault().execute(new Callable<String>() {
+//            @Override
+//            public String call() throws Exception {
+//                queue.cancelAll(o1);
+//                return null;
+//            }
+//        }, callback, this, false);
+//        TaskQueue.getDefault().execute(new Callable<String>() {
+//            @Override
+//            public String call() throws Exception {
+//                SystemClock.sleep(200);
+//                queue.cancelAll(o2);
+//                return null;
+//            }
+//        }, callback, this, false);
+
     }
 
     private void taskDemo() {
@@ -198,9 +251,12 @@ public class TaskQueueSamples extends BaseActivity {
         return new TaskCallable<String>(TAG) {
             @Override
             public String call() throws Exception {
-                SystemClock.sleep(Math.abs(RANDOM.nextInt()) % 3000 + 2000);
-                final NextResponse response = NextClient.get(url);
-                return response.string();
+                final int random = Math.abs(RANDOM.nextInt());
+                SystemClock.sleep(random % 5000 + 5000);
+                if (random % 8 == 0) {
+                    throw new IllegalArgumentException("random exception");
+                }
+                return "hello, world";
             }
         }.putExtra("index", index);
     }
@@ -209,7 +265,8 @@ public class TaskQueueSamples extends BaseActivity {
         mTextView.setText(null);
     }
 
-    private void println(CharSequence text) {
+    private void println(String text) {
+        Log.d(TAG, text);
         mTextView.append(text);
         mTextView.append("\n");
     }
@@ -217,6 +274,6 @@ public class TaskQueueSamples extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TaskQueue.getDefault().cancelAll(this);
+        TaskQueue.getDefault().cancelAll(mCaller);
     }
 }

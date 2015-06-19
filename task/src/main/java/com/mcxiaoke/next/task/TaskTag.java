@@ -13,9 +13,9 @@ import java.util.Locale;
  */
 class TaskTag {
 
-    private static final String SEP = ":";
-    private static final String FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final DateFormat DF = new SimpleDateFormat(FORMAT, Locale.US);
+    private static final String SEP = "|";
+    private static final DateFormat DF_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    private static final DateFormat DF_NAME = new SimpleDateFormat("HHmmssSSS", Locale.US);
     private static volatile int sSequence = 0;
 
     private static int incSequence() {
@@ -33,12 +33,13 @@ class TaskTag {
     private final String fullTag;
 
     public TaskTag(final Object caller) {
-        // group=className::hashcode-hex
-        // fullTag=group::timestamp-hex::seq
+        // group=className|hashcode-hex
+        // fullTag=group|timestamp-hex|seq
+        final Date now = new Date();
         this.group = getGroup(caller);
-        this.createdAt = System.currentTimeMillis();
+        this.createdAt = now.getTime();
         this.sequence = incSequence();
-        this.fullTag = group + SEP + Long.toHexString(createdAt) + SEP + sequence;
+        this.fullTag = group + SEP + DF_NAME.format(now) + SEP + sequence;
     }
 
     public String getGroup() {
@@ -54,7 +55,7 @@ class TaskTag {
     }
 
     public String getCreatedAt() {
-        return DF.format(new Date(createdAt));
+        return DF_DATE.format(new Date(createdAt));
     }
 
     @Override

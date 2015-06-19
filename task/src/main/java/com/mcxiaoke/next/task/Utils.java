@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Build.VERSION_CODES;
+import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -53,16 +54,22 @@ class Utils {
 
     private static boolean isAddedCompat(final Object caller) {
         try {
-            final Class<?> fragmentClass = Class.forName("android.support.v4.app.Fragment");
+            final String className = "android.support.v4.app.Fragment";
             final Class<?> clazz = caller.getClass();
-            if (caller == fragmentClass) {
+            final String callerClassName = clazz.getName();
+            if (className.equals(callerClassName)) {
                 final Method method = clazz.getMethod("isAdded", clazz);
-                return (boolean) method.invoke(caller);
+                if (method != null) {
+                    return (boolean) method.invoke(caller);
+                }
             }
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            if (Config.DEBUG) {
+                Log.w("TaskQueue", "isAddedCompat() ", ex);
+            }
         }
 
-        return false;
+        return true;
     }
 
     public static ThreadPoolExecutor newCachedThreadPool(final String name) {

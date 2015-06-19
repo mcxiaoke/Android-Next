@@ -1,6 +1,6 @@
 Android Next 公共组件库
 ----------
-### Tasks, Cache, Views, Widgets, Http, Utils
+### Task, Cache, Views, Widgets, Http, Utils
 
 ### 项目介绍
 
@@ -8,7 +8,11 @@ Android Next 公共组件库
 
 ### 最新版本
 
-* [![Maven Central](http://img.shields.io/badge/2015.06.18-com.mcxiaoke.next:1.1.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+* [![Maven Central](http://img.shields.io/badge/2015.06.19-com.mcxiaoke.next:1.1.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+
+- **1.1.1** 2015.06.19
+    * task: 重构，减少不必要的接口，增加TaskFuture，清理代码
+    * docs: 修改和完善task模块的文档和示例
 
 - **1.1.0** 2015.06.18
     * task: 完全重构TaskQueue组件，单独部署

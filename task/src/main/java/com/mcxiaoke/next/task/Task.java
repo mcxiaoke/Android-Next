@@ -5,5 +5,5 @@ package com.mcxiaoke.next.task;
  * Date: 15/6/18
  * Time: 12:51
  */
-public interface Task<Result> extends TaskFuture, ITaskActions<Result> {
+public interface Task<Result> extends TaskFuture, ITaskCallbacks<Result> {
 }

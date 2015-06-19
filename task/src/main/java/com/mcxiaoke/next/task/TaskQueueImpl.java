@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.task;
 
-import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -27,18 +27,8 @@ final class TaskQueueImpl extends TaskQueue {
     private final Object mLock = new Object();
     private ExecutorService mExecutor;
     private ExecutorService mSerialExecutor;
-    private Handler mUiHandler;
     private Map<String, List<String>> mGroups;
-    private Map<String, ITaskRunnable> mNames;
-    private boolean mDebug;
-
-    static final class SingletonHolder {
-        static final TaskQueueImpl INSTANCE = new TaskQueueImpl();
-    }
-
-    public static TaskQueueImpl getDefault() {
-        return SingletonHolder.INSTANCE;
-    }
+    private Map<String, ITaskRunnable> mRunnables;
 
     public TaskQueueImpl() {
         Log.v(TAG, "TaskQueue()");
@@ -48,9 +38,8 @@ final class TaskQueueImpl extends TaskQueue {
     }
 
     private void init() {
-        mNames = new ConcurrentHashMap<String, ITaskRunnable>();
         mGroups = new ConcurrentHashMap<String, List<String>>();
-        mUiHandler = new Handler();
+        mRunnables = new ConcurrentHashMap<String, ITaskRunnable>();
     }
 
     /********************************************************************
@@ -59,15 +48,6 @@ final class TaskQueueImpl extends TaskQueue {
      *
      *******************************************************************/
 
-    /**
-     * debug开关
-     *
-     * @param debug 是否开启DEBUG模式
-     */
-    @Override
-    public void setDebug(boolean debug) {
-        mDebug = debug;
-    }
 
     /**
      * 执行异步任务，回调时会检查Caller是否存在，如果不存在就不执行回调函数
@@ -91,9 +71,6 @@ final class TaskQueueImpl extends TaskQueue {
     public <Result> String add(final Callable<Result> callable,
                                final TaskCallback<Result> callback,
                                final Object caller) {
-        if (mDebug) {
-            Log.v(TAG, "execute()");
-        }
         return execute(callable, callback, caller, false);
     }
 
@@ -111,9 +88,6 @@ final class TaskQueueImpl extends TaskQueue {
     @Override
     public <Result> String addSerially(final Callable<Result> callable,
                                        final TaskCallback<Result> callback, final Object caller) {
-        if (mDebug) {
-            Log.v(TAG, "addSerially()");
-        }
         return execute(callable, callback, caller, true);
     }
 
@@ -169,7 +143,7 @@ final class TaskQueueImpl extends TaskQueue {
      */
     @Override
     public void cancelAll() {
-        if (mDebug) {
+        if (Config.DEBUG) {
             Log.v(TAG, "cancelAll()");
         }
         cancelAllInQueue();
@@ -225,7 +199,7 @@ final class TaskQueueImpl extends TaskQueue {
         builder.append("]");
 
         // task map
-        Map<String, ITaskRunnable> taskMap = mNames;
+        Map<String, ITaskRunnable> taskMap = mRunnables;
         builder.append("Tasks:{");
         for (Map.Entry<String, ITaskRunnable> entry : taskMap.entrySet()) {
             builder.append(" tag:").append(entry.getKey())
@@ -252,15 +226,15 @@ final class TaskQueueImpl extends TaskQueue {
      */
     @Override
     String execute(final Task task) {
-        if (mDebug) {
+        if (Config.DEBUG) {
             Log.v(TAG, "execute() task=" + task);
         }
-        final ITaskRunnable runnable = TaskFactory.createRunnable(task, mDebug);
+        final ITaskRunnable runnable = TaskFactory.createRunnable(task);
         final boolean serial = task.isSerial();
         final String group = task.getGroup();
         final String name = task.getName();
-        addTagToTaskMap(name, runnable);
-        addTagToCallerMap(name, group);
+        addToRunnableMap(name, runnable);
+        addToGroupMap(name, group);
         smartSubmit(runnable, serial);
         return name;
     }
@@ -270,13 +244,13 @@ final class TaskQueueImpl extends TaskQueue {
         return cancelByName(task.getName());
     }
 
-    private void addTagToTaskMap(final String tag, final ITaskRunnable runnable) {
+    private void addToRunnableMap(final String tag, final ITaskRunnable runnable) {
         synchronized (mLock) {
-            mNames.put(tag, runnable);
+            mRunnables.put(tag, runnable);
         }
     }
 
-    private void addTagToCallerMap(final String name, final String group) {
+    private void addToGroupMap(final String name, final String group) {
         List<String> tags = mGroups.get(group);
         if (tags == null) {
             tags = new ArrayList<String>();
@@ -293,58 +267,65 @@ final class TaskQueueImpl extends TaskQueue {
      * 取消所有的Runnable对应的任务
      */
     private void cancelAllInQueue() {
-        if (mDebug) {
+        if (Config.DEBUG) {
             Log.v(TAG, "cancelAllInQueue()");
         }
-        final Collection<ITaskRunnable> tasks = mNames.values();
+        long start = SystemClock.elapsedRealtime();
+        final Collection<ITaskRunnable> tasks = mRunnables.values();
         for (ITaskRunnable task : tasks) {
             if (task != null) {
                 task.cancel();
             }
         }
         synchronized (mLock) {
-            mNames.clear();
+            mRunnables.clear();
             mGroups.clear();
+        }
+        if (Config.DEBUG) {
+            final long time = SystemClock.elapsedRealtime() - start;
+            Log.v(TAG, "cancelAllInQueue() using " + time + "ms");
         }
     }
 
     int cancelByCaller(final Object caller) {
-        if (mDebug) {
+        if (Config.DEBUG) {
             Log.v(TAG, "cancelByCaller() caller=" + caller);
         }
         return cancelByGroup(TaskTag.getGroup(caller));
     }
 
     int cancelByGroup(final String group) {
-        if (mDebug) {
+        if (Config.DEBUG) {
             Log.v(TAG, "cancelByGroup() group=" + group);
         }
+        long start = SystemClock.elapsedRealtime();
         int count = 0;
-        final List<String> tags;
+        final List<String> names;
         synchronized (mLock) {
-            tags = mGroups.remove(group);
+            names = mGroups.remove(group);
         }
-        if (tags == null || tags.isEmpty()) {
+        if (names == null || names.isEmpty()) {
             return count;
         }
-        for (String tag : tags) {
-            cancel(tag);
+        for (String name : names) {
+            cancelByName(name);
             ++count;
         }
-        if (mDebug) {
-            Log.v(TAG, "cancelByGroup() count=" + count);
+        if (Config.DEBUG) {
+            final long time = SystemClock.elapsedRealtime() - start;
+            Log.v(TAG, "cancelByGroup() count=" + count + " using " + time + "ms");
         }
         return count;
     }
 
     boolean cancelByName(final String name) {
-        if (mDebug) {
-            Log.v(TAG, "cancel() name=" + name);
+        if (Config.DEBUG) {
+            Log.v(TAG, "cancelByName() name=" + name);
         }
         boolean result = false;
         final ITaskRunnable runnable;
         synchronized (mLock) {
-            runnable = mNames.remove(name);
+            runnable = mRunnables.remove(name);
         }
         if (runnable != null) {
             result = runnable.cancel();
@@ -355,11 +336,11 @@ final class TaskQueueImpl extends TaskQueue {
 
     @Override
     void remove(final TaskFuture task) {
-        if (mDebug) {
-            Log.v(TAG, "remove " + task + " at thread:" + Thread.currentThread().getName());
+        if (Config.DEBUG) {
+            Log.v(TAG, "remove() " + task.getName());
         }
         synchronized (mLock) {
-            mNames.remove(task.getName());
+            mRunnables.remove(task.getName());
         }
         List<String> tags = mGroups.get(task.getGroup());
         if (tags != null) {
@@ -408,18 +389,6 @@ final class TaskQueueImpl extends TaskQueue {
         if (mSerialExecutor != null) {
             mSerialExecutor.shutdown();
             mSerialExecutor = null;
-        }
-    }
-
-    /**
-     * 关闭Handler
-     */
-    private void destroyHandler() {
-        synchronized (mLock) {
-            if (mUiHandler != null) {
-                mUiHandler.removeCallbacksAndMessages(null);
-                mUiHandler = null;
-            }
         }
     }
 

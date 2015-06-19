@@ -92,10 +92,10 @@ class TaskInfo<Result> {
 
     @Override
     public String toString() {
-        return "TaskInfo{" +
+        return "{" +
                 "tag=" + tag +
                 ", serial=" + serial +
-                ", delayMillis=" + delayMillis +
+                ", delay=" + delayMillis +
                 ", check=" + check +
                 '}';
     }

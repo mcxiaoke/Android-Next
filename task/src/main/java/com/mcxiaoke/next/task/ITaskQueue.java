@@ -9,13 +9,6 @@ import java.util.concurrent.ExecutorService;
  * Time: 11:55
  */
 interface ITaskQueue {
-    /**
-     * debug开关
-     *
-     * @param debug 是否开启DEBUG模式
-     */
-    void setDebug(boolean debug);
-
 
     /**
      * 设置自定义的ExecutorService
@@ -25,8 +18,8 @@ interface ITaskQueue {
     void setExecutor(ExecutorService executor);
 
     <Result> String execute(final Callable<Result> callable,
-                             final TaskCallback<Result> callback,
-                             final Object caller, final boolean serial);
+                            final TaskCallback<Result> callback,
+                            final Object caller, final boolean serial);
 
     <Result> String add(Callable<Result> callable,
                         TaskCallback<Result> callback,
@@ -76,6 +69,7 @@ interface ITaskQueue {
 
     /**
      * 获取当前实例的详细信息
+     *
      * @return dump output
      */
     String dump();

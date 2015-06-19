@@ -2,6 +2,7 @@ package com.mcxiaoke.next.task;
 
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
@@ -12,6 +13,8 @@ import java.lang.ref.WeakReference;
  * Time: 12:16
  */
 class TaskImpl<Result> implements Task<Result> {
+    private static final String TAG = "TaskQueue.Task";
+
     final TaskInfo<Result> mInfo;
     /**
      * 内部使用的TaskCallback
@@ -21,11 +24,6 @@ class TaskImpl<Result> implements Task<Result> {
      * 任务是否已启动
      */
     private volatile boolean mConsumed;
-
-    /**
-     * 任务是否已取消
-     */
-    private volatile boolean mCancelled;
 
     /**
      * 任务当前状态
@@ -47,6 +45,9 @@ class TaskImpl<Result> implements Task<Result> {
         mStatus = IDLE;
         mStartTime = 0;
         mEndTime = 0;
+        if (Config.DEBUG) {
+            Log.v(TAG, "Task() " + this);
+        }
     }
 
     private void execute() {
@@ -87,6 +88,9 @@ class TaskImpl<Result> implements Task<Result> {
         if (mConsumed) {
             throw new IllegalStateException("task has been executed already");
         }
+        if (Config.DEBUG) {
+            Log.v(TAG, "start() " + getName());
+        }
         mConsumed = true;
         final Runnable runnable = new Runnable() {
             @Override
@@ -110,8 +114,10 @@ class TaskImpl<Result> implements Task<Result> {
      */
     @Override
     public boolean cancel() {
-        mCancelled = true;
-        return mInfo.queue.cancel(mInfo.tag.getName());
+        if (Config.DEBUG) {
+            Log.v(TAG, "cancel() " + getName());
+        }
+        return mInfo.queue.cancel(getName());
     }
 
     @Override
@@ -145,6 +151,9 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public Result onExecute() throws Exception {
+        if (Config.DEBUG) {
+            Log.v(TAG, "onExecute() " + getName());
+        }
         return mInfo.action.call();
     }
 
@@ -157,6 +166,10 @@ class TaskImpl<Result> implements Task<Result> {
                 remove();
             }
         };
+        if (Config.DEBUG) {
+            Log.d(TAG, "onDone() task using " + getDuration() + "ms " + getName()
+                    + " cancelled=" + isCancelled());
+        }
         mInfo.handler.post(runnable);
         addResultExtras();
     }
@@ -173,9 +186,20 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public void onStarted() {
+        if (Config.DEBUG) {
+            Log.v(TAG, "onStarted() " + getName() + " cancelled=" + isCancelled());
+            dumpCaller();
+        }
         mStatus = TaskFuture.RUNNING;
         mStartTime = SystemClock.elapsedRealtime();
-        if (mCancelled || isInvalidCaller()) {
+        if (isCancelled()) {
+            return;
+        }
+        if (isCallerDead()) {
+            if (Config.DEBUG) {
+                Log.d(TAG, "onStarted() " + getName() + " caller dead, cancel task");
+            }
+            cancel();
             return;
         }
         final Runnable runnable = new Runnable() {
@@ -189,8 +213,12 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public void onCancelled() {
+        if (Config.DEBUG) {
+            Log.v(TAG, "onCancelled() " + getName());
+            dumpCaller();
+        }
         mStatus = TaskFuture.CANCELLED;
-        if (isInvalidCaller()) {
+        if (isCallerDead()) {
             return;
         }
         final Runnable runnable = new Runnable() {
@@ -204,7 +232,11 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public void onFinished() {
-        if (mCancelled || isInvalidCaller()) {
+        if (Config.DEBUG) {
+            Log.v(TAG, "onFinished() " + getName() + " cancelled=" + isCancelled());
+            dumpCaller();
+        }
+        if (isCancelled() || isCallerDead()) {
             return;
         }
         final Runnable runnable = new Runnable() {
@@ -218,8 +250,11 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public void onSuccess(final Result result) {
+        if (Config.DEBUG) {
+            Log.d(TAG, "onSuccess() " + getName() + " cancelled=" + isCancelled());
+        }
         mStatus = TaskFuture.SUCCESS;
-        if (mCancelled || isInvalidCaller()) {
+        if (isCancelled() || isCallerDead()) {
             return;
         }
         final Runnable runnable = new Runnable() {
@@ -233,8 +268,12 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public void onFailure(final Throwable error) {
+        if (Config.DEBUG) {
+            Log.w(TAG, "onFailure() " + getName() + " cancelled=" + isCancelled()
+                    + " error=" + Log.getStackTraceString(error));
+        }
         mStatus = TaskFuture.FAILURE;
-        if (mCancelled || isInvalidCaller()) {
+        if (isCancelled() || isCallerDead()) {
             return;
         }
         final Runnable runnable = new Runnable() {
@@ -246,9 +285,25 @@ class TaskImpl<Result> implements Task<Result> {
         mInfo.handler.post(runnable);
     }
 
-    boolean isInvalidCaller() {
+    boolean isCallerDead() {
         final Object caller = mInfo.callerRef.get();
-        return caller == null || mInfo.check && !Utils.isActive(caller);
+        return caller == null || (mInfo.check && !Utils.isActive(caller));
+    }
+
+    private void dumpCaller() {
+        final Object caller = mInfo.callerRef.get();
+        if (caller == null) {
+            Log.w(TAG, "dump() caller is recycled " + getName());
+            return;
+        }
+        if (!mInfo.check) {
+            Log.d(TAG, "dump() caller check is not enabled " + getName());
+            return;
+        }
+        final boolean notActive = !Utils.isActive(caller);
+        if (notActive) {
+            Log.w(TAG, "dump() caller is not active " + getName());
+        }
     }
 
 

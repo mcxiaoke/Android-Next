@@ -62,13 +62,19 @@
             }
         }).with(this).start();
 
-        TaskBuilder.create(resultType|callable|callback) // 创建TaskBuilder
+        // 创建TaskBuilder
+        TaskBuilder.create(resultType|callable|callback)
          .with(caller) // 设置Caller
          .action(callable|runnable) // 设置Callable|Runnable
          .callback(callback) // 设置TaskCallback
-         .success(success) //设置任务成功回调
-         .failure(failure) //设置任务失败回调
-         .check(false) //设置是否检查Caller
+         .success(success) //设置任务成功Callback
+         .failure(failure) //设置任务失败Callback
+
+         // caller==null，此时认为caller已被系统回收，忽略Callback
+         // Activity.isFinishing==true，此时认为caller已死，忽略Callback
+         // Fragment.isAdded==false，此时认为caller已死，忽略Callback
+         .check(true) //默认为true，设置是否检查Caller
+
          .dispatch(handler)// 回调方法所在线程，默认是主线程
          .serial(false) // 是否按顺序依次执行
          .on(queue) // 设置自定义的TaskQueue

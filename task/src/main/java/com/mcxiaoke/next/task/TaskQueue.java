@@ -19,6 +19,10 @@ public abstract class TaskQueue implements ITaskQueue {
         return TaskFactory.createQueue();
     }
 
+    public static void setDebug(boolean debug) {
+        Config.DEBUG = debug;
+    }
+
     abstract String execute(final Task task);
 
     abstract void remove(final TaskFuture task);

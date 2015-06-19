@@ -12,6 +12,8 @@ import java.util.concurrent.Callable;
  */
 public class TaskBuilder<Result> {
 
+    public static final boolean ACTIVE_CHECK_DEFAULT = true;
+
     Handler handler;
     TaskQueue queue;
     Object caller;
@@ -73,6 +75,7 @@ public class TaskBuilder<Result> {
     }
 
     private TaskBuilder() {
+        this.check = ACTIVE_CHECK_DEFAULT;
     }
 
     Task<Result> create() {
