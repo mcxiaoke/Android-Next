@@ -9,13 +9,11 @@
 ## 异步任务
 
 包含异步任务执行模块相关的类，详细的使用见后面的说明
+
     * TaskQueue 对外接口，支持单例使用
-    * Task 表示单个异步任务对象
-    * TaskStatus Task的状态
+    * TaskFuture 表示单个异步任务对象
     * TaskBuilder 对外接口，链式调用
     * TaskCallback 任务回调接口
-
-
 
 #### TaskBuilder
 
@@ -200,6 +198,18 @@
  * @param <Result> 类型参数，任务执行结果
  */
 public interface TaskCallback<Result> {
+
+    // 第二个参数保证不为null，extras里包含以下信息
+    // 除onTaskStarted()外，以下值在其它回调方法里均可用
+    final String group=extras.getString(TASK_GROUP);
+    final String name=extras.getString(TASK_NAME);
+    final int sequence=extras.getInt(TASK_SEQUENCE);
+    final long delay=extras.getLong(TASK_DELAY);
+    final long duration=extras.getLong(TASK_DURATION);
+
+    // 这几个回调方法的执行顺序：
+    // onTaskStarted -> (onTaskFinished|onTaskCancelled) -> (onTaskSuccess|onTaskFailure)
+
     /**
      * 任务开始
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
@@ -252,12 +262,12 @@ public interface TaskCallback<Result> {
 
 ```java
 
-    // 任务成功的回调接口
+    // 任务成功的回调接口，先于TaskCallback.onTaskSuccess执行
     public interface Success<Result> {
         void onSuccess(final Result result, final Bundle extras);
     }
 
-    // 任务失败的回调接口
+    // 任务失败的回调接口，先于TaskCallback.onTaskFailure执行
     public interface Failure {
         void onFailure(Throwable ex, final Bundle extras);
     }

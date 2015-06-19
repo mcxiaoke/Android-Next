@@ -167,7 +167,6 @@ public class TaskQueueSamples extends BaseActivity {
 
             @Override
             public void onTaskFinished(final String name, final Bundle extras) {
-
             }
 
             @Override
@@ -177,7 +176,11 @@ public class TaskQueueSamples extends BaseActivity {
 
             @Override
             public void onTaskSuccess(final String s, final Bundle extras) {
-
+                final String group = extras.getString(TASK_GROUP);
+                final String name = extras.getString(TASK_NAME);
+                final int sequence = extras.getInt(TASK_SEQUENCE);
+                final long delay = extras.getLong(TASK_DELAY);
+                final long duration = extras.getLong(TASK_DURATION);
             }
 
             @Override
