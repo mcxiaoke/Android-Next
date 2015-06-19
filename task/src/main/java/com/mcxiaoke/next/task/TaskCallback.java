@@ -14,6 +14,11 @@ import android.os.Bundle;
  * @param <Result> 类型参数，任务执行结果
  */
 public interface TaskCallback<Result> {
+    String TASK_GROUP = "task_group";
+    String TASK_NAME = "task_name";
+    String TASK_SEQUENCE = "task_sequence";
+    String TASK_DELAY = "task_delay";
+    String TASK_DURATION = "task_duration";
 
     /**
      * 任务开始

@@ -145,7 +145,7 @@ class TaskImpl<Result> implements Task<Result> {
 
     @Override
     public Result onExecute() throws Exception {
-        return mInfo.callable.call();
+        return mInfo.action.call();
     }
 
     @Override
@@ -158,7 +158,17 @@ class TaskImpl<Result> implements Task<Result> {
             }
         };
         mInfo.handler.post(runnable);
+        addResultExtras();
+    }
 
+    private void addResultExtras() {
+        final TaskTag tag = mInfo.tag;
+        final TaskCallable<Result> action = mInfo.action;
+        action.putExtra(TaskCallback.TASK_GROUP, tag.getGroup());
+        action.putExtra(TaskCallback.TASK_NAME, tag.getName());
+        action.putExtra(TaskCallback.TASK_SEQUENCE, tag.getSequence());
+        action.putExtra(TaskCallback.TASK_DELAY, mInfo.delayMillis);
+        action.putExtra(TaskCallback.TASK_DURATION, getDuration());
     }
 
     @Override
@@ -171,7 +181,7 @@ class TaskImpl<Result> implements Task<Result> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mCb.onTaskStarted(getName(), mInfo.callable.getExtras());
+                mCb.onTaskStarted(getName(), mInfo.action.getExtras());
             }
         };
         mInfo.handler.post(runnable);
@@ -186,7 +196,7 @@ class TaskImpl<Result> implements Task<Result> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mCb.onTaskCancelled(getName(), mInfo.callable.getExtras());
+                mCb.onTaskCancelled(getName(), mInfo.action.getExtras());
             }
         };
         mInfo.handler.post(runnable);
@@ -200,7 +210,7 @@ class TaskImpl<Result> implements Task<Result> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mCb.onTaskFinished(getName(), mInfo.callable.getExtras());
+                mCb.onTaskFinished(getName(), mInfo.action.getExtras());
             }
         };
         mInfo.handler.post(runnable);
@@ -215,7 +225,7 @@ class TaskImpl<Result> implements Task<Result> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mCb.onTaskSuccess(result, mInfo.callable.getExtras());
+                mCb.onTaskSuccess(result, mInfo.action.getExtras());
             }
         };
         mInfo.handler.post(runnable);
@@ -230,7 +240,7 @@ class TaskImpl<Result> implements Task<Result> {
         final Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                mCb.onTaskFailure(error, mInfo.callable.getExtras());
+                mCb.onTaskFailure(error, mInfo.action.getExtras());
             }
         };
         mInfo.handler.post(runnable);

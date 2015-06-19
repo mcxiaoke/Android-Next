@@ -5,7 +5,7 @@ package com.mcxiaoke.next.task;
  * Date: 15/6/19
  * Time: 10:11
  */
-interface ITaskCallback<Result> {
+interface ITaskActions<Result> {
 
     Result onExecute() throws Exception;
 

@@ -31,7 +31,7 @@ class TaskInfo<Result> {
     /**
      * 任务的Callable对象
      */
-    public final TaskCallable<Result> callable;
+    public final TaskCallable<Result> action;
     /**
      * 任务成功的回调
      */
@@ -63,8 +63,8 @@ class TaskInfo<Result> {
         if (builder.caller == null) {
             throw new NullPointerException("caller can not be null.");
         }
-        if (builder.callable == null) {
-            throw new NullPointerException("callable can not be null.");
+        if (builder.action == null) {
+            throw new NullPointerException("action can not be null.");
         }
         if (builder.handler == null) {
             this.handler = new Handler(Looper.getMainLooper());
@@ -77,7 +77,7 @@ class TaskInfo<Result> {
             this.queue = builder.queue;
         }
         this.callerRef = new WeakReference<Object>(builder.caller);
-        this.callable = builder.callable;
+        this.action = builder.action;
         this.callback = builder.callback;
         this.success = builder.success;
         this.failure = builder.failure;
@@ -86,7 +86,7 @@ class TaskInfo<Result> {
         this.serial = builder.serial;
         this.tag = new TaskTag(builder.caller);
         if (builder.extras != null) {
-            this.callable.putExtras(builder.extras);
+            this.action.putExtras(builder.extras);
         }
     }
 

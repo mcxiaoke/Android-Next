@@ -15,7 +15,7 @@ public class TaskBuilder<Result> {
     Handler handler;
     TaskQueue queue;
     Object caller;
-    TaskCallable<Result> callable;
+    TaskCallable<Result> action;
     TaskCallback<Result> callback;
     Success<Result> success;
     Failure failure;
@@ -38,12 +38,12 @@ public class TaskBuilder<Result> {
     /**
      * 根据Callable初始化TaskBuilder
      *
-     * @param callable Callable
+     * @param action   Callable
      * @param <Result> Result Type
      * @return TaskBuilder
      */
-    public static <Result> TaskBuilder<Result> create(Callable<Result> callable) {
-        return new TaskBuilder<Result>().action(callable);
+    public static <Result> TaskBuilder<Result> create(Callable<Result> action) {
+        return new TaskBuilder<Result>().action(action);
     }
 
     /**
@@ -60,16 +60,16 @@ public class TaskBuilder<Result> {
     /**
      * 根据Callable,Callback,Caller初始化TaskBuilder
      *
-     * @param callable callable
+     * @param action   callable
      * @param callback callback
      * @param caller   caller
      * @param <Result> Result Type
      * @return TaskBuilder
      */
-    public static <Result> TaskBuilder<Result> create(Callable<Result> callable,
+    public static <Result> TaskBuilder<Result> create(Callable<Result> action,
                                                       TaskCallback<Result> callback,
                                                       Object caller) {
-        return new TaskBuilder<Result>().action(callable).callback(callback).with(caller);
+        return new TaskBuilder<Result>().action(action).callback(callback).with(caller);
     }
 
     private TaskBuilder() {
@@ -168,14 +168,14 @@ public class TaskBuilder<Result> {
     /**
      * 设置需要执行的任务
      *
-     * @param callable Callable
+     * @param action Callable
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> action(final Callable<Result> callable) {
-        if (callable instanceof TaskCallable) {
-            this.callable = (TaskCallable<Result>) callable;
+    public TaskBuilder<Result> action(final Callable<Result> action) {
+        if (action instanceof TaskCallable) {
+            this.action = (TaskCallable<Result>) action;
         } else {
-            this.callable = new WrappedCallable<Result>(callable);
+            this.action = new WrappedCallable<Result>(action);
         }
         return this;
     }
@@ -183,11 +183,11 @@ public class TaskBuilder<Result> {
     /**
      * 设置需要执行的任务
      *
-     * @param runnable Runnable
+     * @param action Runnable
      * @return TaskBuilder
      */
-    public TaskBuilder<Result> action(final Runnable runnable) {
-        this.callable = new WrappedRunnable<Result>(runnable);
+    public TaskBuilder<Result> action(final Runnable action) {
+        this.action = new WrappedRunnable<Result>(action);
         return this;
     }
 

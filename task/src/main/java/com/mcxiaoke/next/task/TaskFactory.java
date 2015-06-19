@@ -15,7 +15,7 @@ final class TaskFactory {
         return new TaskImpl<Result>(builder);
     }
 
-    static <Result> ITaskRunnable createRunnable(final ITaskCallback<Result> callback, boolean debug) {
+    static <Result> ITaskRunnable createRunnable(final ITaskActions<Result> callback, boolean debug) {
         return new TaskRunnable<Result>
                 (callback, debug);
     }

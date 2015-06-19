@@ -14,15 +14,15 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     private Future<?> mFuture;
     private boolean mDebug;
-    private ITaskCallback<Result> mCallback;
+    private ITaskActions<Result> mTask;
     private boolean mCancelled;
 
-    TaskRunnable(final ITaskCallback<Result> task) {
+    TaskRunnable(final ITaskActions<Result> task) {
         this(task, false);
     }
 
-    TaskRunnable(final ITaskCallback<Result> task, final boolean debug) {
-        mCallback = task;
+    TaskRunnable(final ITaskActions<Result> task, final boolean debug) {
+        mTask = task;
         mDebug = debug;
         if (mDebug) {
             Log.v(TAG, "TaskRunnable() task=" + task);
@@ -35,33 +35,33 @@ final class TaskRunnable<Result> implements ITaskRunnable {
      *
      * @return cancelled
      */
-    private boolean isTaskCancelled() {
-        return isCancelled() || isInterrupted();
+    private boolean isCancelled() {
+        return mCancelled || isInterrupted();
     }
 
     @Override
     public void run() {
         onTaskStarted();
         Result result = null;
-        Throwable error = null;
-        if (!isTaskCancelled()) {
-            try {
-                result = mCallback.onExecute();
-            } catch (Exception e) {
-                error = e;
+        Exception error = null;
+        try {
+            if (!isCancelled()) {
+                result = mTask.onExecute();
             }
+        } catch (Exception ex) {
+            error = ex;
         }
-        if (isTaskCancelled()) {
+        onTaskDone();
+        if (isCancelled()) {
             onTaskCancelled();
         } else {
-            if (error != null) {
-                onTaskFailure(error);
-            } else {
-                onTaskSuccess(result);
-            }
             onTaskFinished();
         }
-        onDone();
+        if (error != null) {
+            onTaskFailure(error);
+        } else {
+            onTaskSuccess(result);
+        }
     }
 
     @Override
@@ -82,34 +82,39 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         mFuture = future;
     }
 
-    private boolean isCancelled() {
-        return mCancelled;
-    }
-
     private boolean isInterrupted() {
         return Thread.currentThread().isInterrupted();
     }
 
+    /**
+     * 任务线程开始
+     */
     private void onTaskStarted() {
         if (mDebug) {
             Log.v(TAG, "onTaskStarted()");
         }
-        mCallback.onStarted();
+        mTask.onStarted();
     }
 
+    /**
+     * 任务取消
+     */
     private void onTaskCancelled() {
         if (mDebug) {
             Log.v(TAG, "onTaskCancelled()");
         }
-        mCallback.onCancelled();
+        mTask.onCancelled();
     }
 
 
+    /**
+     * 任务完成
+     */
     private void onTaskFinished() {
         if (mDebug) {
             Log.v(TAG, "onTaskFinished()");
         }
-        mCallback.onFinished();
+        mTask.onFinished();
     }
 
     /**
@@ -121,7 +126,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.v(TAG, "onTaskSuccess()");
         }
-        mCallback.onSuccess(result);
+        mTask.onSuccess(result);
     }
 
     /**
@@ -133,10 +138,13 @@ final class TaskRunnable<Result> implements ITaskRunnable {
         if (mDebug) {
             Log.e(TAG, "onTaskFailure() error=" + ex);
         }
-        mCallback.onFailure(ex);
+        mTask.onFailure(ex);
     }
 
-    private void onDone() {
-        mCallback.onDone();
+    /**
+     * 任务已执行
+     */
+    private void onTaskDone() {
+        mTask.onDone();
     }
 }
