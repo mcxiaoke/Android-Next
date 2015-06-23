@@ -1,15 +1,19 @@
-Android Next 公共组件库
+Android-Next 公共组件库
 ----------
 ### Task, Cache, Views, Widgets, Http, Utils
 
 ### 项目介绍
 
-这个库是我在日常开发过程中积累下来的一些可复用组件，有一些是原创的，有一些是修改开源项目的，大部分都在我的工作项目和个人项目中有使用。
+这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
 ### 最新版本
 
-* [![Maven Central](http://img.shields.io/badge/2015.06.19-com.mcxiaoke.next:1.1.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.06.24-com.mcxiaoke.next:1.1.2-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
+
+- **1.1.2** 2015.06.24
+    * recycler: 添加设置Footer字体大小和颜色方法
+    * 后续版本只有aar发布到Maven Central，不再发布jar文件
 - **1.1.1** 2015.06.19
     * task: 重构，减少不必要的接口，增加TaskFuture，清理代码
     * docs: 修改和完善task模块的文档和示例
@@ -63,6 +67,10 @@ Android Next 公共组件库
 ------
 
 ### 使用说明
+
+#### 提示
+
+**使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
 
 * [常用工具类 Utils/Misc](docs/core.md)
 * [异步任务 TaskQueue/TaskBuilder](docs/task.md)
