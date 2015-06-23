@@ -14,6 +14,10 @@ public abstract class TaskCallable<V> implements Callable<V> {
     private String mName;
     private Bundle mExtras;
 
+    public TaskCallable() {
+        this("task", new Bundle());
+    }
+
     public TaskCallable(String name) {
         this(name, new Bundle());
     }

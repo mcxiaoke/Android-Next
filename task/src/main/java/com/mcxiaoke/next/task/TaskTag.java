@@ -11,7 +11,7 @@ import java.util.Locale;
  * Date: 15/6/18
  * Time: 11:19
  */
-class TaskTag {
+final class TaskTag {
 
     private static final String SEP = "|";
     private static final DateFormat DF_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);

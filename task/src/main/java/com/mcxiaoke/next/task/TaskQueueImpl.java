@@ -63,6 +63,7 @@ final class TaskQueueImpl extends TaskQueue {
     public <Result> String execute(final Callable<Result> callable,
                                    final TaskCallback<Result> callback,
                                    final Object caller, final boolean serial) {
+        checkArguments(callable, caller);
         return execute(TaskBuilder.create(callable).with(caller).callback(callback)
                 .serial(serial).on(this).create());
     }
@@ -229,6 +230,7 @@ final class TaskQueueImpl extends TaskQueue {
         if (Config.DEBUG) {
             Log.v(TAG, "execute() task=" + task);
         }
+        assert task != null;
         final ITaskRunnable runnable = TaskFactory.createRunnable(task);
         final boolean serial = task.isSerial();
         final String group = task.getGroup();
@@ -253,8 +255,8 @@ final class TaskQueueImpl extends TaskQueue {
     private void addToGroupMap(final String name, final String group) {
         List<String> tags = mGroups.get(group);
         if (tags == null) {
-            tags = new ArrayList<String>();
             synchronized (mLock) {
+                tags = new ArrayList<String>();
                 mGroups.put(group, tags);
             }
         }

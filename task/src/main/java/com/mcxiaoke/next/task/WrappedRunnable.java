@@ -5,7 +5,7 @@ package com.mcxiaoke.next.task;
  * Date: 14-5-14
  * Time: 17:23
  */
-class WrappedRunnable<Result> extends TaskCallable<Result> {
+final class WrappedRunnable<Result> extends TaskCallable<Result> {
     private static final String TAG = WrappedRunnable.class.getSimpleName();
 
     private Runnable runnable;

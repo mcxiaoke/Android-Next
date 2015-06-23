@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
  * Date: 15/6/17
  * Time: 12:16
  */
-class TaskImpl<Result> implements Task<Result> {
+final class TaskImpl<Result> implements Task<Result> {
     private static final String TAG = "TaskQueue.Task";
 
     final TaskInfo<Result> mInfo;

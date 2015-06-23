@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
  * Date: 14-5-14
  * Time: 17:23
  */
-class WrappedCallable<Result> extends TaskCallable<Result> {
+final class WrappedCallable<Result> extends TaskCallable<Result> {
     private static final String TAG = WrappedCallable.class.getSimpleName();
 
     private Callable<Result> callable;
