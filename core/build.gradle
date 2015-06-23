@@ -3,6 +3,5 @@ apply plugin: 'com.android.library'
 dependencies {
 }
 
-apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/jar.gradle'
 apply from: '../base.gradle'
 
