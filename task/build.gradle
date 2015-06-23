@@ -4,6 +4,5 @@ dependencies {
 //    compile project(":core")
 }
 
-apply from: 'https://raw.githubusercontent.com/mcxiaoke/gradle-mvn-push/master/jar.gradle'
 apply from: '../base.gradle'
 
