@@ -174,8 +174,14 @@ public class EndlessRecyclerView extends RecyclerView {
     }
 
     private void init(final Context context) {
-        setLayoutManager(new LinearLayoutManager(context));
+        super.setLayoutManager(new LinearLayoutManager(context));
         addOnScrollListener(mEndlessScrollListener);
+    }
+
+    @Override
+    public void setLayoutManager(final LayoutManager layout) {
+        LogUtils.w(TAG, "using LinearLayoutManager by default, ignore custom layout manager");
+//        super.setLayoutManager(layout);
     }
 
     @Override
@@ -197,8 +203,10 @@ public class EndlessRecyclerView extends RecyclerView {
 
     private EndlessRecyclerView setMode(final int mode) {
         if (mode < MODE_AUTO || mode > MODE_NONE) {
-            throw new IllegalArgumentException("mode must between " + MODE_AUTO + " and " + MODE_NONE);
+            throw new IllegalArgumentException("mode must between " + MODE_AUTO
+                    + " and " + MODE_NONE);
         }
+        LogUtils.v(TAG, "setMode() mode=" + mode);
         mViewState.setMode(mode);
         updateState();
         return this;
@@ -223,6 +231,8 @@ public class EndlessRecyclerView extends RecyclerView {
             mLoading = true;
             mViewState.setDisplay(DISPLAY_PROGRESS);
             updateState();
+        } else {
+            LogUtils.w(TAG, "showProgress() ignore, endless mode is disabled");
         }
     }
 
@@ -239,8 +249,28 @@ public class EndlessRecyclerView extends RecyclerView {
         updateState();
     }
 
+    public void setFooterTextSize(final float size) {
+        LogUtils.v(TAG, "setFooterTextSize() size=" + size);
+        if (mAdapter != null) {
+            mAdapter.setFooterTextSize(size);
+        }
+    }
+
+    public void setFooterTextColor(final int color) {
+        LogUtils.v(TAG, "setFooterTextColor() color=" + color);
+        if (mAdapter != null) {
+            mAdapter.setFooterTextColor(color);
+        }
+    }
+
     public void onComplete() {
+        LogUtils.v(TAG, "onComplete()");
         setLoadingState(false);
+    }
+
+    public void setLoading(boolean loading) {
+        LogUtils.v(TAG, "setLoading() loading=" + loading);
+        setLoadingState(loading);
     }
 
     public EndlessRecyclerView setOnLoadMoreListener(final OnLoadMoreListener listener) {
@@ -249,6 +279,7 @@ public class EndlessRecyclerView extends RecyclerView {
     }
 
     public EndlessRecyclerView setLoadMoreThreshold(final int threshold) {
+        LogUtils.v(TAG, "setLoadMoreThreshold() threshold=" + threshold);
         mViewState.setThreshold(threshold);
         return this;
     }

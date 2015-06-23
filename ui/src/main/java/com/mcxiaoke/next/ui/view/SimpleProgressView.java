@@ -2,6 +2,7 @@ package com.mcxiaoke.next.ui.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -73,6 +74,22 @@ public class SimpleProgressView extends LinearLayout {
 
     public void showEmpty() {
         showText("");
+    }
+
+    public void setTextSize(final float size) {
+        textView.setTextSize(size);
+    }
+
+    public void setTextSize(final int unit, final float size) {
+        textView.setTextSize(unit, size);
+    }
+
+    public void setTextColor(final int color) {
+        textView.setTextColor(color);
+    }
+
+    public void setTextColor(final ColorStateList color) {
+        textView.setTextColor(color);
     }
 
     public void hide() {

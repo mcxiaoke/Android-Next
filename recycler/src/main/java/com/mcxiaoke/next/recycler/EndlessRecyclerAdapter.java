@@ -23,6 +23,8 @@ class EndlessRecyclerAdapter
 
     private RecyclerView.Adapter mWrapped;
     private ViewState mViewState;
+    private int mFooterTextColor;
+    private float mFooterTextSize;
 
     private AdapterDataObserver mAdapterDataObserver = new AdapterDataObserver() {
         @Override
@@ -71,6 +73,14 @@ class EndlessRecyclerAdapter
 
     public Adapter getWrapped() {
         return mWrapped;
+    }
+
+    public void setFooterTextColor(final int color) {
+        mFooterTextColor = color;
+    }
+
+    public void setFooterTextSize(final float size) {
+        mFooterTextSize = size;
     }
 
     public void updateState() {
@@ -158,6 +168,12 @@ class EndlessRecyclerAdapter
     protected void onBindFooterItemViewHolder(final ViewHolder holder, final int position) {
         final SimpleProgressView view = (SimpleProgressView) holder.itemView;
         Log.v(TAG, "onBindFooterItemViewHolder() view=" + view);
+        if (mFooterTextColor > 0) {
+            view.setTextColor(mFooterTextColor);
+        }
+        if (mFooterTextSize > 0.0f) {
+            view.setTextSize(mFooterTextSize);
+        }
         switch (mViewState.getDisplay()) {
             case EndlessRecyclerView.DISPLAY_PROGRESS:
                 view.showProgress();
