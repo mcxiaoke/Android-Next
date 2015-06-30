@@ -3,8 +3,7 @@ package com.mcxiaoke.next.samples;
 import android.annotation.TargetApi;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+
 import com.mcxiaoke.next.recycler.EndlessRecyclerView;
 import com.mcxiaoke.next.recycler.EndlessRecyclerView.OnLoadMoreListener;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -14,6 +13,9 @@ import com.mcxiaoke.next.task.TaskQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * EndlessListView使用示例

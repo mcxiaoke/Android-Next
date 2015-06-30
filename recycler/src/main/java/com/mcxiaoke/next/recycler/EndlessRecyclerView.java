@@ -128,6 +128,11 @@ public class EndlessRecyclerView extends RecyclerView {
         @Override
         public void onScrolled(final RecyclerView recyclerView, final int dx, final int dy) {
             super.onScrolled(recyclerView, dx, dy);
+        }
+
+        @Override
+        public void onScrollStateChanged(final RecyclerView recyclerView, final int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
             LogUtils.v(TAG, "onScrolled() state=" + mViewState);
             if (mViewState.mode != MODE_AUTO) {
                 return;
@@ -135,11 +140,11 @@ public class EndlessRecyclerView extends RecyclerView {
             if (mLoading) {
                 return;
             }
-            final RecyclerViewHelper mRecyclerViewHelper = new RecyclerViewHelper(recyclerView);
+            final RecyclerViewHelper recyclerViewHelper = new RecyclerViewHelper(recyclerView);
             final int threshold = mViewState.getThreshold();
             int visibleItemCount = recyclerView.getChildCount();
-            int totalItemCount = mRecyclerViewHelper.getItemCount();
-            int firstVisibleItem = mRecyclerViewHelper.findFirstVisibleItemPosition();
+            int totalItemCount = recyclerViewHelper.getItemCount();
+            int firstVisibleItem = recyclerViewHelper.findFirstVisibleItemPosition();
             if ((totalItemCount - visibleItemCount)
                     <= (firstVisibleItem + threshold)) {
                 mViewState.incIndex();
@@ -150,11 +155,6 @@ public class EndlessRecyclerView extends RecyclerView {
                     mLoadMoreListener.onLoadMore(mRecyclerView);
                 }
             }
-        }
-
-        @Override
-        public void onScrollStateChanged(final RecyclerView recyclerView, final int newState) {
-            super.onScrollStateChanged(recyclerView, newState);
         }
     };
 
