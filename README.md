@@ -8,8 +8,9 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.07.01-com.mcxiaoke.next:1.1.3-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
-
+[![Maven Central](http://img.shields.io/badge/2015.07.01-com.mcxiaoke.next:1.1.4-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+- **1.1.4** 2015.07.01
+    * http: 修复Client默认参数没有添加到HTTP请求中的问题
 - **1.1.3** 2015.07.01
     * recycler: 修复当数据较少不足一屏时的事件处理
 - **1.1.2** 2015.06.24
