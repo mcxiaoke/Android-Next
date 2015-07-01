@@ -23,8 +23,6 @@ class EndlessRecyclerAdapter
 
     private RecyclerView.Adapter mWrapped;
     private ViewState mViewState;
-    private int mFooterTextColor;
-    private float mFooterTextSize;
 
     private AdapterDataObserver mAdapterDataObserver = new AdapterDataObserver() {
         @Override
@@ -73,14 +71,6 @@ class EndlessRecyclerAdapter
 
     public Adapter getWrapped() {
         return mWrapped;
-    }
-
-    public void setFooterTextColor(final int color) {
-        mFooterTextColor = color;
-    }
-
-    public void setFooterTextSize(final float size) {
-        mFooterTextSize = size;
     }
 
     public void updateState() {
@@ -142,7 +132,7 @@ class EndlessRecyclerAdapter
 
     @Override
     protected int getFooterItemCount() {
-        return (mViewState.getDisplay() == EndlessRecyclerView.DISPLAY_HIDE) ? 0 : 1;
+        return (mViewState.getState() == EndlessRecyclerView.STATE_HIDE) ? 0 : 1;
     }
 
     @Override
@@ -159,29 +149,21 @@ class EndlessRecyclerAdapter
     protected ViewHolder onCreateFooterItemViewHolder(final ViewGroup parent, final int viewType) {
         final Context context = parent.getContext();
         final LayoutInflater inflater = LayoutInflater.from(context);
-        final SimpleProgressView view = (SimpleProgressView) inflater.inflate(R.layout.recycler_footer, parent, false);
-        Log.v(TAG, "onCreateFooterItemViewHolder() view=" + view);
+        final View view = inflater.inflate(R.layout.recycler_footer, parent, false);
         return new SimpleViewHolder(view);
     }
 
     @Override
     protected void onBindFooterItemViewHolder(final ViewHolder holder, final int position) {
         final SimpleProgressView view = (SimpleProgressView) holder.itemView;
-        Log.v(TAG, "onBindFooterItemViewHolder() view=" + view);
-        if (mFooterTextColor > 0) {
-            view.setTextColor(mFooterTextColor);
-        }
-        if (mFooterTextSize > 0.0f) {
-            view.setTextSize(mFooterTextSize);
-        }
-        switch (mViewState.getDisplay()) {
-            case EndlessRecyclerView.DISPLAY_PROGRESS:
+        switch (mViewState.getState()) {
+            case EndlessRecyclerView.STATE_PROGRESS:
                 view.showProgress();
                 break;
-            case EndlessRecyclerView.DISPLAY_TEXT:
+            case EndlessRecyclerView.STATE_TEXT:
                 view.showText(mViewState.getText());
                 break;
-            case EndlessRecyclerView.DISPLAY_HIDE:
+            case EndlessRecyclerView.STATE_HIDE:
                 view.hide();
                 break;
             default:

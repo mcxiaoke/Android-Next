@@ -19,9 +19,9 @@ public class EndlessRecyclerView extends RecyclerView {
         void onLoadMore(final EndlessRecyclerView view);
     }
 
-    public static final int DISPLAY_HIDE = 0;
-    public static final int DISPLAY_PROGRESS = 1;
-    public static final int DISPLAY_TEXT = 2;
+    public static final int STATE_HIDE = 0;
+    public static final int STATE_PROGRESS = 1;
+    public static final int STATE_TEXT = 2;
 
     public static final int MODE_AUTO = 0;
     public static final int MODE_MANUAL = 1;
@@ -29,7 +29,7 @@ public class EndlessRecyclerView extends RecyclerView {
 
     public static class ViewState {
         private int mode;
-        private int display;
+        private int state;
         private int threshold;
         private int index;
         private CharSequence text;
@@ -40,7 +40,7 @@ public class EndlessRecyclerView extends RecyclerView {
 
         public ViewState(final ViewState state) {
             this.mode = state.mode;
-            this.display = state.display;
+            this.state = state.state;
             this.threshold = state.threshold;
             this.index = state.index;
         }
@@ -51,17 +51,17 @@ public class EndlessRecyclerView extends RecyclerView {
 
         private void reset() {
             mode = MODE_AUTO;
-            display = DISPLAY_HIDE;
+            state = STATE_HIDE;
             threshold = DEFAULT_THRESHOLD;
             index = 0;
         }
 
-        public int getDisplay() {
-            return display;
+        public int getState() {
+            return state;
         }
 
-        public ViewState setDisplay(final int display) {
-            this.display = display;
+        public ViewState setState(final int state) {
+            this.state = state;
             return this;
         }
 
@@ -109,7 +109,7 @@ public class EndlessRecyclerView extends RecyclerView {
         @Override
         public String toString() {
             return "ViewState{" +
-                    "display=" + display +
+                    "display=" + state +
                     ", mode=" + mode +
                     ", threshold=" + threshold +
                     '}';
@@ -229,7 +229,7 @@ public class EndlessRecyclerView extends RecyclerView {
     public void showProgress() {
         if (mViewState.getMode() != MODE_NONE) {
             mLoading = true;
-            mViewState.setDisplay(DISPLAY_PROGRESS);
+            mViewState.setState(STATE_PROGRESS);
             updateState();
         } else {
             LogUtils.w(TAG, "showProgress() ignore, endless mode is disabled");
@@ -238,29 +238,15 @@ public class EndlessRecyclerView extends RecyclerView {
 
     public void showEmpty() {
         mLoading = false;
-        mViewState.setDisplay(DISPLAY_HIDE);
+        mViewState.setState(STATE_HIDE);
         updateState();
     }
 
     public void showText(final CharSequence text) {
         LogUtils.v(TAG, "showText() text=" + text);
         mLoading = false;
-        mViewState.setText(text).setDisplay(DISPLAY_TEXT);
+        mViewState.setText(text).setState(STATE_TEXT);
         updateState();
-    }
-
-    public void setFooterTextSize(final float size) {
-        LogUtils.v(TAG, "setFooterTextSize() size=" + size);
-        if (mAdapter != null) {
-            mAdapter.setFooterTextSize(size);
-        }
-    }
-
-    public void setFooterTextColor(final int color) {
-        LogUtils.v(TAG, "setFooterTextColor() color=" + color);
-        if (mAdapter != null) {
-            mAdapter.setFooterTextColor(color);
-        }
     }
 
     public void onComplete() {
