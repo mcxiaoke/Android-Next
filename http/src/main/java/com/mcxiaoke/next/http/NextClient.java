@@ -399,41 +399,44 @@ public class NextClient implements HttpConsts {
 
     private void addBodyIfNeeds(final NextRequest request,
                                 final HttpURLConnection conn) throws IOException {
-
-        final HttpEntity entity = request.getEntity();
+        if (!request.hasBody()) {
+            return;
+        }
+        HttpEntity entity = new NextParams(request.getParams()).putAll(mParams).entity();
         if (request.isDebug()) {
             LogUtils.v(TAG, "addBodyIfNeeds() entity=" + entity);
         }
-        if (entity != null) {
-            long contentLength = -1;
-            String contentType;
-            if (entity.getContentType() != null) {
-                contentType = entity.getContentType().getValue();
-            } else {
-                contentType = HttpConsts.DEFAULT_CONTENT_TYPE;
-            }
-            contentLength = entity.getContentLength();
-            if (contentType != null) {
-                conn.addRequestProperty(HttpConsts.CONTENT_TYPE, contentType);
-            }
+        if (entity == null) {
+            return;
+        }
+        long contentLength = -1;
+        String contentType;
+        if (entity.getContentType() != null) {
+            contentType = entity.getContentType().getValue();
+        } else {
+            contentType = HttpConsts.DEFAULT_CONTENT_TYPE;
+        }
+        contentLength = entity.getContentLength();
+        if (contentType != null) {
+            conn.addRequestProperty(HttpConsts.CONTENT_TYPE, contentType);
+        }
 //            if (contentLength != -1) {
 //                conn.addRequestProperty(Consts.CONTENT_LENGTH, Long.toString(contentLength));
 //            } else {
 //                conn.addRequestProperty(Consts.TRANSFER_ENCODING, "chunked");
 //            }
 
-            conn.setDoOutput(true);
-            final ProgressCallback callback = request.getCallback();
-            final OutputStream os = conn.getOutputStream();
-            final long length = entity.getContentLength();
-            OutputStream outputStream = null;
-            try {
-                outputStream = new ProgressOutputStream(os, callback, length);
-                entity.writeTo(outputStream);
-                outputStream.flush();
-            } finally {
-                IOUtils.closeQuietly(outputStream);
-            }
+        conn.setDoOutput(true);
+        final ProgressCallback callback = request.getCallback();
+        final OutputStream os = conn.getOutputStream();
+        final long length = entity.getContentLength();
+        OutputStream outputStream = null;
+        try {
+            outputStream = new ProgressOutputStream(os, callback, length);
+            entity.writeTo(outputStream);
+            outputStream.flush();
+        } finally {
+            IOUtils.closeQuietly(outputStream);
         }
     }
 

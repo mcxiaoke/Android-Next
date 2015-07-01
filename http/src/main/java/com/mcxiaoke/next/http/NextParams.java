@@ -28,17 +28,17 @@ import java.util.Map;
 public final class NextParams implements HttpConsts {
 
 
-    private String encoding;
+    String encoding;
     // URL QUERY PARAM
-    private List<NameValuePair> queries;
+    List<NameValuePair> queries;
     // COMMON PARAM
-    private List<NameValuePair> params;
+    List<NameValuePair> params;
     // BODY PARAM
-    private List<StreamPart> parts;
+    List<StreamPart> parts;
     // RAW BODY
-    private byte[] mBody;
+    byte[] body;
     // HTTP ENTITY
-    private HttpEntity mEntity;
+    HttpEntity entity;
 
     public NextParams() {
         this(Charsets.ENCODING_UTF_8);
@@ -51,8 +51,16 @@ public final class NextParams implements HttpConsts {
         parts = new ArrayList<StreamPart>();
     }
 
+    public NextParams(final NextParams from) {
+        encoding = from.encoding;
+        queries = from.queries;
+        params = from.params;
+        parts = from.parts;
+        body = from.body;
+    }
+
     private void invalidateEntity() {
-        mEntity = null;
+        entity = null;
     }
 
     public void setEncoding(final String enc) {
@@ -75,7 +83,7 @@ public final class NextParams implements HttpConsts {
     }
 
     public NextParams body(final byte[] body) {
-        this.mBody = body;
+        this.body = body;
         invalidateEntity();
         return this;
     }
@@ -199,8 +207,8 @@ public final class NextParams implements HttpConsts {
     private HttpEntity createHttpEntity() {
         HttpEntity entity;
         // first check raw bytes body
-        if (mBody != null && mBody.length > 0) {
-            entity = new ByteArrayEntity(mBody);
+        if (body != null && body.length > 0) {
+            entity = new ByteArrayEntity(body);
         }
         // then check multipart body
         else if (hasParts()) {
@@ -247,10 +255,10 @@ public final class NextParams implements HttpConsts {
     }
 
     HttpEntity entity() {
-        if (mEntity == null) {
-            mEntity = createHttpEntity();
+        if (entity == null) {
+            entity = createHttpEntity();
         }
-        return mEntity;
+        return entity;
     }
 
     private boolean hasParts() {

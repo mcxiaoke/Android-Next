@@ -246,10 +246,14 @@ public final class NextRequest {
     }
 
     public HttpEntity getEntity() {
-        if (HttpMethod.hasRequestBody(method)) {
+        if (hasBody()) {
             return params.entity();
         }
         return null;
+    }
+
+    public boolean hasBody() {
+        return HttpMethod.hasRequestBody(method);
     }
 
     private String createCompleteUrl() {
@@ -257,7 +261,7 @@ public final class NextRequest {
         final List<NameValuePair> list = new NoDuplicatesArrayList<NameValuePair>();
         list.addAll(params.getQueries());
         // 支持BODY的HTTP METHOD不添加PARAMS到URL QUERY
-        if (!HttpMethod.hasRequestBody(method)) {
+        if (!hasBody()) {
             list.addAll(params.getParams());
         }
         return Utils.appendQuery(originalUrl, list);
