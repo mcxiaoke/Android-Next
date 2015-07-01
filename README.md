@@ -8,22 +8,21 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.06.24-com.mcxiaoke.next:1.1.2-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.07.01-com.mcxiaoke.next:1.1.3-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
-
+- **1.1.3** 2015.07.01
+    * recycler: 修复当数据较少不足一屏时的事件处理
 - **1.1.2** 2015.06.24
     * recycler: 添加设置Footer字体大小和颜色方法
     * 后续版本只有aar发布到Maven Central，不再发布jar文件
 - **1.1.1** 2015.06.19
     * task: 重构，减少不必要的接口，增加TaskFuture，清理代码
     * docs: 修改和完善task模块的文档和示例
-
 - **1.1.0** 2015.06.18
     * task: 完全重构TaskQueue组件，单独部署
     * core: 移除未使用的类，移除task相关的类
     * samples: 添加新的Task使用示例
     * docs: 移动所有文档到docs子目录
-
 - **1.0.9** 2015.06.16
     * core: 优化TaskQueue，调整接口，添加新的辅助类Task，支持链式调用
     * core: 重构MemoryCache，精简结构，缓存对象支持设置过期时间
