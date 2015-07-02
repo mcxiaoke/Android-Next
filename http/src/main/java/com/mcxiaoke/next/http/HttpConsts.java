@@ -18,9 +18,12 @@ public interface HttpConsts {
 
     public static final int CONNECT_TIMEOUT = 10 * 1000;
     public static final int READ_TIMEOUT = 10 * 1000;
+    public static final int WRITE_TIMEOUT = 10 * 1000;
 
+    static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String DEFAULT_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String EMPTY_STRING = "";
+    static final String DEFAULT_NAME = "nofilename";
 
     public static final char QUERY_STRING_SEPARATOR = '?';
     public static final String PARAM_SEPARATOR = "&";
@@ -30,6 +33,7 @@ public interface HttpConsts {
     /**
      * HEADERS
      */
+    public static final String HOST = "Host";
     public static final String REFERER = "Referer";
     public static final String ENCODING_GZIP = "gzip";
     public static final String ACCEPT = "Accept";

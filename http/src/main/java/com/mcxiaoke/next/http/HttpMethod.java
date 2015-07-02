@@ -19,32 +19,24 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public final class HttpMethod {
+public enum HttpMethod {
 
-    public static final String METHOD_OPTIONS = "OPTIONS";
-    public static final String METHOD_GET = "GET";
-    public static final String METHOD_HEAD = "HEAD";
-    public static final String METHOD_DELETE = "DELETE";
-    public static final String METHOD_POST = "POST";
-    public static final String METHOD_PUT = "PUT";
-    public static final String METHOD_TRACE = "TRACE";
-    public static final String METHOD_PATCH = "PATCH";
+    GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, TRACE;
 
     public static final Set<String> METHODS = new LinkedHashSet<String>(Arrays.asList(
             "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "PATCH"));
-
-    private HttpMethod() {
-    }
 
     public static boolean isValid(final String method) {
         return METHODS.contains(method);
     }
 
-    // ref: HttpEntityEnclosingRequestBase
-    // 只有POST PUT PATCH可以带BODY
-    public static boolean hasRequestBody(String method) {
-        return method.equals("POST")
-                || method.equals("PUT")
-                || method.equals("PATCH");
+    public static boolean supportBody(final String method) {
+        return supportBody(HttpMethod.valueOf(method));
+    }
+
+    public static boolean supportBody(final HttpMethod method) {
+        return HttpMethod.POST.equals(method)
+                || HttpMethod.PUT.equals(method)
+                || HttpMethod.PATCH.equals(method);
     }
 }

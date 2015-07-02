@@ -25,37 +25,22 @@
  *
  */
 
-package com.mcxiaoke.next.http.util;
+package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
-import com.mcxiaoke.next.http.entity.ContentType;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicHeaderValueParser;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.ParserCursor;
-import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.Map;
 
 /**
  * A collection of utilities for encoding URLs.
  *
  * @since 4.0
  */
-class URLUtils {
+public class Encoder {
 
     /**
      * The default HTML form content type.
@@ -66,121 +51,6 @@ class URLUtils {
     private static final char QP_SEP_S = ';';
     private static final String NAME_VALUE_SEPARATOR = "=";
 
-    /**
-     * Returns a list of {@link org.apache.http.NameValuePair NameValuePairs} as built from the URI's query portion. For example, a URI
-     * of http://example.org/path/to/file?a=1&b=2&c=3 would return a list of three NameValuePairs, one for a=1, one for
-     * b=2, and one for c=3. By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
-     * <p/>
-     * This is typically useful while parsing an HTTP PUT.
-     * <p/>
-     * This API is currently only used for testing.
-     *
-     * @param uri     URI to parse
-     * @param charset Charset name to use while parsing the query
-     * @return a list of {@link org.apache.http.NameValuePair} as built from the URI's query portion.
-     */
-    public static List<NameValuePair> parse(final URI uri, final String charset) {
-        final String query = uri.getRawQuery();
-        if (query != null && query.length() > 0) {
-            final List<NameValuePair> result = new ArrayList<NameValuePair>();
-            final Scanner scanner = new Scanner(query);
-            parse(result, scanner, QP_SEP_PATTERN, charset);
-            return result;
-        }
-        return Collections.emptyList();
-    }
-
-    /**
-     * Returns a list of {@link org.apache.http.NameValuePair NameValuePairs} as parsed from an {@link org.apache.http.HttpEntity}. The encoding is
-     * taken from the entity's Content-Encoding header.
-     * <p/>
-     * This is typically used while parsing an HTTP POST.
-     *
-     * @param entity The entity to parse
-     * @return a list of {@link org.apache.http.NameValuePair} as built from the URI's query portion.
-     * @throws java.io.IOException If there was an exception getting the entity's data.
-     */
-    public static List<NameValuePair> parse(
-            final HttpEntity entity) throws IOException {
-        final ContentType contentType = ContentType.get(entity);
-        if (contentType != null && contentType.getMimeType().equalsIgnoreCase(CONTENT_TYPE)) {
-            final String content = EntityUtils.toString(entity, Charsets.ENCODING_US_ASCII);
-            if (content != null && content.length() > 0) {
-                Charset charset = contentType.getCharset();
-                if (charset == null) {
-                    charset = Charsets.ISO_8859_1;
-                }
-                return parse(content, charset, QP_SEPS);
-            }
-        }
-        return Collections.emptyList();
-    }
-
-    /**
-     * Returns true if the entity's Content-Type header is
-     * <code>application/x-www-form-urlencoded</code>.
-     */
-    public static boolean isEncoded(final HttpEntity entity) {
-        final Header h = entity.getContentType();
-        if (h != null) {
-            final HeaderElement[] elems = h.getElements();
-            if (elems.length > 0) {
-                final String contentType = elems[0].getName();
-                return contentType.equalsIgnoreCase(CONTENT_TYPE);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Adds all parameters within the Scanner to the list of <code>parameters</code>, as encoded by
-     * <code>encoding</code>. For example, a scanner containing the string <code>a=1&b=2&c=3</code> would add the
-     * {@link org.apache.http.NameValuePair NameValuePairs} a=1, b=2, and c=3 to the list of parameters. By convention, {@code '&'} and
-     * {@code ';'} are accepted as parameter separators.
-     *
-     * @param parameters List to add parameters to.
-     * @param scanner    Input that contains the parameters to parse.
-     * @param charset    Encoding to use when decoding the parameters.
-     */
-    public static void parse(
-            final List<NameValuePair> parameters,
-            final Scanner scanner,
-            final String charset) {
-        parse(parameters, scanner, QP_SEP_PATTERN, charset);
-    }
-
-    /**
-     * Adds all parameters within the Scanner to the list of
-     * <code>parameters</code>, as encoded by <code>encoding</code>. For
-     * example, a scanner containing the string <code>a=1&b=2&c=3</code> would
-     * add the {@link org.apache.http.NameValuePair NameValuePairs} a=1, b=2, and c=3 to the
-     * list of parameters.
-     *
-     * @param parameters               List to add parameters to.
-     * @param scanner                  Input that contains the parameters to parse.
-     * @param parameterSepartorPattern The Pattern string for parameter separators, by convention {@code "[&;]"}
-     * @param charset                  Encoding to use when decoding the parameters.
-     */
-    public static void parse(
-            final List<NameValuePair> parameters,
-            final Scanner scanner,
-            final String parameterSepartorPattern,
-            final String charset) {
-        scanner.useDelimiter(parameterSepartorPattern);
-        while (scanner.hasNext()) {
-            String name = null;
-            String value = null;
-            final String token = scanner.next();
-            final int i = token.indexOf(NAME_VALUE_SEPARATOR);
-            if (i != -1) {
-                name = decodeFormFields(token.substring(0, i).trim(), charset);
-                value = decodeFormFields(token.substring(i + 1).trim(), charset);
-            } else {
-                name = decodeFormFields(token.trim(), charset);
-            }
-            parameters.add(new BasicNameValuePair(name, value));
-        }
-    }
 
     /**
      * Query parameter separators.
@@ -192,48 +62,6 @@ class URLUtils {
      */
     private static final String QP_SEP_PATTERN = "[" + new String(QP_SEPS) + "]";
 
-    /**
-     * Returns a list of {@link org.apache.http.NameValuePair NameValuePairs} as parsed from the given string using the given character
-     * encoding. By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
-     *
-     * @param s       text to parse.
-     * @param charset Encoding to use when decoding the parameters.
-     * @return a list of {@link org.apache.http.NameValuePair} as built from the URI's query portion.
-     * @since 4.2
-     */
-    public static List<NameValuePair> parse(final String s, final Charset charset) {
-        return parse(s, charset, QP_SEPS);
-    }
-
-    /**
-     * Returns a list of {@link org.apache.http.NameValuePair NameValuePairs} as parsed from the given string using the given character
-     * encoding.
-     *
-     * @param s                  text to parse.
-     * @param charset            Encoding to use when decoding the parameters.
-     * @param parameterSeparator The characters used to separate parameters, by convention, {@code '&'} and {@code ';'}.
-     * @return a list of {@link org.apache.http.NameValuePair} as built from the URI's query portion.
-     * @since 4.3
-     */
-    public static List<NameValuePair> parse(final String s, final Charset charset, final char... parameterSeparator) {
-        if (s == null) {
-            return Collections.emptyList();
-        }
-        final BasicHeaderValueParser parser = BasicHeaderValueParser.DEFAULT;
-        final CharArrayBuffer buffer = new CharArrayBuffer(s.length());
-        buffer.append(s);
-        final ParserCursor cursor = new ParserCursor(0, buffer.length());
-        final List<NameValuePair> list = new ArrayList<NameValuePair>();
-        while (!cursor.atEnd()) {
-            final NameValuePair nvp = parser.parseNameValuePair(buffer, cursor, parameterSeparator);
-            if (nvp.getName().length() > 0) {
-                list.add(new BasicNameValuePair(
-                        decodeFormFields(nvp.getName(), charset),
-                        decodeFormFields(nvp.getValue(), charset)));
-            }
-        }
-        return list;
-    }
 
     /**
      * Returns a String that is suitable for use as an {@code application/x-www-form-urlencoded}
@@ -243,10 +71,9 @@ class URLUtils {
      * @param charset    The encoding to use.
      * @return An {@code application/x-www-form-urlencoded} string
      */
-    public static String format(
-            final List<? extends NameValuePair> parameters,
-            final String charset) {
-        return format(parameters, QP_SEP_A, charset);
+    public static String encode(Map<String, String> parameters,
+                                final String charset) {
+        return encode(parameters, QP_SEP_A, charset);
     }
 
     /**
@@ -259,14 +86,13 @@ class URLUtils {
      * @return An {@code application/x-www-form-urlencoded} string
      * @since 4.3
      */
-    public static String format(
-            final List<? extends NameValuePair> parameters,
-            final char parameterSeparator,
-            final String charset) {
+    public static String encode(Map<String, String> parameters,
+                                final char parameterSeparator,
+                                final String charset) {
         final StringBuilder result = new StringBuilder();
-        for (final NameValuePair parameter : parameters) {
-            final String encodedName = encodeFormFields(parameter.getName(), charset);
-            final String encodedValue = encodeFormFields(parameter.getValue(), charset);
+        for (final Map.Entry<String, String> entry : parameters.entrySet()) {
+            final String encodedName = encodeFormFields(entry.getKey(), charset);
+            final String encodedValue = encodeFormFields(entry.getValue(), charset);
             if (result.length() > 0) {
                 result.append(parameterSeparator);
             }
@@ -288,10 +114,9 @@ class URLUtils {
      * @return An {@code application/x-www-form-urlencoded} string
      * @since 4.2
      */
-    public static String format(
-            final Iterable<? extends NameValuePair> parameters,
-            final Charset charset) {
-        return format(parameters, QP_SEP_A, charset);
+    public static String encode(Map<String, String> parameters,
+                                final Charset charset) {
+        return encode(parameters, QP_SEP_A, charset);
     }
 
     /**
@@ -304,14 +129,13 @@ class URLUtils {
      * @return An {@code application/x-www-form-urlencoded} string
      * @since 4.3
      */
-    public static String format(
-            final Iterable<? extends NameValuePair> parameters,
-            final char parameterSeparator,
-            final Charset charset) {
+    public static String encode(Map<String, String> parameters,
+                                final char parameterSeparator,
+                                final Charset charset) {
         final StringBuilder result = new StringBuilder();
-        for (final NameValuePair parameter : parameters) {
-            final String encodedName = encodeFormFields(parameter.getName(), charset);
-            final String encodedValue = encodeFormFields(parameter.getValue(), charset);
+        for (final Map.Entry<String, String> entry : parameters.entrySet()) {
+            final String encodedName = encodeFormFields(entry.getKey(), charset);
+            final String encodedValue = encodeFormFields(entry.getValue(), charset);
             if (result.length() > 0) {
                 result.append(parameterSeparator);
             }
@@ -439,7 +263,7 @@ class URLUtils {
     private static String urlEncode(
             final String content,
             final Charset charset,
-            final BitSet safechars,
+            final BitSet safeChars,
             final boolean blankAsPlus) {
         if (content == null) {
             return null;
@@ -448,7 +272,7 @@ class URLUtils {
         final ByteBuffer bb = charset.encode(content);
         while (bb.hasRemaining()) {
             final int b = bb.get() & 0xff;
-            if (safechars.get(b)) {
+            if (safeChars.get(b)) {
                 buf.append((char) b);
             } else if (blankAsPlus && b == ' ') {
                 buf.append('+');
