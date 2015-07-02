@@ -20,23 +20,61 @@
 
     <section class="main-content">
       <h2>
-<a id="android-next-公共组件库" class="anchor" href="#android-next-%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E5%BA%93" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android Next 公共组件库</h2>
+<a id="android-next-公共组件库" class="anchor" href="#android-next-%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E5%BA%93" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android-Next 公共组件库</h2>
 
 <h3>
-<a id="tasks-cache-views-widgets-http-utils" class="anchor" href="#tasks-cache-views-widgets-http-utils" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tasks, Cache, Views, Widgets, Http, Utils</h3>
+<a id="task-cache-views-widgets-http-utils" class="anchor" href="#task-cache-views-widgets-http-utils" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task, Cache, Views, Widgets, Http, Utils</h3>
 
 <h3>
 <a id="项目介绍" class="anchor" href="#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" aria-hidden="true"><span class="octicon octicon-link"></span></a>项目介绍</h3>
 
-<p>这个库是我在日常开发过程中积累下来的一些可复用组件，有一些是原创的，有一些是修改开源项目的，大部分都在我的工作项目和个人项目中有使用。</p>
+<p>这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。</p>
 
 <h3>
 <a id="最新版本" class="anchor" href="#%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC" aria-hidden="true"><span class="octicon octicon-link"></span></a>最新版本</h3>
 
+<p><a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2015.07.02-com.mcxiaoke.next:1.1.5-brightgreen.svg" alt="Maven Central"></a></p>
+
 <ul>
-<li><p><a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2015.06.18-com.mcxiaoke.next:1.1.0-brightgreen.svg" alt="Maven Central"></a></p></li>
 <li>
-<p><strong>1.1.0</strong> 2015.06.18</p>
+<strong>1.1.5</strong> 2015.07.02
+
+<ul>
+<li>http: 模块内部使用OkHttp处理Http请求，简化并重构NextRequest和NextClient接口</li>
+</ul>
+</li>
+<li>
+<strong>1.1.4</strong> 2015.07.01
+
+<ul>
+<li>http: 修复Client默认参数没有添加到HTTP请求中的问题</li>
+</ul>
+</li>
+<li>
+<strong>1.1.3</strong> 2015.07.01
+
+<ul>
+<li>recycler: 修复当数据较少不足一屏时的事件处理</li>
+</ul>
+</li>
+<li>
+<strong>1.1.2</strong> 2015.06.24
+
+<ul>
+<li>recycler: 添加设置Footer字体大小和颜色方法</li>
+<li>后续版本只有aar发布到Maven Central，不再发布jar文件</li>
+</ul>
+</li>
+<li>
+<strong>1.1.1</strong> 2015.06.19
+
+<ul>
+<li>task: 重构，减少不必要的接口，增加TaskFuture，清理代码</li>
+<li>docs: 修改和完善task模块的文档和示例</li>
+</ul>
+</li>
+<li>
+<strong>1.1.0</strong> 2015.06.18
 
 <ul>
 <li>task: 完全重构TaskQueue组件，单独部署</li>
@@ -46,7 +84,7 @@
 </ul>
 </li>
 <li>
-<p><strong>1.0.9</strong> 2015.06.16</p>
+<strong>1.0.9</strong> 2015.06.16
 
 <ul>
 <li>core: 优化TaskQueue，调整接口，添加新的辅助类Task，支持链式调用</li>
@@ -120,6 +158,11 @@
 
 <h3>
 <a id="使用说明" class="anchor" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" aria-hidden="true"><span class="octicon octicon-link"></span></a>使用说明</h3>
+
+<h4>
+<a id="提示" class="anchor" href="#%E6%8F%90%E7%A4%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>提示</h4>
+
+<p><strong>使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。</strong></p>
 
 <ul>
 <li><a href="docs/core.md">常用工具类 Utils/Misc</a></li>
