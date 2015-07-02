@@ -162,7 +162,7 @@ public class TaskQueueSamples extends BaseActivity {
         TaskBuilder.create(JSONObject.class).action(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
-                final String response = NextClient.get(testUrl).string();
+                final String response = NextClient.getDefault().get(testUrl).string();
                 return new JSONObject(response);
             }
         }).callback(new SimpleTaskCallback<JSONObject>() {
@@ -182,7 +182,7 @@ public class TaskQueueSamples extends BaseActivity {
         TaskBuilder.create(new Callable<JSONObject>() {
             @Override
             public JSONObject call() throws Exception {
-                final String response = NextClient.get(testUrl).string();
+                final String response = NextClient.getDefault().get(testUrl).string();
                 return new JSONObject(response);
             }
         }).success(new Success<JSONObject>() {

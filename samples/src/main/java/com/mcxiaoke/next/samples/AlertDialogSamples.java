@@ -92,12 +92,12 @@ public class AlertDialogSamples extends BaseActivity {
     }
 
     private void testRequest() {
-        TaskQueue.getDefault().setDebug(true);
+        TaskQueue.setDebug(true);
         final Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
                 NextClient.getDefault().setDebug(true);
-                NextResponse response = NextClient.post("http://www.douban.com");
+                NextResponse response = NextClient.getDefault().get("http://www.douban.com");
                 return response.string();
             }
         };

@@ -14,7 +14,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mcxiaoke.next.cache.DiscCache;
 import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
@@ -54,14 +53,7 @@ public class Samples extends BaseActivity {
         ButterKnife.inject(this);
         initSamples();
         initListView();
-
-        DiscCache cache = new DiscCache(this, "debug");
-        DiscCache.setDebug(true);
-        String key = "aaa";
-        cache.put(key, "dgdsgdsgdsgsdgsdgsdgsdgsdgsdsdgsgsdg");
-        String data = cache.get(key);
-        System.out.print(data);
-        LogUtils.i(TAG, AndroidUtils.getSignatureInfo(this));
+        LogUtils.i(TAG, AndroidUtils.getSignature(this));
     }
 
     private void initSamples() {
