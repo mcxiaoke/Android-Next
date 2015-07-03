@@ -2,7 +2,6 @@ package com.mcxiaoke.next.samples.http;
 
 import android.os.Bundle;
 import android.util.Log;
-import com.mcxiaoke.next.http.HttpConsts;
 import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextRequest;
@@ -46,10 +45,10 @@ public class NextClientSamples extends BaseActivity {
     private void testGet() throws IOException {
         final String url = "https://api.douban.com/v2/user/1000001";
         final NextRequest request = new NextRequest(HttpMethod.GET, url)
-                .tag(TAG).debug(true)
+                .debug(true)
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("douban", "yes")
+                .forms("douban", "yes")
                 .query("app_version", "1.5.2");
         final NextClient client = new NextClient().setDebug(true);
 //
@@ -63,12 +62,11 @@ public class NextClientSamples extends BaseActivity {
     private void testPostForm() throws IOException {
         final String url = "https://moment.douban.com/api/post/114309/like";
         final NextRequest request = new NextRequest(HttpMethod.POST, url)
-                .tag(TAG).debug(true)
-                .charset(HttpConsts.CHARSET_UTF8)
+                .debug(true)
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("version", "6")
+                .forms("version", "6")
                 .query("app_version", "1.2.3");
         final NextClient client = new NextClient();
         final NextResponse response = client.execute(request);
@@ -80,12 +78,11 @@ public class NextClientSamples extends BaseActivity {
     private void testPostJson() throws JSONException, IOException {
         final String url = "https://api.github.com/gists";
         final NextRequest request = new NextRequest(HttpMethod.POST, url)
-                .tag(TAG).debug(true)
-                .charset(HttpConsts.CHARSET_UTF8)
+                .debug(true)
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("version", "6")
+                .forms("version", "6")
                 .query("app_version", "1.2.3");
         JSONObject file1 = new JSONObject();
         file1.put("content", "gsgdsgsdgsdgsdgdsg gsdgjdslgk根深蒂固送到公司的");
@@ -99,7 +96,7 @@ public class NextClientSamples extends BaseActivity {
         json.put("public", true);
         json.put("files", files);
         Log.v(TAG, "json string: " + json.toString());
-        request.body(json.toString());
+        request.body(json.toString().getBytes());
         final NextClient client = new NextClient();
         final NextResponse response = client.execute(request);
         // get body as string
