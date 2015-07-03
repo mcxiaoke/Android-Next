@@ -13,7 +13,7 @@ import java.io.IOException;
  * Date: 15/7/2
  * Time: 13:15
  */
-class BodyPart {
+public class BodyPart {
 
 
     public final String name;
@@ -85,12 +85,12 @@ class BodyPart {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StreamPart{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", contentType=").append(contentType);
-        sb.append(", length=").append(length);
-        sb.append(", file=").append(file);
-        sb.append('}');
-        return sb.toString();
+        return "BodyPart{" +
+                "name='" + name + '\'' +
+                ", contentType='" + contentType + '\'' +
+                ", file=" + file +
+                ", fileName='" + fileName + '\'' +
+                ", length=" + length +
+                '}';
     }
 }

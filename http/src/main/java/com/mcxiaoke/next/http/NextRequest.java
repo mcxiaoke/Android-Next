@@ -15,6 +15,8 @@
  */
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.utils.AssertUtils;
+import com.mcxiaoke.next.utils.IOUtils;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.MediaType;
@@ -23,23 +25,21 @@ import com.squareup.okhttp.RequestBody;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public final class NextRequest {
-    private boolean debug;
-    private HttpMethod method;
-    private String originalUrl;
-    private HttpUrl.Builder httpUrl;
-    private Charset charset;
+    private final HttpMethod method;
+    private final String originalUrl;
+    private final HttpUrl.Builder httpUrl;
     private NextParams params;
     private byte[] body;
-    private Map<String, String> headers;
     private ProgressListener listener;
-    private Object tag;
+    private boolean debug;
 
     public static NextRequest get(final String url) {
         return new NextRequest(HttpMethod.GET, url);
@@ -57,10 +57,28 @@ public final class NextRequest {
         return new NextRequest(HttpMethod.PUT, url);
     }
 
+    public NextRequest(final NextRequest request) {
+        this.method = request.method;
+        this.originalUrl = request.originalUrl;
+        this.httpUrl = request.url().newBuilder();
+        this.params = new NextParams(request.params);
+        this.body = request.body;
+        this.listener = request.listener;
+        this.debug = request.debug;
+    }
+
     public NextRequest(final HttpMethod method, String url) {
-        params = new NextParams();
-        headers = new HashMap<String, String>();
-        method(method).url(url);
+        this(method, url, new NextParams());
+    }
+
+    public NextRequest(final HttpMethod method, String url, final NextParams params) {
+        AssertUtils.notNull(method, "http method can not be null");
+        AssertUtils.notEmpty(url, "http url can not be null or empty");
+        AssertUtils.notNull(params, "http params can not be null");
+        this.method = method;
+        this.originalUrl = url;
+        this.httpUrl = HttpUrl.parse(url).newBuilder();
+        this.params = new NextParams(params);
     }
 
     public NextRequest debug(final boolean debug) {
@@ -68,29 +86,8 @@ public final class NextRequest {
         return this;
     }
 
-    public NextRequest method(final HttpMethod method) {
-        this.method = method;
-        return this;
-    }
-
-    public NextRequest url(final String url) {
-        this.originalUrl = url;
-        this.httpUrl = HttpUrl.parse(url).newBuilder();
-        return this;
-    }
-
     public NextRequest progress(final ProgressListener listener) {
         this.listener = listener;
-        return this;
-    }
-
-    public NextRequest tag(final String tag) {
-        this.tag = tag;
-        return this;
-    }
-
-    public NextRequest charset(final Charset charset) {
-        this.charset = charset;
         return this;
     }
 
@@ -102,14 +99,18 @@ public final class NextRequest {
         return header(HttpConsts.AUTHORIZATION, authorization);
     }
 
+    public NextRequest referer(final String referer) {
+        return header(HttpConsts.REFERER, referer);
+    }
+
     public NextRequest header(String name, String value) {
-        this.headers.put(name, value);
+        this.params.header(name, value);
         return this;
     }
 
     public NextRequest headers(Map<String, String> headers) {
         if (headers != null) {
-            this.headers.putAll(headers);
+            this.params.headers.putAll(headers);
         }
         return this;
     }
@@ -121,21 +122,24 @@ public final class NextRequest {
     }
 
     public NextRequest queries(Map<String, String> queries) {
-        for (Map.Entry<String, String> entry : queries.entrySet()) {
-            query(entry.getKey(), entry.getValue());
+        if (queries != null) {
+            for (Map.Entry<String, String> entry : queries.entrySet()) {
+                query(entry.getKey(), entry.getValue());
+            }
         }
+
         return this;
     }
 
-    public NextRequest form(String key, String value) {
+    public NextRequest forms(String key, String value) {
         this.params.forms.put(key, value);
         return this;
     }
 
-    public NextRequest form(Map<String, String> forms) {
+    public NextRequest forms(Map<String, String> forms) {
         if (forms != null) {
             for (Map.Entry<String, String> entry : forms.entrySet()) {
-                form(entry.getKey(), entry.getValue());
+                forms(entry.getKey(), entry.getValue());
             }
         }
         return this;
@@ -178,41 +182,45 @@ public final class NextRequest {
         return this;
     }
 
-    public NextRequest body(final String body) {
-        return body(body.getBytes(charset));
+    public NextRequest body(final String content, final Charset charset) {
+        this.body = content.getBytes(charset);
+        return this;
+    }
+
+    public NextRequest body(final File file) throws IOException {
+        this.body = IOUtils.readBytes(file);
+        return this;
+    }
+
+    public NextRequest body(final Reader reader) throws IOException {
+        this.body = IOUtils.readBytes(reader);
+        return this;
+    }
+
+    public NextRequest body(final InputStream stream) throws IOException {
+        this.body = IOUtils.readBytes(stream);
+        return this;
     }
 
     public NextRequest params(final NextParams params) {
         if (params != null) {
             queries(params.queries);
-            form(params.forms);
+            forms(params.forms);
             parts(params.parts);
         }
         return this;
-    }
-
-    public Charset charset() {
-        return charset;
-    }
-
-    public Object tag() {
-        return tag;
     }
 
     public boolean debug() {
         return debug;
     }
 
+    public HttpUrl url() {
+        return httpUrl.build();
+    }
+
     public HttpMethod method() {
         return method;
-    }
-
-    public Object getTag() {
-        return tag;
-    }
-
-    public String getUrl() {
-        return httpUrl.build().toString();
     }
 
     public String originalUrl() {
@@ -239,7 +247,7 @@ public final class NextRequest {
     }
 
     NextRequest removeHeader(String key) {
-        this.headers.remove(key);
+        this.params.headers.remove(key);
         return this;
     }
 
@@ -249,7 +257,7 @@ public final class NextRequest {
     }
 
     Map<String, String> headers() {
-        return this.headers;
+        return this.params.headers;
     }
 
     Map<String, String> queries() {
@@ -298,5 +306,15 @@ public final class NextRequest {
             body = bodyBuilder.build();
         }
         return body;
+    }
+
+    @Override
+    public String toString() {
+        return "Request{ HTTP " + method + " " + httpUrl.build().toString() + '}';
+    }
+
+    public String dump() {
+        return "Request{ HTTP " + method + " " + httpUrl.build().toString()
+                + ' ' + params + '}';
     }
 }

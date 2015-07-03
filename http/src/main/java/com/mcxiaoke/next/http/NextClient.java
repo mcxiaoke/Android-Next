@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -31,6 +32,7 @@ public final class NextClient {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
     private final OkHttpClient mClient;
+    private Interceptor mInterceptor;
     private Map<String, String> mParams;
     private Map<String, String> mHeaders;
 
@@ -39,6 +41,11 @@ public final class NextClient {
         mClient.setFollowRedirects(true);
         mParams = new HashMap<String, String>();
         mHeaders = new HashMap<String, String>();
+    }
+
+    public NextClient setDebug(final boolean debug) {
+        mDebug = debug;
+        return this;
     }
 
     /***********************************************************
@@ -56,6 +63,11 @@ public final class NextClient {
         return this;
     }
 
+    public NextClient removeParam(final String key) {
+        mParams.remove(key);
+        return this;
+    }
+
     public NextClient addHeader(final String key, final String value) {
         mHeaders.put(key, value);
         return this;
@@ -66,8 +78,13 @@ public final class NextClient {
         return this;
     }
 
-    public NextClient setDebug(final boolean debug) {
-        mDebug = debug;
+    public NextClient removeHeader(final String key) {
+        mHeaders.remove(key);
+        return this;
+    }
+
+    public NextClient setInterceptor(final Interceptor interceptor) {
+        mInterceptor = interceptor;
         return this;
     }
 
@@ -101,32 +118,43 @@ public final class NextClient {
         return this;
     }
 
-    public void setConnectTimeout(long timeout, TimeUnit unit) {
+    public NextClient setConnectTimeout(long timeout, TimeUnit unit) {
         mClient.setConnectTimeout(timeout, unit);
+        return this;
     }
 
-    public void setReadTimeout(long timeout, TimeUnit unit) {
+    public NextClient setReadTimeout(long timeout, TimeUnit unit) {
         mClient.setReadTimeout(timeout, unit);
+        return this;
     }
 
-    public void setWriteTimeout(long timeout, TimeUnit unit) {
+    public NextClient setWriteTimeout(long timeout, TimeUnit unit) {
         mClient.setWriteTimeout(timeout, unit);
+        return this;
     }
 
-    public void acceptGzipEncoding() {
-        addHeader(HttpConsts.ACCEPT_ENCODING, HttpConsts.ENCODING_GZIP);
+    public NextClient setUserAgent(final String userAgent) {
+        if (userAgent == null) {
+            removeHeader(HttpConsts.USER_AGENT);
+        } else {
+            addHeader(HttpConsts.USER_AGENT, userAgent);
+        }
+        return this;
     }
 
-    public void setUserAgent(final String userAgent) {
-        addHeader(HttpConsts.USER_AGENT, userAgent);
-    }
-
-    public void setAuthorization(final String authorization) {
+    public NextClient setAuthorization(final String authorization) {
         addHeader(HttpConsts.AUTHORIZATION, authorization);
+        return this;
     }
 
-    public void setReferer(final String referer) {
+    public NextClient removeAuthorization() {
+        removeHeader(HttpConsts.AUTHORIZATION);
+        return this;
+    }
+
+    public NextClient setReferer(final String referer) {
         addHeader(HttpConsts.REFERER, referer);
+        return this;
     }
 
     /***********************************************************
@@ -138,71 +166,94 @@ public final class NextClient {
         return head(url, null);
     }
 
-    public NextResponse head(final String url, final Map<String, String> queries) throws IOException {
+    public NextResponse head(final String url, final Map<String, String> queries)
+            throws IOException {
         return head(url, queries, null);
     }
 
-    public NextResponse head(final String url, final Map<String, String> queries, final Map<String, String> headers)
+    public NextResponse head(final String url, final Map<String, String> queries,
+                             final Map<String, String> headers)
             throws IOException {
-        return request(HttpMethod.HEAD, url, queries, headers);
+        return request(HttpMethod.HEAD, url, queries, null, headers);
     }
 
     public NextResponse get(final String url) throws IOException {
         return get(url, null, null);
     }
 
-    public NextResponse get(final String url, final Map<String, String> queries) throws IOException {
+    public NextResponse get(final String url, final Map<String, String> queries)
+            throws IOException {
         return get(url, queries, null);
     }
 
-    public NextResponse get(final String url, final Map<String, String> queries, final Map<String, String> headers)
+    public NextResponse get(final String url, final Map<String, String> queries,
+                            final Map<String, String> headers)
             throws IOException {
-        return request(HttpMethod.GET, url, queries, headers);
+        return request(HttpMethod.GET, url, queries, null, headers);
     }
 
     public NextResponse delete(final String url) throws IOException {
         return delete(url, null, null);
     }
 
-    public NextResponse delete(final String url, final Map<String, String> queries) throws IOException {
+    public NextResponse delete(final String url, final Map<String, String> queries)
+            throws IOException {
         return delete(url, queries, null);
     }
 
-    public NextResponse delete(final String url, final Map<String, String> queries, final Map<String, String> headers)
+    public NextResponse delete(final String url, final Map<String, String> queries,
+                               final Map<String, String> headers)
             throws IOException {
-        return request(HttpMethod.DELETE, url, queries, headers);
+        return request(HttpMethod.DELETE, url, queries, null, headers);
     }
 
-    public NextResponse post(final String url, final Map<String, String> forms) throws IOException {
+    public NextResponse post(final String url, final Map<String, String> forms)
+            throws IOException {
         return post(url, forms, null);
     }
 
-    public NextResponse post(final String url, final Map<String, String> forms, final Map<String, String> headers)
+    public NextResponse post(final String url, final Map<String, String> forms,
+                             final Map<String, String> headers)
             throws IOException {
-        return request(HttpMethod.POST, url, forms, headers);
+        return request(HttpMethod.POST, url, null, forms, headers);
     }
 
-    public NextResponse put(final String url, final Map<String, String> forms) throws IOException {
+    public NextResponse put(final String url, final Map<String, String> forms)
+            throws IOException {
         return put(url, forms, null);
     }
 
-    public NextResponse put(final String url, final Map<String, String> forms, final Map<String, String> headers)
+    public NextResponse put(final String url, final Map<String, String> forms,
+                            final Map<String, String> headers)
             throws IOException {
-        return request(HttpMethod.PUT, url, forms, headers);
+        return request(HttpMethod.PUT, url, null, forms, headers);
+    }
+
+    public NextResponse request(final HttpMethod method, final String url)
+            throws IOException {
+        return request(method, url, null, null, null);
     }
 
     public NextResponse request(final HttpMethod method, final String url,
-                                final Map<String, String> params,
+                                final Map<String, String> queries)
+            throws IOException {
+        return request(method, url, queries, null, null);
+    }
+
+    public NextResponse request(final HttpMethod method, final String url,
+                                final Map<String, String> queries,
+                                final Map<String, String> forms)
+            throws IOException {
+        return request(method, url, queries, forms, null);
+    }
+
+    public NextResponse request(final HttpMethod method, final String url,
+                                final Map<String, String> queries,
+                                final Map<String, String> forms,
                                 final Map<String, String> headers)
             throws IOException {
-        final NextRequest request = new NextRequest(method, url).headers(headers);
-        if (HttpMethod.supportBody(method)) {
-            // be careful, only POST/PUT/PATCH support bodies
-            request.form(params);
-        } else {
-            // add params to queries for HEAD/GET/DELETE
-            request.queries(params);
-        }
+        final NextRequest request = new NextRequest(method, url)
+                .queries(queries).forms(forms).headers(headers);
         return execute(request);
     }
 
@@ -225,15 +276,7 @@ public final class NextClient {
     public NextResponse request(final HttpMethod method, final String url,
                                 final NextParams params)
             throws IOException {
-        return request(method, url, params, null);
-    }
-
-    public NextResponse request(final HttpMethod method, final String url,
-                                final NextParams params,
-                                final Map<String, String> headers)
-            throws IOException {
-        final NextRequest request = new NextRequest(method, url)
-                .headers(headers).params(params);
+        final NextRequest request = new NextRequest(method, url).params(params);
         return execute(request);
     }
 
@@ -242,17 +285,18 @@ public final class NextClient {
         return new NextResponse(executeRequest(nr));
     }
 
-    protected Response executeRequest(final NextRequest nr)
+    protected Response executeRequest(final NextRequest request)
             throws IOException {
         // add client params and headers to request
-        nr.form(mParams).headers(mHeaders);
-        return executeInternal(nr);
+//        final NextRequest request = new NextRequest(originalRequest);
+        request.forms(mParams).headers(mHeaders);
+        return executeInternal(request);
     }
 
     protected Response executeInternal(final NextRequest nr)
             throws IOException {
         final Request request = new Request.Builder()
-                .url(nr.getUrl())
+                .url(nr.url())
                 .headers(Headers.of(nr.headers()))
                 .method(nr.method().name(), nr.getRequestBody()).build();
         final OkHttpClient client = mClient.clone();
@@ -263,6 +307,9 @@ public final class NextClient {
         // intercept for progress callback
         if (nr.listener() != null) {
             client.interceptors().add(new ProgressInterceptor(nr.listener()));
+        }
+        if (mInterceptor != null) {
+            client.interceptors().add(mInterceptor);
         }
         return client.newCall(request).execute();
 

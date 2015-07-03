@@ -1,5 +1,7 @@
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.utils.StringUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,36 +14,34 @@ import java.util.Map;
  * Time: 11:22
  */
 public final class NextParams {
-    public final Map<String, String> queries;
-    public final Map<String, String> forms;
-    public final List<BodyPart> parts;
+    final Map<String, String> headers;
+    final Map<String, String> queries;
+    final Map<String, String> forms;
+    final List<BodyPart> parts;
 
     public NextParams() {
+        headers = new HashMap<String, String>();
         queries = new HashMap<String, String>();
         forms = new HashMap<String, String>();
         parts = new ArrayList<BodyPart>();
     }
 
     public NextParams(final NextParams source) {
-        queries = source.queries;
-        forms = source.forms;
-        parts = source.parts;
+        headers = new HashMap<String, String>(source.headers);
+        queries = new HashMap<String, String>(source.queries);
+        forms = new HashMap<String, String>(source.forms);
+        parts = new ArrayList<BodyPart>(source.parts);
     }
 
-    public NextParams copy(final NextParams source) {
-        queries.putAll(source.queries);
-        forms.putAll(source.forms);
-        parts.addAll(source.parts);
+    public NextParams header(String key, String value) {
+        this.headers.put(key, value);
         return this;
     }
 
-    public NextParams removeForm(String key) {
-        this.forms.remove(key);
-        return this;
-    }
-
-    public NextParams removeQuery(String key) {
-        this.queries.remove(key);
+    public NextParams headers(Map<String, String> headers) {
+        if (headers != null) {
+            this.headers.putAll(headers);
+        }
         return this;
     }
 
@@ -51,8 +51,8 @@ public final class NextParams {
     }
 
     public NextParams queries(Map<String, String> queries) {
-        for (Map.Entry<String, String> entry : queries.entrySet()) {
-            query(entry.getKey(), entry.getValue());
+        if (queries != null) {
+            this.queries.putAll(queries);
         }
         return this;
     }
@@ -62,9 +62,9 @@ public final class NextParams {
         return this;
     }
 
-    public NextParams form(Map<String, String> forms) {
-        for (Map.Entry<String, String> entry : forms.entrySet()) {
-            form(entry.getKey(), entry.getValue());
+    public NextParams forms(Map<String, String> forms) {
+        if (forms != null) {
+            this.forms.putAll(forms);
         }
         return this;
     }
@@ -94,9 +94,34 @@ public final class NextParams {
         return part(part);
     }
 
-    NextParams part(final BodyPart part) {
+    public NextParams part(final BodyPart part) {
         this.parts.add(part);
         return this;
     }
 
+    public Map<String, String> forms() {
+        return forms;
+    }
+
+    public Map<String, String> headers() {
+        return headers;
+    }
+
+    public List<BodyPart> parts() {
+        return parts;
+    }
+
+    public Map<String, String> queries() {
+        return queries;
+    }
+
+    @Override
+    public String toString() {
+        return "Params{" +
+                "queries=" + StringUtils.toString(queries) +
+                ", forms=" + StringUtils.toString(forms) +
+                ", headers=" + StringUtils.toString(headers) +
+                ", parts=" + StringUtils.toString(parts) +
+                '}';
+    }
 }
