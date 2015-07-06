@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.http;
 
+import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.StringUtils;
 
 import java.io.File;
@@ -34,6 +35,7 @@ public final class NextParams {
     }
 
     public NextParams header(String key, String value) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         this.headers.put(key, value);
         return this;
     }
@@ -46,6 +48,7 @@ public final class NextParams {
     }
 
     public NextParams query(String key, String value) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         this.queries.put(key, value);
         return this;
     }
@@ -58,6 +61,7 @@ public final class NextParams {
     }
 
     public NextParams form(String key, String value) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         this.forms.put(key, value);
         return this;
     }
@@ -70,31 +74,39 @@ public final class NextParams {
     }
 
     public NextParams file(String key, File file) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         BodyPart part = BodyPart.create(key, file);
         return part(part);
     }
 
     public NextParams file(String key, File file, String contentType) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         BodyPart part = BodyPart.create(key, file, contentType);
         return part(part);
     }
 
     public NextParams file(String key, File file, String contentType, String fileName) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         BodyPart part = BodyPart.create(key, file, contentType, fileName);
         return part(part);
     }
 
     public NextParams file(String key, byte[] bytes) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         BodyPart part = BodyPart.create(key, bytes);
         return part(part);
+
     }
 
     public NextParams file(String key, byte[] bytes, String contentType) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         BodyPart part = BodyPart.create(key, bytes, contentType);
         return part(part);
+
     }
 
     public NextParams part(final BodyPart part) {
+        AssertUtils.notNull(part, "part must not be null.");
         this.parts.add(part);
         return this;
     }

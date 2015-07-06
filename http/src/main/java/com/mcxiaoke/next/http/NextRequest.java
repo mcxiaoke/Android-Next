@@ -292,16 +292,22 @@ public final class NextRequest {
         if (hasParts()) {
             final MultipartBuilder multipart = new MultipartBuilder();
             for (final BodyPart part : parts()) {
-                multipart.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
+                if (part.getBody() != null) {
+                    multipart.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
+                }
             }
             for (Map.Entry<String, String> entry : forms().entrySet()) {
-                multipart.addFormDataPart(entry.getKey(), entry.getValue());
+                final String key = entry.getKey();
+                final String value = entry.getValue();
+                multipart.addFormDataPart(key, value == null ? "" : value);
             }
             body = multipart.build();
         } else {
             final FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
             for (Map.Entry<String, String> entry : forms().entrySet()) {
-                bodyBuilder.add(entry.getKey(), entry.getValue());
+                final String key = entry.getKey();
+                final String value = entry.getValue();
+                bodyBuilder.add(key, value == null ? "" : value);
             }
             body = bodyBuilder.build();
         }
