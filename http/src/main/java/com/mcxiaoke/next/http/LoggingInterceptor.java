@@ -17,14 +17,13 @@ class LoggingInterceptor implements Interceptor {
     @Override
     public Response intercept(final Chain chain) throws IOException {
         long t1 = System.nanoTime();
-        Request request = chain.request();
-        Log.v(NextClient.TAG, String.format("Sending http request %s on %s%n%s",
-                request.url(), chain.connection(), request.headers()));
-        Response response = chain.proceed(request);
-
+        final Request request = chain.request();
+        Log.v(NextClient.TAG, String.format("Sending http request --> %s %s on %s%n%s",
+                request.method(), request.url(), chain.connection(), request.headers()));
+        final Response response = chain.proceed(request);
         long t2 = System.nanoTime();
-        Log.v(NextClient.TAG, String.format("Received http response for %s (%s:%s) in %.1fms%n%s",
-                request.url(), response.code(), response.message()
+        Log.v(NextClient.TAG, String.format("Received http response --> %s %s (%s:%s) in %.1fms%n%s",
+                request.method(), request.url(), response.code(), response.message()
                 , (t2 - t1) / 1e6d, response.headers()));
         return response;
     }

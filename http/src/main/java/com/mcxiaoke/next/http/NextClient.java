@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.http;
 
+import android.util.Log;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -196,15 +197,30 @@ public final class NextClient {
         return delete(url, null, null);
     }
 
+    // put params into url queries
     public NextResponse delete(final String url, final Map<String, String> queries)
             throws IOException {
         return delete(url, queries, null);
     }
 
+    // put params into url queries
     public NextResponse delete(final String url, final Map<String, String> queries,
                                final Map<String, String> headers)
             throws IOException {
         return request(HttpMethod.DELETE, url, queries, null, headers);
+    }
+
+    // put params into  http request body
+    public NextResponse delete2(final String url, final Map<String, String> forms)
+            throws IOException {
+        return delete(url, forms, null);
+    }
+
+    // put params into  http request body
+    public NextResponse delete2(final String url, final Map<String, String> forms,
+                                final Map<String, String> headers)
+            throws IOException {
+        return request(HttpMethod.DELETE, url, null, forms, headers);
     }
 
     public NextResponse post(final String url, final Map<String, String> forms)
@@ -301,6 +317,7 @@ public final class NextClient {
                 .method(nr.method().name(), nr.getRequestBody()).build();
         final OkHttpClient client = mClient.clone();
         if (mDebug || nr.debug()) {
+            Log.v(NextClient.TAG, "execute() " + nr.dump());
             // intercept for logging
             client.networkInterceptors().add(new LoggingInterceptor());
         }

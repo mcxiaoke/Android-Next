@@ -130,10 +130,10 @@ public final class NextParams {
     @Override
     public String toString() {
         return "Params{" +
-                "queries=" + StringUtils.toString(queries) +
-                ", forms=" + StringUtils.toString(forms) +
-                ", headers=" + StringUtils.toString(headers) +
-                ", parts=" + StringUtils.toString(parts) +
-                '}';
+                "forms:[" + StringUtils.toString(forms) +
+                "], parts:[" + StringUtils.toString(parts) +
+                "], queries:[" + StringUtils.toString(queries) +
+                "], headers:[" + StringUtils.toString(headers) +
+                "]}";
     }
 }
