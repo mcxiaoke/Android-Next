@@ -86,6 +86,33 @@
             final Bitmap bitmap2 = BitmapFactory.decodeStream(stream);
             // get body as reader
             final Reader reader = response.reader();
+
+            // NextClient usage
+            // head method
+            client.head(url);
+            client.head(url, queries);
+            client.head(url, queries, headers);
+            // get method
+            client.get(url);
+            client.get(url, queries);
+            client.get(url, queries, headers);
+            client.get(url, params);
+            // delete method
+            client.delete(url);
+            client.delete(url, queries);
+            client.delete(url, queries, headers);
+            client.delete(url, params);
+            // delete with body
+            client.delete2(url, forms);
+            client.delete2(url, forms, headers);
+            // post method
+            client.post(url, forms);
+            client.post(url, forms, headers);
+            client.post(url, params);
+            // put method
+            client.put(url, forms);
+            client.put(url, forms, headers);
+            client.put(url, params);
         } catch (IOException e) {
             e.printStackTrace();
         }
