@@ -34,75 +34,139 @@ public final class NextParams {
         parts = new ArrayList<BodyPart>(source.parts);
     }
 
+    String getQuery(final String key) {
+        return this.queries.get(key);
+    }
+
+    String getForm(final String key) {
+        return this.forms.get(key);
+    }
+
+    String getHeader(final String key) {
+        return this.headers.get(key);
+    }
+
+    BodyPart getPart(final String key) {
+        for (final BodyPart part : parts) {
+            if (part.getName().equals(key)) {
+                return part;
+            }
+        }
+        return null;
+    }
+
+    boolean hasQuery(final String key) {
+        return this.queries.containsKey(key);
+    }
+
+    boolean hasForm(final String key) {
+        return this.forms.containsKey(key);
+    }
+
+    boolean hasHeader(final String key) {
+        return this.headers.containsKey(key);
+    }
+
+    boolean hasPart(final String key) {
+        return getPart(key) != null;
+    }
+
+    int queriesSize() {
+        return queries.size();
+    }
+
+    int formsSize() {
+        return forms.size();
+    }
+
+    int headersSize() {
+        return headers.size();
+    }
+
+    int partsSize() {
+        return parts.size();
+    }
+
     public NextParams header(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
-        this.headers.put(key, value);
+        if (value != null) {
+            this.headers.put(key, value);
+        }
         return this;
     }
 
     public NextParams headers(Map<String, String> headers) {
         if (headers != null) {
-            this.headers.putAll(headers);
+            for (final Map.Entry<String, String> entry : headers.entrySet()) {
+                header(entry.getKey(), entry.getValue());
+            }
         }
         return this;
     }
 
     public NextParams query(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
-        this.queries.put(key, value);
+        if (value != null) {
+            this.queries.put(key, value);
+        }
         return this;
     }
 
     public NextParams queries(Map<String, String> queries) {
         if (queries != null) {
-            this.queries.putAll(queries);
+            for (final Map.Entry<String, String> entry : queries.entrySet()) {
+                query(entry.getKey(), entry.getValue());
+            }
         }
         return this;
     }
 
     public NextParams form(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
-        this.forms.put(key, value);
+        if (value != null) {
+            this.forms.put(key, value);
+        }
         return this;
     }
 
     public NextParams forms(Map<String, String> forms) {
         if (forms != null) {
-            this.forms.putAll(forms);
+            for (final Map.Entry<String, String> entry : forms.entrySet()) {
+                form(entry.getKey(), entry.getValue());
+            }
         }
         return this;
     }
 
     public NextParams file(String key, File file) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        BodyPart part = BodyPart.create(key, file);
-        return part(part);
+        return file(key, file, HttpConsts.APPLICATION_OCTET_STREAM, file.getName());
     }
 
     public NextParams file(String key, File file, String contentType) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        BodyPart part = BodyPart.create(key, file, contentType);
-        return part(part);
+        return file(key, file, contentType, file.getName());
     }
 
     public NextParams file(String key, File file, String contentType, String fileName) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
+        AssertUtils.notNull(file, "file must not be null.");
         BodyPart part = BodyPart.create(key, file, contentType, fileName);
         return part(part);
     }
 
     public NextParams file(String key, byte[] bytes) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        BodyPart part = BodyPart.create(key, bytes);
-        return part(part);
+        return file(key, bytes, HttpConsts.APPLICATION_OCTET_STREAM);
 
     }
 
     public NextParams file(String key, byte[] bytes, String contentType) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        BodyPart part = BodyPart.create(key, bytes, contentType);
-        return part(part);
+        return file(key, bytes, contentType, null);
+    }
 
+    public NextParams file(String key, byte[] bytes, String contentType, String fileName) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
+        AssertUtils.notNull(bytes, "bytes must not be null.");
+        BodyPart part = BodyPart.create(key, bytes, contentType, fileName);
+        return part(part);
     }
 
     public NextParams part(final BodyPart part) {

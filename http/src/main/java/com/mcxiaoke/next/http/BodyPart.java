@@ -1,7 +1,6 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.utils.AssertUtils;
-import com.mcxiaoke.next.utils.MimeUtils;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 
@@ -32,12 +31,12 @@ public class BodyPart {
         this.contentType = mimeType;
         this.file = file;
         this.bytes = null;
-        this.fileName = fileName;
         this.length = file.length();
+        this.fileName = fileName == null ? HttpConsts.DEFAULT_NAME : fileName;
         this.body = RequestBody.create(MediaType.parse(contentType), file);
     }
 
-    private BodyPart(String name, byte[] bytes, String mimeType) {
+    private BodyPart(String name, byte[] bytes, String mimeType, String fileName) {
         AssertUtils.notNull(name, "name can not be null.");
         AssertUtils.notNull(bytes, "bytes can not be null.");
         AssertUtils.notNull(mimeType, "mimeType can not be null.");
@@ -46,8 +45,8 @@ public class BodyPart {
         this.file = null;
         this.bytes = bytes;
         this.length = bytes.length;
-        this.fileName = HttpConsts.DEFAULT_NAME;
-        RequestBody.create(MediaType.parse(contentType), bytes);
+        this.fileName = fileName == null ? HttpConsts.DEFAULT_NAME : fileName;
+        this.body = RequestBody.create(MediaType.parse(contentType), bytes);
     }
 
     public String getName() {
@@ -58,29 +57,22 @@ public class BodyPart {
         return fileName;
     }
 
+    public String getContentType() {
+        return contentType;
+    }
+
     public RequestBody getBody() throws IOException {
         return body;
     }
 
-    public static BodyPart create(String name, File file) {
-        final String mimeType = MimeUtils.getMimeTypeFromPath(file.getPath());
-        return create(name, file, mimeType, file.getName());
-    }
-
-    public static BodyPart create(String name, File file, String mimeType) {
-        return create(name, file, mimeType, file.getName());
-    }
-
-    public static BodyPart create(String name, File file, String mimeType, String fileName) {
+    public static BodyPart create(String name, File file,
+                                  String mimeType, String fileName) {
         return new BodyPart(name, file, mimeType, fileName);
     }
 
-    public static BodyPart create(String name, byte[] bytes) {
-        return create(name, bytes, HttpConsts.APPLICATION_OCTET_STREAM);
-    }
-
-    public static BodyPart create(String name, byte[] bytes, String mimeType) {
-        return new BodyPart(name, bytes, mimeType);
+    public static BodyPart create(String name, byte[] bytes,
+                                  String mimeType, final String fileName) {
+        return new BodyPart(name, bytes, mimeType, fileName);
     }
 
     @Override
