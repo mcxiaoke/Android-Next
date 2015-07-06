@@ -33,6 +33,10 @@ public class BaseTest {
         Assert.assertEquals(expected, actual);
     }
 
+    void isEquals(long expected, long actual) {
+        Assert.assertEquals(expected, actual);
+    }
+
     void isEquals(Object expected, Object actual) {
         Assert.assertEquals(expected, actual);
     }

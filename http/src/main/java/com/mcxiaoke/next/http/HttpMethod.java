@@ -34,13 +34,10 @@ public enum HttpMethod {
         return supportBody(HttpMethod.valueOf(method));
     }
 
-    public static boolean requireBody(final HttpMethod method) {
+    public static boolean supportBody(final HttpMethod method) {
         return HttpMethod.POST.equals(method)
                 || HttpMethod.PUT.equals(method)
-                || HttpMethod.PATCH.equals(method);
-    }
-
-    public static boolean supportBody(final HttpMethod method) {
-        return requireBody(method) || HttpMethod.DELETE.equals(method);
+                || HttpMethod.PATCH.equals(method)
+                || HttpMethod.DELETE.equals(method);
     }
 }

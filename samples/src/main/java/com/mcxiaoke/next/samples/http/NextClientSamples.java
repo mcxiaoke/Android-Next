@@ -52,7 +52,7 @@ public class NextClientSamples extends BaseActivity {
                 .debug(true)
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .forms("douban", "yes")
+                .form("douban", "yes")
                 .query("app_version", "1.5.2");
         final NextClient client = new NextClient().setDebug(true);
 //
@@ -70,7 +70,7 @@ public class NextClientSamples extends BaseActivity {
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .forms("version", "6")
+                .form("version", "6")
                 .query("app_version", "1.2.3");
         final NextClient client = new NextClient();
         final NextResponse response = client.execute(request);
@@ -86,7 +86,7 @@ public class NextClientSamples extends BaseActivity {
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .forms("version", "6")
+                .form("version", "6")
                 .query("app_version", "1.2.3");
         request.userAgent("Samples test " + BuildConfig.APPLICATION_ID
                 + "/" + BuildConfig.VERSION_NAME);

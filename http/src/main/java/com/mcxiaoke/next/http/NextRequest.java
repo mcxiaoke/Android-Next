@@ -19,7 +19,6 @@ import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
 
@@ -40,6 +39,10 @@ public final class NextRequest {
     private byte[] body;
     private ProgressListener listener;
     private boolean debug;
+
+    public static NextRequest head(final String url) {
+        return new NextRequest(HttpMethod.HEAD, url);
+    }
 
     public static NextRequest get(final String url) {
         return new NextRequest(HttpMethod.GET, url);
@@ -75,9 +78,11 @@ public final class NextRequest {
         AssertUtils.notNull(method, "http method can not be null");
         AssertUtils.notEmpty(url, "http url can not be null or empty");
         AssertUtils.notNull(params, "http params can not be null");
+        final HttpUrl hu = HttpUrl.parse(url);
+        AssertUtils.notNull(hu, "invalid url:" + url);
         this.method = method;
         this.originalUrl = url;
-        this.httpUrl = HttpUrl.parse(url).newBuilder();
+        this.httpUrl = hu.newBuilder();
         this.params = new NextParams(params);
     }
 
@@ -110,38 +115,30 @@ public final class NextRequest {
 
     public NextRequest headers(Map<String, String> headers) {
         if (headers != null) {
-            this.params.headers.putAll(headers);
+            this.params.headers(headers);
         }
         return this;
     }
 
     public NextRequest query(String key, String value) {
-        this.params.queries.put(key, value);
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
+        this.params.query(key, value);
         this.httpUrl.addQueryParameter(key, value);
         return this;
     }
 
     public NextRequest queries(Map<String, String> queries) {
-        if (queries != null) {
-            for (Map.Entry<String, String> entry : queries.entrySet()) {
-                query(entry.getKey(), entry.getValue());
-            }
-        }
-
+        this.params.queries(queries);
         return this;
     }
 
-    public NextRequest forms(String key, String value) {
-        this.params.forms.put(key, value);
+    public NextRequest form(String key, String value) {
+        this.params.form(key, value);
         return this;
     }
 
     public NextRequest forms(Map<String, String> forms) {
-        if (forms != null) {
-            for (Map.Entry<String, String> entry : forms.entrySet()) {
-                forms(entry.getKey(), entry.getValue());
-            }
-        }
+        this.params.forms(forms);
         return this;
     }
 
@@ -240,20 +237,73 @@ public final class NextRequest {
         return this;
     }
 
+    NextRequest removeHeader(String key) {
+        this.params.headers.remove(key);
+        return this;
+    }
 
     NextRequest removeQuery(String key) {
         this.params.queries.remove(key);
         return this;
     }
 
-    NextRequest removeHeader(String key) {
-        this.params.headers.remove(key);
-        return this;
-    }
-
     NextRequest removeForm(String key) {
         this.params.forms.remove(key);
         return this;
+    }
+
+    NextRequest removePart(BodyPart part) {
+        this.params.parts.remove(part);
+        return this;
+    }
+
+    String getHeader(String key) {
+        return this.params.getHeader(key);
+    }
+
+    String getQuery(String key) {
+        return this.params.getQuery(key);
+    }
+
+    String getForm(String key) {
+        return this.params.getForm(key);
+    }
+
+    BodyPart getPart(String key) {
+        return this.params.getPart(key);
+    }
+
+    boolean hasHeader(String key) {
+        return getHeader(key) != null;
+    }
+
+    boolean hasQuery(String key) {
+        return getQuery(key) != null;
+    }
+
+    boolean hasForm(String key) {
+        return getForm(key) != null;
+    }
+
+    boolean hasPart(String key) {
+        return getPart(key) != null;
+    }
+
+
+    int queriesSize() {
+        return queries().size();
+    }
+
+    int formsSize() {
+        return form().size();
+    }
+
+    int headersSize() {
+        return headers().size();
+    }
+
+    int partsSize() {
+        return parts().size();
     }
 
     Map<String, String> headers() {
@@ -264,7 +314,7 @@ public final class NextRequest {
         return this.params.queries;
     }
 
-    Map<String, String> forms() {
+    Map<String, String> form() {
         return this.params.forms;
     }
 
@@ -276,7 +326,7 @@ public final class NextRequest {
         return this.params.parts.size() > 0;
     }
 
-    boolean hasParams() {
+    boolean hasForms() {
         return this.params.forms.size() > 0;
     }
 
@@ -285,10 +335,9 @@ public final class NextRequest {
             return null;
         }
         if (body != null) {
-            final MediaType type = MediaType.parse(HttpConsts.APPLICATION_OCTET_STREAM);
-            return RequestBody.create(type, body);
+            return RequestBody.create(HttpConsts.MEDIA_TYPE_OCTET_STREAM, body);
         }
-        RequestBody body;
+        RequestBody requestBody;
         if (hasParts()) {
             final MultipartBuilder multipart = new MultipartBuilder();
             for (final BodyPart part : parts()) {
@@ -296,31 +345,34 @@ public final class NextRequest {
                     multipart.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
                 }
             }
-            for (Map.Entry<String, String> entry : forms().entrySet()) {
+            for (Map.Entry<String, String> entry : form().entrySet()) {
                 final String key = entry.getKey();
                 final String value = entry.getValue();
                 multipart.addFormDataPart(key, value == null ? "" : value);
             }
-            body = multipart.build();
-        } else {
+            requestBody = multipart.build();
+        } else if (hasForms()) {
             final FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
-            for (Map.Entry<String, String> entry : forms().entrySet()) {
+            for (Map.Entry<String, String> entry : form().entrySet()) {
                 final String key = entry.getKey();
                 final String value = entry.getValue();
                 bodyBuilder.add(key, value == null ? "" : value);
             }
-            body = bodyBuilder.build();
+            requestBody = bodyBuilder.build();
+        } else {
+            //FIXME workaround for null body, waiting OkHttp release
+            requestBody = RequestBody.create(null, HttpConsts.NO_BODY);
         }
-        return body;
+        return requestBody;
     }
 
     @Override
     public String toString() {
-        return "Request{ HTTP " + method + " " + httpUrl.build().toString() + '}';
+        return "Request{HTTP " + method + " " + httpUrl.build().toString() + '}';
     }
 
     public String dump() {
-        return "Request{ HTTP " + method + " " + httpUrl.build().toString()
+        return "Request{HTTP " + method + " " + httpUrl.build().toString()
                 + ' ' + params + '}';
     }
 }
