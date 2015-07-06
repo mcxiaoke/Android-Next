@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * java.net.URLConnection and android.webkit.MimeTypeMap.
  */
 public final class MimeUtils {
-    private static final String MIME_BINARY_DATA = "application/octet-setStream";
+    private static final String MIME_BINARY_DATA = "application/octet-stream";
     private static final Map<String, String> mimeTypeToExtensionMap = new HashMap<String, String>();
 
     private static final Map<String, String> extensionToMimeTypeMap = new HashMap<String, String>();
