@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import android.util.Log;
+import com.mcxiaoke.next.utils.AssertUtils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -11,7 +12,6 @@ import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -40,8 +40,8 @@ public final class NextClient {
     public NextClient() {
         mClient = new OkHttpClient();
         mClient.setFollowRedirects(true);
-        mParams = new HashMap<String, String>();
-        mHeaders = new HashMap<String, String>();
+        mParams = new NoEmptyValuesHashMap();
+        mHeaders = new NoEmptyValuesHashMap();
     }
 
     public NextClient setDebug(final boolean debug) {
@@ -54,34 +54,60 @@ public final class NextClient {
      * **********************************************************
      */
 
+    public String getParam(final String key) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
+        return mParams.get(key);
+    }
+
     public NextClient addParam(final String key, final String value) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         mParams.put(key, value);
         return this;
     }
 
     public NextClient addParams(final Map<String, String> params) {
+        AssertUtils.notNull(params, "params must not be null.");
         mParams.putAll(params);
         return this;
     }
 
     public NextClient removeParam(final String key) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         mParams.remove(key);
         return this;
     }
 
+
+    public int getParamsSize() {
+        return mParams.size();
+    }
+
+    public String getHeader(final String key) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
+        return mHeaders.get(key);
+    }
+
     public NextClient addHeader(final String key, final String value) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         mHeaders.put(key, value);
         return this;
     }
 
     public NextClient addHeaders(final Map<String, String> headers) {
+        AssertUtils.notNull(headers, "headers must not be null.");
         mHeaders.putAll(headers);
         return this;
     }
 
     public NextClient removeHeader(final String key) {
+        AssertUtils.notEmpty(key, "key must not be null or empty.");
         mHeaders.remove(key);
         return this;
+    }
+
+
+    public int getHeadersSize() {
+        return mHeaders.size();
     }
 
     public NextClient setInterceptor(final Interceptor interceptor) {
@@ -119,6 +145,18 @@ public final class NextClient {
         return this;
     }
 
+    public int getConnectTimeout() {
+        return mClient.getConnectTimeout();
+    }
+
+    public int getReadTimeout() {
+        return mClient.getReadTimeout();
+    }
+
+    public int getWriteTimeout() {
+        return mClient.getWriteTimeout();
+    }
+
     public NextClient setConnectTimeout(long timeout, TimeUnit unit) {
         mClient.setConnectTimeout(timeout, unit);
         return this;
@@ -134,6 +172,10 @@ public final class NextClient {
         return this;
     }
 
+    public String getUserAgent() {
+        return getHeader(HttpConsts.USER_AGENT);
+    }
+
     public NextClient setUserAgent(final String userAgent) {
         if (userAgent == null) {
             removeHeader(HttpConsts.USER_AGENT);
@@ -141,6 +183,10 @@ public final class NextClient {
             addHeader(HttpConsts.USER_AGENT, userAgent);
         }
         return this;
+    }
+
+    public String getAuthorization() {
+        return getHeader(HttpConsts.AUTHORIZATION);
     }
 
     public NextClient setAuthorization(final String authorization) {
@@ -151,6 +197,10 @@ public final class NextClient {
     public NextClient removeAuthorization() {
         removeHeader(HttpConsts.AUTHORIZATION);
         return this;
+    }
+
+    public String getRefer() {
+        return getHeader(HttpConsts.REFERER);
     }
 
     public NextClient setReferer(final String referer) {
@@ -256,23 +306,6 @@ public final class NextClient {
         return request(method, url, queries, null, null);
     }
 
-    public NextResponse request(final HttpMethod method, final String url,
-                                final Map<String, String> queries,
-                                final Map<String, String> forms)
-            throws IOException {
-        return request(method, url, queries, forms, null);
-    }
-
-    public NextResponse request(final HttpMethod method, final String url,
-                                final Map<String, String> queries,
-                                final Map<String, String> forms,
-                                final Map<String, String> headers)
-            throws IOException {
-        final NextRequest request = new NextRequest(method, url)
-                .queries(queries).forms(forms).headers(headers);
-        return execute(request);
-    }
-
     public NextResponse get(final String url, final NextParams params) throws IOException {
         return request(HttpMethod.GET, url, params);
     }
@@ -290,26 +323,73 @@ public final class NextClient {
     }
 
     public NextResponse request(final HttpMethod method, final String url,
+                                final Map<String, String> queries,
+                                final Map<String, String> forms)
+            throws IOException {
+        return request(method, url, queries, forms, null);
+    }
+
+    public NextResponse request(final HttpMethod method, final String url,
+                                final Map<String, String> queries,
+                                final Map<String, String> forms,
+                                final Map<String, String> headers)
+            throws IOException {
+        return executeInternal(createRequest(method, url, queries, forms, headers));
+    }
+
+    public NextResponse request(final HttpMethod method, final String url,
                                 final NextParams params)
             throws IOException {
-        final NextRequest request = new NextRequest(method, url).params(params);
-        return execute(request);
+        return executeInternal(createRequest(method, url, params));
     }
 
-    public NextResponse execute(final NextRequest nr)
-            throws IOException {
-        return new NextResponse(executeRequest(nr));
+
+    protected NextRequest createRequest(final HttpMethod method, final String url,
+                                        final NextParams params) {
+        final NextRequest request = new NextRequest(method, url)
+                .headers(mHeaders);
+        if (request.supportBody()) {
+            request.forms(mParams);
+        } else {
+            request.queries(mParams);
+        }
+        return request.params(params);
     }
 
-    protected Response executeRequest(final NextRequest request)
+    protected NextRequest createRequest(final HttpMethod method, final String url,
+                                        final Map<String, String> queries,
+                                        final Map<String, String> forms,
+                                        final Map<String, String> headers) {
+        final NextRequest request = new NextRequest(method, url)
+                .headers(mHeaders);
+        if (request.supportBody()) {
+            request.forms(mParams);
+            request.forms(forms);
+        } else {
+            request.queries(mParams);
+        }
+        return request.headers(headers).queries(queries);
+    }
+
+    public NextResponse execute(final NextRequest req)
             throws IOException {
         // add client params and headers to request
-//        final NextRequest request = new NextRequest(originalRequest);
-        request.forms(mParams).headers(mHeaders);
+        final NextRequest request = new NextRequest(req.method(), req.url().toString());
+        if (request.supportBody()) {
+            request.forms(mParams);
+        } else {
+            request.queries(mParams);
+        }
+        request.copy(req);
         return executeInternal(request);
     }
 
-    protected Response executeInternal(final NextRequest nr)
+    protected NextResponse executeInternal(final NextRequest request)
+            throws IOException {
+        return new NextResponse(sendRequest(request));
+    }
+
+    protected Response sendRequest(final NextRequest nr)
             throws IOException {
         final Request request = new Request.Builder()
                 .url(nr.url())

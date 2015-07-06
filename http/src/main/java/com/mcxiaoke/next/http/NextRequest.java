@@ -60,14 +60,14 @@ public final class NextRequest {
         return new NextRequest(HttpMethod.PUT, url);
     }
 
-    public NextRequest(final NextRequest request) {
-        this.method = request.method;
-        this.originalUrl = request.originalUrl;
-        this.httpUrl = request.url().newBuilder();
-        this.params = new NextParams(request.params);
-        this.body = request.body;
-        this.listener = request.listener;
-        this.debug = request.debug;
+    public NextRequest(final NextRequest source) {
+        this.method = source.method;
+        this.originalUrl = source.originalUrl;
+        this.httpUrl = source.url().newBuilder();
+        this.params = source.params;
+        this.body = source.body;
+        this.listener = source.listener;
+        this.debug = source.debug;
     }
 
     public NextRequest(final HttpMethod method, String url) {
@@ -132,17 +132,26 @@ public final class NextRequest {
         return this;
     }
 
+    private void throwIfNotSupportBody() {
+        if (!supportBody()) {
+            throw new IllegalStateException("HTTP " + method.name() + " not support http body");
+        }
+    }
+
     public NextRequest form(String key, String value) {
+        throwIfNotSupportBody();
         this.params.form(key, value);
         return this;
     }
 
     public NextRequest forms(Map<String, String> forms) {
+        throwIfNotSupportBody();
         this.params.forms(forms);
         return this;
     }
 
     public NextRequest parts(Collection<BodyPart> parts) {
+        throwIfNotSupportBody();
         for (final BodyPart part : parts) {
             part(part);
         }
@@ -150,51 +159,61 @@ public final class NextRequest {
     }
 
     public NextRequest file(String key, File file) {
+        throwIfNotSupportBody();
         this.params.file(key, file);
         return this;
     }
 
     public NextRequest file(String key, File file, String contentType) {
+        throwIfNotSupportBody();
         this.params.file(key, file, contentType);
         return this;
     }
 
     public NextRequest file(String key, File file, String contentType, String fileName) {
+        throwIfNotSupportBody();
         this.params.file(key, file, contentType, fileName);
         return this;
     }
 
     public NextRequest file(String key, byte[] bytes) {
+        throwIfNotSupportBody();
         this.params.file(key, bytes);
         return this;
     }
 
     public NextRequest file(String key, byte[] bytes, String contentType) {
+        throwIfNotSupportBody();
         this.params.file(key, bytes, contentType);
         return this;
     }
 
     public NextRequest body(final byte[] body) {
+        throwIfNotSupportBody();
         this.body = body;
         return this;
     }
 
     public NextRequest body(final String content, final Charset charset) {
+        throwIfNotSupportBody();
         this.body = content.getBytes(charset);
         return this;
     }
 
     public NextRequest body(final File file) throws IOException {
+        throwIfNotSupportBody();
         this.body = IOUtils.readBytes(file);
         return this;
     }
 
     public NextRequest body(final Reader reader) throws IOException {
+        throwIfNotSupportBody();
         this.body = IOUtils.readBytes(reader);
         return this;
     }
 
     public NextRequest body(final InputStream stream) throws IOException {
+        throwIfNotSupportBody();
         this.body = IOUtils.readBytes(stream);
         return this;
     }
@@ -202,8 +221,10 @@ public final class NextRequest {
     public NextRequest params(final NextParams params) {
         if (params != null) {
             queries(params.queries);
-            forms(params.forms);
-            parts(params.parts);
+            if (supportBody()) {
+                forms(params.forms);
+                parts(params.parts);
+            }
         }
         return this;
     }
@@ -328,6 +349,13 @@ public final class NextRequest {
 
     boolean hasForms() {
         return this.params.forms.size() > 0;
+    }
+
+    void copy(final NextRequest source) {
+        this.params = source.params;
+        this.body = source.body;
+        this.listener = source.listener;
+        this.debug = source.debug;
     }
 
     RequestBody getRequestBody() throws IOException {

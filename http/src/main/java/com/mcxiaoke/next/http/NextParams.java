@@ -27,11 +27,12 @@ public final class NextParams {
         parts = new ArrayList<BodyPart>();
     }
 
-    public NextParams(final NextParams source) {
-        headers = new HashMap<String, String>(source.headers);
-        queries = new HashMap<String, String>(source.queries);
-        forms = new HashMap<String, String>(source.forms);
-        parts = new ArrayList<BodyPart>(source.parts);
+    // internal use
+    NextParams(final NextParams source) {
+        headers = source.headers;
+        queries = source.queries;
+        forms = source.forms;
+        parts = source.parts;
     }
 
     String getQuery(final String key) {
