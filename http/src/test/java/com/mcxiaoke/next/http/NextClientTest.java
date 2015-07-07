@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import android.test.suitebuilder.annotation.SmallTest;
+import com.squareup.okhttp.HttpUrl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -265,6 +266,35 @@ public class NextClientTest extends BaseTest {
         isEquals("v1", r.getForm("f1"));
     }
 
+    @Test
+    public void testUrlQueries() throws IOException {
+        final NextClient client = new NextClient();
+        client.addParam("k1", "v1");
+        client.addParam("中文", "编码测试");
+        final Map<String, String> queries = new HashMap<String, String>();
+        queries.put("q1", "v1");
+        queries.put("q2", "v2");
+        queries.put("q3", null);
+        final Map<String, String> forms = new HashMap<String, String>();
+        forms.put("f1", "v1");
+        final NextRequest request = client.createRequest(HttpMethod.GET, TEST_URL,
+                queries, forms, null);
+        notNull(request.getQuery("k1"));
+        isEquals("编码测试", request.getQuery("中文"));
+        notNull(request.getQuery("q1"));
+        notNull(request.getQuery("q2"));
+        isNull(request.getQuery("q3"));
+        isNull(request.getQuery("f1"));
+
+        final HttpUrl url = request.url();
+        isEquals("v1", url.queryParameter("k1"));
+        isEquals("编码测试", url.queryParameter("中文"));
+        isEquals("v1", url.queryParameter("q1"));
+        isEquals("v2", url.queryParameter("q2"));
+        isNull(url.queryParameter("q3"));
+        isNull(url.queryParameter("f1"));
+
+    }
 
     @Test
     public void testExecute() throws IOException {

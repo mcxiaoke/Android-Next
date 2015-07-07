@@ -8,7 +8,9 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.07.07-com.mcxiaoke.next:1.1.7-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.07.07-com.mcxiaoke.next:1.1.8-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+- **1.1.8** 2015.07.07
+    * http: 紧急修复部分情况下URL参数没有添加的问题，添加对应的测试
 - **1.1.7** 2015.07.07
     * http: 修复一些细节问题，添加几个类的单元测试
 - **1.1.6** 2015.07.03

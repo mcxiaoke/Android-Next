@@ -391,10 +391,8 @@ public final class NextClient {
 
     protected Response sendRequest(final NextRequest nr)
             throws IOException {
-        final Request request = new Request.Builder()
-                .url(nr.url())
-                .headers(Headers.of(nr.headers()))
-                .method(nr.method().name(), nr.getRequestBody()).build();
+
+        final Request request = createOkRequest(nr);
         final OkHttpClient client = mClient.clone();
         if (mDebug || nr.debug()) {
             Log.v(NextClient.TAG, "execute() " + nr.dump());
@@ -410,6 +408,13 @@ public final class NextClient {
         }
         return client.newCall(request).execute();
 
+    }
+
+    static Request createOkRequest(final NextRequest nr) throws IOException {
+        return new Request.Builder()
+                .url(nr.url())
+                .headers(Headers.of(nr.headers()))
+                .method(nr.method().name(), nr.getRequestBody()).build();
     }
 
 }

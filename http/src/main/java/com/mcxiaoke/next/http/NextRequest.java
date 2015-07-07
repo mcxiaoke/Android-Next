@@ -33,8 +33,7 @@ import java.util.Map;
 
 public final class NextRequest {
     private final HttpMethod method;
-    private final String originalUrl;
-    private final HttpUrl.Builder httpUrl;
+    private final HttpUrl httpUrl;
     private NextParams params;
     private byte[] body;
     private ProgressListener listener;
@@ -62,8 +61,7 @@ public final class NextRequest {
 
     public NextRequest(final NextRequest source) {
         this.method = source.method;
-        this.originalUrl = source.originalUrl;
-        this.httpUrl = source.url().newBuilder();
+        this.httpUrl = source.httpUrl;
         this.params = source.params;
         this.body = source.body;
         this.listener = source.listener;
@@ -78,11 +76,10 @@ public final class NextRequest {
         AssertUtils.notNull(method, "http method can not be null");
         AssertUtils.notEmpty(url, "http url can not be null or empty");
         AssertUtils.notNull(params, "http params can not be null");
-        final HttpUrl hu = HttpUrl.parse(url);
-        AssertUtils.notNull(hu, "invalid url:" + url);
+        final HttpUrl hUrl = HttpUrl.parse(url);
+        AssertUtils.notNull(hUrl, "invalid url:" + url);
         this.method = method;
-        this.originalUrl = url;
-        this.httpUrl = hu.newBuilder();
+        this.httpUrl = HttpUrl.parse(url);
         this.params = new NextParams(params);
     }
 
@@ -123,7 +120,6 @@ public final class NextRequest {
     public NextRequest query(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
         this.params.query(key, value);
-        this.httpUrl.addQueryParameter(key, value);
         return this;
     }
 
@@ -234,7 +230,7 @@ public final class NextRequest {
     }
 
     public HttpUrl url() {
-        return httpUrl.build();
+        return buildUrlWithQueries();
     }
 
     public HttpMethod method() {
@@ -242,7 +238,7 @@ public final class NextRequest {
     }
 
     public String originalUrl() {
-        return originalUrl;
+        return httpUrl.toString();
     }
 
     public ProgressListener listener() {
@@ -351,6 +347,15 @@ public final class NextRequest {
         return this.params.forms.size() > 0;
     }
 
+
+    HttpUrl buildUrlWithQueries() {
+        final HttpUrl.Builder builder = httpUrl.newBuilder();
+        for (final Map.Entry<String, String> entry : params.queries().entrySet()) {
+            builder.addQueryParameter(entry.getKey(), entry.getValue());
+        }
+        return builder.build();
+    }
+
     void copy(final NextRequest source) {
         this.params = source.params;
         this.body = source.body;
@@ -396,11 +401,10 @@ public final class NextRequest {
 
     @Override
     public String toString() {
-        return "Request{HTTP " + method + " " + httpUrl.build().toString() + '}';
+        return "Request{HTTP " + method + " " + httpUrl + '}';
     }
 
     public String dump() {
-        return "Request{HTTP " + method + " " + httpUrl.build().toString()
-                + ' ' + params + '}';
+        return "Request{HTTP " + method + " " + httpUrl + ' ' + params + '}';
     }
 }
