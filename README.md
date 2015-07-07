@@ -8,7 +8,9 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.07.02-com.mcxiaoke.next:1.1.6-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.07.07-com.mcxiaoke.next:1.1.7-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+- **1.1.7** 2015.07.07
+    * http: 修复一些细节问题，添加几个类的单元测试
 - **1.1.6** 2015.07.03
     * http: 完善NextClient和NextRequest，增加实用方法，减少重复代码
     
