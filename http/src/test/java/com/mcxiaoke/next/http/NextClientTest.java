@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.http;
 
+import android.test.suitebuilder.annotation.SmallTest;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * Date: 15/7/6
  * Time: 17:10
  */
+@SmallTest
 public class NextClientTest extends BaseTest {
     private static final String TEST_URL = "https://api.douban.com/v2/user/1000001";
 

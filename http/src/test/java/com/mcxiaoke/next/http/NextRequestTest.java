@@ -181,7 +181,7 @@ public class NextRequestTest extends BaseTest {
 
     @Test
     public void testForms() {
-        final NextRequest r = NextRequest.get(TEST_URL);
+        final NextRequest r = NextRequest.post(TEST_URL);
         r.form("q1", "value1");
         r.form("q2", "value2");
         isEquals("value1", r.getForm("q1"));
@@ -200,8 +200,8 @@ public class NextRequestTest extends BaseTest {
 
     @Test
     public void testBody() {
-        final NextRequest r0 = NextRequest.head(TEST_URL).query("q", "v").form("k", "v1");
-        final NextRequest r1 = NextRequest.get(TEST_URL).query("q", "v").form("k", "v1");
+        final NextRequest r0 = NextRequest.head(TEST_URL).query("q", "v");
+        final NextRequest r1 = NextRequest.get(TEST_URL).query("q", "v");
 
         final NextRequest r2 = NextRequest.delete(TEST_URL).query("q", "v").form("k", "v2");
         final NextRequest r3 = NextRequest.post(TEST_URL).query("q", "v").form("k", "v3");
