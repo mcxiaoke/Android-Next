@@ -21,9 +21,16 @@ public class ShareTarget implements Comparable<ShareTarget> {
     public Drawable icon;// menu item icon
     public MenuItem.OnMenuItemClickListener listener; //menu item click listener
 
-    public ShareTarget(CharSequence title, Drawable icon, MenuItem.OnMenuItemClickListener listener) {
+    public ShareTarget(CharSequence title, Drawable icon,
+                       final MenuItem.OnMenuItemClickListener listener) {
+        this(title, icon, 0, listener);
+    }
+
+    public ShareTarget(CharSequence title, Drawable icon, int id,
+                       final MenuItem.OnMenuItemClickListener listener) {
         this.title = title;
         this.icon = icon;
+        this.id = id;
         this.listener = listener;
     }
 

@@ -1,6 +1,6 @@
 package com.mcxiaoke.next.support.v7;
 
-import android.content.ActivityNotFoundException;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.view.ActionProvider;
 import android.util.Log;
@@ -65,6 +66,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     private List<ShareTarget> mExtraTargets = new ArrayList<ShareTarget>();
 
     private List<ShareTarget> mShareTargets = new ArrayList<ShareTarget>();
+
 
     public AdvancedShareActionProvider(Context context) {
         super(context);
@@ -227,6 +229,15 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
     }
 
+    public List<ShareTarget> getShareTargets() {
+        return mShareTargets;
+    }
+
+    public List<ShareTarget> getDefaultShareTargets() {
+        int length = Math.min(mDefaultLength, mShareTargets.size());
+        return mShareTargets.subList(0, length);
+    }
+
     /**
      * 重新加载目标Activity列表
      */
@@ -253,8 +264,8 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     private void sortShareTargets() {
         if (mShareTargets.size() > 0) {
             if (DEBUG) {
-                Log.v(TAG, "sortActivities() mShareTargets size=" + mShareTargets.size());
-                Log.v(TAG, "sortActivities() mExtraPackages size=" + mExtraPackages.size());
+                Log.v(TAG, "sortShareTargets() mShareTargets size=" + mShareTargets.size());
+                Log.v(TAG, "sortShareTargets() mExtraPackages size=" + mExtraPackages.size());
             }
             for (String pkg : mExtraPackages) {
                 ShareTarget target = findShareTarget(pkg);
@@ -273,6 +284,11 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
             mExtraTargets.clear();
             mExtraPackages.clear();
             mToRemovePackages.clear();
+
+            final int size = mShareTargets.size();
+            for (int i = 0; i < size; i++) {
+                mShareTargets.get(i).id = i;
+            }
         }
     }
 
@@ -311,11 +327,6 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     @Override
     public View onCreateActionView() {
         return null;
-    }
-
-    @Override
-    public boolean onPerformDefaultAction() {
-        return super.onPerformDefaultAction();
     }
 
     @Override
@@ -396,7 +407,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
         }
         try {
             mContext.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        } catch (Exception e) {
             Log.e(TAG, "onMenuItemClick() error: " + e);
             Toast.makeText(mContext, R.string.share_action_provider_target_not_found, Toast.LENGTH_SHORT).show();
         }
