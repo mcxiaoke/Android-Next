@@ -18,8 +18,9 @@ import com.mcxiaoke.next.ui.view.SimpleProgressView;
  * Time: 17:25
  */
 class EndlessRecyclerAdapter
-        extends AbstractHeaderFooterRecyclerAdapter {
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = EndlessRecyclerAdapter.class.getSimpleName();
+    private static final int VIEW_TYPE_FOOTER = Integer.MAX_VALUE - 1;
 
     private RecyclerView.Adapter mWrapped;
     private ViewState mViewState;
@@ -29,41 +30,38 @@ class EndlessRecyclerAdapter
         public void onItemRangeRemoved(final int positionStart, final int itemCount) {
             super.onItemRangeRemoved(positionStart, itemCount);
             Log.v(TAG, "onItemRangeRemoved() start=" + positionStart + " count=" + itemCount);
-            notifyContentItemRangeRemoved(positionStart, itemCount);
+            notifyItemRangeRemoved(positionStart, itemCount);
         }
 
         @Override
         public void onItemRangeMoved(final int fromPosition, final int toPosition, final int itemCount) {
             super.onItemRangeMoved(fromPosition, toPosition, itemCount);
             Log.v(TAG, "onItemRangeMoved() start=" + fromPosition + " count=" + itemCount);
-            notifyContentItemRangeChanged(fromPosition, itemCount);
+            notifyItemRangeChanged(fromPosition, itemCount);
         }
 
         @Override
         public void onItemRangeInserted(final int positionStart, final int itemCount) {
             super.onItemRangeInserted(positionStart, itemCount);
             Log.v(TAG, "onItemRangeInserted() start=" + positionStart + " count=" + itemCount);
-            notifyContentItemRangeInserted(positionStart, itemCount);
+            notifyItemRangeInserted(positionStart, itemCount);
         }
 
         @Override
         public void onItemRangeChanged(final int positionStart, final int itemCount) {
             super.onItemRangeChanged(positionStart, itemCount);
             Log.v(TAG, "onItemRangeChanged() start=" + positionStart + " count=" + itemCount);
-            notifyContentItemRangeChanged(positionStart, itemCount);
+            notifyItemRangeChanged(positionStart, itemCount);
         }
 
         @Override
         public void onChanged() {
             super.onChanged();
-            final int headerCount = getHeaderItemCount();
-            final int contentCount = getContentItemCount();
-            Log.v(TAG, "onChanged() headerCount=" + headerCount + " contentCount=" + contentCount);
             notifyDataSetChanged();
         }
     };
 
-    public EndlessRecyclerAdapter(final RecyclerView.Adapter adapter, final ViewState state) {
+    public EndlessRecyclerAdapter(final RecyclerView.Adapter<?> adapter, final ViewState state) {
         mWrapped = adapter;
         mWrapped.registerAdapterDataObserver(mAdapterDataObserver);
         mViewState = state;
@@ -75,21 +73,6 @@ class EndlessRecyclerAdapter
 
     public void updateState() {
         notifyDataSetChanged();
-    }
-
-    @Override
-    protected int getContentItemViewType(final int position) {
-        return mWrapped.getItemViewType(position);
-    }
-
-    @Override
-    protected int getFooterItemViewType(final int position) {
-        return super.getFooterItemViewType(position);
-    }
-
-    @Override
-    public long getItemId(final int position) {
-        return mWrapped.getItemId(position);
     }
 
     @Override
@@ -105,56 +88,67 @@ class EndlessRecyclerAdapter
         mWrapped.unregisterAdapterDataObserver(mAdapterDataObserver);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onViewAttachedToWindow(final ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        mWrapped.onViewAttachedToWindow(holder);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onViewDetachedFromWindow(final ViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        mWrapped.onViewDetachedFromWindow(holder);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onViewRecycled(final ViewHolder holder) {
-        mWrapped.onViewRecycled(holder);
-    }
-
     @Override
     public void setHasStableIds(final boolean hasStableIds) {
         mWrapped.setHasStableIds(hasStableIds);
     }
 
     @Override
-    protected int getFooterItemCount() {
+    public long getItemId(final int position) {
+        if (getItemViewType(position) == VIEW_TYPE_FOOTER) {
+            return position;
+        } else {
+            return mWrapped.getItemId(position);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mWrapped.getItemCount() + getFooterCount();
+    }
+
+    @Override
+    public int getItemViewType(final int position) {
+        if (position == mWrapped.getItemCount()) {
+            return VIEW_TYPE_FOOTER;
+        }
+        return mWrapped.getItemViewType(position);
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(final ViewGroup parent,
+                                         final int viewType) {
+        if (viewType == VIEW_TYPE_FOOTER) {
+            return createFooterViewHolder(parent, viewType);
+        } else {
+            return mWrapped.onCreateViewHolder(parent, viewType);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        final int type = getItemViewType(position);
+        if (type == VIEW_TYPE_FOOTER) {
+            bindFooterViewHolder(holder, position);
+        } else {
+            mWrapped.onBindViewHolder(holder, position);
+        }
+    }
+
+
+    private int getFooterCount() {
         return (mViewState.getState() == EndlessRecyclerView.STATE_HIDE) ? 0 : 1;
     }
 
-    @Override
-    protected int getContentItemCount() {
-        return mWrapped.getItemCount();
-    }
-
-    @Override
-    protected ViewHolder onCreateContentItemViewHolder(final ViewGroup parent, final int viewType) {
-        return mWrapped.onCreateViewHolder(parent, viewType);
-    }
-
-    @Override
-    protected ViewHolder onCreateFooterItemViewHolder(final ViewGroup parent, final int viewType) {
+    private ViewHolder createFooterViewHolder(final ViewGroup parent, final int viewType) {
         final Context context = parent.getContext();
         final LayoutInflater inflater = LayoutInflater.from(context);
         final View view = inflater.inflate(R.layout.recycler_footer, parent, false);
         return new SimpleViewHolder(view);
     }
 
-    @Override
-    protected void onBindFooterItemViewHolder(final ViewHolder holder, final int position) {
+    private void bindFooterViewHolder(final ViewHolder holder, final int position) {
         final SimpleProgressView view = (SimpleProgressView) holder.itemView;
         switch (mViewState.getState()) {
             case EndlessRecyclerView.STATE_PROGRESS:
@@ -170,13 +164,6 @@ class EndlessRecyclerAdapter
                 break;
         }
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void onBindContentItemViewHolder(final ViewHolder holder, final int position) {
-        mWrapped.onBindViewHolder(holder, position);
-    }
-
 
     static class SimpleViewHolder extends RecyclerView.ViewHolder {
         public SimpleViewHolder(final View itemView) {

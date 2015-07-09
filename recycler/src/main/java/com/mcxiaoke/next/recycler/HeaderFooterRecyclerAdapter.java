@@ -7,12 +7,12 @@ import android.view.ViewGroup;
 
 public abstract class HeaderFooterRecyclerAdapter
         extends RecyclerView.Adapter {
-    private static final String TAG = "HeaderRecyclerAdapter";
+    private static final String TAG = HeaderFooterRecyclerAdapter.class.getSimpleName();
 
-    private static final int VIEW_TYPE_MAX_COUNT = 1000;
-    private static final int HEADER_VIEW_TYPE_OFFSET = 0;
-    private static final int FOOTER_VIEW_TYPE_OFFSET = HEADER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
-    private static final int CONTENT_VIEW_TYPE_OFFSET = FOOTER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
+    protected static final int VIEW_TYPE_MAX_COUNT = 1000;
+    protected static final int HEADER_VIEW_TYPE_OFFSET = 0;
+    protected static final int FOOTER_VIEW_TYPE_OFFSET = HEADER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
+    protected static final int CONTENT_VIEW_TYPE_OFFSET = FOOTER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
 
     private int headerItemCount;
     private int contentItemCount;
@@ -23,7 +23,10 @@ public abstract class HeaderFooterRecyclerAdapter
      */
     @Override
     public final ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
+        Log.v(TAG, "onCreateViewHolder() viewType=" + viewType
+                + " headerItemCount=" + headerItemCount
+                + " contentItemCount=" + contentItemCount
+                + " footerItemCount=" + footerItemCount);
         // Delegate to proper methods based on the viewType ranges.
         if (viewType >= HEADER_VIEW_TYPE_OFFSET && viewType < HEADER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT) {
             return onCreateHeaderItemViewHolder(parent, viewType - HEADER_VIEW_TYPE_OFFSET);
@@ -42,6 +45,10 @@ public abstract class HeaderFooterRecyclerAdapter
      */
     @Override
     public final void onBindViewHolder(ViewHolder holder, int position) {
+        Log.v(TAG, "onBindViewHolder() position=" + position
+                + " headerItemCount=" + headerItemCount
+                + " contentItemCount=" + contentItemCount
+                + " footerItemCount=" + footerItemCount);
         // Delegate to proper methods based on the viewType ranges.
         if (headerItemCount > 0 && position < headerItemCount) {
             onBindHeaderItemViewHolder(holder, position);
@@ -49,11 +56,6 @@ public abstract class HeaderFooterRecyclerAdapter
             onBindContentItemViewHolder(holder, position - headerItemCount);
         } else if (footerItemCount > 0 && position - headerItemCount - contentItemCount >= 0) {
             onBindFooterItemViewHolder(holder, position - headerItemCount - contentItemCount);
-        } else {
-            Log.v(TAG, "onBindViewHolder() position " + position + " out of range, "
-                    + "headerItemCount=" + headerItemCount
-                    + " contentItemCount=" + contentItemCount
-                    + " footerItemCount=" + footerItemCount);
         }
     }
 
@@ -66,6 +68,10 @@ public abstract class HeaderFooterRecyclerAdapter
         headerItemCount = getHeaderItemCount();
         contentItemCount = getContentItemCount();
         footerItemCount = getFooterItemCount();
+        Log.v(TAG, "getItemCount()"
+                + " headerItemCount=" + headerItemCount
+                + " contentItemCount=" + contentItemCount
+                + " footerItemCount=" + footerItemCount);
         return headerItemCount + contentItemCount + footerItemCount;
     }
 
@@ -74,6 +80,10 @@ public abstract class HeaderFooterRecyclerAdapter
      */
     @Override
     public final int getItemViewType(int position) {
+        Log.v(TAG, "getItemCount() position=" + position
+                + " headerItemCount=" + headerItemCount
+                + " contentItemCount=" + contentItemCount
+                + " footerItemCount=" + footerItemCount);
         // Delegate to proper methods based on the position, but validate first.
         if (headerItemCount > 0 && position < headerItemCount) {
             return validateViewType(getHeaderItemViewType(position)) + HEADER_VIEW_TYPE_OFFSET;

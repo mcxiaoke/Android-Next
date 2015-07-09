@@ -133,13 +133,13 @@ public class EndlessRecyclerView extends RecyclerView {
         @Override
         public void onScrollStateChanged(final RecyclerView recyclerView, final int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            LogUtils.v(TAG, "onScrolled() state=" + mViewState);
             if (mViewState.mode != MODE_AUTO) {
                 return;
             }
             if (mLoading) {
                 return;
             }
+//            LogUtils.v(TAG, "onScrollStateChanged() state=" + mViewState);
             final RecyclerViewHelper recyclerViewHelper = new RecyclerViewHelper(recyclerView);
             final int threshold = mViewState.getThreshold();
             int visibleItemCount = recyclerView.getChildCount();
@@ -148,8 +148,7 @@ public class EndlessRecyclerView extends RecyclerView {
             if ((totalItemCount - visibleItemCount)
                     <= (firstVisibleItem + threshold)) {
                 mViewState.incIndex();
-
-                LogUtils.v(TAG, "onScrolled() onLoadMore() pageIndex =" + mViewState.getIndex());
+                LogUtils.v(TAG, "onScrollStateChanged() onLoadMore() " + mViewState);
                 setLoadingState(true);
                 if (mLoadMoreListener != null) {
                     mLoadMoreListener.onLoadMore(mRecyclerView);
@@ -219,6 +218,11 @@ public class EndlessRecyclerView extends RecyclerView {
         } else {
             showEmpty();
         }
+    }
+
+    // 当前状态只读快照
+    public ViewState getViewState() {
+        return new ViewState(mViewState);
     }
 
     public EndlessRecyclerView enable(boolean enable) {

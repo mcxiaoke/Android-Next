@@ -454,11 +454,11 @@ public abstract class RecyclerArrayAdapter<T, VH extends RecyclerView.ViewHolder
     }
 
     public T getLast() {
-        return isEmpty() ? null : getItem(getCount() - 1);
+        return mObjects.size() == 0 ? null : getItem(getCount() - 1);
     }
 
     public T getFirst() {
-        return isEmpty() ? null : getItem(0);
+        return mObjects.size() == 0 ? null : getItem(0);
     }
 
     public T getItem(int position) {
