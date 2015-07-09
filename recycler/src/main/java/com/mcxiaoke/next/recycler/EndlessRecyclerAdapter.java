@@ -88,6 +88,27 @@ class EndlessRecyclerAdapter
         mWrapped.unregisterAdapterDataObserver(mAdapterDataObserver);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onViewAttachedToWindow(final ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        mWrapped.onViewAttachedToWindow(holder);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onViewDetachedFromWindow(final ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        mWrapped.onViewDetachedFromWindow(holder);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onViewRecycled(final ViewHolder holder) {
+        super.onViewRecycled(holder);
+        mWrapped.onViewRecycled(holder);
+    }
+
     @Override
     public void setHasStableIds(final boolean hasStableIds) {
         mWrapped.setHasStableIds(hasStableIds);
