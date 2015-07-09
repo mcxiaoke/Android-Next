@@ -8,7 +8,7 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.07.08-com.mcxiaoke.next:1.1.9-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.07.09-com.mcxiaoke.next:1.1.10-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ------
 
@@ -51,6 +51,8 @@ Android-Next 公共组件库
 
 ### 更新记录
 
+- **1.1.10** 2015.07.09
+    * recycler: 重写EndlessRecyclerAdapter，修复与HeaderFooterRecyclerAdapter的兼容问题
 - **1.1.9** 2015.07.08
     * extras: 更新extras里的AdvancedShareActionProvider，与ui同步
     
