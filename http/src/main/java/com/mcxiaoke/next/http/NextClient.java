@@ -3,7 +3,6 @@ package com.mcxiaoke.next.http;
 import android.util.Log;
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -33,7 +32,7 @@ public final class NextClient {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
     private final OkHttpClient mClient;
-    private Interceptor mInterceptor;
+    private OkClientInterceptor mInterceptor;
     private Map<String, String> mParams;
     private Map<String, String> mHeaders;
 
@@ -110,7 +109,7 @@ public final class NextClient {
         return mHeaders.size();
     }
 
-    public NextClient setInterceptor(final Interceptor interceptor) {
+    public NextClient setInterceptor(final OkClientInterceptor interceptor) {
         mInterceptor = interceptor;
         return this;
     }
@@ -404,7 +403,7 @@ public final class NextClient {
             client.interceptors().add(new ProgressInterceptor(nr.listener()));
         }
         if (mInterceptor != null) {
-            client.interceptors().add(mInterceptor);
+            mInterceptor.intercept(client);
         }
         return client.newCall(request).execute();
 
