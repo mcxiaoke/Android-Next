@@ -1,6 +1,7 @@
 include ':core'
 include ':task'
 include ':http'
+include ':bus'
 include ':ui'
 include ':recycler'
 include ':extras-abc'
