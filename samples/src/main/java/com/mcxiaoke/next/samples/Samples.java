@@ -15,6 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.mcxiaoke.next.samples.bus.BasicBusSample;
+import com.mcxiaoke.next.samples.bus.BasicBusSample2;
 import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
@@ -59,6 +61,8 @@ public class Samples extends BaseActivity {
 
     private void initSamples() {
         mSampleListData = new ArrayList<SampleInfo>();
+        mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
+        mSampleListData.add(new SampleInfo(BasicBusSample2.TAG, BasicBusSample2.class));
         mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
@@ -67,6 +71,8 @@ public class Samples extends BaseActivity {
         mSampleListData.add(new SampleInfo(TaskQueueSamples.TAG, TaskQueueSamples.class));
         mSampleListData.add(new SampleInfo(NextClientSamples.TAG, NextClientSamples.class));
 
+        mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
+        mSampleListData.add(new SampleInfo(BasicBusSample2.TAG, BasicBusSample2.class));
         mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
         mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
