@@ -5,7 +5,7 @@
     <title>Android-next by mcxiaoke</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
@@ -33,9 +33,101 @@
 <h3>
 <a id="最新版本" class="anchor" href="#%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC" aria-hidden="true"><span class="octicon octicon-link"></span></a>最新版本</h3>
 
-<p><a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2015.07.02-com.mcxiaoke.next:1.1.5-brightgreen.svg" alt="Maven Central"></a></p>
+<p><a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.12-brightgreen.svg" alt="Maven Central"></a></p>
+
+<hr>
+
+<h3>
+<a id="gradle集成" class="anchor" href="#gradle%E9%9B%86%E6%88%90" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gradle集成</h3>
+
+<div class="highlight highlight-groovy"><pre>    <span class="pl-c">// core 核心库, 格式:jar和aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:core:1.1.+<span class="pl-pds">'</span></span>
+    <span class="pl-c">// v1.1.0 新增</span>
+    <span class="pl-c">// task 异步任务库，格式:jar和aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:task:1.1.+<span class="pl-pds">'</span></span>
+    <span class="pl-c">// http HTTP组件, 格式:jar和aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:http:1.1.+<span class="pl-pds">'</span></span>
+    <span class="pl-c">// ui UI组件, 格式:aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ui:1.1.+<span class="pl-pds">'</span></span>
+    <span class="pl-c">// v1.0.9 新增</span>
+    <span class="pl-c">// recycler EndlessRecyclerView, 格式:aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:recycler:1.1.+<span class="pl-pds">'</span></span>
+    <span class="pl-c">// extra-abc 依赖support-v7 AppCompat 格式:aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:extras-abc:1.1.+<span class="pl-pds">'</span></span>
+</pre></div>
+
+<hr>
+
+<h3>
+<a id="使用说明" class="anchor" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" aria-hidden="true"><span class="octicon octicon-link"></span></a>使用说明</h3>
+
+<p><strong>使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。</strong></p>
 
 <ul>
+<li><a href="docs/core.md">常用工具类 Utils/Misc</a></li>
+<li><a href="docs/task.md">异步任务 TaskQueue/TaskBuilder</a></li>
+<li><a href="docs/share.md">高级分享 AdvancedShareActionProvider</a></li>
+<li><a href="docs/http.md">HTTP组件 NextClient/NextRequest</a></li>
+<li><a href="docs/cache.md">缓存组件 MemoryCache/DisCache</a></li>
+<li><a href="docs/recycler.md">无限加载 EndlessRecyclerView</a></li>
+<li><a href="docs/ui.md">常用UI控件 Views/Widgets</a></li>
+</ul>
+
+<hr>
+
+<h3>
+<a id="更新记录" class="anchor" href="#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95" aria-hidden="true"><span class="octicon octicon-link"></span></a>更新记录</h3>
+
+<ul>
+<li>
+<strong>1.1.12</strong> 2015.08.04
+
+<ul>
+<li>http: 微调NextRequest，默认Multipart类型改为"multipart/form-data"</li>
+</ul>
+</li>
+<li>
+<strong>1.1.11</strong> 2015.07.13
+
+<ul>
+<li>http: 添加OkClientInterceptor，支持对内部的OkClient进行定制</li>
+</ul>
+</li>
+<li>
+<strong>1.1.10</strong> 2015.07.09
+
+<ul>
+<li>recycler: 重写EndlessRecyclerAdapter，修复与HeaderFooterRecyclerAdapter的兼容问题</li>
+</ul>
+</li>
+<li>
+<strong>1.1.9</strong> 2015.07.08
+
+<ul>
+<li>extras: 更新extras里的AdvancedShareActionProvider，与ui同步</li>
+</ul>
+</li>
+<li>
+<strong>1.1.8</strong> 2015.07.07
+
+<ul>
+<li>http: 紧急修复部分情况下URL参数没有添加的问题，添加对应的测试</li>
+</ul>
+</li>
+<li>
+<strong>1.1.7</strong> 2015.07.07
+
+<ul>
+<li>http: 修复一些细节问题，添加几个类的单元测试</li>
+</ul>
+</li>
+<li>
+<strong>1.1.6</strong> 2015.07.03
+
+<ul>
+<li>http: 完善NextClient和NextRequest，增加实用方法，减少重复代码</li>
+</ul>
+</li>
 <li>
 <strong>1.1.5</strong> 2015.07.02
 
@@ -136,47 +228,6 @@
 <hr>
 
 <h3>
-<a id="gradle集成" class="anchor" href="#gradle%E9%9B%86%E6%88%90" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gradle集成</h3>
-
-<div class="highlight highlight-groovy"><pre>    <span class="pl-c">// core 核心库, 格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:core:1.1.+<span class="pl-pds">'</span></span>
-    <span class="pl-c">// v1.1.0 新增</span>
-    <span class="pl-c">// task 异步任务库，格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:task:1.1.+<span class="pl-pds">'</span></span>
-    <span class="pl-c">// http HTTP组件, 格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:http:1.1.+<span class="pl-pds">'</span></span>
-    <span class="pl-c">// ui UI组件, 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ui:1.1.+<span class="pl-pds">'</span></span>
-    <span class="pl-c">// v1.0.9 新增</span>
-    <span class="pl-c">// recycler EndlessRecyclerView, 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:recycler:1.1.+<span class="pl-pds">'</span></span>
-    <span class="pl-c">// extra-abc 依赖support-v7 AppCompat 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:extras-abc:1.1.+<span class="pl-pds">'</span></span>
-</pre></div>
-
-<hr>
-
-<h3>
-<a id="使用说明" class="anchor" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" aria-hidden="true"><span class="octicon octicon-link"></span></a>使用说明</h3>
-
-<h4>
-<a id="提示" class="anchor" href="#%E6%8F%90%E7%A4%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>提示</h4>
-
-<p><strong>使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。</strong></p>
-
-<ul>
-<li><a href="docs/core.md">常用工具类 Utils/Misc</a></li>
-<li><a href="docs/task.md">异步任务 TaskQueue/TaskBuilder</a></li>
-<li><a href="docs/share.md">高级分享 AdvancedShareActionProvider</a></li>
-<li><a href="docs/http.md">HTTP组件 NextClient/NextRequest</a></li>
-<li><a href="docs/cache.md">缓存组件 MemoryCache/DisCache</a></li>
-<li><a href="docs/recycler.md">无限加载 EndlessRecyclerView</a></li>
-<li><a href="docs/ui.md">常用UI控件 Views/Widgets</a></li>
-</ul>
-
-<hr>
-
-<h3>
 <a id="其它问题" class="anchor" href="#%E5%85%B6%E5%AE%83%E9%97%AE%E9%A2%98" aria-hidden="true"><span class="octicon octicon-link"></span></a>其它问题</h3>
 
 <p>发现任何问题可以提issue</p>
@@ -212,4 +263,3 @@ limitations under the License.
   
   </body>
 </html>
-
