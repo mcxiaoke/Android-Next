@@ -31,13 +31,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class NextRequest {
-    private final HttpMethod method;
-    private final HttpUrl httpUrl;
-    private NextParams params;
-    private byte[] body;
-    private ProgressListener listener;
-    private boolean debug;
+public class NextRequest {
+    protected final HttpMethod method;
+    protected final HttpUrl httpUrl;
+    protected NextParams params;
+    protected byte[] body;
+    protected ProgressListener listener;
+    protected boolean debug;
 
     public static NextRequest head(final String url) {
         return new NextRequest(HttpMethod.HEAD, url);
@@ -128,7 +128,7 @@ public final class NextRequest {
         return this;
     }
 
-    private void throwIfNotSupportBody() {
+    protected void throwIfNotSupportBody() {
         if (!supportBody()) {
             throw new IllegalStateException("HTTP " + method.name() + " not support http body");
         }
@@ -245,105 +245,105 @@ public final class NextRequest {
         return listener;
     }
 
-    boolean supportBody() {
+    protected boolean supportBody() {
         return HttpMethod.supportBody(method);
     }
 
-    NextRequest part(final BodyPart part) {
+    protected NextRequest part(final BodyPart part) {
         this.params.parts.add(part);
         return this;
     }
 
-    NextRequest removeHeader(String key) {
+    protected NextRequest removeHeader(String key) {
         this.params.headers.remove(key);
         return this;
     }
 
-    NextRequest removeQuery(String key) {
+    protected NextRequest removeQuery(String key) {
         this.params.queries.remove(key);
         return this;
     }
 
-    NextRequest removeForm(String key) {
+    protected NextRequest removeForm(String key) {
         this.params.forms.remove(key);
         return this;
     }
 
-    NextRequest removePart(BodyPart part) {
+    protected NextRequest removePart(BodyPart part) {
         this.params.parts.remove(part);
         return this;
     }
 
-    String getHeader(String key) {
+    protected String getHeader(String key) {
         return this.params.getHeader(key);
     }
 
-    String getQuery(String key) {
+    protected String getQuery(String key) {
         return this.params.getQuery(key);
     }
 
-    String getForm(String key) {
+    protected String getForm(String key) {
         return this.params.getForm(key);
     }
 
-    BodyPart getPart(String key) {
+    protected BodyPart getPart(String key) {
         return this.params.getPart(key);
     }
 
-    boolean hasHeader(String key) {
+    protected boolean hasHeader(String key) {
         return getHeader(key) != null;
     }
 
-    boolean hasQuery(String key) {
+    protected boolean hasQuery(String key) {
         return getQuery(key) != null;
     }
 
-    boolean hasForm(String key) {
+    protected boolean hasForm(String key) {
         return getForm(key) != null;
     }
 
-    boolean hasPart(String key) {
+    protected boolean hasPart(String key) {
         return getPart(key) != null;
     }
 
 
-    int queriesSize() {
+    protected int queriesSize() {
         return queries().size();
     }
 
-    int formsSize() {
+    protected int formsSize() {
         return form().size();
     }
 
-    int headersSize() {
+    protected int headersSize() {
         return headers().size();
     }
 
-    int partsSize() {
+    protected int partsSize() {
         return parts().size();
     }
 
-    Map<String, String> headers() {
+    protected Map<String, String> headers() {
         return this.params.headers;
     }
 
-    Map<String, String> queries() {
+    protected Map<String, String> queries() {
         return this.params.queries;
     }
 
-    Map<String, String> form() {
+    protected Map<String, String> form() {
         return this.params.forms;
     }
 
-    List<BodyPart> parts() {
+    protected List<BodyPart> parts() {
         return this.params.parts;
     }
 
-    boolean hasParts() {
+    protected boolean hasParts() {
         return this.params.parts.size() > 0;
     }
 
-    boolean hasForms() {
+    protected boolean hasForms() {
         return this.params.forms.size() > 0;
     }
 
@@ -356,14 +356,14 @@ public final class NextRequest {
         return builder.build();
     }
 
-    void copy(final NextRequest source) {
+    protected void copy(final NextRequest source) {
         this.params = source.params;
         this.body = source.body;
         this.listener = source.listener;
         this.debug = source.debug;
     }
 
-    RequestBody getRequestBody() throws IOException {
+    protected RequestBody getRequestBody() throws IOException {
         if (!supportBody()) {
             return null;
         }
@@ -383,7 +383,7 @@ public final class NextRequest {
                 final String value = entry.getValue();
                 multipart.addFormDataPart(key, value == null ? "" : value);
             }
-            requestBody = multipart.build();
+            requestBody = multipart.type(MultipartBuilder.FORM).build();
         } else if (hasForms()) {
             final FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
             for (Map.Entry<String, String> entry : form().entrySet()) {
