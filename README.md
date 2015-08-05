@@ -8,7 +8,7 @@ Android-Next 公共组件库
 
 ### 最新版本
 
-[![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.12-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+[![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.13-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ------
 
@@ -49,6 +49,8 @@ Android-Next 公共组件库
 
 ### 更新记录
 
+- **1.1.13** 2015.08.05
+    * task: 增加Async类，添加最简单的异步执行方法 Async.run(task)
 - **1.1.12** 2015.08.04
     * http: 微调NextRequest，默认Multipart类型改为"multipart/form-data"
 - **1.1.11** 2015.07.13
@@ -106,8 +108,27 @@ Android-Next 公共组件库
 发现任何问题可以提issue
 
 ------
+## 关于作者
 
-### License
+#### 联系方式
+* Blog: <http://blog.mcxiaoke.com>
+* Github: <https://github.com/mcxiaoke>
+* Email: [mail@mcxiaoke.com](mailto:mail@mcxiaoke.com)
+
+#### 开源项目
+
+* Next公共组件库: <https://github.com/mcxiaoke/Android-Next>
+* Gradle渠道打包: <https://github.com/mcxiaoke/gradle-packer-plugin>
+* EventBus实现xBus: <https://github.com/mcxiaoke/xBus>
+* Rx文档中文翻译: <https://github.com/mcxiaoke/RxDocs>
+* MQTT协议中文版: <https://github.com/mcxiaoke/mqtt>
+* 蘑菇饭App: <https://github.com/mcxiaoke/minicat>
+* 饭否客户端: <https://github.com/mcxiaoke/fanfouapp-opensource>
+* Volley镜像: <https://github.com/mcxiaoke/android-volley>
+
+------
+
+## License
 
     Copyright 2013 - 2015 Xiaoke Zhang
 
