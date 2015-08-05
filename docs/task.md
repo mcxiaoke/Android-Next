@@ -280,4 +280,38 @@ public interface TaskCallback<Result> {
 
 ```
 
+#### Async 异步执行工具类
+
+```java
+// 一行代码即可，最简单的异步执行方法
+        Async.run(new Runnable() {
+            @Override
+            public void run() {
+                // do your work here
+            }
+        });
+        Async.run(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                // do your work here
+                return "Your Result";
+            }
+        });
+        Async.run(new Runnable() {
+            @Override
+            public void run() {
+                // job1, do your work here
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                // job2, do your work here
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                // job3, do your work here
+            }
+        });
+```
 
