@@ -14,6 +14,10 @@ android {
         abortOnError false
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
 }
 
 apply from: 'https://github.com/mcxiaoke/gradle-mvn-push/raw/master/gradle-mvn-push.gradle'
