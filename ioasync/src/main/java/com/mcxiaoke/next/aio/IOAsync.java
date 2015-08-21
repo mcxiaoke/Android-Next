@@ -488,6 +488,12 @@ public class IOAsync {
         mQueue.cancelAll(caller);
     }
 
+    public void cancel(String name) {
+        if (name != null) {
+            mQueue.cancel(name);
+        }
+    }
+
     public void close() {
         mQueue.cancelAll();
         mRequests.clear();
@@ -495,6 +501,7 @@ public class IOAsync {
 
     private void cancelByHashCode(final int hashCode) {
         final String name = mRequests.remove(hashCode);
+        cancel(name);
     }
 
     private <T> String enqueue(final NextRequest request,
