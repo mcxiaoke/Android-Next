@@ -1,11 +1,17 @@
 package com.mcxiaoke.next.http;
 
 import android.test.suitebuilder.annotation.SmallTest;
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.HttpUrl;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -17,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public class NextClientTest extends BaseTest {
     private static final String TEST_URL = "https://api.douban.com/v2/user/1000001";
+    private static final String TEST_URL2 = "https://api.douban.com/v2/lifestream/user_timeline/1000001";
 
     @Test
     public void createClient() {
@@ -306,5 +313,125 @@ public class NextClientTest extends BaseTest {
         client.setAuthorization("client-auth");
         client.setReferer("www.douban.com");
         client.get(TEST_URL, queries, headers);
+    }
+
+    @Test
+    public void testStringConverter() throws IOException {
+        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> queries = new HashMap<String, String>();
+        final NextRequest request = new NextRequest(HttpMethod.GET, TEST_URL);
+        request.queries(queries).headers(headers);
+
+        final NextClient client = new NextClient();
+        client.setUserAgent("client-ua");
+        client.setAuthorization("client-auth");
+        client.setReferer("www.douban.com");
+        StringConverter converter = new StringConverter();
+        final String content = client.execute(request, converter);
+        notNull(content);
+        isTrue(content.contains("1000001"));
+    }
+
+    static class User {
+        public String id;
+        public String name;
+        @SerializedName("created")
+        public String createdAt;
+        public String avatar;
+        @SerializedName("large_avatar")
+        public String largeAvatar;
+        public String type;
+        public String desc;
+        @SerializedName("is_banned")
+        public boolean isBanned;
+
+    }
+
+    static class Status {
+        public String id;
+        public String type;
+        public String title;
+        @Expose
+        public String text;
+        @Expose
+        @SerializedName("created_at")
+        public String createdAt;
+        @Expose
+        @SerializedName("can_reply")
+        public int canReply;
+        @Expose
+        @SerializedName("liked")
+        public boolean isLiked;
+        @Expose
+        @SerializedName("like_count")
+        public int likeCount;
+        @Expose
+        @SerializedName("comments_count")
+        public int commentsCount;
+
+        @Override
+        public String toString() {
+            return "Status{" +
+                    "id='" + id + '\'' +
+                    '}';
+        }
+    }
+
+    static class GsonConverter<T> implements ResponseConverter<T> {
+        private Gson gson;
+        private Type type;
+
+        public GsonConverter(final Gson gson, final Type type) {
+            this.gson = gson;
+            this.type = type;
+        }
+
+        @Override
+        public T convert(final NextResponse response) throws IOException {
+            return gson.fromJson(response.string(), type);
+        }
+    }
+
+    @Test
+    public void testGsonConverter1() throws IOException {
+        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> queries = new HashMap<String, String>();
+        final NextRequest request = new NextRequest(HttpMethod.GET, TEST_URL);
+        request.queries(queries).headers(headers);
+
+        final NextClient client = new NextClient();
+        client.setUserAgent("client-ua");
+        client.setAuthorization("client-auth");
+        client.setReferer("www.douban.com");
+        GsonConverter<User> converter = new GsonConverter<User>(new Gson(), User.class);
+        final User user = client.execute(request, converter);
+        notNull(user);
+        notNull(user.id);
+        notNull(user.name);
+        isEquals("1000001", user.id);
+    }
+
+    @Test
+    public void testGsonConverter2() throws IOException {
+        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> queries = new HashMap<String, String>();
+        final NextRequest request = new NextRequest(HttpMethod.GET, TEST_URL2);
+        request.queries(queries).headers(headers);
+
+        final NextClient client = new NextClient();
+        client.setUserAgent("client-ua");
+        client.setAuthorization("client-auth");
+        client.setReferer("www.douban.com");
+        Type type = new TypeToken<List<Status>>() {
+        }.getType();
+        Gson gson = new Gson();
+        GsonConverter<List<Status>> converter = new GsonConverter<List<Status>>(gson, type);
+        List<Status> timeline = client.execute(request, converter);
+        System.err.println("timeline:" + timeline);
+        notNull(timeline);
+        notNull(timeline.get(1));
+        notNull(timeline.get(1).id);
+        notNull(timeline.get(1).createdAt);
+        notNull(timeline.get(1).text);
     }
 }

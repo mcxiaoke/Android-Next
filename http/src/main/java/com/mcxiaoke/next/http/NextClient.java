@@ -333,7 +333,18 @@ public final class NextClient {
                                 final Map<String, String> forms,
                                 final Map<String, String> headers)
             throws IOException {
-        return executeInternal(createRequest(method, url, queries, forms, headers));
+        return executeInternal(createRequest(method, url,
+                queries, forms, headers));
+    }
+
+    public <T> T request(final HttpMethod method, final String url,
+                         final Map<String, String> queries,
+                         final Map<String, String> forms,
+                         final Map<String, String> headers,
+                         final ResponseConverter<T> converter)
+            throws IOException {
+        return executeInternal(createRequest(method, url,
+                queries, forms, headers), converter);
     }
 
     public NextResponse request(final HttpMethod method, final String url,
@@ -383,9 +394,21 @@ public final class NextClient {
         return executeInternal(request);
     }
 
+    public <T> T execute(final NextRequest req, final ResponseConverter<T> converter)
+            throws IOException {
+        return executeInternal(req, converter);
+    }
+
     protected NextResponse executeInternal(final NextRequest request)
             throws IOException {
         return new NextResponse(sendRequest(request));
+    }
+
+    protected <T> T executeInternal(final NextRequest request,
+                                    final ResponseConverter<T> converter)
+            throws IOException {
+        final NextResponse response = new NextResponse(sendRequest(request));
+        return converter.convert(response);
     }
 
     protected Response sendRequest(final NextRequest nr)
