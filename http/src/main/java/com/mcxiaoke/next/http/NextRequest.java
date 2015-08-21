@@ -135,82 +135,108 @@ public class NextRequest {
     }
 
     public NextRequest form(String key, String value) {
-        throwIfNotSupportBody();
-        this.params.form(key, value);
+//        throwIfNotSupportBody();
+        if(supportBody()) {
+            this.params.form(key, value);
+        }
         return this;
     }
 
     public NextRequest forms(Map<String, String> forms) {
-        throwIfNotSupportBody();
-        this.params.forms(forms);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.forms(forms);
+        }
         return this;
     }
 
     public NextRequest parts(Collection<BodyPart> parts) {
-        throwIfNotSupportBody();
-        for (final BodyPart part : parts) {
-            part(part);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            for (final BodyPart part : parts) {
+                part(part);
+            }
         }
         return this;
     }
 
     public NextRequest file(String key, File file) {
-        throwIfNotSupportBody();
-        this.params.file(key, file);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.file(key, file);
+        }
         return this;
     }
 
     public NextRequest file(String key, File file, String contentType) {
-        throwIfNotSupportBody();
-        this.params.file(key, file, contentType);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.file(key, file, contentType);
+        }
         return this;
     }
 
     public NextRequest file(String key, File file, String contentType, String fileName) {
-        throwIfNotSupportBody();
-        this.params.file(key, file, contentType, fileName);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.file(key, file, contentType, fileName);
+        }
         return this;
     }
 
     public NextRequest file(String key, byte[] bytes) {
-        throwIfNotSupportBody();
-        this.params.file(key, bytes);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.file(key, bytes);
+        }
         return this;
     }
 
     public NextRequest file(String key, byte[] bytes, String contentType) {
-        throwIfNotSupportBody();
-        this.params.file(key, bytes, contentType);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.params.file(key, bytes, contentType);
+        }
         return this;
     }
 
     public NextRequest body(final byte[] body) {
-        throwIfNotSupportBody();
-        this.body = body;
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.body = body;
+        }
         return this;
     }
 
     public NextRequest body(final String content, final Charset charset) {
-        throwIfNotSupportBody();
-        this.body = content.getBytes(charset);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.body = content.getBytes(charset);
+        }
         return this;
     }
 
     public NextRequest body(final File file) throws IOException {
-        throwIfNotSupportBody();
-        this.body = IOUtils.readBytes(file);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.body = IOUtils.readBytes(file);
+        }
         return this;
     }
 
     public NextRequest body(final Reader reader) throws IOException {
-        throwIfNotSupportBody();
-        this.body = IOUtils.readBytes(reader);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.body = IOUtils.readBytes(reader);
+        }
         return this;
     }
 
     public NextRequest body(final InputStream stream) throws IOException {
-        throwIfNotSupportBody();
-        this.body = IOUtils.readBytes(stream);
+//        throwIfNotSupportBody();
+        if(supportBody()){
+            this.body = IOUtils.readBytes(stream);
+        }
         return this;
     }
 

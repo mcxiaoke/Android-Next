@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.mcxiaoke.next.http.converter.ResponseConverter;
+import com.mcxiaoke.next.http.converter.StringConverter;
 import com.squareup.okhttp.HttpUrl;
 import org.junit.Test;
 

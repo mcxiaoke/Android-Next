@@ -1,4 +1,6 @@
-package com.mcxiaoke.next.http;
+package com.mcxiaoke.next.http.converter;
+
+import com.mcxiaoke.next.http.NextResponse;
 
 import java.io.IOException;
 
