@@ -19,14 +19,55 @@ import java.util.Set;
  * Date: 15/8/20
  * Time: 10:24
  */
-public class Functions {
+public class Fn {
 
     // ==================================================================
     // ==================================================================
     // Common Operators
     // ==================================================================
     // ==================================================================
-    public static <T> Collection<T> concat(Collection<? extends T>... collections) {
+    public static <T> List<T> concat(List<List<T>> lists) {
+        List<T> list = new ArrayList<T>();
+        for (List<? extends T> l : lists) {
+            list.addAll(l);
+        }
+        return list;
+    }
+
+    public static <T> List<T> concat(List<T>... lists) {
+        List<T> list = new ArrayList<T>();
+        for (List<? extends T> l : lists) {
+            list.addAll(l);
+        }
+        return list;
+    }
+
+
+    public static <T> Collection<T> concat(Collection<T>... collections) {
+        List<T> list = new ArrayList<T>();
+        for (Collection<? extends T> c : collections) {
+            list.addAll(c);
+        }
+        return list;
+    }
+
+    public static <T> List<T> flatMap(List<List<T>> lists) {
+        List<T> list = new ArrayList<T>();
+        for (List<? extends T> l : lists) {
+            list.addAll(l);
+        }
+        return list;
+    }
+
+    public static <T> List<T> flatMap(List<T>... lists) {
+        List<T> list = new ArrayList<T>();
+        for (List<? extends T> l : lists) {
+            list.addAll(l);
+        }
+        return list;
+    }
+
+    public static <T> Collection<T> flatMap(Collection<T>... collections) {
         List<T> list = new ArrayList<T>();
         for (Collection<? extends T> c : collections) {
             list.addAll(c);
@@ -38,8 +79,16 @@ public class Functions {
         return Collections.max(collection);
     }
 
+    public static <T extends Object & Comparable<? super T>> T min(Collection<? extends T> collection) {
+        return Collections.min(collection);
+    }
+
     public static <T> T max(Comparator<? super T> cmp, Collection<? extends T> collection) {
         return Collections.max(collection, cmp);
+    }
+
+    public static <T> T min(Comparator<? super T> cmp, Collection<? extends T> collection) {
+        return Collections.min(collection, cmp);
     }
 
     // ==================================================================
@@ -53,15 +102,30 @@ public class Functions {
         return new HashSet<T>(collection);
     }
 
+    public static <T> List<T> distinct(List<? extends T> list) {
+        return new ArrayList<T>(new HashSet<T>(list));
+    }
+
     public static <T> Collection<T> filter(Predicate<? super T> p,
                                            Iterable<? extends T> iterable) {
-        List<T> list = new ArrayList<T>();
+        List<T> result = new ArrayList<T>();
         for (T t : iterable) {
             if (p.accept(t)) {
-                list.add(t);
+                result.add(t);
             }
         }
-        return list;
+        return result;
+    }
+
+    public static <T> List<T> filter(Predicate<? super T> p,
+                                     List<? extends T> list) {
+        List<T> result = new ArrayList<T>();
+        for (T t : list) {
+            if (p.accept(t)) {
+                result.add(t);
+            }
+        }
+        return result;
     }
 
     public static <T> boolean all(Predicate<? super T> p, Iterable<T> iterable) {
