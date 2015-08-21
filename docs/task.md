@@ -284,20 +284,20 @@ public interface TaskCallback<Result> {
 
 ```java
 // 一行代码即可，最简单的异步执行方法
-        Async.run(new Runnable() {
+        Async.start(new Runnable() {
             @Override
             public void run() {
                 // do your work here
             }
         });
-        Async.run(new Callable<String>() {
+        Async.start(new Callable<String>() {
             @Override
             public String call() throws Exception {
                 // do your work here
                 return "Your Result";
             }
         });
-        Async.run(new Runnable() {
+        Async.start(new Runnable() {
             @Override
             public void run() {
                 // job1, do your work here

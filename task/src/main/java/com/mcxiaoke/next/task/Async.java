@@ -19,26 +19,26 @@ public class Async {
 
     private static ExecutorService mExecutor = Executors.newCachedThreadPool();
 
-    public static Future<?> run(final Runnable task) {
+    public static Future<?> start(final Runnable task) {
         return mExecutor.submit(new SafeRunnable(task));
     }
 
-    public static <T> Future<T> run(final Callable<T> task) {
+    public static <T> Future<T> start(final Callable<T> task) {
         return mExecutor.submit(new SafeCallable<T>(task));
     }
 
-    public static List<Future<?>> run(final Runnable... tasks) {
+    public static List<Future<?>> start(final Runnable... tasks) {
         final List<Future<?>> futures = new ArrayList<Future<?>>();
         for (Runnable task : tasks) {
-            futures.add(run(task));
+            futures.add(start(task));
         }
         return futures;
     }
 
-    public static <T> List<Future<T>> run(final Callable<T>... tasks) {
+    public static <T> List<Future<T>> start(final Callable<T>... tasks) {
         final List<Future<T>> futures = new ArrayList<Future<T>>();
         for (Callable<T> task : tasks) {
-            futures.add(run(task));
+            futures.add(start(task));
         }
         return futures;
     }
