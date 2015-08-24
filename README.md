@@ -1,14 +1,24 @@
-Android-Next 公共组件库
-----------
-### Task, Cache, Views, Widgets, Http, Utils
-
-### 项目介绍
+# Android-Next 公共组件库
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-### 最新版本
+最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.13-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
-[![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.13-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+------
+
+### 使用指南
+
+**使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
+
+* [`实用工具类`](docs/core.md) - MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils等
+* [`异步任务队列`](docs/task.md) - TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback等
+* [`高级分享组件`](docs/share.md) - AdvancedShareActionProvider, ShareTarget
+* [`网络请求管理`](docs/http.md) - NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor等
+* [`异步IO组件`](docs/ioasync.md) - IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback等
+* [`函数操作组件`](docs/func.md) - map/flatMap/reduce/concat/filter/all/any等
+* [`磁盘和内存缓存`](docs/cache.md) - DiscCache, MemoryCache
+* [`无限加载列表`](docs/recycler.md) - EndlessRecyclerView, RecyclerArrayAdapter, HeaderFooterRecyclerAdapter
+* [`常用UI控件`](docs/ui.md) - AlertDialogFragment, ProgressDialogFragment, AspectRatioImageView, ArrayAdapterCompat
 
 ------
 
@@ -17,34 +27,22 @@ Android-Next 公共组件库
 ```groovy
     // core 核心库, 格式:jar和aar
     compile 'com.mcxiaoke.next:core:1.1.+'
-    // v1.1.0 新增
     // task 异步任务库，格式:jar和aar
     compile 'com.mcxiaoke.next:task:1.1.+'
     // http HTTP组件, 格式:jar和aar
     compile 'com.mcxiaoke.next:http:1.1.+'
+    // 异步网络和文件IO组件，替代Volley
+    compile 'com.mcxiaoke.next:ioasync:1.1+'
+    // 函数操作组件
+    compile 'com.mcxiaoke.next:func:1.1.+'
     // ui UI组件, 格式:aar
     compile 'com.mcxiaoke.next:ui:1.1.+'
-    // v1.0.9 新增
     // recycler EndlessRecyclerView, 格式:aar
     compile 'com.mcxiaoke.next:recycler:1.1.+'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
     compile 'com.mcxiaoke.next:extras-abc:1.1.+'
     
 ```
-------
-
-### 使用说明
-
-**使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
-
-* [常用工具类 Utils/Misc](docs/core.md)
-* [异步任务 TaskQueue/TaskBuilder](docs/task.md)
-* [高级分享 AdvancedShareActionProvider](docs/share.md)
-* [HTTP组件 NextClient/NextRequest](docs/http.md)
-* [缓存组件 MemoryCache/DisCache](docs/cache.md)
-* [无限加载 EndlessRecyclerView](docs/recycler.md)
-* [常用UI控件 Views/Widgets](docs/ui.md)
-
 ------
 
 ### 更新记录
