@@ -51,6 +51,47 @@ public class Fn {
         return list;
     }
 
+    public static <T> List<T> reverse(List<T> list) {
+        List<T> copy = new ArrayList<T>(list);
+        Collections.reverse(copy);
+        return copy;
+    }
+
+    public static <T> List<T> shuffle(List<T> list) {
+        List<T> copy = new ArrayList<T>(list);
+        Collections.shuffle(copy);
+        return copy;
+    }
+
+    public static <T> List<T> repeat(T t, int times) {
+        return new ArrayList<T>(Collections.nCopies(times, t));
+    }
+
+    public static List<Integer> range(int end) {
+        return range(0, end, 1);
+    }
+
+    public static List<Integer> range(int start, int end) {
+        return range(start, end, 1);
+    }
+
+    public static List<Integer> range(int start, int end, int step) {
+        List<Integer> list = new ArrayList<Integer>();
+
+        if (step > 0) {
+            while (start < end) {
+                list.add(start);
+                start += step;
+            }
+        } else {
+            while (start > end) {
+                list.add(start);
+                start += step;
+            }
+        }
+        return list;
+    }
+
     public static <T extends Object & Comparable<? super T>> T max(Collection<? extends T> collection) {
         return Collections.max(collection);
     }
@@ -225,11 +266,11 @@ public class Fn {
     }
 
     public static <T, R> List<R> flatMap(Func1<? super T, ? extends R> func, List<T>... lists) {
-        List<R> list = new ArrayList<R>();
-        for (List<? extends T> l : lists) {
-            list.addAll(map(func, l));
+        List<R> result = new ArrayList<R>();
+        for (List<? extends T> list : lists) {
+            result.addAll(map(func, list));
         }
-        return list;
+        return result;
     }
 
     public static <T, R> Collection<R> flatMap(Func1<? super T, ? extends R> func, Collection<T>... collections) {

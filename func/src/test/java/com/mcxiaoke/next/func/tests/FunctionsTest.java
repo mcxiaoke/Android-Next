@@ -92,13 +92,20 @@ public class FunctionsTest {
         Collection<Integer> all = new ArrayList<Integer>();
         all.addAll(list);
         all.addAll(list2);
-        List<Integer> result = Fn.flatMap(input);
+        List<Integer> result = Fn.flatMap(new Func1<Integer, Integer>() {
+            @Override
+            public Integer call(final Integer integer) {
+                return integer * 2;
+            }
+        }, input);
+        System.err.println(all);
+        System.err.println(result);
         Assert.assertNotNull(result);
         Assert.assertEquals(all.size(), result.size());
         Iterator<Integer> ia = all.iterator();
         Iterator<Integer> ir = result.iterator();
         while (ia.hasNext()) {
-            Assert.assertEquals(ia.next(), ir.next());
+            Assert.assertEquals(Integer.valueOf(ia.next() * 2), ir.next());
         }
     }
 
@@ -203,5 +210,69 @@ public class FunctionsTest {
         List<Integer> list2 = Arrays.asList(6, 7, 8);
         Assert.assertEquals(Collections.min(list), Fn.min(list));
         Assert.assertEquals(Collections.min(list2), Fn.min(list2));
+    }
+
+    @Test
+    public void testRepeat1() {
+        List<Integer> list = Fn.repeat(2015, 10);
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(10, list.size());
+        Assert.assertEquals(Integer.valueOf(2015), list.get(0));
+        Assert.assertEquals(Integer.valueOf(2015), list.get(9));
+    }
+
+    @Test
+    public void testRepeat2() {
+        List<String> list = Fn.repeat("Hello", 10);
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(10, list.size());
+        Assert.assertEquals("Hello", list.get(0));
+        Assert.assertEquals("Hello", list.get(9));
+    }
+
+    @Test
+    public void testRange1() {
+        List<Integer> list = Fn.range(10);
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(10, list.size());
+        Assert.assertEquals(Integer.valueOf(0), list.get(0));
+        Assert.assertEquals(Integer.valueOf(9), list.get(list.size() - 1));
+
+        list = Fn.range(3, 10);
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(7, list.size());
+        Assert.assertEquals(Integer.valueOf(3), list.get(0));
+        Assert.assertEquals(Integer.valueOf(9), list.get(list.size() - 1));
+    }
+
+    @Test
+    public void testRange2() {
+        List<Integer> list = Fn.range(2, 10, 3);
+        // expected: 2,5,8
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(3, list.size());
+        Assert.assertEquals(Integer.valueOf(2), list.get(0));
+        Assert.assertEquals(Integer.valueOf(8), list.get(list.size() - 1));
+
+        list = Fn.range(2, 12, 3);
+        // expected: 2,5,8,11
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(4, list.size());
+        Assert.assertEquals(Integer.valueOf(2), list.get(0));
+        Assert.assertEquals(Integer.valueOf(11), list.get(list.size() - 1));
+
+        list = Fn.range(10, 2, -3);
+        // expected: 10,7,4
+        System.err.println(list);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(3, list.size());
+        Assert.assertEquals(Integer.valueOf(10), list.get(0));
+        Assert.assertEquals(Integer.valueOf(4), list.get(list.size() - 1));
     }
 }
