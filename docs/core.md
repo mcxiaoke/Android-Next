@@ -7,7 +7,7 @@
     compile 'com.mcxiaoke.next:core:1.+'
 ```
 
-包含异步任务组件，缓存组件，基础Activity和Service，还有一些工具类，按Java包介绍如下：
+包含基础Activity和Service，还有一些工具类，按Java包介绍如下：
 
 ### 多种工具类
 

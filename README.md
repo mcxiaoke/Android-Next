@@ -2,51 +2,96 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.1.13-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.2.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
-------
-
-### 使用指南
-
-**使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
-
-* [`实用工具类`](docs/core.md) - MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils等
-* [`异步任务队列`](docs/task.md) - TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback等
-* [`高级分享组件`](docs/share.md) - AdvancedShareActionProvider, ShareTarget
-* [`网络请求管理`](docs/http.md) - NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor等
-* [`异步IO组件`](docs/ioasync.md) - IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback等
-* [`函数操作组件`](docs/func.md) - map/flatMap/reduce/concat/filter/all/any等
-* [`磁盘和内存缓存`](docs/cache.md) - DiscCache, MemoryCache
-* [`无限加载列表`](docs/recycler.md) - EndlessRecyclerView, RecyclerArrayAdapter, HeaderFooterRecyclerAdapter
-* [`常用UI控件`](docs/ui.md) - AlertDialogFragment, ProgressDialogFragment, AspectRatioImageView, ArrayAdapterCompat
-
-------
-
-### Gradle集成
+## Gradle集成
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.1.+'
+    compile 'com.mcxiaoke.next:core:1.2.+'
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.1.+'
+    compile 'com.mcxiaoke.next:task:1.2.+'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.1.+'
+    compile 'com.mcxiaoke.next:http:1.2.+'
     // 异步网络和文件IO组件，替代Volley
-    compile 'com.mcxiaoke.next:ioasync:1.1+'
+    compile 'com.mcxiaoke.next:ioasync:1.2.+'
     // 函数操作组件
-    compile 'com.mcxiaoke.next:func:1.1.+'
+    compile 'com.mcxiaoke.next:func:1.2.+'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.1.+'
+    compile 'com.mcxiaoke.next:ui:1.2.+'
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.1.+'
+    compile 'com.mcxiaoke.next:recycler:1.2.+'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.1.+'
+    compile 'com.mcxiaoke.next:extras-abc:1.2.+'
     
 ```
-------
 
-### 更新记录
+## 使用指南（2015.08.24更新）
 
+**使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
+
+### Core [`基类和工具类`](docs/core.md) 
+
+MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils。包含基础Activity和Service，还有一些工具类，功能包括：文件路径处理，Toast显示，屏幕方向，组件启用禁用，获取App签名信息；常用的文件复制/字符串/数组/列表/数据流读写，常用的字符串合并/分割/比较/转换/判断等操作；网络类型和状态获取，代理设置；Package相关的工具类，App是否安装，是否运行，启用和禁用组件等；Bitmap缩放，旋转，圆角，阴影，裁剪等；加密算法相关的工具方法，支持MD5/SHA1/SHA256/AES/HEX等。
+
+### HttpRequest [`网络请求管理`](docs/http.md)
+
+NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作：
+
+- **NextClient** 网络组件的核心类，封装全局的配置参数
+- **NextParams** HTTP参数封装和处理
+- **NextRequest** HTTP 请求封装
+- **NextResponse** HTTP 响应数据结构
+
+### TaskQueue [`异步任务队列`](docs/task.md)
+
+TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
+
+包含异步任务执行模块相关的类，详细的使用见后面的说明
+
+* TaskQueue 对外接口，支持单例使用
+* TaskFuture 表示单个异步任务对象
+* TaskBuilder 对外接口，链式调用
+* TaskCallback 任务回调接口
+
+### IOAsync [`异步IO组件`](docs/ioasync.md)
+
+IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback
+
+主要是结合 `http`模块和`task`模块，提供方便的异步网络操作，本模块主要的方法都是异步执行，通过回调接口反馈结果，内部使用 `TaskQeue` 执行异步任务管理，使用 `NextClient` 发送和解析HTTP网络请求，通过回调接口返回数据，网络请求在异步线程执行，回调方法在主线程调用，可用于替代Google的`Volley`库，能极大的减轻应用开发中异步请求数据然后主线程更新UI这一过程的工作量。
+
+### Function [`函数式操作符`](docs/func.md) 
+
+函数模块对外只有一个接口类： `com.mcxiaoke.next.func.Fn`，主要包含常见的函数式数据操作符：`map/flatMap/reduce/concat/filter/all/any` 等
+
+### Cache [`磁盘和内存缓存`](docs/cache.md) 
+
+包含磁盘缓存 `DiscCache` 和内存缓存 `MemoryCache`，内部封装了HashMap和LruCache两种类型的缓存，可根据需要选用。
+
+### RecyclerView [`无限加载列表`](docs/recycler.md) 
+
+封装 `RecyclerView` ，用于支持滚动到底部时自动加载数据和显示正在加载，主要有这几个类：
+
+- **EndlessRecyclerView** 支持滚动到列表底部自动加载更多的RecyclerView
+- **RecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
+- **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
+- **HeaderFooterRecyclerArrayAdapter** 支持添加Header和Footer的ArrayAdapter
+
+### UI Widgets [`常用UI控件`](docs/ui.md)
+
+一些常用的UI控件，可简化日常开发，包括 AlertDialogFragment, ProgressDialogFragment, AspectRatioImageView, ArrayAdapterCompat等。
+
+### ShareProvider [`高级分享组件`](docs/share.md) 
+
+封装的一个 `ActionProvider` ，比系统自带的 `SharedActionProvider` 提供大得多的灵活度，可自定义出现在列表里的项目，主要包括 `AdvancedShareActionProvider` 和 `ShareTarget` 两个类。
+
+
+## 更新记录
+
+- **1.2.0**  2015.08.24
+	 * func: 新增函数式操作符模块，通过`Fn`类支持常用的 `map/reduce/filter/zip/all/any/concat` 函数，更方便的操作数据序列
+	 * ioasync: 新增异步IO模块，能有效的简化App中请求数据更新UI这一通用逻辑
+	 * 补充文档，给几个模块的文档添加了详细的API说明和示例
 - **1.1.13** 2015.08.05
     * task: 增加Async类，添加最简单的异步执行方法 Async.run(task)
 - **1.1.12** 2015.08.04
@@ -99,7 +144,6 @@
 - **1.0.4** 2014.09.15
     * 发布到github
 
-------
 
 ### 其它问题
 
