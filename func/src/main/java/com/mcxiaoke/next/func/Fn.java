@@ -51,30 +51,6 @@ public class Fn {
         return list;
     }
 
-    public static <T> List<T> flatMap(List<List<T>> lists) {
-        List<T> list = new ArrayList<T>();
-        for (List<? extends T> l : lists) {
-            list.addAll(l);
-        }
-        return list;
-    }
-
-    public static <T> List<T> flatMap(List<T>... lists) {
-        List<T> list = new ArrayList<T>();
-        for (List<? extends T> l : lists) {
-            list.addAll(l);
-        }
-        return list;
-    }
-
-    public static <T> Collection<T> flatMap(Collection<T>... collections) {
-        List<T> list = new ArrayList<T>();
-        for (Collection<? extends T> c : collections) {
-            list.addAll(c);
-        }
-        return list;
-    }
-
     public static <T extends Object & Comparable<? super T>> T max(Collection<? extends T> collection) {
         return Collections.max(collection);
     }
@@ -237,5 +213,30 @@ public class Fn {
             r.add(func.call(s));
         }
         return r;
+    }
+
+
+    public static <T, R> List<R> flatMap(Func1<? super T, ? extends R> func, List<List<T>> lists) {
+        List<R> list = new ArrayList<R>();
+        for (List<? extends T> l : lists) {
+            list.addAll(map(func, l));
+        }
+        return list;
+    }
+
+    public static <T, R> List<R> flatMap(Func1<? super T, ? extends R> func, List<T>... lists) {
+        List<R> list = new ArrayList<R>();
+        for (List<? extends T> l : lists) {
+            list.addAll(map(func, l));
+        }
+        return list;
+    }
+
+    public static <T, R> Collection<R> flatMap(Func1<? super T, ? extends R> func, Collection<T>... collections) {
+        List<R> list = new ArrayList<R>();
+        for (Collection<? extends T> l : collections) {
+            list.addAll(map(func, l));
+        }
+        return list;
     }
 }
