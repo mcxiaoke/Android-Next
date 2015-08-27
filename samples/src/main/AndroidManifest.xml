@@ -83,6 +83,16 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity
+            android:name=".layout.ViewGroupSample"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".layout.LineLayoutSample"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity
             android:name=".http.NextClientSamples"
             android:label="@string/app_name" />
 

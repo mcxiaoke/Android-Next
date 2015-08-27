@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:singleLine="true"
+        android:text="gdsgsgdsgdsggsdsgddsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv1" />
+
+    <TextView
+        android:singleLine="true"
+        android:layout_weight="1"
+        android:text="2015-08-26"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv2" />
+
+
+    <TextView
+        android:background="#ff0000"
+        android:singleLine="true"
+        android:text="Reply 1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv3" />
+</merge>

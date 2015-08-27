@@ -3,7 +3,6 @@ package com.mcxiaoke.next.samples;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +18,8 @@ import com.mcxiaoke.next.samples.bus.BasicBusSample;
 import com.mcxiaoke.next.samples.bus.BasicBusSample2;
 import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.samples.http.NextClientSamples;
+import com.mcxiaoke.next.samples.layout.LineLayoutSample;
+import com.mcxiaoke.next.samples.layout.ViewGroupSample;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
@@ -61,6 +62,8 @@ public class Samples extends BaseActivity {
 
     private void initSamples() {
         mSampleListData = new ArrayList<SampleInfo>();
+        mSampleListData.add(new SampleInfo(ViewGroupSample.TAG, ViewGroupSample.class));
+        mSampleListData.add(new SampleInfo(LineLayoutSample.TAG, LineLayoutSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample2.TAG, BasicBusSample2.class));
         mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
