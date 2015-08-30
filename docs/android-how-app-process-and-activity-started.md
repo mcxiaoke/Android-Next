@@ -1493,7 +1493,7 @@ thread.bindApplication方法,thread指向ActivityThread.ApplicationThread内部�
                     + ", dir=" + r.packageInfo.getAppDir());
 
             if (activity != null) {
-            // 创建appContext
+            // 创建BaseContext
                 Context appContext = createBaseContextForActivity(r, activity);
                 CharSequence title = r.activityInfo.loadLabel(appContext.getPackageManager());
                 Configuration config = new Configuration(mCompatConfiguration);
@@ -1581,5 +1581,146 @@ thread.bindApplication方法,thread指向ActivityThread.ApplicationThread内部�
         // 返回这个Activity
         return activity;
     }
+
+```
+
+我们看看几个重要的方法
+
+mInstrumentation.newActivity方法创建Activity
+
+```java
+    public Activity newActivity(ClassLoader cl, String className,
+            Intent intent)
+            throws InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
+        return (Activity)cl.loadClass(className).newInstance();
+    }
+```
+
+r.packageInfo.makeApplication方法，packageInfo是LoadedApk类的实例
+
+```java
+
+    public Application makeApplication(boolean forceDefaultAppClass,
+            Instrumentation instrumentation) {
+            // 如果实例已存在，直接返回
+        if (mApplication != null) {
+            return mApplication;
+        }
+
+        Application app = null;
+
+        String appClass = mApplicationInfo.className;
+        if (forceDefaultAppClass || (appClass == null)) {
+        // 加载默认的Application类
+            appClass = "android.app.Application";
+        }
+
+        try {
+            java.lang.ClassLoader cl = getClassLoader();
+            if (!mPackageName.equals("android")) {
+                initializeJavaContextClassLoader();
+            }
+            // 创建Application Context
+            ContextImpl appContext = ContextImpl.createAppContext(mActivityThread, this);
+            // 创建Application
+            app = mActivityThread.mInstrumentation.newApplication(
+                    cl, appClass, appContext);
+            appContext.setOuterContext(app);
+        } catch (Exception e) {
+            if (!mActivityThread.mInstrumentation.onException(app, e)) {
+                throw new RuntimeException(
+                    "Unable to instantiate application " + appClass
+                    + ": " + e.toString(), e);
+            }
+        }
+        mActivityThread.mAllApplications.add(app);
+        mApplication = app;
+
+        if (instrumentation != null) {
+            try {
+            // 调用Application的onCreate方法
+                instrumentation.callApplicationOnCreate(app);
+            } catch (Exception e) {
+                if (!instrumentation.onException(app, e)) {
+                    throw new RuntimeException(
+                        "Unable to create application " + app.getClass().getName()
+                        + ": " + e.toString(), e);
+                }
+            }
+        }
+
+		// 读取R资源信息
+        // Rewrite the R 'constants' for all library apks.
+        SparseArray<String> packageIdentifiers = getAssets(mActivityThread)
+                .getAssignedPackageIdentifiers();
+        final int N = packageIdentifiers.size();
+        for (int i = 0; i < N; i++) {
+            final int id = packageIdentifiers.keyAt(i);
+            if (id == 0x01 || id == 0x7f) {
+                continue;
+            }
+
+            rewriteRValues(getClassLoader(), packageIdentifiers.valueAt(i), id);
+        }
+
+        return app;
+    }
+
+```
+
+newApplication方法
+
+```java
+    static public Application newApplication(Class<?> clazz, Context context)
+            throws InstantiationException, IllegalAccessException, 
+            ClassNotFoundException {
+        Application app = (Application)clazz.newInstance();
+        app.attach(context);
+        return app;
+    }
+```
+
+看看这个createBaseContextForActivity方法
+
+```java
+    private Context createBaseContextForActivity(ActivityClientRecord r,
+            final Activity activity) {
+        ContextImpl appContext = ContextImpl.createActivityContext(this, r.packageInfo, r.token);
+        appContext.setOuterContext(activity);
+        Context baseContext = appContext;
+
+        final DisplayManagerGlobal dm = DisplayManagerGlobal.getInstance();
+        try {
+            IActivityContainer container =
+                    ActivityManagerNative.getDefault().getEnclosingActivityContainer(r.token);
+            final int displayId =
+                    container == null ? Display.DEFAULT_DISPLAY : container.getDisplayId();
+            if (displayId > Display.DEFAULT_DISPLAY) {
+                Display display = dm.getRealDisplay(displayId, r.token);
+                baseContext = appContext.createDisplayContext(display);
+            }
+        } catch (RemoteException e) {
+        }
+        // ......
+        return baseContext;
+    }
+```
+
+继续看方法createActivityContext
+
+```java
+    static ContextImpl createActivityContext(ActivityThread mainThread,
+            LoadedApk packageInfo, IBinder activityToken) {
+        if (packageInfo == null) throw new IllegalArgumentException("packageInfo");
+        if (activityToken == null) throw new IllegalArgumentException("activityInfo");
+        return new ContextImpl(null, mainThread,
+                packageInfo, activityToken, null, false, null, null);
+    }
+```
+
+创建了一个ContextImpl的实例
+
+```java
 
 ```
