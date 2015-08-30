@@ -1411,7 +1411,7 @@ thread.bindApplication方法,thread指向ActivityThread.ApplicationThread内部�
         }
 ```
 
-处理消息的方法是handleLaunchActivity()，我们接着看
+处理消息的方法是handleLaunchActivity()，这个方法返回时Activity就启动完成了，我们接着看
 
 ```java
     private void handleLaunchActivity(ActivityClientRecord r, Intent customIntent) {
@@ -1421,6 +1421,11 @@ thread.bindApplication方法,thread指向ActivityThread.ApplicationThread内部�
         // 使用performLaunchActivity启动Activity
         Activity a = performLaunchActivity(r, customIntent);
         if (a != null) {
+            r.createdConfig = new Configuration(mConfiguration);
+            Bundle oldState = r.state;
+            // Activity启动完成后调用handleResumeActivity显示出来
+            handleResumeActivity(r.token, false, r.isForward,
+                    !r.activity.mFinished && !r.startsNotResumed);
         // ......
         } else {
             // If there was an error, for any reason, tell the activity
@@ -1500,6 +1505,8 @@ thread.bindApplication方法,thread指向ActivityThread.ApplicationThread内部�
                 if (DEBUG_CONFIGURATION) Slog.v(TAG, "Launching activity "
                         + r.activityInfo.name + " with config " + config);
                 // 将Activity关联到刚创建的Context
+                // 这个方法很关键，这里会创建Activity的显示窗口Window对象
+                // 还会关联到WindowManager对象
                 activity.attach(appContext, this, getInstrumentation(), r.token,
                         r.ident, app, r.intent, r.activityInfo, title, r.parent,
                         r.embeddedID, r.lastNonConfigurationInstances, config,
@@ -1719,8 +1726,151 @@ newApplication方法
     }
 ```
 
-创建了一个ContextImpl的实例
+performLaunchActivity这个方法返回后，继续回到handleLaunchActivity方法执行handleResumeActivity，我们看看这个方法
+
+```java
+    final void handleResumeActivity(IBinder token,
+            boolean clearHide, boolean isForward, boolean reallyResume) {
+        // If we are getting ready to gc after going to the background, well
+        // we are back active so skip it.
+        unscheduleGcIdler();
+        mSomeActivitiesChanged = true;
+
+        // TODO Push resumeArgs into the activity for consideration
+        // 这里执行onStart和onResume
+        ActivityClientRecord r = performResumeActivity(token, clearHide);
+
+        if (r != null) {
+            final Activity a = r.activity;
+            // ......
+            if (r.window == null && !a.mFinished && willBeVisible) {
+                r.window = r.activity.getWindow();
+                View decor = r.window.getDecorView();
+                // 让顶层窗口的DecorView不可见
+                decor.setVisibility(View.INVISIBLE);
+                ViewManager wm = a.getWindowManager();
+                WindowManager.LayoutParams l = r.window.getAttributes();
+                // 设置DecorView
+                a.mDecor = decor;
+                l.type = WindowManager.LayoutParams.TYPE_BASE_APPLICATION;
+                l.softInputMode |= forwardBit;
+                if (a.mVisibleFromClient) {
+                    a.mWindowAdded = true;
+                    // 将顶层窗口的ViewGroup添加到Window
+                    wm.addView(decor, l);
+                }
+            // ......
+            // The window is now visible if it has been added, we are not
+            // simply finishing, and we are not starting another activity.
+            if (!r.activity.mFinished && willBeVisible
+                    && r.activity.mDecor != null && !r.hideForNow) {
+                if (r.newConfig != null) {
+                    if (DEBUG_CONFIGURATION) Slog.v(TAG, "Resuming activity "
+                            + r.activityInfo.name + " with newConfig " + r.newConfig);
+                    performConfigurationChanged(r.activity, r.newConfig);
+                    freeTextLayoutCachesIfNeeded(r.activity.mCurrentConfig.diff(r.newConfig));
+                    r.newConfig = null;
+                }
+                if (localLOGV) Slog.v(TAG, "Resuming " + r + " with isForward="
+                        + isForward);
+                WindowManager.LayoutParams l = r.window.getAttributes();
+                if ((l.softInputMode
+                        & WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION)
+                        != forwardBit) {
+                    l.softInputMode = (l.softInputMode
+                            & (~WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION))
+                            | forwardBit;
+                    if (r.activity.mVisibleFromClient) {
+                        ViewManager wm = a.getWindowManager();
+                        View decor = r.window.getDecorView();
+                        // 更新布局
+                        wm.updateViewLayout(decor, l);
+                    }
+                }
+                r.activity.mVisibleFromServer = true;
+                mNumVisibleActivities++;
+                if (r.activity.mVisibleFromClient) {
+                    r.activity.makeVisible();
+                }
+            }
+            // ......
+    }
+```
+
+接着看performResumeActivity方法
+
+```java
+    public final ActivityClientRecord performResumeActivity(IBinder token,
+            boolean clearHide) {
+        ActivityClientRecord r = mActivities.get(token);
+        if (localLOGV) Slog.v(TAG, "Performing resume of " + r
+                + " finished=" + r.activity.mFinished);
+        if (r != null && !r.activity.mFinished) {
+            if (clearHide) {
+                r.hideForNow = false;
+                r.activity.mStartedActivity = false;
+            }
+            try {
+                r.activity.mFragments.noteStateNotSaved();
+                if (r.pendingIntents != null) {
+                    deliverNewIntents(r, r.pendingIntents);
+                    r.pendingIntents = null;
+                }
+                if (r.pendingResults != null) {
+                    deliverResults(r, r.pendingResults);
+                    r.pendingResults = null;
+                }
+                // 调用Activity的performResume()方法
+                r.activity.performResume();
+
+                EventLog.writeEvent(LOG_ON_RESUME_CALLED,
+                        UserHandle.myUserId(), r.activity.getComponentName().getClassName());
+
+                r.paused = false;
+                r.stopped = false;
+                r.state = null;
+                r.persistentState = null;
+            } catch (Exception e) {
+            // ......
+            }
+        }
+        return r;
+    }
+```
+
+继续看Activity的performResume方法
 
 ```java
 
+    final void performResume() {
+    // 这个方法里调用了performStart，所以onStart()方法在这里调用
+        performRestart();
+
+        mFragments.execPendingActions();
+
+        mLastNonConfigurationInstances = null;
+
+        mCalled = false;
+        // mResumed is set by the instrumentation
+        // 调用Activity的onResume()方法
+        mInstrumentation.callActivityOnResume(this);
+        if (!mCalled) {
+            throw new SuperNotCalledException(
+                "Activity " + mComponent.toShortString() +
+                " did not call through to super.onResume()");
+        }
+
+        // Now really resume, and install the current status bar and menu.
+        mCalled = false;
+
+        mFragments.dispatchResume();
+        mFragments.execPendingActions();
+
+        onPostResume();
+        if (!mCalled) {
+            throw new SuperNotCalledException(
+                "Activity " + mComponent.toShortString() +
+                " did not call through to super.onPostResume()");
+        }
+    }
 ```
