@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <com.mcxiaoke.next.samples.layout.FlowLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#666666"
+        android:padding="8dp">
+
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Some World ..jklfjds" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Tefsdfxt" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Some fd" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="helo fdsText" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Some Text hello fdst hrh9342014" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gd f gdg" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4gf 3" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="35 5 fmdouban.comfd" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Some Text" />
+
+        <TextView
+            android:singleLine="true"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Some dSod gd" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="f 6hnfdfdf" />
+
+        <TextView
+            android:singleLine="true"
+            android:layout_margin="4dp"
+            android:padding="8dp"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Som" />
+
+    </com.mcxiaoke.next.samples.layout.FlowLayout>
+
+</LinearLayout>

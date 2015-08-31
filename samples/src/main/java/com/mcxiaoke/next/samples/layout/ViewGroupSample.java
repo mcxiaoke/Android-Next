@@ -15,6 +15,6 @@ public class ViewGroupSample extends BaseActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-         setContentView(R.layout.act_viewgroup);
+         setContentView(R.layout.flow_layout_demo);
     }
 }
