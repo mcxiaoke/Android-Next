@@ -145,6 +145,10 @@ public class FlowLayout extends ViewGroup {
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
+//        drawChildMargins(canvas);
+    }
+
+    private void drawChildMargins(final Canvas canvas) {
         Paint paint1 = new Paint();
         paint1.setColor(Color.RED);
         paint1.setStyle(Style.FILL);
