@@ -114,12 +114,15 @@ public class FlowLayout extends ViewGroup {
             int cw = child.getMeasuredWidth();
             int ch = child.getMeasuredHeight();
             // break line
+            boolean newLine = i == 0;
             if (xPos + cw > lineWidth) {
                 xPos = left;
-                yPos += lineHeight + lp.topMargin + lp.bottomMargin;
+                yPos += lineHeight + lp.bottomMargin;
                 line++;
+                newLine = true;
             }
             xPos += lp.leftMargin;
+            yPos += newLine ? lp.topMargin : 0;
             int cl = xPos;
             int ct = yPos;
             int cr = cl + cw;

@@ -118,7 +118,7 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Som" />
+            android:text="This is TExt." />
 
     </com.mcxiaoke.next.samples.layout.FlowLayout>
 
