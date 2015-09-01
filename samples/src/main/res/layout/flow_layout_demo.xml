@@ -14,6 +14,7 @@
 
 
         <TextView
+            android:textSize="20sp"
             android:singleLine="true"
             android:layout_margin="4dp"
             android:padding="8dp"
@@ -33,7 +34,7 @@
 
         <TextView
             android:singleLine="true"
-            android:layout_margin="4dp"
+            android:layout_margin="16dp"
             android:padding="8dp"
             android:background="#009900"
             android:layout_width="wrap_content"
@@ -41,6 +42,7 @@
             android:text="Some fd" />
 
         <TextView
+            android:textSize="20sp"
             android:singleLine="true"
             android:layout_margin="4dp"
             android:padding="8dp"
@@ -51,41 +53,14 @@
 
         <TextView
             android:singleLine="true"
-            android:layout_margin="4dp"
             android:padding="8dp"
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Some Text hello fdst hrh9342014" />
+            android:text="One" />
 
         <TextView
-            android:singleLine="true"
-            android:layout_margin="4dp"
-            android:padding="8dp"
-            android:background="#009900"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="gd f gdg" />
-
-        <TextView
-            android:singleLine="true"
-            android:layout_margin="4dp"
-            android:padding="8dp"
-            android:background="#009900"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="4gf 3" />
-
-        <TextView
-            android:singleLine="true"
-            android:layout_margin="4dp"
-            android:padding="8dp"
-            android:background="#009900"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="35 5 fmdouban.comfd" />
-
-        <TextView
+            android:textSize="20sp"
             android:singleLine="true"
             android:layout_margin="4dp"
             android:padding="8dp"
@@ -93,6 +68,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Some Text" />
+
+        <ImageView
+            android:layout_margin="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
 
         <TextView
             android:singleLine="true"
@@ -103,24 +84,30 @@
             android:layout_height="wrap_content"
             android:text="Some dSod gd" />
 
+
+        <ImageView
+            android:padding="8dp"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
+
         <TextView
             android:singleLine="true"
-            android:layout_margin="4dp"
             android:padding="8dp"
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="f 6hnfdfdf" />
+            android:text="SmallSize" />
 
         <TextView
+            android:textSize="24sp"
             android:singleLine="true"
-            android:layout_margin="4dp"
             android:padding="8dp"
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This is TExt." />
-
+            android:text="BigSize" />
     </com.mcxiaoke.next.samples.layout.FlowLayout>
 
 </LinearLayout>
