@@ -42,7 +42,7 @@ public class FlowLayout extends ViewGroup {
     }
 
     private List<Integer> mLineHeights = new ArrayList<Integer>();
-    private int mVerticalSpacing = 48;
+    private int mVerticalSpacing = 0;
     private int mHorizontalSpacing = 24;
 
     @Override
@@ -129,12 +129,20 @@ public class FlowLayout extends ViewGroup {
                 yPos += heights.get(line) + mVerticalSpacing;
                 line++;
             }
+
+            int lineHeight = 0;
+            int verticalOffset = 0;
+            if (line < heights.size()) {
+                lineHeight = heights.get(line);
+                verticalOffset = lineHeight - childHeight;
+            }
+
             int cl = xPos + lp.leftMargin;
-            int ct = yPos + lp.topMargin;
+            int ct = yPos + lp.topMargin + verticalOffset;
             int cr = cl + childWidth;
             int cb = ct + childHeight;
 
-            Log.e(TAG, "layout " + line + "-" + i + " w=" + childWidth + " h=" + childHeight);
+            Log.e(TAG, "layout line:" + line + " index:" + i + " w=" + childWidth + " h=" + childHeight);
             Log.e(TAG, "layout cl=" + cl + " ct=" + ct + " cr=" + cr + " cb=" + cb);
             child.layout(cl, ct, cr, cb);
             xPos += childWSpace + mHorizontalSpacing;

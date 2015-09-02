@@ -21,7 +21,15 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Some World ..jklfjds" />
+            android:text="Some World" />
+
+        <TextView
+            android:padding="4dp"
+            android:singleLine="true"
+            android:background="#009900"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NoMargin" />
 
         <TextView
             android:singleLine="true"
