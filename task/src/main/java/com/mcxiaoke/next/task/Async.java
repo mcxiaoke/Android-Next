@@ -43,10 +43,10 @@ public class Async {
         return futures;
     }
 
-    public void reset() {
-        if (mExecutor != null) {
-            mExecutor.shutdownNow();
-            mExecutor = Executors.newCachedThreadPool();
+    public static void reset() {
+        if (Async.mExecutor != null) {
+            Async.mExecutor.shutdownNow();
+            Async.mExecutor = Executors.newCachedThreadPool();
         }
     }
 
