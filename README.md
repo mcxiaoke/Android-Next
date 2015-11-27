@@ -168,16 +168,19 @@ IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCall
 发现任何问题可以提issue
 
 ------
+
 ## 关于作者
 
 #### 联系方式
+
 * Blog: <http://blog.mcxiaoke.com>
 * Github: <https://github.com/mcxiaoke>
-* Email: [mail@mcxiaoke.com](mailto:mail@mcxiaoke.com)
+* Email: [github@mcxiaoke.com](mailto:github@mcxiaoke.com)
 
 #### 开源项目
 
 * Next公共组件库: <https://github.com/mcxiaoke/Android-Next>
+* PackerNg极速打包工具: <https://github.com/mcxiaoke/packer-ng-plugin>
 * Gradle渠道打包: <https://github.com/mcxiaoke/gradle-packer-plugin>
 * EventBus实现xBus: <https://github.com/mcxiaoke/xBus>
 * Rx文档中文翻译: <https://github.com/mcxiaoke/RxDocs>
