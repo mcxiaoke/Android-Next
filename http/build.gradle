@@ -1,8 +1,9 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.7.0'
     compile project(":core")
+    compile 'com.squareup.okhttp:okhttp:2.7.0'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.0'
 
     testCompile 'com.google.code.gson:gson:2.5'
     testCompile 'junit:junit:4.12'

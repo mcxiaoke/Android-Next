@@ -81,6 +81,7 @@ public class NextRequest {
         AssertUtils.notNull(hUrl, "invalid url:" + url);
         this.method = method;
         this.httpUrl = hUrl;
+        this.httpUrl.url();
         this.params = new NextParams(params);
     }
 

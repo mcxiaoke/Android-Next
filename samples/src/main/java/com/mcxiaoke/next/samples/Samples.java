@@ -67,11 +67,16 @@ public class Samples extends BaseActivity {
     }
 
     private void testHttpCache() {
-        final String url = "https://api.github.com/users/mcxiaoke";
+
+//        final String url = "https://api.github.com/users/mcxiaoke";
+        final String url = "https://frodo.douban.com/api/v2/doodle?alt=json&apikey=0b8257e8bcbc63f4228707ba36352bdc&" +
+                "douban_udid=779e8e7050e80f255f838eecfad1fd630cd9e6d7&latitude=39.91667&loc_id=108288&" +
+                "longitude=116.41667&udid=24961284a763029b2eeca5401aa26b50b88643e9&version=3.3.0";
         OkHttpClient okHttpClient = new OkHttpClient();
         final Cache cache = new Cache(getCacheDir(), 100 * 1024 * 1024);
         okHttpClient.setCache(cache);
         final NextClient client = new NextClient(okHttpClient).setDebug(true);
+        client.setUserAgent("api-client/0.1.3 com.douban.frodo/3.3.0 iOS/9.1 x86_64");
         TaskQueue.getDefault().add(new Runnable() {
             @Override
             public void run() {

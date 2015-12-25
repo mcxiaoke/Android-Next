@@ -404,7 +404,7 @@ public final class NextClient {
         }
         if (mDebug || request.isDebug()) {
             Log.v(NextClient.TAG, "sendRequest() " + request);
-            client.networkInterceptors().add(new DebugInterceptor());
+            client.networkInterceptors().add(new LoggingInterceptor());
         }
         final ProgressListener li = request.getListener();
         if (li != null) {
@@ -419,7 +419,7 @@ public final class NextClient {
         final OkHttpClient client = mClient.clone();
         if (mDebug) {
             Log.v(NextClient.TAG, "sendRequest() " + request);
-            client.networkInterceptors().add(new DebugInterceptor());
+            client.networkInterceptors().add(new LoggingInterceptor());
         }
         return client.newCall(request).execute();
     }
