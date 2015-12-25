@@ -37,6 +37,7 @@ public class NextRequest {
     protected NextParams params;
     protected byte[] body;
     protected ProgressListener listener;
+    protected OkClientInterceptor interceptor;
     protected boolean debug;
 
     public static NextRequest head(final String url) {
@@ -79,7 +80,7 @@ public class NextRequest {
         final HttpUrl hUrl = HttpUrl.parse(url);
         AssertUtils.notNull(hUrl, "invalid url:" + url);
         this.method = method;
-        this.httpUrl = HttpUrl.parse(url);
+        this.httpUrl = hUrl;
         this.params = new NextParams(params);
     }
 
@@ -88,8 +89,13 @@ public class NextRequest {
         return this;
     }
 
-    public NextRequest progress(final ProgressListener listener) {
+    public NextRequest listener(final ProgressListener listener) {
         this.listener = listener;
+        return this;
+    }
+
+    public NextRequest interceptor(final OkClientInterceptor interceptor) {
+        this.interceptor = interceptor;
         return this;
     }
 
@@ -136,7 +142,7 @@ public class NextRequest {
 
     public NextRequest form(String key, String value) {
 //        throwIfNotSupportBody();
-        if(supportBody()) {
+        if (supportBody()) {
             this.params.form(key, value);
         }
         return this;
@@ -144,7 +150,7 @@ public class NextRequest {
 
     public NextRequest forms(Map<String, String> forms) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.forms(forms);
         }
         return this;
@@ -152,7 +158,7 @@ public class NextRequest {
 
     public NextRequest parts(Collection<BodyPart> parts) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             for (final BodyPart part : parts) {
                 part(part);
             }
@@ -162,7 +168,7 @@ public class NextRequest {
 
     public NextRequest file(String key, File file) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.file(key, file);
         }
         return this;
@@ -170,7 +176,7 @@ public class NextRequest {
 
     public NextRequest file(String key, File file, String contentType) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.file(key, file, contentType);
         }
         return this;
@@ -178,7 +184,7 @@ public class NextRequest {
 
     public NextRequest file(String key, File file, String contentType, String fileName) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.file(key, file, contentType, fileName);
         }
         return this;
@@ -186,7 +192,7 @@ public class NextRequest {
 
     public NextRequest file(String key, byte[] bytes) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.file(key, bytes);
         }
         return this;
@@ -194,7 +200,7 @@ public class NextRequest {
 
     public NextRequest file(String key, byte[] bytes, String contentType) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.params.file(key, bytes, contentType);
         }
         return this;
@@ -202,7 +208,7 @@ public class NextRequest {
 
     public NextRequest body(final byte[] body) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.body = body;
         }
         return this;
@@ -210,7 +216,7 @@ public class NextRequest {
 
     public NextRequest body(final String content, final Charset charset) {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.body = content.getBytes(charset);
         }
         return this;
@@ -218,7 +224,7 @@ public class NextRequest {
 
     public NextRequest body(final File file) throws IOException {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.body = IOUtils.readBytes(file);
         }
         return this;
@@ -226,7 +232,7 @@ public class NextRequest {
 
     public NextRequest body(final Reader reader) throws IOException {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.body = IOUtils.readBytes(reader);
         }
         return this;
@@ -234,7 +240,7 @@ public class NextRequest {
 
     public NextRequest body(final InputStream stream) throws IOException {
 //        throwIfNotSupportBody();
-        if(supportBody()){
+        if (supportBody()) {
             this.body = IOUtils.readBytes(stream);
         }
         return this;
@@ -251,7 +257,7 @@ public class NextRequest {
         return this;
     }
 
-    public boolean debug() {
+    public boolean isDebug() {
         return debug;
     }
 
@@ -267,8 +273,12 @@ public class NextRequest {
         return httpUrl.toString();
     }
 
-    public ProgressListener listener() {
+    public ProgressListener getListener() {
         return listener;
+    }
+
+    public OkClientInterceptor getInterceptor() {
+        return interceptor;
     }
 
     protected boolean supportBody() {
@@ -386,6 +396,7 @@ public class NextRequest {
         this.params = source.params;
         this.body = source.body;
         this.listener = source.listener;
+        this.interceptor = source.interceptor;
         this.debug = source.debug;
     }
 
@@ -419,18 +430,14 @@ public class NextRequest {
             }
             requestBody = bodyBuilder.build();
         } else {
-            //FIXME workaround for null body, waiting OkHttp release
-            requestBody = RequestBody.create(null, HttpConsts.NO_BODY);
+            requestBody = null;
         }
         return requestBody;
     }
 
     @Override
     public String toString() {
-        return "Request{HTTP " + method + " " + httpUrl + '}';
-    }
-
-    public String dump() {
         return "Request{HTTP " + method + " " + httpUrl + ' ' + params + '}';
     }
+
 }

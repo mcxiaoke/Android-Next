@@ -20,7 +20,7 @@ import java.util.Date;
  * Time: 11:22
  */
 public class NextResponse implements Closeable {
-    public static final String TAG = NextResponse.TAG;
+    public static final String TAG = NextResponse.class.getSimpleName();
 
     private Response mResponse;
     private int mStatusCode;
@@ -118,9 +118,9 @@ public class NextResponse implements Closeable {
         mResponse.body().close();
     }
 
-    public String dumpContent() {
+    public String dumpBody() {
         try {
-            return StringUtils.safeSubString(string(), 256);
+            return StringUtils.safeSubString(string(), 512);
         } catch (IOException e) {
             return "IOException";
         }
@@ -136,8 +136,8 @@ public class NextResponse implements Closeable {
                 "mCreatedAt=" + mCreatedAt +
                 ", statusCode=" + mStatusCode +
                 ", statusMessage='" + mMessage + '\'' +
-                ", content='" + dumpContent() + '\'' +
-                ", headers=" + dumpHeaders() +
+                ", headers=" + dumpHeaders() + '\'' +
+                ", body='" + dumpBody() + '\'' +
                 '}';
     }
 }

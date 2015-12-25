@@ -216,10 +216,8 @@ public class NextRequestTest extends BaseTest {
             notNull(r2.getRequestBody());
             notNull(r3.getRequestBody());
             notNull(r4.getRequestBody());
-            notNull(r5.getRequestBody());
-            isEquals(0L, r5.getRequestBody().contentLength());
-            notNull(r6.getRequestBody());
-            isEquals(0L, r6.getRequestBody().contentLength());
+            isNull(r5.getRequestBody());
+            isNull(r6.getRequestBody());
             notNull(r7.getRequestBody());
             isEquals("hello".getBytes().length, r7.getRequestBody().contentLength());
             notNull(r8.getRequestBody());

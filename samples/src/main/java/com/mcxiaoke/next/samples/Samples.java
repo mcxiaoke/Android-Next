@@ -3,6 +3,7 @@ package com.mcxiaoke.next.samples;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,17 +15,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.samples.bus.BasicBusSample;
 import com.mcxiaoke.next.samples.bus.BasicBusSample2;
 import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.samples.layout.LineLayoutSample;
 import com.mcxiaoke.next.samples.layout.ViewGroupSample;
+import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
 import com.mcxiaoke.next.utils.AndroidUtils;
 import com.mcxiaoke.next.utils.LogUtils;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +63,28 @@ public class Samples extends BaseActivity {
         initSamples();
         initListView();
         LogUtils.i(TAG, AndroidUtils.getSignature(this));
+        testHttpCache();
+    }
+
+    private void testHttpCache() {
+        final String url = "https://api.github.com/users/mcxiaoke";
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final Cache cache = new Cache(getCacheDir(), 100 * 1024 * 1024);
+        okHttpClient.setCache(cache);
+        final NextClient client = new NextClient(okHttpClient).setDebug(true);
+        TaskQueue.getDefault().add(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    client.get(url);
+                    SystemClock.sleep(5000);
+                    client.get(url);
+                } catch (Exception e) {
+                    Log.e(NextClient.TAG, "Error:" + e);
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void initSamples() {

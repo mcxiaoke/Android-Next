@@ -12,6 +12,7 @@ import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +34,15 @@ public final class NextClient {
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
     private final OkHttpClient mClient;
-    private OkClientInterceptor mInterceptor;
     private Map<String, String> mParams;
     private Map<String, String> mHeaders;
 
     public NextClient() {
-        mClient = new OkHttpClient();
-        mClient.setFollowRedirects(true);
+        this(new OkHttpClient());
+    }
+
+    public NextClient(OkHttpClient client) {
+        mClient = client;
         mParams = new NoEmptyValuesHashMap();
         mHeaders = new NoEmptyValuesHashMap();
     }
@@ -47,6 +50,22 @@ public final class NextClient {
     public NextClient setDebug(final boolean debug) {
         mDebug = debug;
         return this;
+    }
+
+    public boolean isDebug() {
+        return mDebug;
+    }
+
+    public OkHttpClient getClient() {
+        return mClient;
+    }
+
+    public Map<String, String> getHeaders() {
+        return mHeaders;
+    }
+
+    public Map<String, String> getParams() {
+        return mParams;
     }
 
     /***********************************************************
@@ -108,11 +127,6 @@ public final class NextClient {
 
     public int getHeadersSize() {
         return mHeaders.size();
-    }
-
-    public NextClient setInterceptor(final OkClientInterceptor interceptor) {
-        mInterceptor = interceptor;
-        return this;
     }
 
     public NextClient setHostnameVerifier(HostnameVerifier hostnameVerifier) {
@@ -354,50 +368,19 @@ public final class NextClient {
         return executeInternal(createRequest(method, url, params));
     }
 
-
-    protected NextRequest createRequest(final HttpMethod method, final String url,
-                                        final NextParams params) {
-        final NextRequest request = new NextRequest(method, url)
-                .headers(mHeaders);
-        if (request.supportBody()) {
-            request.forms(mParams);
-        } else {
-            request.queries(mParams);
-        }
-        return request.params(params);
-    }
-
-    protected NextRequest createRequest(final HttpMethod method, final String url,
-                                        final Map<String, String> queries,
-                                        final Map<String, String> forms,
-                                        final Map<String, String> headers) {
-        final NextRequest request = new NextRequest(method, url)
-                .headers(mHeaders);
-        if (request.supportBody()) {
-            request.forms(mParams);
-            request.forms(forms);
-        } else {
-            request.queries(mParams);
-        }
-        return request.headers(headers).queries(queries);
-    }
-
-    public NextResponse execute(final NextRequest req)
+    public NextResponse execute(final NextRequest request)
             throws IOException {
-        // add client params and headers to request
-        final NextRequest request = new NextRequest(req.method(), req.url().toString());
-        if (request.supportBody()) {
-            request.forms(mParams);
-        } else {
-            request.queries(mParams);
-        }
-        request.copy(req);
         return executeInternal(request);
     }
 
     public <T> T execute(final NextRequest req, final ResponseConverter<T> converter)
             throws IOException {
         return executeInternal(req, converter);
+    }
+
+    public NextResponse execute(Request request)
+            throws IOException {
+        return new NextResponse(sendRequest(request));
     }
 
     protected NextResponse executeInternal(final NextRequest request)
@@ -412,32 +395,76 @@ public final class NextClient {
         return converter.convert(response);
     }
 
-    protected Response sendRequest(final NextRequest nr)
+    public Response sendRequest(final NextRequest request)
             throws IOException {
-
-        final Request request = createOkRequest(nr);
         final OkHttpClient client = mClient.clone();
-        if (mDebug || nr.debug()) {
-            Log.v(NextClient.TAG, "execute() " + nr.dump());
-            // intercept for logging
-            client.networkInterceptors().add(new LoggingInterceptor());
+        final OkClientInterceptor it = request.getInterceptor();
+        if (it != null) {
+            it.intercept(client);
         }
-        // intercept for progress callback
-        if (nr.listener() != null) {
-            client.interceptors().add(new ProgressInterceptor(nr.listener()));
+        if (mDebug || request.isDebug()) {
+            Log.v(NextClient.TAG, "sendRequest() " + request);
+            client.networkInterceptors().add(new DebugInterceptor());
         }
-        if (mInterceptor != null) {
-            mInterceptor.intercept(client);
+        final ProgressListener li = request.getListener();
+        if (li != null) {
+            client.interceptors().add(new ProgressInterceptor(li));
         }
-        return client.newCall(request).execute();
+        return client.newCall(createOkRequest(request)).execute();
 
     }
 
-    static Request createOkRequest(final NextRequest nr) throws IOException {
+    public Response sendRequest(final Request request)
+            throws IOException {
+        final OkHttpClient client = mClient.clone();
+        if (mDebug) {
+            Log.v(NextClient.TAG, "sendRequest() " + request);
+            client.networkInterceptors().add(new DebugInterceptor());
+        }
+        return client.newCall(request).execute();
+    }
+
+    public NextRequest createRequest(final HttpMethod method, final String url,
+                                     final NextParams params) {
+        final NextRequest request = new NextRequest(method, url);
+        if (request.supportBody()) {
+            request.forms(mParams);
+        } else {
+            request.queries(mParams);
+        }
+        return request.params(params);
+    }
+
+    public NextRequest createRequest(final HttpMethod method, final String url,
+                                     final Map<String, String> queries,
+                                     final Map<String, String> forms,
+                                     final Map<String, String> headers) {
+        return new NextRequest(method, url).queries(queries)
+                .forms(forms).headers(headers);
+    }
+
+    public Request createOkRequest(final HttpMethod method, final String url,
+                                   final Map<String, String> queries,
+                                   final Map<String, String> forms,
+                                   final Map<String, String> headers)
+            throws IOException {
+        return createOkRequest(createRequest(method, url, queries, forms, headers));
+    }
+
+    public Request createOkRequest(final NextRequest request) throws IOException {
+        if (request.supportBody()) {
+            request.forms(mParams);
+        } else {
+            request.queries(mParams);
+        }
+        final Map<String, String> headers = new HashMap<String, String>();
+        headers.putAll(mHeaders);
+        // Request的Header可以覆盖Client的Header
+        headers.putAll(request.headers());
         return new Request.Builder()
-                .url(nr.url())
-                .headers(Headers.of(nr.headers()))
-                .method(nr.method().name(), nr.getRequestBody()).build();
+                .url(request.url())
+                .headers(Headers.of(headers))
+                .method(request.method().name(), request.getRequestBody()).build();
     }
 
 }
