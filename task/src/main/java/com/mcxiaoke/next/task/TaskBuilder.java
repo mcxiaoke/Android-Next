@@ -21,7 +21,6 @@ public class TaskBuilder<Result> {
     TaskCallback<Result> callback;
     Success<Result> success;
     Failure failure;
-    boolean serial;
     boolean check;
     long delayMillis;
     Bundle extras;
@@ -78,7 +77,7 @@ public class TaskBuilder<Result> {
         this.check = ACTIVE_CHECK_DEFAULT;
     }
 
-    Task<Result> create() {
+    Task<Result> done() {
         return TaskFactory.createTask(this);
     }
 
@@ -88,7 +87,7 @@ public class TaskBuilder<Result> {
      * @return Task
      */
     public TaskFuture build() {
-        return create();
+        return done();
     }
 
     /**
@@ -97,7 +96,7 @@ public class TaskBuilder<Result> {
      * @return TAG
      */
     public String start() {
-        return create().start();
+        return done().start();
     }
 
     /**
@@ -226,17 +225,6 @@ public class TaskBuilder<Result> {
      */
     public TaskBuilder<Result> callback(final TaskCallback<Result> callback) {
         this.callback = callback;
-        return this;
-    }
-
-    /**
-     * 设置是否按新顺序单线程执行添加的任务
-     *
-     * @param serial 是否顺序执行
-     * @return TaskBuilder
-     */
-    public TaskBuilder<Result> serial(final boolean serial) {
-        this.serial = serial;
         return this;
     }
 

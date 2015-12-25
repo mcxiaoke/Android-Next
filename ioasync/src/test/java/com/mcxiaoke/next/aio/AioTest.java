@@ -34,7 +34,7 @@ public class AioTest {
 
     @Before
     public void setup() {
-        TaskQueue queue = TaskQueue.createNew();
+        TaskQueue queue = TaskQueue.concurrent();
         queue.setExecutor(new TestExecutor());
         io = new IOAsync();
         io.setQueue(queue);

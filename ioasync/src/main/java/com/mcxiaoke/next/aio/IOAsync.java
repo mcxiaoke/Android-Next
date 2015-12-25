@@ -44,7 +44,7 @@ public class IOAsync {
 
     public IOAsync() {
         mRequests = new ConcurrentHashMap<Integer, String>();
-        mQueue = TaskQueue.createNew();
+        mQueue = TaskQueue.concurrent();
         mClient = new NextClient();
         mGson = new Gson();
     }

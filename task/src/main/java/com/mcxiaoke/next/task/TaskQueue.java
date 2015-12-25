@@ -1,5 +1,7 @@
 package com.mcxiaoke.next.task;
 
+import java.util.concurrent.Callable;
+
 /**
  * User: mcxiaoke
  * Date: 15/6/18
@@ -8,20 +10,32 @@ package com.mcxiaoke.next.task;
 public abstract class TaskQueue implements ITaskQueue {
 
     static final class SingletonHolder {
-        static final TaskQueue INSTANCE = TaskFactory.createQueue();
+        static final TaskQueue INSTANCE = TaskFactory.createQueue(false);
     }
 
     public static TaskQueue getDefault() {
         return SingletonHolder.INSTANCE;
     }
 
-    public static TaskQueue createNew() {
-        return TaskFactory.createQueue();
+    public static TaskQueue shared() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    public static TaskQueue concurrent() {
+        return TaskFactory.createQueue(false);
+    }
+
+    public static TaskQueue singleThread() {
+        return TaskFactory.createQueue(true);
     }
 
     public static void setDebug(boolean debug) {
         Config.DEBUG = debug;
     }
+
+    abstract <Result> String execute(final Callable<Result> callable,
+                                     final TaskCallback<Result> callback,
+                                     final Object caller);
 
     abstract String execute(final Task task);
 

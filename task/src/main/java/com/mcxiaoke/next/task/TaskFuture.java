@@ -21,8 +21,6 @@ public interface TaskFuture {
 
     boolean cancel();
 
-    boolean isSerial();
-
     boolean isFinished();
 
     boolean isCancelled();

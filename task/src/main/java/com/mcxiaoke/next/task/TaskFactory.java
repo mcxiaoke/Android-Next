@@ -7,8 +7,8 @@ package com.mcxiaoke.next.task;
  */
 final class TaskFactory {
 
-    static TaskQueue createQueue() {
-        return new TaskQueueImpl();
+    static TaskQueue createQueue(boolean singleThreadMode) {
+        return new TaskQueueImpl(singleThreadMode);
     }
 
     static <Result> Task<Result> createTask(final TaskBuilder<Result> builder) {

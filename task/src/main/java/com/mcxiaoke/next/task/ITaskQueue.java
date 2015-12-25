@@ -17,32 +17,18 @@ interface ITaskQueue {
      */
     void setExecutor(ExecutorService executor);
 
-    <Result> String execute(final Callable<Result> callable,
-                            final TaskCallback<Result> callback,
-                            final Object caller, final boolean serial);
-
     <Result> String add(Callable<Result> callable,
                         TaskCallback<Result> callback,
                         Object caller);
 
-    /**
-     * @param callable Callable
-     * @param caller   Caller
-     * @param <Result> Result
-     * @return Tag
-     */
+    <Result> String add(Callable<Result> callable,
+                        TaskCallback<Result> callback);
+
     <Result> String add(Callable<Result> callable, Object caller);
 
-    <Result> String addSerially(Callable<Result> callable,
-                                TaskCallback<Result> callback, Object caller);
+    <Result> String add(final Callable<Result> callable);
 
-    /**
-     * @param callable Callable
-     * @param caller   Caller
-     * @param <Result> Result
-     * @return Tag
-     */
-    <Result> String addSerially(Callable<Result> callable, Object caller);
+    String add(final Runnable runnable);
 
     /**
      * 取消NAME对应的任务

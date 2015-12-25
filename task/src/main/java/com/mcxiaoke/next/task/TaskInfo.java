@@ -50,10 +50,6 @@ class TaskInfo<Result> {
      */
     public final long delayMillis;
     /**
-     * 是否按顺序执行
-     */
-    public final boolean serial;
-    /**
      * 此任务的唯一TAG
      */
     public final TaskTag tag;
@@ -83,7 +79,6 @@ class TaskInfo<Result> {
         this.failure = builder.failure;
         this.check = builder.check;
         this.delayMillis = builder.delayMillis;
-        this.serial = builder.serial;
         this.tag = new TaskTag(builder.caller);
         if (builder.extras != null) {
             this.action.putExtras(builder.extras);
@@ -94,7 +89,6 @@ class TaskInfo<Result> {
     public String toString() {
         return "{" +
                 "tag=" + tag +
-                ", serial=" + serial +
                 ", delay=" + delayMillis +
                 ", check=" + check +
                 '}';

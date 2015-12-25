@@ -58,16 +58,6 @@ final class TaskImpl<Result> implements Task<Result> {
         mInfo.queue.remove(this);
     }
 
-    /**
-     * 任务是否顺序执行
-     *
-     * @return 是否顺序执行
-     */
-    @Override
-    public boolean isSerial() {
-        return mInfo.serial;
-    }
-
     @Override
     public String getGroup() {
         return mInfo.tag.getGroup();
