@@ -2,7 +2,7 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.2.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2015.12.28-com.mcxiaoke.next:core:1.2.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
@@ -105,7 +105,9 @@ IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCall
 
 
 ## 更新记录
-
+- **1.2.1**  2015.12.28
+	* http: 调整NextClient的参数处理方式，调整NextRequest的初始化，增加配置接口
+	* task: 调整TaskQueue的接口，增加创建队列的工厂方法，支持并发和顺序两种模式
 - **1.2.0**  2015.08.24
 	 * func: 新增函数式操作符模块，通过`Fn`类支持常用的 `map/reduce/filter/zip/all/any/concat` 函数，更方便的操作数据序列
 	 * ioasync: 新增异步IO模块，能有效的简化App中请求数据更新UI这一通用逻辑
@@ -180,7 +182,7 @@ IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCall
 #### 开源项目
 
 * Next公共组件库: <https://github.com/mcxiaoke/Android-Next>
-* PackerNg极速打包工具: <https://github.com/mcxiaoke/packer-ng-plugin>
+* PackerNg极速打包: <https://github.com/mcxiaoke/packer-ng-plugin>
 * Gradle渠道打包: <https://github.com/mcxiaoke/gradle-packer-plugin>
 * EventBus实现xBus: <https://github.com/mcxiaoke/xBus>
 * Rx文档中文翻译: <https://github.com/mcxiaoke/RxDocs>

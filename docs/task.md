@@ -123,14 +123,46 @@
 
 #### TaskQueue
 
+TaskQueue的接口
+
+```java
+    // 设置ExecutorService
+    void setExecutor(ExecutorService executor);
+    // 添加任务
+    <Result> String add(Callable<Result> callable,
+                        TaskCallback<Result> callback,
+                        Object caller);
+    // 添加任务
+    <Result> String add(Callable<Result> callable,
+                        TaskCallback<Result> callback);
+    // 添加任务
+    <Result> String add(Callable<Result> callable, Object caller);
+    // 添加任务
+    <Result> String add(final Callable<Result> callable);
+    // 添加任务
+    String add(final Runnable runnable);
+    // 取消任务
+    boolean cancel(String name);
+    // 取消任务
+    int cancelAll(Object caller);
+    // 取消所有任务
+    void cancelAll();
+```
+
+TaskQueue的用法
+
 ```java
 
         // TaskQueue的接口定义见 com.mcxiaoke.next.task.ITaskQueue
 
         // 使用默认TaskQueue
         final TaskQueue taskQueue=TaskQueue.getDefault();
-        // 使用新的自定义TaskQueue
-        final TaskQueue taskQueue2=TaskQueue.createNew();
+        // 使用自定义TaskQueue
+        TaskQueue defaultInstance=TaskQueue.getDefault();
+        TaskQueue sharedInstance = TaskQueue.shared();
+        TaskQueue concurrent = TaskQueue.concurrent();
+        TaskQueue singleThread = TaskQueue.singleThread();
+
         taskQueue2.setDebug(true);
         taskQueue2.setExecutor(Executors.newCachedThreadPool());
 
@@ -172,12 +204,10 @@
             }
         };
         // execute task
-        taskQueue.execute(callable,callback,caller,serial);
+        taskQueue.add(callable,callback,caller);
          taskQueue
         // add task, execute concurrently
         taskQueue.add(callable,callback,caller);
-        // add task, execute serially
-        taskQueue.addSerially(callable, callback, caller);
         // set custom task executor
         taskQueue.setExecutor(executor);
         // save task name for cancel the task
@@ -226,7 +256,7 @@ public interface TaskCallback<Result> {
     void onTaskStarted(final String name, final Bundle extras);
 
     /**
-     * 任务完成
+     * 任务完成，无论是成功还是失败此方法都会调用，任务取消则不会调用
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param status TASK NAME
@@ -235,7 +265,7 @@ public interface TaskCallback<Result> {
     void onTaskFinished(final String name, final Bundle extras);
 
     /**
-     * 任务取消
+     * 任务取消时调用
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param status TASK NAME
@@ -244,7 +274,7 @@ public interface TaskCallback<Result> {
     void onTaskCancelled(final String name, final Bundle extras);
 
     /**
-     * 回调，任务执行完成
+     * 回调，任务执行成功，无异常
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param result 执行结果
@@ -253,7 +283,7 @@ public interface TaskCallback<Result> {
     void onTaskSuccess(Result result, final Bundle extras);
 
     /**
-     * 回调，任务执行失败
+     * 回调，任务执行失败，有异常
      * 注意：此方法默认运行于主线程，可通过 TaskBuilder.dispatch(handler)更改
      *
      * @param ex     失败原因，异常

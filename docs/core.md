@@ -162,7 +162,8 @@ public static Set<String> commaDelimitedListToSet(String str)
 public static boolean nullSafeEquals(String text1, String text2)
 public static String getHumanReadableByteCount(long bytes)
 public static String toSafeFileName(String name)
-                                
+public static String getUrlWithoutQuery(String url)
+public static Map<String, String> parseQueryString(String queryString)                              
 ```
 
 #### 其它的工具类
