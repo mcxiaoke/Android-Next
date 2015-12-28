@@ -12,7 +12,6 @@ import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -432,6 +431,7 @@ public final class NextClient {
         } else {
             request.queries(mParams);
         }
+        request.headers(mHeaders);
         return request.params(params);
     }
 
@@ -439,7 +439,14 @@ public final class NextClient {
                                      final Map<String, String> queries,
                                      final Map<String, String> forms,
                                      final Map<String, String> headers) {
-        return new NextRequest(method, url).queries(queries)
+        final NextRequest request = new NextRequest(method, url);
+        if (request.supportBody()) {
+            request.forms(mParams);
+        } else {
+            request.queries(mParams);
+        }
+        request.headers(mHeaders);
+        return request.queries(queries)
                 .forms(forms).headers(headers);
     }
 
@@ -452,18 +459,18 @@ public final class NextClient {
     }
 
     public Request createOkRequest(final NextRequest request) throws IOException {
-        if (request.supportBody()) {
-            request.forms(mParams);
-        } else {
-            request.queries(mParams);
-        }
-        final Map<String, String> headers = new HashMap<String, String>();
-        headers.putAll(mHeaders);
-        // Request的Header可以覆盖Client的Header
-        headers.putAll(request.headers());
+//        if (request.supportBody()) {
+//            request.forms(mParams);
+//        } else {
+//            request.queries(mParams);
+//        }
+//        final Map<String, String> headers = new HashMap<String, String>();
+//        headers.putAll(mHeaders);
+//        // Request的Header可以覆盖Client的Header
+//        headers.putAll(request.headers());
         return new Request.Builder()
                 .url(request.url())
-                .headers(Headers.of(headers))
+                .headers(Headers.of(request.headers()))
                 .method(request.method().name(), request.getRequestBody()).build();
     }
 

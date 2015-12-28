@@ -38,7 +38,7 @@ public class LoggingInterceptor implements Interceptor {
         Log.v(NextClient.TAG, String.format("[OkHttp Request] %s %s on %s%n",
                 request.method(), request.url(), chain.connection()));
         if (mHeaders) {
-            Log.v(NextClient.TAG, "[OkHttp Request Headers] " + request.headers());
+            Log.v(NextClient.TAG, "[Request Headers] " + request.headers());
         }
         final Response response = chain.proceed(request);
         long t2 = System.nanoTime();
@@ -47,7 +47,7 @@ public class LoggingInterceptor implements Interceptor {
                 , response.code(), response.message()
                 , (t2 - t1) / 1e6d));
         if (mHeaders) {
-            Log.v(NextClient.TAG, "[OkHttp Response Headers] " + response.headers());
+            Log.v(NextClient.TAG, "[Response Headers] " + response.headers());
         }
         if (mBody) {
             Log.v(NextClient.TAG, "[OkHttp Response Body] " + responseToText(response));

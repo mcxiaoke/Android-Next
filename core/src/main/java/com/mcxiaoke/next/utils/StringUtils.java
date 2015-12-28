@@ -19,7 +19,11 @@ package com.mcxiaoke.next.utils;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
+import com.mcxiaoke.next.Charsets;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1538,6 +1542,30 @@ public abstract class StringUtils {
             }
         }
         return builder.toString();
+    }
+
+    public static String getUrlWithoutQuery(String url) {
+        return url.split("\\?")[0];
+    }
+
+    public static Map<String, String> parseQueryString(String queryString) {
+        if (TextUtils.isEmpty(queryString)) {
+            return null;
+        }
+        try {
+            Map<String, String> queries = new HashMap<String, String>();
+            for (String param : queryString.split("&")) {
+                String[] pair = param.split("=");
+                String key = URLDecoder.decode(pair[0], Charsets.ENCODING_UTF_8);
+                if (pair.length > 1) {
+                    String value = URLDecoder.decode(pair[1], Charsets.ENCODING_UTF_8);
+                    queries.put(key, value);
+                }
+            }
+            return queries;
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 

@@ -195,9 +195,9 @@ public final class NextParams {
     @Override
     public String toString() {
         return "{" +
-                "forms:[" + StringUtils.toString(forms) +
+                "queries:[" + StringUtils.toString(queries) +
+                "], forms:[" + StringUtils.toString(forms) +
                 "], parts:[" + StringUtils.toString(parts) +
-                "], queries:[" + StringUtils.toString(queries) +
                 "], headers:[" + StringUtils.toString(headers) +
                 "]}";
     }

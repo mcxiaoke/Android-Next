@@ -17,6 +17,7 @@ package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.IOUtils;
+import com.mcxiaoke.next.utils.StringUtils;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.MultipartBuilder;
@@ -77,12 +78,19 @@ public class NextRequest {
         AssertUtils.notNull(method, "http method can not be null");
         AssertUtils.notEmpty(url, "http url can not be null or empty");
         AssertUtils.notNull(params, "http params can not be null");
-        final HttpUrl hUrl = HttpUrl.parse(url);
-        AssertUtils.notNull(hUrl, "invalid url:" + url);
         this.method = method;
-        this.httpUrl = hUrl;
-        this.httpUrl.url();
         this.params = new NextParams(params);
+        this.httpUrl = parseUrlAndQueryString(url);
+        AssertUtils.notNull(this.httpUrl, "http url can not be null");
+    }
+
+    private HttpUrl parseUrlAndQueryString(final String fullUrl) {
+        final String[] urlParts = fullUrl.split("\\?");
+        String url = urlParts[0];
+        if (urlParts.length > 1) {
+            this.params.queries(StringUtils.parseQueryString(urlParts[1]));
+        }
+        return HttpUrl.parse(url);
     }
 
     public NextRequest debug(final boolean debug) {
