@@ -1,14 +1,16 @@
 package com.mcxiaoke.next.async;
 
+import android.os.Bundle;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.mcxiaoke.next.async.callback.FileCallback;
 import com.mcxiaoke.next.async.callback.GsonCallback;
+import com.mcxiaoke.next.async.callback.HttpCallback;
 import com.mcxiaoke.next.async.callback.ResponseCallback;
 import com.mcxiaoke.next.async.callback.StringCallback;
 import com.mcxiaoke.next.async.converter.GsonTransformer;
-import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextClient;
-import com.mcxiaoke.next.http.NextParams;
 import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.http.transformer.FileTransformer;
@@ -18,6 +20,8 @@ import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.utils.AssertUtils;
+import com.mcxiaoke.next.utils.LogUtils;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
 import java.util.Map;
@@ -37,20 +41,32 @@ public class HttpQueue {
         return SingletonHolder.INSTANCE;
     }
 
+    private static final String TAG = HttpQueue.class.getSimpleName();
+
+    private boolean mDebug;
     private Map<Integer, String> mRequests;
     private TaskQueue mQueue;
     private NextClient mClient;
     private Gson mGson;
 
-    public HttpQueue() {
-        mRequests = new ConcurrentHashMap<Integer, String>();
-        mQueue = TaskQueue.concurrent();
-        mClient = new NextClient();
-        mGson = new Gson();
+    HttpQueue() {
+        this(TaskQueue.concurrent(), new NextClient());
     }
 
-    private Map<String, String> emptyMap() {
-        return null;
+    HttpQueue(final OkHttpClient client) {
+        this(TaskQueue.concurrent(), new NextClient(client));
+    }
+
+    HttpQueue(final TaskQueue queue, final NextClient client) {
+        mRequests = new ConcurrentHashMap<Integer, String>();
+        mGson = new GsonBuilder().setPrettyPrinting().create();
+        mQueue = queue;
+        mClient = client;
+    }
+
+    public void setDebug(final boolean debug) {
+        mDebug = debug;
+        mClient.setDebug(debug);
     }
 
     public void setQueue(final TaskQueue queue) {
@@ -77,265 +93,13 @@ public class HttpQueue {
         return mGson;
     }
 
-    public String head(final String url, final ResponseCallback callback,
-                       Object caller) {
-        return head(url, emptyMap(), callback, caller);
-    }
-
-    public String head(final String url, final Map<String, String> queries,
-                       final ResponseCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.HEAD, url, queries, null, callback, caller);
-    }
-
-    public String head(final String url, final NextParams params,
-                       final ResponseCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.HEAD, url, params, callback, caller);
-    }
-
-    public String get(final String url, final ResponseCallback callback,
+    public String add(final NextRequest request, final File file,
+                      final FileCallback callback,
                       Object caller) {
-        return get(url, emptyMap(), callback, caller);
-    }
-
-    public String get(final String url, final Map<String, String> queries,
-                      final ResponseCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.GET, url, queries, null, callback, caller);
-    }
-
-    public String get(final String url, final NextParams params,
-                      final ResponseCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.GET, url, params, callback, caller);
-    }
-
-    public String get(final String url, final StringCallback callback,
-                      Object caller) {
-        return get(url, emptyMap(), callback, caller);
-    }
-
-    public String get(final String url, final Map<String, String> queries,
-                      final StringCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.GET, url, queries, null, callback, caller);
-    }
-
-    public String get(final String url, final NextParams params,
-                      final StringCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.GET, url, params, callback, caller);
-    }
-
-    public <T> String get(final String url,
-                          final GsonCallback<T> callback,
-                          Object caller) {
-        return get(url, emptyMap(), callback, caller);
-    }
-
-    public <T> String get(final String url, final Map<String, String> queries,
-                          final GsonCallback<T> callback,
-                          Object caller) {
-        return addRequest(HttpMethod.GET, url, queries, null, callback, caller);
-    }
-
-    public <T> String get(final String url, final NextParams params,
-                          final GsonCallback<T> callback,
-                          Object caller) {
-        return addRequest(HttpMethod.GET, url, params, callback, caller);
-    }
-
-    public String delete(final String url, final ResponseCallback callback,
-                         Object caller) {
-        return delete(url, emptyMap(), callback, caller);
-    }
-
-    public String delete(final String url, final Map<String, String> queries,
-                         final ResponseCallback callback,
-                         Object caller) {
-        return addRequest(HttpMethod.DELETE, url, queries, null, callback, caller);
-    }
-
-    public String delete(final String url, final NextParams params,
-                         final ResponseCallback callback,
-                         Object caller) {
-        return addRequest(HttpMethod.DELETE, url, params, callback, caller);
-    }
-
-    public String delete(final String url, final StringCallback callback,
-                         Object caller) {
-        return delete(url, emptyMap(), callback, caller);
-    }
-
-    public String delete(final String url, final Map<String, String> queries,
-                         final StringCallback callback,
-                         Object caller) {
-        return addRequest(HttpMethod.DELETE, url, queries, null, callback, caller);
-    }
-
-    public String delete(final String url, final NextParams params,
-                         final StringCallback callback,
-                         Object caller) {
-        return addRequest(HttpMethod.DELETE, url, params, callback, caller);
-    }
-
-
-    public <T> String delete(final String url,
-                             final GsonCallback<T> callback,
-                             Object caller) {
-        return delete(url, emptyMap(), callback, caller);
-    }
-
-    public <T> String delete(final String url,
-                             final Map<String, String> queries,
-                             final GsonCallback<T> callback,
-                             Object caller) {
-        return addRequest(HttpMethod.DELETE, url, queries, null, callback, caller);
-    }
-
-    public <T> String delete(final String url,
-                             final NextParams params,
-                             final GsonCallback<T> callback,
-                             Object caller) {
-        return addRequest(HttpMethod.DELETE, url, params, callback, caller);
-    }
-
-    public String post(final String url,
-                       final ResponseCallback callback,
-                       Object caller) {
-        return post(url, emptyMap(), callback, caller);
-    }
-
-    public String post(final String url,
-                       final Map<String, String> forms,
-                       final ResponseCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.POST, url, null, forms, callback, caller);
-    }
-
-    public String post(final String url, final NextParams params,
-                       final StringCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.POST, url, params, callback, caller);
-    }
-
-    public String post(final String url,
-                       final StringCallback callback,
-                       Object caller) {
-        return post(url, emptyMap(), callback, caller);
-    }
-
-    public String post(final String url,
-                       final Map<String, String> forms,
-                       final StringCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.POST, url, null, forms, callback, caller);
-    }
-
-    public String post(final String url, final NextParams params,
-                       final ResponseCallback callback,
-                       Object caller) {
-        return addRequest(HttpMethod.POST, url, params, callback, caller);
-    }
-
-    public <T> String post(final String url,
-                           final GsonCallback<T> callback,
-                           Object caller) {
-        return post(url, emptyMap(), callback, caller);
-    }
-
-    public <T> String post(final String url, final Map<String, String> forms,
-                           final GsonCallback<T> callback,
-                           Object caller) {
-        return addRequest(HttpMethod.POST, url, null, forms, callback, caller);
-    }
-
-    public <T> String post(final String url, final NextParams params,
-                           final GsonCallback<T> callback,
-                           Object caller) {
-        return addRequest(HttpMethod.POST, url, params, callback, caller);
-    }
-
-
-    public String put(final String url, final ResponseCallback callback,
-                      Object caller) {
-        return put(url, emptyMap(), callback, caller);
-    }
-
-    public String put(final String url, final Map<String, String> forms,
-                      final ResponseCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.PUT, url, null, forms, callback, caller);
-    }
-
-    public String put(final String url, final NextParams params,
-                      final ResponseCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.PUT, url, params, callback, caller);
-    }
-
-    public String put(final String url, final StringCallback callback,
-                      Object caller) {
-        return put(url, emptyMap(), callback, caller);
-    }
-
-    public String put(final String url, final Map<String, String> forms,
-                      final StringCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.PUT, url, null, forms, callback, caller);
-    }
-
-    public String put(final String url, final NextParams params,
-                      final StringCallback callback,
-                      Object caller) {
-        return addRequest(HttpMethod.PUT, url, params, callback, caller);
-    }
-
-    public <T> String put(final String url, final GsonCallback<T> callback,
-                          Object caller) {
-        return put(url, emptyMap(), callback, caller);
-    }
-
-    public <T> String put(final String url, final Map<String, String> forms,
-                          final GsonCallback<T> callback,
-                          Object caller) {
-        return addRequest(HttpMethod.PUT, url, null, forms, callback, caller);
-    }
-
-    public <T> String put(final String url, final NextParams params,
-                          final GsonCallback<T> callback,
-                          Object caller) {
-        return addRequest(HttpMethod.PUT, url, params, callback, caller);
-    }
-
-
-    public String download(final String url, final File file, final FileCallback callback,
-                           Object caller) {
-        return download(url, file, emptyMap(), callback, caller);
-    }
-
-    public String download(final String url, final File file, final Map<String, String> queries,
-                           final FileCallback callback,
-                           Object caller) {
-        final NextRequest request = new NextRequest(HttpMethod.GET, url).queries(queries);
-        return addRequest(request, file, callback, caller);
-    }
-
-    public String download(final String url, final File file, final NextParams params,
-                           final FileCallback callback,
-                           Object caller) {
-        final NextRequest request = new NextRequest(HttpMethod.GET, url, params);
-        return addRequest(request, file, callback, caller);
-    }
-
-    public String addRequest(final NextRequest request, final File file,
-                             final FileCallback callback,
-                             Object caller) {
         AssertUtils.notNull(request, "request must not be null.");
         AssertUtils.notNull(file, "file must not be null.");
-        AssertUtils.notNull(callback, "callback must not be null.");
         AssertUtils.notNull(caller, "caller must not be null.");
+        ensureClient();
         final NextClient client = mClient;
         final TaskCallable<File> callable = new TaskCallable<File>() {
             @Override
@@ -346,13 +110,12 @@ public class HttpQueue {
         return enqueue(request, callable, callback, caller);
     }
 
-    public String addRequest(final NextRequest request,
-                             final ResponseCallback callback,
-                             Object caller) {
+    public String add(final NextRequest request,
+                      final ResponseCallback callback,
+                      Object caller) {
         AssertUtils.notNull(request, "request must not be null.");
-        AssertUtils.notNull(callback, "callback must not be null.");
         AssertUtils.notNull(caller, "caller must not be null.");
-        final TaskQueue queue = mQueue;
+        ensureClient();
         final NextClient client = mClient;
         final TaskCallable<NextResponse> callable = new TaskCallable<NextResponse>() {
             @Override
@@ -363,15 +126,13 @@ public class HttpQueue {
         return enqueue(request, callable, callback, caller);
     }
 
-    public String addRequest(final NextRequest request,
-                             final StringCallback callback,
-                             Object caller) {
+    public String add(final NextRequest request,
+                      final StringCallback callback,
+                      Object caller) {
         AssertUtils.notNull(request, "request must not be null.");
-        AssertUtils.notNull(callback, "callback must not be null.");
         AssertUtils.notNull(caller, "caller must not be null.");
-        final TaskQueue queue = mQueue;
+        ensureClient();
         final NextClient client = mClient;
-        final Gson gson = mGson;
         final TaskCallable<String> callable = new TaskCallable<String>() {
             @Override
             public String call() throws Exception {
@@ -381,13 +142,12 @@ public class HttpQueue {
         return enqueue(request, callable, callback, caller);
     }
 
-    public <T> String addRequest(final NextRequest request,
-                                 final GsonCallback<T> callback,
-                                 Object caller) {
+    public <T> String add(final NextRequest request,
+                          final GsonCallback<T> callback,
+                          Object caller) {
         AssertUtils.notNull(request, "request must not be null.");
-        AssertUtils.notNull(callback, "callback must not be null.");
         AssertUtils.notNull(caller, "caller must not be null.");
-        final TaskQueue queue = mQueue;
+        ensureClient();
         final NextClient client = mClient;
         final Gson gson = mGson;
         final TaskCallable<T> callable = new TaskCallable<T>() {
@@ -398,90 +158,6 @@ public class HttpQueue {
             }
         };
         return enqueue(request, callable, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method,
-                             final String url,
-                             final NextParams params,
-                             final ResponseCallback callback,
-                             Object caller) {
-        final NextRequest request = new NextRequest(method, url).params(params);
-        return addRequest(request, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method,
-                             final String url,
-                             final NextParams params,
-                             final StringCallback callback,
-                             Object caller) {
-        final NextRequest request = new NextRequest(method, url).params(params);
-        return addRequest(request, callback, caller);
-    }
-
-    public <T> String addRequest(final HttpMethod method,
-                                 final String url,
-                                 final NextParams params,
-                                 final GsonCallback<T> callback,
-                                 Object caller) {
-        final NextRequest request = new NextRequest(method, url).params(params);
-        return addRequest(request, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method, final String url,
-                             final Map<String, String> queries,
-                             final Map<String, String> forms,
-                             final ResponseCallback callback,
-                             Object caller) {
-        return addRequest(method, url, queries, forms, null, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method, final String url,
-                             final Map<String, String> queries,
-                             final Map<String, String> forms,
-                             final StringCallback callback,
-                             Object caller) {
-        return addRequest(method, url, queries, forms, null, callback, caller);
-    }
-
-    public <T> String addRequest(final HttpMethod method, final String url,
-                                 final Map<String, String> queries,
-                                 final Map<String, String> forms,
-                                 final GsonCallback<T> callback,
-                                 Object caller) {
-        return addRequest(method, url, queries, forms, null, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method, final String url,
-                             final Map<String, String> queries,
-                             final Map<String, String> forms,
-                             final Map<String, String> headers,
-                             final ResponseCallback callback,
-                             Object caller) {
-        final NextRequest request = new NextRequest(method, url).queries(queries).
-                forms(forms).headers(headers);
-        return addRequest(request, callback, caller);
-    }
-
-    public String addRequest(final HttpMethod method, final String url,
-                             final Map<String, String> queries,
-                             final Map<String, String> forms,
-                             final Map<String, String> headers,
-                             final StringCallback callback,
-                             Object caller) {
-        final NextRequest request = new NextRequest(method, url).queries(queries).
-                forms(forms).headers(headers);
-        return addRequest(request, callback, caller);
-    }
-
-    public <T> String addRequest(final HttpMethod method, final String url,
-                                 final Map<String, String> queries,
-                                 final Map<String, String> forms,
-                                 final Map<String, String> headers,
-                                 final GsonCallback<T> callback,
-                                 Object caller) {
-        final NextRequest request = new NextRequest(method, url).queries(queries).
-                forms(forms).headers(headers);
-        return addRequest(request, callback, caller);
     }
 
     public void cancelAll(Object caller) {
@@ -506,11 +182,75 @@ public class HttpQueue {
 
     private <T> String enqueue(final NextRequest request,
                                final TaskCallable<T> callable,
-                               final TaskCallback<T> callback,
+                               final HttpCallback<T> callback,
                                final Object caller) {
+        if (mDebug) {
+            LogUtils.v(TAG, "[Enqueue] " + request + " from " + caller);
+        }
+        ensureQueue();
         final int hashCode = System.identityHashCode(request);
-        final String tag = mQueue.add(callable, callback, caller);
+        final TaskCallback<T> taskCallback = new TaskCallback<T>() {
+            @Override
+            public void onTaskStarted(final String name, final Bundle extras) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "[Started] (" + name + ") " + request.url());
+                }
+            }
+
+            @Override
+            public void onTaskFinished(final String name, final Bundle extras) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "[Finished] (" + name + ") " + request.url());
+                }
+            }
+
+            @Override
+            public void onTaskCancelled(final String name, final Bundle extras) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "[Cancelled] (" + name + ") " + request.url());
+                }
+            }
+
+            @Override
+            public void onTaskSuccess(final T t, final Bundle extras) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "[Success] (" + t.getClass() + ") " + request.url());
+                }
+                if (callback != null) {
+                    callback.onSuccess(t);
+                }
+            }
+
+            @Override
+            public void onTaskFailure(final Throwable ex, final Bundle extras) {
+                if (mDebug) {
+                    LogUtils.v(TAG, "[Failure] (" + ex + ") " + request.url());
+                }
+                if (callback != null) {
+                    callback.onError(ex);
+                }
+            }
+        };
+        final String tag = mQueue.add(callable, taskCallback, caller);
         mRequests.put(hashCode, tag);
         return tag;
+    }
+
+    private synchronized void ensureClient() {
+        if (mClient == null) {
+            mClient = new NextClient();
+        }
+    }
+
+    private synchronized void ensureQueue() {
+        if (mQueue == null) {
+            mQueue = TaskQueue.concurrent();
+        }
+    }
+
+
+    public static String prettyPrintJson(final String rawJson) {
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(new JsonParser().parse(rawJson));
     }
 }

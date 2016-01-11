@@ -8,12 +8,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * User: mcxiaoke
@@ -32,7 +28,7 @@ public final class NextClient {
 
     public static final String TAG = NextClient.class.getSimpleName();
     private boolean mDebug;
-    private final OkHttpClient mClient;
+    private OkHttpClient mClient;
     private Map<String, String> mParams;
     private Map<String, String> mHeaders;
 
@@ -53,6 +49,10 @@ public final class NextClient {
 
     public boolean isDebug() {
         return mDebug;
+    }
+
+    public void setClient(final OkHttpClient client) {
+        mClient = client;
     }
 
     public OkHttpClient getClient() {
@@ -126,63 +126,6 @@ public final class NextClient {
 
     public int getHeadersSize() {
         return mHeaders.size();
-    }
-
-    public NextClient setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-        mClient.setHostnameVerifier(hostnameVerifier);
-        return this;
-    }
-
-    public NextClient setSocketFactory(SocketFactory socketFactory) {
-        mClient.setSocketFactory(socketFactory);
-        return this;
-    }
-
-    public NextClient setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
-        mClient.setSslSocketFactory(sslSocketFactory);
-        return this;
-    }
-
-    public NextClient setFollowRedirects(boolean followRedirects) {
-        mClient.setFollowRedirects(followRedirects);
-        return this;
-    }
-
-    public NextClient setFollowSslRedirects(boolean followProtocolRedirects) {
-        mClient.setFollowSslRedirects(followProtocolRedirects);
-        return this;
-    }
-
-    public NextClient setRetryOnConnectionFailure(boolean retryOnConnectionFailure) {
-        mClient.setRetryOnConnectionFailure(retryOnConnectionFailure);
-        return this;
-    }
-
-    public int getConnectTimeout() {
-        return mClient.getConnectTimeout();
-    }
-
-    public int getReadTimeout() {
-        return mClient.getReadTimeout();
-    }
-
-    public int getWriteTimeout() {
-        return mClient.getWriteTimeout();
-    }
-
-    public NextClient setConnectTimeout(long timeout, TimeUnit unit) {
-        mClient.setConnectTimeout(timeout, unit);
-        return this;
-    }
-
-    public NextClient setReadTimeout(long timeout, TimeUnit unit) {
-        mClient.setReadTimeout(timeout, unit);
-        return this;
-    }
-
-    public NextClient setWriteTimeout(long timeout, TimeUnit unit) {
-        mClient.setWriteTimeout(timeout, unit);
-        return this;
     }
 
     public String getUserAgent() {

@@ -19,7 +19,7 @@ public class LoggingInterceptor implements Interceptor {
     private final boolean mBody;
 
     public LoggingInterceptor() {
-        this(true, false);
+        this(false, false);
     }
 
     public LoggingInterceptor(final boolean headers) {
@@ -35,7 +35,7 @@ public class LoggingInterceptor implements Interceptor {
     public Response intercept(final Chain chain) throws IOException {
         long t1 = System.nanoTime();
         final Request request = chain.request();
-        Log.v(NextClient.TAG, String.format("[OkHttp Request] %s %s on %s%n",
+        Log.v(NextClient.TAG, String.format("[Request] %s %s on %s%n",
                 request.method(), request.url(), chain.connection()));
         if (mHeaders) {
             Log.v(NextClient.TAG, "[Request Headers] " + request.headers());
@@ -50,7 +50,7 @@ public class LoggingInterceptor implements Interceptor {
             Log.v(NextClient.TAG, "[Response Headers] " + response.headers());
         }
         if (mBody) {
-            Log.v(NextClient.TAG, "[OkHttp Response Body] " + responseToText(response));
+            Log.v(NextClient.TAG, "[Response] " + responseToText(response));
         }
         return response;
     }
@@ -59,4 +59,5 @@ public class LoggingInterceptor implements Interceptor {
             throws IOException {
         return StringUtils.safeSubString(IOUtils.readString(response.body().charStream()), 8196);
     }
+
 }

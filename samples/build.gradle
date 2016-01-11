@@ -6,6 +6,7 @@ dependencies {
     compile project(":core")
     compile project(":task")
     compile project(":http")
+    compile project(":http-async")
     compile project(":ui")
     compile project(":recycler")
     compile 'com.mcxiaoke.volley:library:1.0.18'
@@ -14,7 +15,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:design:22.2.0'
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.google.code.gson:gson:2.5'
     compile 'io.reactivex:rxjava:1.0.12'
     compile 'io.reactivex:rxandroid:0.25.0'
 }

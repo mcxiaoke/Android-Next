@@ -2,20 +2,16 @@ package com.mcxiaoke.next.samples.http;
 
 import android.os.Bundle;
 import android.util.Log;
+import com.mcxiaoke.next.async.HttpAsync;
+import com.mcxiaoke.next.async.HttpQueue;
+import com.mcxiaoke.next.async.callback.StringCallback;
 import com.mcxiaoke.next.http.HttpMethod;
-import com.mcxiaoke.next.http.NextClient;
-import com.mcxiaoke.next.http.NextParams;
 import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.BuildConfig;
 import com.mcxiaoke.next.samples.SampleUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * User: mcxiaoke
@@ -25,28 +21,30 @@ import java.util.Map;
 public class NextClientSamples extends BaseActivity {
     public static final String TAG = NextClientSamples.class.getSimpleName();
     private static final boolean DEBUG = true;
+    private HttpQueue mHttpQueue;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    testGet();
-//                    testPost();
-                    testPostJson();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-
-
+        mHttpQueue = HttpAsync.newHttpQueue();
+        mHttpQueue.setDebug(true);
+        testGet();
+        testPostForm();
+        try {
+            testPostJson();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void testGet() throws IOException {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHttpQueue.cancelAll(this);
+    }
+
+    private void testGet() {
         final String url = "https://api.douban.com/v2/user/1000001";
         final NextRequest request = new NextRequest(HttpMethod.GET, url)
                 .debug(true)
@@ -54,16 +52,25 @@ public class NextClientSamples extends BaseActivity {
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .form("douban", "yes")
                 .query("app_version", "1.5.2");
-        final NextClient client = new NextClient().setDebug(true);
-//
 
-        final NextResponse response = client.execute(request);
-        // get body as string
-        Log.v(TAG, "http response content: "
-                + SampleUtils.prettyPrintJson(response.string()));
+        mHttpQueue.add(request, new StringCallback() {
+            @Override
+            public void onError(final Throwable error) {
+                super.onError(error);
+                Log.d(TAG, "testGet http response error: " + error);
+            }
+
+            @Override
+            public void onSuccess(final String response) {
+                super.onSuccess(response);
+                Log.d(TAG, "testGet http response content: "
+                        + SampleUtils.prettyPrintJson(response));
+            }
+        }, this);
+
     }
 
-    private void testPostForm() throws IOException {
+    private void testPostForm() {
         final String url = "https://moment.douban.com/api/post/114309/like";
         final NextRequest request = new NextRequest(HttpMethod.POST, url)
                 .debug(true)
@@ -72,14 +79,23 @@ public class NextClientSamples extends BaseActivity {
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .form("version", "6")
                 .query("app_version", "1.2.3");
-        final NextClient client = new NextClient();
-        final NextResponse response = client.execute(request);
-        // get body as string
-        Log.v(TAG, "http response content: "
-                + SampleUtils.prettyPrintJson(response.string()));
+        mHttpQueue.add(request, new StringCallback() {
+            @Override
+            public void onError(final Throwable error) {
+                super.onError(error);
+                Log.d(TAG, "testPostForm http response error: " + error);
+            }
+
+            @Override
+            public void onSuccess(final String response) {
+                super.onSuccess(response);
+                Log.d(TAG, "testPostForm http response content: "
+                        + SampleUtils.prettyPrintJson(response));
+            }
+        }, this);
     }
 
-    private void testPostJson() throws JSONException, IOException {
+    private void testPostJson() throws JSONException {
         final String url = "https://api.github.com/gists";
         final NextRequest request = new NextRequest(HttpMethod.POST, url)
                 .debug(true)
@@ -103,42 +119,20 @@ public class NextClientSamples extends BaseActivity {
         json.put("files", files);
         Log.v(TAG, "json string: " + json.toString());
         request.body(json.toString().getBytes());
-        final NextClient client = new NextClient();
-        final NextResponse response = client.execute(request);
-        // get body as string
-        Log.v(TAG, "http response content: "
-                + SampleUtils.prettyPrintJson(response.string()));
+        mHttpQueue.add(request, new StringCallback() {
+            @Override
+            public void onError(final Throwable error) {
+                super.onError(error);
+                Log.d(TAG, "testPostJson http response error: " + error);
+            }
 
-        final Map<String, String> queries = new HashMap<>();
-        final Map<String, String> forms = new HashMap<>();
-        final Map<String, String> headers = new HashMap<>();
-        final NextParams params = new NextParams();
-
-        /**
-        client.head(url);
-        client.head(url, queries);
-        client.head(url, queries, headers);
-
-        client.get(url);
-        client.get(url, queries);
-        client.get(url, queries, headers);
-        client.get(url, params);
-
-        client.delete(url);
-        client.delete(url, queries);
-        client.delete(url, queries, headers);
-        client.delete2(url, forms);
-        client.delete2(url, forms, headers);
-        client.delete(url, params);
-
-        client.post(url, forms);
-        client.post(url, forms, headers);
-        client.post(url, params);
-
-        client.put(url, forms);
-        client.put(url, forms, headers);
-        client.put(url, params);
-         **/
+            @Override
+            public void onSuccess(final String response) {
+                super.onSuccess(response);
+                Log.d(TAG, "testPostJson http response content: "
+                        + SampleUtils.prettyPrintJson(response));
+            }
+        }, this);
 
     }
 }
