@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.async.callback;
+package com.mcxiaoke.next.http.callback;
 
 import java.lang.reflect.Type;
 

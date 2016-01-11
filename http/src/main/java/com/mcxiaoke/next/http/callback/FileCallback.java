@@ -1,6 +1,4 @@
-package com.mcxiaoke.next.async.callback;
-
-import android.os.Bundle;
+package com.mcxiaoke.next.http.callback;
 
 import java.io.File;
 

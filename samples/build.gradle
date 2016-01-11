@@ -6,7 +6,6 @@ dependencies {
     compile project(":core")
     compile project(":task")
     compile project(":http")
-    compile project(":http-async")
     compile project(":ui")
     compile project(":recycler")
     compile 'com.mcxiaoke.volley:library:1.0.18'

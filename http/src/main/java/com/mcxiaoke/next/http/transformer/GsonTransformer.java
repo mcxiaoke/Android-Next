@@ -1,8 +1,7 @@
-package com.mcxiaoke.next.async.converter;
+package com.mcxiaoke.next.http.transformer;
 
 import com.google.gson.Gson;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

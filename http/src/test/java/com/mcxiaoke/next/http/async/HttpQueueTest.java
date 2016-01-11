@@ -1,12 +1,14 @@
-package com.mcxiaoke.next.async;
+package com.mcxiaoke.next.http.async;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import com.mcxiaoke.next.async.callback.GsonCallback;
+import com.mcxiaoke.next.http.HttpAsync;
+import com.mcxiaoke.next.http.HttpQueue;
 import com.mcxiaoke.next.http.NextResponse;
+import com.mcxiaoke.next.http.callback.GsonCallback;
 import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.task.TaskQueue;
 import junit.framework.Assert;

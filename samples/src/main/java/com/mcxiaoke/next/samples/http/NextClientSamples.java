@@ -2,11 +2,11 @@ package com.mcxiaoke.next.samples.http;
 
 import android.os.Bundle;
 import android.util.Log;
-import com.mcxiaoke.next.async.HttpAsync;
-import com.mcxiaoke.next.async.HttpQueue;
-import com.mcxiaoke.next.async.callback.StringCallback;
 import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.HttpAsync;
+import com.mcxiaoke.next.http.HttpQueue;
+import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.BuildConfig;
 import com.mcxiaoke.next.samples.SampleUtils;

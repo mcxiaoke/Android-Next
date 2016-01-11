@@ -1,19 +1,16 @@
-package com.mcxiaoke.next.async;
+package com.mcxiaoke.next.http;
 
 import android.os.Bundle;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
-import com.mcxiaoke.next.async.callback.FileCallback;
-import com.mcxiaoke.next.async.callback.GsonCallback;
-import com.mcxiaoke.next.async.callback.HttpCallback;
-import com.mcxiaoke.next.async.callback.ResponseCallback;
-import com.mcxiaoke.next.async.callback.StringCallback;
-import com.mcxiaoke.next.async.converter.GsonTransformer;
-import com.mcxiaoke.next.http.NextClient;
-import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.http.NextResponse;
+import com.mcxiaoke.next.http.callback.FileCallback;
+import com.mcxiaoke.next.http.callback.GsonCallback;
+import com.mcxiaoke.next.http.callback.HttpCallback;
+import com.mcxiaoke.next.http.callback.ResponseCallback;
+import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.http.transformer.FileTransformer;
+import com.mcxiaoke.next.http.transformer.GsonTransformer;
 import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.mcxiaoke.next.task.TaskCallable;

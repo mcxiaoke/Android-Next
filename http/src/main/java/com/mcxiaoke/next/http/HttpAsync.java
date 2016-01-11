@@ -1,13 +1,9 @@
-package com.mcxiaoke.next.async;
+package com.mcxiaoke.next.http;
 
-import com.mcxiaoke.next.async.callback.FileCallback;
-import com.mcxiaoke.next.async.callback.GsonCallback;
-import com.mcxiaoke.next.async.callback.ResponseCallback;
-import com.mcxiaoke.next.async.callback.StringCallback;
-import com.mcxiaoke.next.http.HttpMethod;
-import com.mcxiaoke.next.http.NextClient;
-import com.mcxiaoke.next.http.NextParams;
-import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.callback.FileCallback;
+import com.mcxiaoke.next.http.callback.GsonCallback;
+import com.mcxiaoke.next.http.callback.ResponseCallback;
+import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.task.TaskQueue;
 import com.squareup.okhttp.OkHttpClient;
 
