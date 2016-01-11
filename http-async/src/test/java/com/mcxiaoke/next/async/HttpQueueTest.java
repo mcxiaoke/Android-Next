@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.async;
 
-import android.os.Bundle;
 import android.test.suitebuilder.annotation.SmallTest;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
@@ -25,28 +24,26 @@ import java.util.List;
  * Time: 14:52
  */
 @SmallTest
-public class AioTest {
+public class HttpQueueTest {
     private static final String TEST_URL = "https://api.douban.com/v2/user/1000001";
     private static final String TEST_URL2 = "https://api.douban.com/v2/lifestream/user_timeline/1000001";
 
-
-    private HttpQueue io;
+    private HttpQueue httpQueue;
 
     @Before
     public void setup() {
         TaskQueue queue = TaskQueue.concurrent();
         queue.setExecutor(new TestExecutor());
-        io = new HttpQueue();
-        io.setQueue(queue);
+        httpQueue = new HttpQueue();
+        httpQueue.setQueue(queue);
 
     }
 
     @Test
     public void testGsonCallback1() {
-        io.get(TEST_URL, new GsonCallback<User>(User.class) {
+        HttpAsync.get(TEST_URL, new GsonCallback<User>(User.class) {
             @Override
-            public void onTaskSuccess(final User user, final Bundle extras) {
-                super.onTaskSuccess(user, extras);
+            public void onSuccess(final User user) {
                 Assert.assertNotNull(user);
                 Assert.assertEquals("1000001", user.id);
             }
@@ -57,10 +54,9 @@ public class AioTest {
     public void testGsonCallback2() {
         Type type = new TypeToken<List<Status>>() {
         }.getType();
-        io.get(TEST_URL2, new GsonCallback<List<Status>>(type) {
+        HttpAsync.get(TEST_URL2, new GsonCallback<List<Status>>(type) {
             @Override
-            public void onTaskSuccess(final List<Status> statuses, final Bundle extras) {
-                super.onTaskSuccess(statuses, extras);
+            public void onSuccess(final List<Status> statuses) {
                 System.err.println(statuses.get(1));
                 Assert.assertNotNull(statuses);
                 Assert.assertNotNull(statuses.get(1));
