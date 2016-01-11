@@ -5,15 +5,15 @@ import com.mcxiaoke.next.async.callback.FileCallback;
 import com.mcxiaoke.next.async.callback.GsonCallback;
 import com.mcxiaoke.next.async.callback.ResponseCallback;
 import com.mcxiaoke.next.async.callback.StringCallback;
-import com.mcxiaoke.next.async.converter.GsonConverter;
+import com.mcxiaoke.next.async.converter.GsonTransformer;
 import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextParams;
 import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.http.converter.FileConverter;
-import com.mcxiaoke.next.http.converter.ResponseConverter;
-import com.mcxiaoke.next.http.converter.StringConverter;
+import com.mcxiaoke.next.http.transformer.FileTransformer;
+import com.mcxiaoke.next.http.transformer.ResponseTransformer;
+import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
@@ -340,7 +340,7 @@ public class HttpQueue {
         final TaskCallable<File> callable = new TaskCallable<File>() {
             @Override
             public File call() throws Exception {
-                return client.execute(request, new FileConverter(file));
+                return client.execute(request, new FileTransformer(file));
             }
         };
         return enqueue(request, callable, callback, caller);
@@ -375,7 +375,7 @@ public class HttpQueue {
         final TaskCallable<String> callable = new TaskCallable<String>() {
             @Override
             public String call() throws Exception {
-                return client.execute(request, new StringConverter());
+                return client.execute(request, new StringTransformer());
             }
         };
         return enqueue(request, callable, callback, caller);
@@ -393,7 +393,7 @@ public class HttpQueue {
         final TaskCallable<T> callable = new TaskCallable<T>() {
             @Override
             public T call() throws Exception {
-                final ResponseConverter<T> converter = new GsonConverter<>(gson, callback.type());
+                final ResponseTransformer<T> converter = new GsonTransformer<>(gson, callback.type());
                 return client.execute(request, converter);
             }
         };

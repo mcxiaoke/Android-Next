@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import android.util.Log;
-import com.mcxiaoke.next.http.converter.ResponseConverter;
+import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
@@ -355,7 +355,7 @@ public final class NextClient {
                          final Map<String, String> queries,
                          final Map<String, String> forms,
                          final Map<String, String> headers,
-                         final ResponseConverter<T> converter)
+                         final ResponseTransformer<T> converter)
             throws IOException {
         return executeInternal(createRequest(method, url,
                 queries, forms, headers), converter);
@@ -372,9 +372,9 @@ public final class NextClient {
         return executeInternal(request);
     }
 
-    public <T> T execute(final NextRequest req, final ResponseConverter<T> converter)
+    public <T> T execute(final NextRequest req, final ResponseTransformer<T> transformer)
             throws IOException {
-        return executeInternal(req, converter);
+        return executeInternal(req, transformer);
     }
 
     public NextResponse execute(Request request)
@@ -388,10 +388,9 @@ public final class NextClient {
     }
 
     protected <T> T executeInternal(final NextRequest request,
-                                    final ResponseConverter<T> converter)
+                                    final ResponseTransformer<T> transformer)
             throws IOException {
-        final NextResponse response = new NextResponse(sendRequest(request));
-        return converter.convert(response);
+        return transformer.transform(new NextResponse(sendRequest(request)));
     }
 
     public Response sendRequest(final NextRequest request)

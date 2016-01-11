@@ -10,7 +10,7 @@ import java.io.IOException;
  * Date: 15/7/2
  * Time: 15:17
  */
-public class ProgressInterceptor implements Interceptor {
+class ProgressInterceptor implements Interceptor {
     private ProgressListener listener;
 
     public ProgressInterceptor(final ProgressListener listener) {

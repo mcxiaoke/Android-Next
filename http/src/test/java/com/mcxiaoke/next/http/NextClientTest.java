@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import com.mcxiaoke.next.http.converter.ResponseConverter;
-import com.mcxiaoke.next.http.converter.StringConverter;
+import com.mcxiaoke.next.http.transformer.ResponseTransformer;
+import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.squareup.okhttp.HttpUrl;
 import org.junit.Test;
 
@@ -328,7 +328,7 @@ public class NextClientTest extends BaseTest {
         client.setUserAgent("client-ua");
         client.setAuthorization("client-auth");
         client.setReferer("www.douban.com");
-        StringConverter converter = new StringConverter();
+        StringTransformer converter = new StringTransformer();
         final String content = client.execute(request, converter);
         notNull(content);
         isTrue(content.contains("1000001"));
@@ -379,17 +379,17 @@ public class NextClientTest extends BaseTest {
         }
     }
 
-    static class GsonConverter<T> implements ResponseConverter<T> {
+    static class GsonTransformer<T> implements ResponseTransformer<T> {
         private Gson gson;
         private Type type;
 
-        public GsonConverter(final Gson gson, final Type type) {
+        public GsonTransformer(final Gson gson, final Type type) {
             this.gson = gson;
             this.type = type;
         }
 
         @Override
-        public T convert(final NextResponse response) throws IOException {
+        public T transform(final NextResponse response) throws IOException {
             return gson.fromJson(response.string(), type);
         }
     }
@@ -405,7 +405,7 @@ public class NextClientTest extends BaseTest {
         client.setUserAgent("client-ua");
         client.setAuthorization("client-auth");
         client.setReferer("www.douban.com");
-        GsonConverter<User> converter = new GsonConverter<User>(new Gson(), User.class);
+        GsonTransformer<User> converter = new GsonTransformer<User>(new Gson(), User.class);
         final User user = client.execute(request, converter);
         notNull(user);
         notNull(user.id);
@@ -427,7 +427,7 @@ public class NextClientTest extends BaseTest {
         Type type = new TypeToken<List<Status>>() {
         }.getType();
         Gson gson = new Gson();
-        GsonConverter<List<Status>> converter = new GsonConverter<List<Status>>(gson, type);
+        GsonTransformer<List<Status>> converter = new GsonTransformer<List<Status>>(gson, type);
         List<Status> timeline = client.execute(request, converter);
         System.err.println("timeline:" + timeline);
         notNull(timeline);

@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.async.callback.GsonCallback;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.http.converter.ResponseConverter;
+import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.task.TaskQueue;
 import junit.framework.Assert;
 import org.junit.After;
@@ -119,17 +119,17 @@ public class AioTest {
         }
     }
 
-    static class GsonConverter<T> implements ResponseConverter<T> {
+    static class GsonTransformer<T> implements ResponseTransformer<T> {
         private Gson gson;
         private Type type;
 
-        public GsonConverter(final Gson gson, final Type type) {
+        public GsonTransformer(final Gson gson, final Type type) {
             this.gson = gson;
             this.type = type;
         }
 
         @Override
-        public T convert(final NextResponse response) throws IOException {
+        public T transform(final NextResponse response) throws IOException {
             return gson.fromJson(response.string(), type);
         }
     }

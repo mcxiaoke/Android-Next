@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.http.converter;
+package com.mcxiaoke.next.http.transformer;
 
 import com.mcxiaoke.next.http.NextResponse;
 
@@ -10,17 +10,17 @@ import java.io.IOException;
  * Date: 15/8/21
  * Time: 14:46
  */
-public class FileConverter implements ResponseConverter<File> {
+public class FileTransformer implements ResponseTransformer<File> {
 
     private File file;
 
-    public FileConverter(final File file) {
+    public FileTransformer(final File file) {
         this.file = file;
     }
 
 
     @Override
-    public File convert(final NextResponse response) throws IOException {
+    public File transform(final NextResponse response) throws IOException {
         boolean saved = response.writeTo(file);
         if (saved) {
             return file;
