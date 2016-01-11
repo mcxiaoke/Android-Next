@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -58,7 +57,6 @@ public class TaskQueueSamples extends BaseActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.act_next_executor);
         ButterKnife.inject(this);
         mEditText.setText("https://api.github.com/users/mcxiaoke");
@@ -84,31 +82,35 @@ public class TaskQueueSamples extends BaseActivity {
         final TaskCallback<String> callback = new TaskCallback<String>() {
             @Override
             public void onTaskCancelled(final String name, final Bundle extras) {
-                println("task cancelled " + name + " index:" + extras.getInt("index"));
+                println("task cancelled " + " index:"
+                        + extras.getInt("index") + " thread:" + extras.getString(TASK_THREAD));
             }
 
             @Override
             public void onTaskStarted(final String name, final Bundle extras) {
-                println("task started " + name + " index:" + extras.getInt("index"));
+                println("task started " + " index:" + extras.getInt("index"));
             }
 
             @Override
             public void onTaskFinished(final String name, final Bundle extras) {
-                println("task finished " + name + " index:" + extras.getInt("index"));
+//                println("task finished " + " index:"
+//                        + extras.getInt("index") + " thread:" + extras.getString(TASK_THREAD));
             }
 
             @Override
             public void onTaskSuccess(final String result, final Bundle extras) {
-                println("task success, index:" + extras.getInt("index"));
+                println("task success, index:"
+                        + extras.getInt("index") + " thread: " + extras.getString(TASK_THREAD));
             }
 
             @Override
             public void onTaskFailure(final Throwable ex, final Bundle extras) {
-                println("task failure index:" + extras.getInt("index"));
+                println("task failure index:"
+                        + extras.getInt("index") + " thread:" + extras.getString(TASK_THREAD));
             }
         };
 
-        TaskQueue concurrent = TaskQueue.concurrent();
+        TaskQueue concurrent = TaskQueue.concurrent(2);
         TaskQueue singleThread = TaskQueue.singleThread();
 
         TaskBuilder.create(getCallable(url, true)).with(this).check(true).callback(callback).on(concurrent).start();
@@ -133,13 +135,19 @@ public class TaskQueueSamples extends BaseActivity {
         singleThread.add(getCallable(url, true), callback, new View(this));
         singleThread.add(getCallable(url, true), callback, new View(this));
 
-//        final TaskQueue queue = TaskQueue.createNew();
-//        final JSONObject o1 = new JSONObject();
-//        final JSONObject o2 = new JSONObject();
-//        for (int i = 0; i < 100; i++) {
-//            queue.execute(getCallable(url, false), callback, o1, false);
-//            TaskBuilder.create(getCallable(url, true), callback, o2).on(queue).serial(false).start();
-//        }
+        final TaskQueue queue = TaskQueue.concurrent(10);
+        final JSONObject o1 = new JSONObject();
+        final JSONObject o2 = new JSONObject();
+        new Thread() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 100; i++) {
+                    queue.add(getCallable(url, false), callback, o1);
+                    Log.e(TAG, " create thread No." + i);
+                }
+            }
+        }.start();
+
 //
 //        TaskQueue.getDefault().execute(new Callable<String>() {
 //            @Override
@@ -267,10 +275,15 @@ public class TaskQueueSamples extends BaseActivity {
         mTextView.setText(null);
     }
 
-    private void println(String text) {
-        Log.d(TAG, text);
-        mTextView.append(text);
-        mTextView.append("\n");
+    private void println(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, text);
+                mTextView.append(text);
+                mTextView.append("\n");
+            }
+        });
     }
 
     @Override

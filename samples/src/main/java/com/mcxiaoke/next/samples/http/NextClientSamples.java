@@ -2,13 +2,14 @@ package com.mcxiaoke.next.samples.http;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import com.mcxiaoke.next.http.HttpMethod;
-import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.http.HttpAsync;
 import com.mcxiaoke.next.http.HttpQueue;
+import com.mcxiaoke.next.http.NextRequest;
 import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.BuildConfig;
+import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.samples.SampleUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,11 +24,14 @@ public class NextClientSamples extends BaseActivity {
     private static final boolean DEBUG = true;
     private HttpQueue mHttpQueue;
 
+    private TextView mLogView;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mHttpQueue = HttpAsync.newHttpQueue();
+        setContentView(R.layout.act_text);
+        mLogView = (TextView) findViewById(R.id.log_view);
+        mHttpQueue = new HttpQueue();
         mHttpQueue.setDebug(true);
         testGet();
         testPostForm();
@@ -56,15 +60,13 @@ public class NextClientSamples extends BaseActivity {
         mHttpQueue.add(request, new StringCallback() {
             @Override
             public void onError(final Throwable error) {
-                super.onError(error);
-                Log.d(TAG, "testGet http response error: " + error);
+                mLogView.append(TAG + " testGet http response error: " + error);
             }
 
             @Override
             public void onSuccess(final String response) {
-                super.onSuccess(response);
-                Log.d(TAG, "testGet http response content: "
-                        + SampleUtils.prettyPrintJson(response));
+                mLogView.append(TAG + " testGet http response content: "
+                        + SampleUtils.prettyPrintJson(response) + "\n");
             }
         }, this);
 
@@ -82,15 +84,13 @@ public class NextClientSamples extends BaseActivity {
         mHttpQueue.add(request, new StringCallback() {
             @Override
             public void onError(final Throwable error) {
-                super.onError(error);
-                Log.d(TAG, "testPostForm http response error: " + error);
+                mLogView.append(TAG + " testPostForm http response error: " + error);
             }
 
             @Override
             public void onSuccess(final String response) {
-                super.onSuccess(response);
-                Log.d(TAG, "testPostForm http response content: "
-                        + SampleUtils.prettyPrintJson(response));
+                mLogView.append(TAG + " testPostForm http response content: "
+                        + SampleUtils.prettyPrintJson(response) + "\n");
             }
         }, this);
     }
@@ -122,15 +122,13 @@ public class NextClientSamples extends BaseActivity {
         mHttpQueue.add(request, new StringCallback() {
             @Override
             public void onError(final Throwable error) {
-                super.onError(error);
-                Log.d(TAG, "testPostJson http response error: " + error);
+                mLogView.append(TAG + " testPostJson http response error: " + error);
             }
 
             @Override
             public void onSuccess(final String response) {
-                super.onSuccess(response);
-                Log.d(TAG, "testPostJson http response content: "
-                        + SampleUtils.prettyPrintJson(response));
+                mLogView.append(TAG + " testPostJson http response content: "
+                        + SampleUtils.prettyPrintJson(response) + "\n");
             }
         }, this);
 
