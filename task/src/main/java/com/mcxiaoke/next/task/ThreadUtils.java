@@ -106,7 +106,7 @@ public class ThreadUtils {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
-            thread.setName(name + "-thread #" + count++);
+            thread.setName(name + ":thread-" + count++);
             return thread;
         }
     }

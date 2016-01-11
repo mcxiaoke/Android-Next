@@ -165,8 +165,14 @@ final class TaskImpl<Result> implements Task<Result> {
     }
 
     private void addResultExtras() {
+        if (Config.DEBUG) {
+            Log.d(TAG, "addResultExtras() task using "
+                    + getDuration() + "ms " + getName()
+                    + " cancelled=" + isCancelled());
+        }
         final TaskTag tag = mInfo.tag;
         final TaskCallable<Result> action = mInfo.action;
+        action.putExtra(TaskCallback.TASK_THREAD, Thread.currentThread().getName());
         action.putExtra(TaskCallback.TASK_GROUP, tag.getGroup());
         action.putExtra(TaskCallback.TASK_NAME, tag.getName());
         action.putExtra(TaskCallback.TASK_SEQUENCE, tag.getSequence());
@@ -277,7 +283,7 @@ final class TaskImpl<Result> implements Task<Result> {
 
     boolean isCallerDead() {
         final Object caller = mInfo.callerRef.get();
-        return caller == null || (mInfo.check && !Utils.isActive(caller));
+        return caller == null || (mInfo.check && !ThreadUtils.isActive(caller));
     }
 
     private void dumpCaller() {
@@ -290,7 +296,7 @@ final class TaskImpl<Result> implements Task<Result> {
             Log.d(TAG, "dump() caller check is not enabled " + getName());
             return;
         }
-        final boolean notActive = !Utils.isActive(caller);
+        final boolean notActive = !ThreadUtils.isActive(caller);
         if (notActive) {
             Log.w(TAG, "dump() caller is not active " + getName());
         }

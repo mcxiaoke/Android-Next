@@ -38,7 +38,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
     @Override
     public void run() {
         if (Config.DEBUG) {
-            Log.v(TAG, "run() start " + mName);
+            Log.v(TAG, "run() start name:" + mName + " thread:" + Thread.currentThread().getName());
         }
         onTaskStarted();
         Result result = null;
@@ -63,7 +63,7 @@ final class TaskRunnable<Result> implements ITaskRunnable {
             }
         }
         if (Config.DEBUG) {
-            Log.d(TAG, "run() end " + mName);
+            Log.v(TAG, "run() end name:" + mName + " thread:" + Thread.currentThread().getName());
         }
     }
 

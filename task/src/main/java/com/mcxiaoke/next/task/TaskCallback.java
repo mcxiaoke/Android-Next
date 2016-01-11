@@ -14,6 +14,7 @@ import android.os.Bundle;
  * @param <Result> 类型参数，任务执行结果
  */
 public interface TaskCallback<Result> {
+    String TASK_THREAD = "task_thread";
     String TASK_GROUP = "task_group";
     String TASK_NAME = "task_name";
     String TASK_SEQUENCE = "task_sequence";

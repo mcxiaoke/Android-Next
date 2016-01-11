@@ -26,18 +26,22 @@ final class TaskQueueImpl extends TaskQueue {
     public static final String TAG = "TaskQueue";
     private final Object mCaller = new Object();
     private final Object mLock = new Object();
-    private boolean mSingleThreadMode;
+    private int mMaxThreads;
     private ExecutorService mExecutor;
     private Map<String, List<String>> mGroups;
     private Map<String, ITaskRunnable> mTasks;
 
-    public TaskQueueImpl(boolean singleThreadMode) {
-        Log.v(TAG, "TaskQueue()");
-        mSingleThreadMode = singleThreadMode;
-        init();
+    public TaskQueueImpl(int maxThreads) {
+        Log.v(TAG, "TaskQueue() maxThreads:" + maxThreads);
+        if (maxThreads < 0) {
+            throw new IllegalArgumentException("Invalid Argument, maxThreads:" + maxThreads);
+        }
+        mMaxThreads = maxThreads;
         checkThread();
+        init();
         checkExecutor();
     }
+
 
     private void init() {
         mGroups = new ConcurrentHashMap<String, List<String>>();
@@ -180,7 +184,7 @@ final class TaskQueueImpl extends TaskQueue {
         builder.append("Groups:{");
         for (Map.Entry<String, List<String>> entry : callerMap.entrySet()) {
             builder.append(" group:").append(entry.getKey())
-                    .append(", tags:").append(Utils.toString(entry.getValue())).append(";");
+                    .append(", tags:").append(ThreadUtils.toString(entry.getValue())).append(";");
         }
         builder.append("}\n");
         builder.append("]");
@@ -363,9 +367,24 @@ final class TaskQueueImpl extends TaskQueue {
      */
     private void checkExecutor() {
         if (mExecutor == null || mExecutor.isShutdown()) {
-            mExecutor = mSingleThreadMode ?
-                    Utils.newSingleThreadExecutor("task-serial") :
-                    Utils.newCachedThreadPool("task-default");
+            ExecutorService poolExecutor;
+            final String name = "task-queue-" + mMaxThreads;
+            switch (mMaxThreads) {
+                case 0:
+                    // cached thread pool
+                    poolExecutor = ThreadUtils.newCachedThreadPool(name);
+                    break;
+                case 1:
+                    // single thread mode
+                    poolExecutor = ThreadUtils.newSingleThreadExecutor(name);
+                    break;
+                default:
+                    // fixed thread pool
+                    poolExecutor = ThreadUtils.newFixedThreadPool(name, mMaxThreads);
+                    break;
+
+            }
+            mExecutor = poolExecutor;
         }
     }
 
