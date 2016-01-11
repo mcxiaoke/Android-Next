@@ -155,12 +155,16 @@ TaskQueue的用法
 
         // TaskQueue的接口定义见 com.mcxiaoke.next.task.ITaskQueue
 
-        // 使用默认TaskQueue
+        // 使用默认TaskQueue，线程数无限制
         final TaskQueue taskQueue=TaskQueue.getDefault();
-        // 使用自定义TaskQueue
-        TaskQueue defaultInstance=TaskQueue.getDefault();
-        TaskQueue sharedInstance = TaskQueue.shared();
-        TaskQueue concurrent = TaskQueue.concurrent();
+        // 自定义TaskQueue，线程数无限制
+        TaskQueue cached = TaskQueue.concurrent();
+        // 自定义TaskQueue，线程数无限制
+        TaskQueue p0 = TaskQueue.concurrent(0);
+        // 自定义TaskQueue，最大同时执行线程10
+        TaskQueue p10 = TaskQueue.concurrent(10);
+        // 单线程模式，顺序执行
+        TaskQueue p1 = TaskQueue.concurrent(1);
         TaskQueue singleThread = TaskQueue.singleThread();
 
         taskQueue2.setDebug(true);

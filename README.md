@@ -53,24 +53,31 @@ TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
 
 ### HttpRequest 
 
-[`网络请求管理`](docs/http.md)
+[`同步和异步HTTP请求`](docs/http.md)
 
-NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作：
+#### 同步接口
 
-- **NextClient** 网络组件的核心类，封装全局的配置参数
-- **NextParams** HTTP参数封装和处理
-- **NextRequest** HTTP 请求封装
-- **NextResponse** HTTP 响应数据结构
+NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作
 
+包含一个经过简单封装的HTTP操作模块，简化常用的网络请求操作
 
+ - **NextClient** 网络组件的核心类，封装全局的配置参数
+ - **NextParams** HTTP参数封装和处理
+ - **NextRequest** HTTP 请求封装
+ - **NextResponse** HTTP 响应数据结构
+ - **ProgressListener** HTTP请求数据传输进度回调接口
 
-### HttpAsync 
-
-[`异步IO组件`](docs/http-async.md)
-
-HttpQueue, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback
+#### 异步接口
 
 主要是结合 `http`模块和`task`模块，提供方便的异步网络操作，本模块主要的方法都是异步执行，通过回调接口反馈结果，内部使用 `TaskQeue` 执行异步任务管理，使用 `NextClient` 发送和解析HTTP网络请求，通过回调接口返回数据，网络请求在异步线程执行，回调方法在主线程调用，可用于替代Google的`Volley`库，能极大的减轻应用开发中异步请求数据然后主线程更新UI这一过程的工作量。
+
+- ***HttpAsync** 异步HTTP操作辅助类，支持直接的异步HEAD/GET/DELETE/POST/PUT请求
+- **HttpQueue** 异步HTTP任务队列，支持添加和取消HTTP异步任务，支持多种形式的Callback和Transformer
+- **HttpJob** HTTP任务对象，封装了Request/Callback/Transformer等
+- **HttpJobBuilder** 生成HttpJob对象的Builder
+- **HttpCallback** 异步HTTP请求回调接口，调用者可以获知HTTP请求的结果是成功还是失败，获取数据和异常对象
+- **HttpTransformer** 异步HTTP请求数据类型转换接口，支持Response/String/Gson/File等类型，支持自定义数据类型
+- **ResponseProcessor** 异步HTTP请求返回数据的处理器，支持多个Processor
 
 ### Function 
 

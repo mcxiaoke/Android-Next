@@ -4,10 +4,13 @@
 
 ```groovy
     // http HTTP组件, 格式:jar和aar
+    // 依赖http和core
     compile 'com.mcxiaoke.next:http:1.2.+'
+    compile 'com.mcxiaoke.next:task:1.2.+'
+    compile 'com.mcxiaoke.next:core:1.2.+'
 ```
 
-## 介绍
+## 同步接口
 
 包含一个经过简单封装的HTTP操作模块，简化常用的网络请求操作
 
@@ -15,8 +18,21 @@
  - **NextParams** HTTP参数封装和处理
  - **NextRequest** HTTP 请求封装
  - **NextResponse** HTTP 响应数据结构
+ - **ProgressListener** HTTP请求数据传输进度回调接口
 
-## 快速入门
+## 异步接口
+
+异步HTTP，一个公开接口 `com.mcxiaoke.next.http.HttpQueue`，主要是结合 `http`模块和`task`模块，提供方便的异步网络操作，本模块主要的方法都是异步执行，内部使用 `TaskQeue` 执行异步任务管理，使用 `NextClient` 发送和解析HTTP网络请求，通过回调接口返回数据，网络请求在异步线程执行，回调方法在主线程调用，可用于替代Google的`Volley`库，能极大的减轻应用开发中异步请求数据然后主线程更新UI这一过程的工作量。
+
+- ***HttpAsync* 异步HTTP操作辅助类，支持直接的异步HEAD/GET/DELETE/POST/PUT请求
+- **HttpQueue** 异步HTTP任务队列，支持添加和取消HTTP异步任务，支持多种形式的Callback和Transformer
+- **HttpJob** HTTP任务对象，封装了Request/Callback/Transformer等
+- **HttpJobBuilder** 生成HttpJob对象的Builder
+- **HttpCallback** 异步HTTP请求回调接口，调用者可以获知HTTP请求的结果是成功还是失败，获取数据和异常对象
+- **HttpTransformer** 异步HTTP请求数据类型转换接口，支持Response/String/Gson/File等类型，支持自定义数据类型
+- **ResponseProcessor** 异步HTTP请求返回数据的处理器，支持多个Processor
+
+## 快速入门（同步接口）
 
 ### 最简单的用法
 
@@ -119,6 +135,75 @@
     NextResponse response = NextClient.getDefault().execute(request);
 ```
 
+### NextClient
+
+```java
+    OkHttpClient okHttpClient = new OkHttpClient();
+    NextClient client = new NextClient(okHttpClient);
+    client.setDebug(true);
+    client.setUserAgent("...");
+    client.setAuthorization("...");
+
+```
+
+## 快速入门（异步接口）
+
+### HttpQueue
+
+```java
+    HttpQueue httpQueue=HttpQueue.getDefault();
+    httpQueue.add(httpJob);
+    httpQueue.add(request,callback, caller);
+    httpQueue.add(request, transformer, callback, caller);
+    httpQueue.cancel(name);
+    httpQueue.cancelAll(caller);
+    httpQueue.cancelAll();
+    httpQueue.setClient(nextClient);
+    httpQueue.setGson(gson);
+    httpQueue.setQueue(taskQueu);
+    httpQueue.setDebug(true);
+
+    HttpQueue q1 = new HttpQueue();
+    HttpQueue q2 = new HttpQueue(new NextClient());
+    HttpQueue q3 = new HttpQueue(new OkHttpClient());
+    HttpQueue q4 = new HttpQueue(TaskQueue.concurrent());
+    HttpQueue q5 = new HttpQueue(TaskQueue.concurrent(10), new NextClient());
+```
+
+### HttpJob
+
+```java
+        final String url = "https://api.github.com/users/mcxiaoke";
+        final NextRequest request = NextRequest.get(url);
+        final StringCallback callback = new StringCallback() {
+            @Override
+            public void onSuccess(final String response) {
+                // request success
+            }
+
+            @Override
+            public void onError(final Throwable error) {
+                // request failure
+            }
+        };
+        final ResponseProcessor<String> processor = new ResponseProcessor<String>() {
+            @Override
+            public void process(final String response) {
+                // process response data
+            }
+        };
+        httpQueue.add(request, callback, this);
+        // httpQueue.add(request,new StringTransformer(),callback,this);
+        // or using HttpJob
+        final HttpJob<String> httpJob = new HttpJobBuilder<String>()
+                .request(request)
+                .callback(callback)
+                .caller(this)
+                .transformer(new StringTransformer())
+                .processor(processor).create();
+
+        httpQueue.add(httpJob);
+```
 
 ## HTTP Response
 

@@ -64,6 +64,14 @@ public class HttpQueue {
         this(createQueue(), new NextClient(client));
     }
 
+    public HttpQueue(final NextClient client) {
+        this(createQueue(), client);
+    }
+
+    public HttpQueue(final TaskQueue queue) {
+        this(queue, new NextClient());
+    }
+
     public HttpQueue(final TaskQueue queue, final NextClient client) {
         mJobs = new ConcurrentHashMap<Integer, String>();
         mRequests = new CopyOnWriteArrayList<String>();
