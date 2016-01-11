@@ -4,7 +4,7 @@
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.+'
+    compile 'com.mcxiaoke.next:core:1.2.+'
 ```
 
 包含基础Activity和Service，还有一些工具类，按Java包介绍如下：

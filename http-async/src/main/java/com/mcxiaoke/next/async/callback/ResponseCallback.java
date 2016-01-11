@@ -1,28 +1,14 @@
-package com.mcxiaoke.next.aio.callback;
+package com.mcxiaoke.next.async.callback;
 
 import android.os.Bundle;
-
-import java.lang.reflect.Type;
+import com.mcxiaoke.next.http.NextResponse;
 
 /**
  * User: mcxiaoke
  * Date: 15/8/21
- * Time: 11:25
+ * Time: 10:51
  */
-public abstract class GsonCallback<T> implements AsyncCallback<T> {
-    private Type type;
-
-    public GsonCallback(final Class<T> clazz) {
-        this.type = clazz;
-    }
-
-    public GsonCallback(final Type type) {
-        this.type = type;
-    }
-
-    public Type type() {
-        return type;
-    }
+public abstract class ResponseCallback implements AsyncCallback<NextResponse> {
 
     @Override
     public void onTaskCancelled(final String name, final Bundle extras) {
@@ -45,7 +31,7 @@ public abstract class GsonCallback<T> implements AsyncCallback<T> {
     }
 
     @Override
-    public void onTaskSuccess(final T t, final Bundle extras) {
+    public void onTaskSuccess(final NextResponse response, final Bundle extras) {
 
     }
 }

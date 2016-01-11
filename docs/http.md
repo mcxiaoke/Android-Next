@@ -4,7 +4,7 @@
 
 ```groovy
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.+'
+    compile 'com.mcxiaoke.next:http:1.2.+'
 ```
 
 ## 介绍

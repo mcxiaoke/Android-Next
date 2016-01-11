@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.aio.callback;
+package com.mcxiaoke.next.async.callback;
 
 import com.mcxiaoke.next.task.TaskCallback;
 

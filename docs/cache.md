@@ -2,7 +2,7 @@
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.+'
+    compile 'com.mcxiaoke.next:core:1.2.+'
 ```
 
 ## 缓存

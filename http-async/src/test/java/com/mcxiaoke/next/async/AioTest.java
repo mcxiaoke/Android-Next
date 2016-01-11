@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.aio;
+package com.mcxiaoke.next.async;
 
 import android.os.Bundle;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import com.mcxiaoke.next.aio.callback.GsonCallback;
+import com.mcxiaoke.next.async.callback.GsonCallback;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.http.converter.ResponseConverter;
 import com.mcxiaoke.next.task.TaskQueue;
@@ -30,13 +30,13 @@ public class AioTest {
     private static final String TEST_URL2 = "https://api.douban.com/v2/lifestream/user_timeline/1000001";
 
 
-    private IOAsync io;
+    private HttpQueue io;
 
     @Before
     public void setup() {
         TaskQueue queue = TaskQueue.concurrent();
         queue.setExecutor(new TestExecutor());
-        io = new IOAsync();
+        io = new HttpQueue();
         io.setQueue(queue);
 
     }

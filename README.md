@@ -2,7 +2,7 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2015.12.28-com.mcxiaoke.next:core:1.2.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.24-com.mcxiaoke.next:core:1.2.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
@@ -26,7 +26,7 @@
     
 ```
 
-## 使用指南（2015.08.24更新）
+## 使用指南（2016.01.11更新）
 
 **使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
 
@@ -36,16 +36,6 @@
 
 MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils。包含基础Activity和Service，还有一些工具类，功能包括：文件路径处理，Toast显示，屏幕方向，组件启用禁用，获取App签名信息；常用的文件复制/字符串/数组/列表/数据流读写，常用的字符串合并/分割/比较/转换/判断等操作；网络类型和状态获取，代理设置；Package相关的工具类，App是否安装，是否运行，启用和禁用组件等；Bitmap缩放，旋转，圆角，阴影，裁剪等；加密算法相关的工具方法，支持MD5/SHA1/SHA256/AES/HEX等。
 
-### HttpRequest 
-
-[`网络请求管理`](docs/http.md)
-
-NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作：
-
-- **NextClient** 网络组件的核心类，封装全局的配置参数
-- **NextParams** HTTP参数封装和处理
-- **NextRequest** HTTP 请求封装
-- **NextResponse** HTTP 响应数据结构
 
 ### TaskQueue 
 
@@ -60,11 +50,25 @@ TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
 * TaskBuilder 对外接口，链式调用
 * TaskCallback 任务回调接口
 
-### IOAsync 
 
-[`异步IO组件`](docs/ioasync.md)
+### HttpRequest 
 
-IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback
+[`网络请求管理`](docs/http.md)
+
+NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作：
+
+- **NextClient** 网络组件的核心类，封装全局的配置参数
+- **NextParams** HTTP参数封装和处理
+- **NextRequest** HTTP 请求封装
+- **NextResponse** HTTP 响应数据结构
+
+
+
+### HttpAsync 
+
+[`异步IO组件`](docs/http-async.md)
+
+HttpQueue, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback
 
 主要是结合 `http`模块和`task`模块，提供方便的异步网络操作，本模块主要的方法都是异步执行，通过回调接口反馈结果，内部使用 `TaskQeue` 执行异步任务管理，使用 `NextClient` 发送和解析HTTP网络请求，通过回调接口返回数据，网络请求在异步线程执行，回调方法在主线程调用，可用于替代Google的`Volley`库，能极大的减轻应用开发中异步请求数据然后主线程更新UI这一过程的工作量。
 

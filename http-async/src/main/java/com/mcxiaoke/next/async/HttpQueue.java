@@ -1,11 +1,11 @@
-package com.mcxiaoke.next.aio;
+package com.mcxiaoke.next.async;
 
 import com.google.gson.Gson;
-import com.mcxiaoke.next.aio.callback.FileCallback;
-import com.mcxiaoke.next.aio.callback.GsonCallback;
-import com.mcxiaoke.next.aio.callback.ResponseCallback;
-import com.mcxiaoke.next.aio.callback.StringCallback;
-import com.mcxiaoke.next.aio.converter.GsonConverter;
+import com.mcxiaoke.next.async.callback.FileCallback;
+import com.mcxiaoke.next.async.callback.GsonCallback;
+import com.mcxiaoke.next.async.callback.ResponseCallback;
+import com.mcxiaoke.next.async.callback.StringCallback;
+import com.mcxiaoke.next.async.converter.GsonConverter;
 import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextParams;
@@ -28,12 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Date: 15/8/21
  * Time: 10:42
  */
-public class IOAsync {
+public class HttpQueue {
     static class SingletonHolder {
-        public static final IOAsync INSTANCE = new IOAsync();
+        public static final HttpQueue INSTANCE = new HttpQueue();
     }
 
-    public static IOAsync getDefault() {
+    public static HttpQueue getDefault() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -42,7 +42,7 @@ public class IOAsync {
     private NextClient mClient;
     private Gson mGson;
 
-    public IOAsync() {
+    public HttpQueue() {
         mRequests = new ConcurrentHashMap<Integer, String>();
         mQueue = TaskQueue.concurrent();
         mClient = new NextClient();

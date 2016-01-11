@@ -1,15 +1,14 @@
-package com.mcxiaoke.next.aio.callback;
+package com.mcxiaoke.next.async.callback;
 
 import android.os.Bundle;
-
-import java.io.File;
 
 /**
  * User: mcxiaoke
  * Date: 15/8/21
  * Time: 10:51
  */
-public abstract class FileCallback implements AsyncCallback<File> {
+public abstract class StringCallback implements AsyncCallback<String> {
+
     @Override
     public void onTaskCancelled(final String name, final Bundle extras) {
 
@@ -26,12 +25,12 @@ public abstract class FileCallback implements AsyncCallback<File> {
     }
 
     @Override
-    public void onTaskSuccess(final File file, final Bundle extras) {
+    public void onTaskStarted(final String name, final Bundle extras) {
 
     }
 
     @Override
-    public void onTaskStarted(final String name, final Bundle extras) {
+    public void onTaskSuccess(final String s, final Bundle extras) {
 
     }
 }
