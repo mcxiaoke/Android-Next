@@ -10,7 +10,7 @@ import java.io.IOException;
  * Date: 15/8/21
  * Time: 14:46
  */
-public class FileTransformer implements ResponseTransformer<File> {
+public class FileTransformer implements HttpTransformer<File> {
 
     private File file;
 

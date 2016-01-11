@@ -42,7 +42,7 @@ public class LoggingInterceptor implements Interceptor {
         }
         final Response response = chain.proceed(request);
         long t2 = System.nanoTime();
-        Log.v(NextClient.TAG, String.format("[OkHttp Response] %s %s (%s:%s) in %.1fms%n "
+        Log.v(NextClient.TAG, String.format("[Response] %s %s (%s:%s) in %.1fms%n "
                 , request.method(), request.url()
                 , response.code(), response.message()
                 , (t2 - t1) / 1e6d));

@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import android.util.Log;
-import com.mcxiaoke.next.http.transformer.ResponseTransformer;
+import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
@@ -298,7 +298,7 @@ public final class NextClient {
                          final Map<String, String> queries,
                          final Map<String, String> forms,
                          final Map<String, String> headers,
-                         final ResponseTransformer<T> converter)
+                         final HttpTransformer<T> converter)
             throws IOException {
         return executeInternal(createRequest(method, url,
                 queries, forms, headers), converter);
@@ -315,7 +315,7 @@ public final class NextClient {
         return executeInternal(request);
     }
 
-    public <T> T execute(final NextRequest req, final ResponseTransformer<T> transformer)
+    public <T> T execute(final NextRequest req, final HttpTransformer<T> transformer)
             throws IOException {
         return executeInternal(req, transformer);
     }
@@ -331,7 +331,7 @@ public final class NextClient {
     }
 
     protected <T> T executeInternal(final NextRequest request,
-                                    final ResponseTransformer<T> transformer)
+                                    final HttpTransformer<T> transformer)
             throws IOException {
         return transformer.transform(new NextResponse(sendRequest(request)));
     }
@@ -344,7 +344,7 @@ public final class NextClient {
             it.intercept(client);
         }
         if (mDebug || request.isDebug()) {
-            Log.v(NextClient.TAG, "sendRequest() " + request);
+            Log.v(NextClient.TAG, "Sending " + request);
             client.networkInterceptors().add(new LoggingInterceptor());
         }
         final ProgressListener li = request.getListener();
@@ -359,7 +359,7 @@ public final class NextClient {
             throws IOException {
         final OkHttpClient client = mClient.clone();
         if (mDebug) {
-            Log.v(NextClient.TAG, "sendRequest() " + request);
+            Log.v(NextClient.TAG, "Sending " + request);
             client.networkInterceptors().add(new LoggingInterceptor());
         }
         return client.newCall(request).execute();
@@ -401,15 +401,6 @@ public final class NextClient {
     }
 
     public Request createOkRequest(final NextRequest request) throws IOException {
-//        if (request.supportBody()) {
-//            request.forms(mParams);
-//        } else {
-//            request.queries(mParams);
-//        }
-//        final Map<String, String> headers = new HashMap<String, String>();
-//        headers.putAll(mHeaders);
-//        // Request的Header可以覆盖Client的Header
-//        headers.putAll(request.headers());
         return new Request.Builder()
                 .url(request.url())
                 .headers(Headers.of(request.headers()))

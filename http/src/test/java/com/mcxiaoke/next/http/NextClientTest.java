@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
-import com.mcxiaoke.next.http.transformer.ResponseTransformer;
+import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.OkHttpClient;
@@ -381,7 +381,7 @@ public class NextClientTest extends BaseTest {
         }
     }
 
-    static class GsonTransformer<T> implements ResponseTransformer<T> {
+    static class GsonTransformer<T> implements HttpTransformer<T> {
         private Gson gson;
         private Type type;
 

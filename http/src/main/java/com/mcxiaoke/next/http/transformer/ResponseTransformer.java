@@ -6,10 +6,12 @@ import java.io.IOException;
 
 /**
  * User: mcxiaoke
- * Date: 15/8/21
- * Time: 12:24
+ * Date: 16/1/11
+ * Time: 14:09
  */
-public interface ResponseTransformer<T> {
-
-    T transform(NextResponse response) throws IOException;
+public class ResponseTransformer implements HttpTransformer<NextResponse> {
+    @Override
+    public NextResponse transform(final NextResponse response) throws IOException {
+        return response;
+    }
 }

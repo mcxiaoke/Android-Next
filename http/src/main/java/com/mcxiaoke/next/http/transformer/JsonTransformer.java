@@ -11,11 +11,11 @@ import java.lang.reflect.Type;
  * Date: 15/8/21
  * Time: 12:42
  */
-public class GsonTransformer<T> implements ResponseTransformer<T> {
+public class JsonTransformer<T> implements HttpTransformer<T> {
     private Gson gson;
     private Type type;
 
-    public GsonTransformer(final Gson gson, final Type type) {
+    public JsonTransformer(final Gson gson, final Type type) {
         this.gson = gson;
         this.type = type;
     }

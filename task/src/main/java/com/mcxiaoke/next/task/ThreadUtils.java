@@ -9,6 +9,7 @@ import android.util.Log;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Date: 15/6/18
  * Time: 15:30
  */
-class Utils {
+public class ThreadUtils {
 
     public static String toString(Collection<?> coll) {
         if (coll == null || coll.isEmpty()) {
@@ -72,22 +73,25 @@ class Utils {
         return true;
     }
 
-    public static ThreadPoolExecutor newCachedThreadPool(final String name) {
+    public static ExecutorService newCachedThreadPool(final String name) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
                 new CounterThreadFactory(name));
     }
 
-    public static ThreadPoolExecutor newFixedThreadPool(final String name, int nThreads) {
+    public static ExecutorService newFixedThreadPool(final String name, int nThreads) {
         return new ThreadPoolExecutor(nThreads, nThreads,
-                0L, TimeUnit.MILLISECONDS,
+                60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(),
                 new CounterThreadFactory(name));
     }
 
-    public static ThreadPoolExecutor newSingleThreadExecutor(final String name) {
-        return newFixedThreadPool(name, 1);
+    public static ExecutorService newSingleThreadExecutor(final String name) {
+        return new ThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(),
+                new CounterThreadFactory(name));
     }
 
 

@@ -1,5 +1,8 @@
 package com.mcxiaoke.next.http;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.StringUtils;
 import com.squareup.okhttp.Headers;
@@ -120,7 +123,7 @@ public class NextResponse implements Closeable {
 
     public String dumpBody() {
         try {
-            return StringUtils.safeSubString(string(), 512);
+            return StringUtils.safeSubString(string(), 1024);
         } catch (IOException e) {
             return "IOException";
         }
@@ -128,6 +131,11 @@ public class NextResponse implements Closeable {
 
     public String dumpHeaders() {
         return mResponse.headers().toString();
+    }
+
+    public static String prettyPrintJson(final String rawJson) {
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(new JsonParser().parse(rawJson));
     }
 
     @Override

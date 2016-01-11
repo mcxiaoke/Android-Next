@@ -7,14 +7,5 @@ import com.mcxiaoke.next.http.NextResponse;
  * Date: 15/8/21
  * Time: 10:51
  */
-public abstract class ResponseCallback implements HttpCallback<NextResponse> {
-    @Override
-    public void onSuccess(final NextResponse response) {
-
-    }
-
-    @Override
-    public void onError(final Throwable error) {
-
-    }
+public interface ResponseCallback extends HttpCallback<NextResponse> {
 }
