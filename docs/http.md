@@ -4,10 +4,11 @@
 
 ```groovy
     // http HTTP组件, 格式:jar和aar
-    // 依赖http和core
-    compile 'com.mcxiaoke.next:http:1.2.+'
-    compile 'com.mcxiaoke.next:task:1.2.+'
-    compile 'com.mcxiaoke.next:core:1.2.+'
+    // 依赖 :core :task
+    // 1.3.0新增HttpQueue
+    compile 'com.mcxiaoke.next:http:1.3.+'
+    compile 'com.mcxiaoke.next:task:1.3.+'
+    compile 'com.mcxiaoke.next:core:1.3.+'
 ```
 
 ## 同步接口
@@ -30,7 +31,7 @@
 - **HttpJobBuilder** 生成HttpJob对象的Builder
 - **HttpCallback** 异步HTTP请求回调接口，调用者可以获知HTTP请求的结果是成功还是失败，获取数据和异常对象
 - **HttpTransformer** 异步HTTP请求数据类型转换接口，支持Response/String/Gson/File等类型，支持自定义数据类型
-- **ResponseProcessor** 异步HTTP请求返回数据的处理器，支持多个Processor
+- **HttpProcessor** 异步HTTP请求数据处理器，支持多个Processor
 
 ## 快速入门（同步接口）
 
@@ -80,7 +81,7 @@
 
 // 返回JSON数据
     /**
-     * {
+     {
      loc_id: "108288",
      name: "阿北",
      created: "2006-01-09 21:12:47",
@@ -151,23 +152,34 @@
 ### HttpQueue
 
 ```java
-    HttpQueue httpQueue=HttpQueue.getDefault();
-    httpQueue.add(httpJob);
-    httpQueue.add(request,callback, caller);
-    httpQueue.add(request, transformer, callback, caller);
-    httpQueue.cancel(name);
-    httpQueue.cancelAll(caller);
-    httpQueue.cancelAll();
-    httpQueue.setClient(nextClient);
-    httpQueue.setGson(gson);
-    httpQueue.setQueue(taskQueu);
-    httpQueue.setDebug(true);
 
     HttpQueue q1 = new HttpQueue();
     HttpQueue q2 = new HttpQueue(new NextClient());
     HttpQueue q3 = new HttpQueue(new OkHttpClient());
     HttpQueue q4 = new HttpQueue(TaskQueue.concurrent());
     HttpQueue q5 = new HttpQueue(TaskQueue.concurrent(10), new NextClient());
+    HttpQueue httpQueue=HttpQueue.getDefault();
+    
+    httpQueue.add(httpJob);
+    httpQueue.add(request, responseCallback, caller);
+    httpQueue.add(request, jsonCallback, caller);
+    httpQueue.add(request, stringCallback, caller);
+    httpQueue.add(request, fileCallback, caller);
+    httpQueue.add(request, bitmapCallback, caller);
+	httpQueue.add(request, transformer, callback, caller);
+    httpQueue.add(request, transformer, callback, caller,
+               requestProcessor, preProcessor, postProcessor);
+               
+    httpQueue.cancel(name);
+    httpQueue.cancelAll(caller);
+    httpQueue.cancelAll();
+    
+    httpQueue.setClient(nextClient);
+    httpQueue.setGson(gson);
+    httpQueue.setQueue(taskQueu);
+    httpQueue.setDebug(true);
+
+
 ```
 
 ### HttpJob
@@ -177,22 +189,35 @@
         final NextRequest request = NextRequest.get(url);
         final StringCallback callback = new StringCallback() {
             @Override
-            public void onSuccess(final String response) {
+            public void handleResponse(final String response) {
                 // request success
             }
 
             @Override
-            public void onError(final Throwable error) {
+            public void handleException(final Throwable error) {
                 // request failure
             }
         };
-        final ResponseProcessor<String> processor = new ResponseProcessor<String>() {
+        final HttpProcessor<NextRequest> requestProcessor=new HttpProcessor<NextRequest>() {
+            @Override
+            public void process(final NextRequest response) {
+                // process next request
+            }
+        } ;
+        final HttpProcessor<NextResponse> preProcessor=new HttpProcessor<NextResponse>() {
+            @Override
+            public void process(final NextResponse response) {
+                // process next response
+            }
+        };
+        final HttpProcessor<String> postProcessor = new HttpProcessor<String>() {
             @Override
             public void process(final String response) {
                 // process response data
             }
         };
         httpQueue.add(request, callback, this);
+        
         // httpQueue.add(request,new StringTransformer(),callback,this);
         // or using HttpJob
         final HttpJob<String> httpJob = new HttpJobBuilder<String>()
@@ -200,9 +225,86 @@
                 .callback(callback)
                 .caller(this)
                 .transformer(new StringTransformer())
-                .processor(processor).create();
+                .requestProcessor(requestProcessor)
+                .preProcessor(preProcessor)
+                .postProcessor(postProcessor)
+                .create();
 
         httpQueue.add(httpJob);
+```
+
+### HttpQueue接口
+
+```java
+    void setDebug(boolean debug);
+    void setQueue(TaskQueue queue);
+    void setClient(NextClient client);
+    void setGson(Gson gson);
+    
+    void cancelAll(Object caller);
+    void cancel(String name);
+    void cancelAll();
+    
+    <T> String add(HttpJob<T> job);
+
+    <T> String add(NextRequest request,
+                   HttpTransformer<T> transformer,
+                   HttpCallback<T> callback,
+                   Object caller,
+                   HttpProcessor<NextRequest> requestProcessor,
+                   HttpProcessor<NextResponse> preProcessor,
+                   HttpProcessor<T> postProcessor);
+
+    <T> String add(NextRequest request,
+                   HttpTransformer<T> transformer,
+                   HttpCallback<T> callback,
+                   Object caller);
+
+    String add(NextRequest request,
+               ResponseCallback callback,
+               Object caller);
+
+    <T> String add(NextRequest request,
+                   JsonCallback<T> callback,
+                   Object caller);
+
+    String add(NextRequest request,
+               StringCallback callback,
+               Object caller);
+
+    String add(NextRequest request,
+               BitmapCallback callback,
+               Object caller);
+
+    String add(NextRequest request, File file,
+               FileCallback callback,
+               Object caller);
+```
+
+### HttpJob接口
+
+```java
+    HttpJobBuilder<T> request(NextRequest request);
+    HttpJobBuilder<T> transformer(HttpTransformer<T> transformer);
+    HttpJobBuilder<T> callback(HttpCallback<T> callback);
+    HttpJobBuilder<T> caller(Object caller);
+    HttpJobBuilder<T> requestProcessor(HttpProcessor<NextRequest> processor);
+    HttpJobBuilder<T> preProcessor(HttpProcessor<NextResponse> processor);
+    HttpJobBuilder<T> postProcessor(HttpProcessor<T> processor);
+    HttpJob<T> create();
+    
+    public HttpJob(final NextRequest request,
+                   final HttpTransformer<T> transformer,
+                   final HttpCallback<T> callback,
+                   final Object caller);
+
+    public HttpJob(final NextRequest request,
+                   final HttpTransformer<T> transformer,
+                   final HttpCallback<T> callback,
+                   final Object caller,
+                   List<HttpProcessor<NextRequest>> requestProcessors,
+                   final List<HttpProcessor<NextResponse>> preProcessors,
+                   final List<HttpProcessor<T>> postProcessors);
 ```
 
 ## HTTP Response
@@ -336,18 +438,6 @@ NextClient addHeaders(Map<String, String> headers);
 
 NextClient setInterceptor(OkClientInterceptor interceptor);
 
-NextClient setHostnameVerifier(HostnameVerifier hostnameVerifier);
-NextClient setSocketFactory(SocketFactory socketFactory);
-NextClient setSslSocketFactory(SSLSocketFactory sslSocketFactory);
-
-NextClient setFollowRedirects(boolean followRedirects);
-NextClient setFollowSslRedirects(boolean followProtocolRedirects);
-NextClient setRetryOnConnectionFailure(boolean retryOnConnectionFailure);
-
-NextClient setConnectTimeout(long timeout, TimeUnit unit);
-NextClient setReadTimeout(long timeout, TimeUnit unit);
-NextClient setWriteTimeout(long timeout, TimeUnit unit);
-
 NextClient setUserAgent(String userAgent);
 NextClient setAuthorization(String authorization);
 NextClient setReferer(String referer);
@@ -431,7 +521,7 @@ NextResponse execute(NextRequest req)
         throws IOException;
 ```
 
-## 综合示例
+## HTTP请求示例
 
 
 ```java

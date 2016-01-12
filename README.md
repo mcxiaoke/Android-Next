@@ -2,31 +2,31 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2015.08.24-com.mcxiaoke.next:core:1.2.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2016.01.12-com.mcxiaoke.next:core:1.3.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.2.+'
+    compile 'com.mcxiaoke.next:core:1.3.+'
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.2.+'
+    compile 'com.mcxiaoke.next:task:1.3.+'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.2.+'
+    compile 'com.mcxiaoke.next:http:1.3.+'
     // 异步网络和文件IO组件，替代Volley
-    compile 'com.mcxiaoke.next:ioasync:1.2.+'
+    compile 'com.mcxiaoke.next:ioasync:1.3.+'
     // 函数操作组件
-    compile 'com.mcxiaoke.next:functions:1.2.+'
+    compile 'com.mcxiaoke.next:functions:1.3.+'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.2.+'
+    compile 'com.mcxiaoke.next:ui:1.3.+'
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.2.+'
+    compile 'com.mcxiaoke.next:recycler:1.3.+'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.2.+'
+    compile 'com.mcxiaoke.next:extras-abc:1.3.+'
     
 ```
 
-## 使用指南（2016.01.11更新）
+## 使用指南（2016.01.12更新）
 
 **使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
 
@@ -51,7 +51,7 @@ TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
 * TaskCallback 任务回调接口
 
 
-### HttpRequest 
+### HttpQueue 
 
 [`同步和异步HTTP请求`](docs/http.md)
 
@@ -116,6 +116,9 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 
 
 ## 更新记录
+- **1.3.0** 2016.01.12
+	* http: 合并原来的ioasync模块，增加异步HTTP队列相关的类：HttpQueue/HttpAsync/HttpJob/HttpProcessor/HttpTransformer/HttpCallback等，调整日志记录，更新文档
+	* task: 调整创建TaskQueue的方式，支持设置最大并发线程数，调试信息中增加当前线程的名字
 - **1.2.1**  2015.12.28
 	* http: 调整NextClient的参数处理方式，调整NextRequest的初始化，增加配置接口
 	* task: 调整TaskQueue的接口，增加创建队列的工厂方法，支持并发和顺序两种模式

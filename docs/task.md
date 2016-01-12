@@ -3,7 +3,7 @@
 ```groovy
     // v1.1.0 新增
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.2.+'
+    compile 'com.mcxiaoke.next:task:1.3.+'
 ```
 
 ## 异步任务
@@ -52,8 +52,8 @@
             }
         }).success(new Success<JSONObject>() {
             @Override
-            public void onSuccess(final JSONObject result, final Bundle extras) {
-                Log.v("Task", "onSuccess() result=" + result);
+            public void handleResponse(final JSONObject result, final Bundle extras) {
+                Log.v("Task", "handleResponse() result=" + result);
             }
         }).failure(new Failure() {
             @Override
@@ -304,7 +304,7 @@ public interface TaskCallback<Result> {
 
     // 任务成功的回调接口，先于TaskCallback.onTaskSuccess执行
     public interface Success<Result> {
-        void onSuccess(final Result result, final Bundle extras);
+        void handleResponse(final Result result, final Bundle extras);
     }
 
     // 任务失败的回调接口，先于TaskCallback.onTaskFailure执行
