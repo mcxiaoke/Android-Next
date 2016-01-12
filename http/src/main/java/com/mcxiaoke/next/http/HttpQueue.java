@@ -9,6 +9,7 @@ import com.mcxiaoke.next.http.callback.HttpCallback;
 import com.mcxiaoke.next.http.callback.JsonCallback;
 import com.mcxiaoke.next.http.callback.ResponseCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
+import com.mcxiaoke.next.http.exception.HttpException;
 import com.mcxiaoke.next.http.job.HttpJob;
 import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.BitmapTransformer;
@@ -25,6 +26,7 @@ import com.mcxiaoke.next.utils.LogUtils;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +189,47 @@ public class HttpQueue {
         return add(request, new FileTransformer(file), callback, caller);
     }
 
+    private <T> T performRequest(final HttpJob<T> job) throws Exception {
+        final NextRequest request = job.request;
+        final HttpTransformer<T> transformer = job.transformer;
+        final List<HttpProcessor<NextRequest>> requestProcessors = job.getRequestProcessors();
+        if (requestProcessors != null) {
+            for (HttpProcessor<NextRequest> pr : requestProcessors) {
+                pr.process(request);
+            }
+        }
+        final NextResponse nextResponse;
+        try {
+            nextResponse = mClient.execute(request);
+        } catch (IOException e) {
+            throw new HttpException(HttpException.ERROR_IO, e);
+        } catch (Exception e) {
+            throw new HttpException(HttpException.ERROR_NETWORK, e);
+        }
+        if (!nextResponse.successful()) {
+            throw new HttpException(nextResponse);
+        }
+        final List<HttpProcessor<NextResponse>> preProcessors = job.getPreProcessors();
+        if (preProcessors != null) {
+            for (HttpProcessor<NextResponse> pr : preProcessors) {
+                pr.process(nextResponse);
+            }
+        }
+        final T response;
+        try {
+            response = transformer.transform(nextResponse);
+        } catch (IOException e) {
+            throw new HttpException(HttpException.ERROR_TRANSFORM, e);
+        }
+        final List<HttpProcessor<T>> postProcessors = job.getPostProcessors();
+        if (postProcessors != null) {
+            for (HttpProcessor<T> pr : postProcessors) {
+                pr.process(response);
+            }
+        }
+        return response;
+    }
+
     private <T> String enqueue(final HttpJob<T> job) {
         final NextRequest request = job.request;
         final HttpTransformer<T> transformer = job.transformer;
@@ -202,46 +245,7 @@ public class HttpQueue {
         final TaskCallable<T> callable = new TaskCallable<T>() {
             @Override
             public T call() throws Exception {
-                // request interceptors
-//                NextRequest aReq = request;
-                final List<HttpProcessor<NextRequest>> requestProcessors = job.getRequestProcessors();
-                if (requestProcessors != null) {
-                    for (HttpProcessor<NextRequest> pr : requestProcessors) {
-                        pr.process(request);
-//                        pr.process(aReq);
-//                        aReq = pr.process(aReq);
-//                        if (pr.process(aReq)) {
-//                            break;
-//                        }
-                    }
-                }
-                // response interceptors
-                final NextResponse nextResponse = mClient.execute(request);
-                final List<HttpProcessor<NextResponse>> preProcessors = job.getPreProcessors();
-                if (preProcessors != null) {
-                    for (HttpProcessor<NextResponse> pr : preProcessors) {
-                        pr.process(nextResponse);
-//                        pr.process(aRes);
-//                        aRes = pr.process(aRes);
-//                        if (pr.process(aRes)) {
-//                            break;
-//                        }
-                    }
-                }
-                //  model interceptors
-                final T response = transformer.transform(nextResponse);
-                final List<HttpProcessor<T>> postProcessors = job.getPostProcessors();
-                if (postProcessors != null) {
-                    for (HttpProcessor<T> pr : postProcessors) {
-                        pr.process(response);
-//                        pr.process(model);
-//                        model = pr.process(model);
-//                        if (pr.process(model)) {
-//                            break;
-//                        }
-                    }
-                }
-                return response;
+                return performRequest(job);
             }
         };
         final TaskCallback<T> taskCallback = new SimpleTaskCallback<T>() {
@@ -268,7 +272,7 @@ public class HttpQueue {
                     logHttpJob(TAG, "[Success] Type:" + t.getClass() + " " + url);
                 }
                 if (callback != null) {
-                    callback.onSuccess(t);
+                    callback.handleResponse(t);
                 }
             }
 
@@ -278,7 +282,7 @@ public class HttpQueue {
                     logHttpJob(TAG, "[Failure] Error:" + ex + " " + url);
                 }
                 if (callback != null) {
-                    callback.onError(ex);
+                    callback.handleException(ex);
                 }
             }
         };

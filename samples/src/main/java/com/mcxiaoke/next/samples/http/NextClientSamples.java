@@ -59,12 +59,13 @@ public class NextClientSamples extends BaseActivity {
 
         mHttpQueue.add(request, new StringCallback() {
             @Override
-            public void onError(final Throwable error) {
+            public boolean handleException(final Throwable error) {
                 mLogView.append(TAG + " testGet http response error: " + error);
+                return true;
             }
 
             @Override
-            public void onSuccess(final String response) {
+            public void handleResponse(final String response) {
                 mLogView.append(TAG + " testGet http response content: "
                         + SampleUtils.prettyPrintJson(response) + "\n");
             }
@@ -83,12 +84,13 @@ public class NextClientSamples extends BaseActivity {
                 .query("app_version", "1.2.3");
         mHttpQueue.add(request, new StringCallback() {
             @Override
-            public void onError(final Throwable error) {
+            public boolean handleException(final Throwable error) {
                 mLogView.append(TAG + " testPostForm http response error: " + error);
+                return true;
             }
 
             @Override
-            public void onSuccess(final String response) {
+            public void handleResponse(final String response) {
                 mLogView.append(TAG + " testPostForm http response content: "
                         + SampleUtils.prettyPrintJson(response) + "\n");
             }
@@ -121,12 +123,13 @@ public class NextClientSamples extends BaseActivity {
         request.body(json.toString().getBytes());
         mHttpQueue.add(request, new StringCallback() {
             @Override
-            public void onError(final Throwable error) {
+            public boolean handleException(final Throwable error) {
                 mLogView.append(TAG + " testPostJson http response error: " + error);
+                return true;
             }
 
             @Override
-            public void onSuccess(final String response) {
+            public void handleResponse(final String response) {
                 mLogView.append(TAG + " testPostJson http response content: "
                         + SampleUtils.prettyPrintJson(response) + "\n");
             }

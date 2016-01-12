@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.mcxiaoke.next.utils.IOUtils;
-import com.mcxiaoke.next.utils.StringUtils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Response;
 
@@ -59,6 +58,10 @@ public class NextResponse implements Closeable {
 
     public String message() {
         return mMessage;
+    }
+
+    public String description() {
+        return mStatusCode + ":" + mMessage;
     }
 
     public long contentLength() throws IOException {
@@ -123,9 +126,12 @@ public class NextResponse implements Closeable {
 
     public String dumpBody() {
         try {
-            return StringUtils.safeSubString(string(), 1024);
+            char[] buffer = new char[512];
+            reader().read(buffer);
+            String body = new String(buffer);
+            return new String(buffer);
         } catch (IOException e) {
-            return "IOException";
+            return e.getMessage();
         }
     }
 
@@ -140,12 +146,6 @@ public class NextResponse implements Closeable {
 
     @Override
     public String toString() {
-        return "NextResponse{" +
-                "mCreatedAt=" + mCreatedAt +
-                ", statusCode=" + mStatusCode +
-                ", statusMessage='" + mMessage + '\'' +
-                ", headers=" + dumpHeaders() + '\'' +
-                ", body='" + dumpBody() + '\'' +
-                '}';
+        return "Response{" + "ts=" + mCreatedAt + " info=" + mResponse + '}';
     }
 }

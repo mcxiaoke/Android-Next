@@ -7,7 +7,7 @@ package com.mcxiaoke.next.http.callback;
  */
 public interface HttpCallback<T> {
 
-    void onSuccess(T response);
+    void handleResponse(T response);
 
-    void onError(Throwable error);
+    boolean handleException(Throwable throwable);
 }

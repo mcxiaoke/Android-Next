@@ -45,7 +45,7 @@ public class HttpQueueTest {
     public void testGsonCallback1() {
         HttpAsync.get(TEST_URL, new JsonCallback<User>(User.class) {
             @Override
-            public void onSuccess(final User user) {
+            public void handleResponse(final User user) {
                 Assert.assertNotNull(user);
                 Assert.assertEquals("1000001", user.id);
             }
@@ -58,7 +58,7 @@ public class HttpQueueTest {
         }.getType();
         HttpAsync.get(TEST_URL2, new JsonCallback<List<Status>>(type) {
             @Override
-            public void onSuccess(final List<Status> statuses) {
+            public void handleResponse(final List<Status> statuses) {
                 System.err.println(statuses.get(1));
                 Assert.assertNotNull(statuses);
                 Assert.assertNotNull(statuses.get(1));
