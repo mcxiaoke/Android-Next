@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.http;
 
-import android.os.SystemClock;
 import android.util.Log;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.utils.AssertUtils;
@@ -373,19 +372,19 @@ public final class NextClient {
                                    final OkHttpClient client,
                                    final boolean debug)
             throws IOException {
-        long start = SystemClock.elapsedRealtime();
+        long start = System.nanoTime();
         try {
             final Response response = client.newCall(request).execute();
             if (mDebug || debug) {
                 Log.d(NextClient.TAG, "[sendRequest][OK] " + request.urlString()
-                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + " in " + (System.nanoTime() - start) / 1000000
                         + "ms Response:" + response);
             }
             return response;
         } catch (IOException e) {
             if (mDebug || debug) {
                 Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.urlString()
-                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + " in " + (System.nanoTime() - start) / 1000000
                         + "ms  Error:" + e);
             }
             throw e;

@@ -34,7 +34,7 @@ public class HttpQueueTest {
 
     @Before
     public void setup() {
-        TaskQueue queue = TaskQueue.pool();
+        TaskQueue queue = TaskQueue.concurrent();
         queue.setExecutor(new TestExecutor());
         httpQueue = new HttpQueue();
         httpQueue.setQueue(queue);
@@ -48,6 +48,11 @@ public class HttpQueueTest {
             public void handleResponse(final User user) {
                 Assert.assertNotNull(user);
                 Assert.assertEquals("1000001", user.id);
+            }
+
+            @Override
+            public boolean handleException(final Throwable throwable) {
+                return false;
             }
         }, this);
     }
@@ -63,6 +68,11 @@ public class HttpQueueTest {
                 Assert.assertNotNull(statuses);
                 Assert.assertNotNull(statuses.get(1));
                 Assert.assertNotNull(statuses.get(1).id);
+            }
+
+            @Override
+            public boolean handleException(final Throwable throwable) {
+                return false;
             }
         }, this);
     }

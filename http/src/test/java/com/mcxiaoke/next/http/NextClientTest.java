@@ -28,6 +28,9 @@ public class NextClientTest extends BaseTest {
     private static final String TEST_URL = "https://api.douban.com/v2/user/1000001";
     private static final String TEST_URL2 = "https://api.douban.com/v2/lifestream/user_timeline/1000001";
 
+
+
+
     @Test
     public void createClient() {
         new NextClient();
