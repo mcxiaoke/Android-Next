@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.http.HttpAsync;
 import com.mcxiaoke.next.http.HttpQueue;
 import com.mcxiaoke.next.http.NextResponse;
-import com.mcxiaoke.next.http.callback.JsonCallback;
+import com.mcxiaoke.next.http.callback.GsonCallback;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.task.TaskQueue;
 import junit.framework.Assert;
@@ -43,7 +43,7 @@ public class HttpQueueTest {
 
     @Test
     public void testGsonCallback1() {
-        HttpAsync.get(TEST_URL, new JsonCallback<User>(User.class) {
+        HttpAsync.get(TEST_URL, new GsonCallback<User>(User.class) {
             @Override
             public void handleResponse(final User user) {
                 Assert.assertNotNull(user);
@@ -56,7 +56,7 @@ public class HttpQueueTest {
     public void testGsonCallback2() {
         Type type = new TypeToken<List<Status>>() {
         }.getType();
-        HttpAsync.get(TEST_URL2, new JsonCallback<List<Status>>(type) {
+        HttpAsync.get(TEST_URL2, new GsonCallback<List<Status>>(type) {
             @Override
             public void handleResponse(final List<Status> statuses) {
                 System.err.println(statuses.get(1));

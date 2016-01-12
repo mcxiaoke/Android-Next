@@ -8,7 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.mcxiaoke.next.http.callback.BitmapCallback;
 import com.mcxiaoke.next.http.callback.FileCallback;
 import com.mcxiaoke.next.http.callback.HttpCallback;
-import com.mcxiaoke.next.http.callback.JsonCallback;
+import com.mcxiaoke.next.http.callback.GsonCallback;
 import com.mcxiaoke.next.http.callback.ResponseCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.http.exception.HttpException;
@@ -17,7 +17,7 @@ import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.BitmapTransformer;
 import com.mcxiaoke.next.http.transformer.FileTransformer;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
-import com.mcxiaoke.next.http.transformer.JsonTransformer;
+import com.mcxiaoke.next.http.transformer.GsonTransformer;
 import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -153,9 +153,17 @@ public class HttpQueue {
     }
 
     public <T> String add(final NextRequest request,
-                          final JsonCallback<T> callback,
+                          final GsonCallback<T> callback,
                           Object caller) {
-        return add(request, new JsonTransformer<T>(mGson, callback.getType()), callback, caller);
+        final Gson gson = callback.gson == null ? mGson : callback.gson;
+        final GsonTransformer<T> transformer;
+//        if (callback.clazz != null) {
+//            transformer = new JsonTransformer<T>(gson, callback.clazz);
+//        } else {
+//            transformer = new JsonTransformer<T>(gson, callback.type);
+//        }
+        transformer = new GsonTransformer<T>(gson, callback.type);
+        return add(request, transformer, callback, caller);
     }
 
     public String add(final NextRequest request,

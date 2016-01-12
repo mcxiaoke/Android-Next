@@ -1,11 +1,9 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.http.callback.FileCallback;
-import com.mcxiaoke.next.http.callback.JsonCallback;
+import com.mcxiaoke.next.http.callback.GsonCallback;
 import com.mcxiaoke.next.http.callback.ResponseCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
-import com.mcxiaoke.next.task.TaskQueue;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
 import java.util.Collections;
@@ -91,19 +89,19 @@ public final class HttpAsync {
     }
 
     public static <T> String get(final String url,
-                                 final JsonCallback<T> callback,
+                                 final GsonCallback<T> callback,
                                  Object caller) {
         return get(url, emptyMap(), callback, caller);
     }
 
     public static <T> String get(final String url, final Map<String, String> queries,
-                                 final JsonCallback<T> callback,
+                                 final GsonCallback<T> callback,
                                  Object caller) {
         return add(HttpMethod.GET, url, queries, null, callback, caller);
     }
 
     public static <T> String get(final String url, final NextParams params,
-                                 final JsonCallback<T> callback,
+                                 final GsonCallback<T> callback,
                                  Object caller) {
         return add(HttpMethod.GET, url, params, callback, caller);
     }
@@ -144,21 +142,21 @@ public final class HttpAsync {
 
 
     public static <T> String delete(final String url,
-                                    final JsonCallback<T> callback,
+                                    final GsonCallback<T> callback,
                                     Object caller) {
         return delete(url, emptyMap(), callback, caller);
     }
 
     public static <T> String delete(final String url,
                                     final Map<String, String> queries,
-                                    final JsonCallback<T> callback,
+                                    final GsonCallback<T> callback,
                                     Object caller) {
         return add(HttpMethod.DELETE, url, queries, null, callback, caller);
     }
 
     public static <T> String delete(final String url,
                                     final NextParams params,
-                                    final JsonCallback<T> callback,
+                                    final GsonCallback<T> callback,
                                     Object caller) {
         return add(HttpMethod.DELETE, url, params, callback, caller);
     }
@@ -202,19 +200,19 @@ public final class HttpAsync {
     }
 
     public static <T> String post(final String url,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         return post(url, emptyMap(), callback, caller);
     }
 
     public static <T> String post(final String url, final Map<String, String> forms,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         return add(HttpMethod.POST, url, null, forms, callback, caller);
     }
 
     public static <T> String post(final String url, final NextParams params,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         return add(HttpMethod.POST, url, params, callback, caller);
     }
@@ -254,19 +252,19 @@ public final class HttpAsync {
         return add(HttpMethod.PUT, url, params, callback, caller);
     }
 
-    public static <T> String put(final String url, final JsonCallback<T> callback,
+    public static <T> String put(final String url, final GsonCallback<T> callback,
                                  Object caller) {
         return put(url, emptyMap(), callback, caller);
     }
 
     public static <T> String put(final String url, final Map<String, String> forms,
-                                 final JsonCallback<T> callback,
+                                 final GsonCallback<T> callback,
                                  Object caller) {
         return add(HttpMethod.PUT, url, null, forms, callback, caller);
     }
 
     public static <T> String put(final String url, final NextParams params,
-                                 final JsonCallback<T> callback,
+                                 final GsonCallback<T> callback,
                                  Object caller) {
         return add(HttpMethod.PUT, url, params, callback, caller);
     }
@@ -312,7 +310,7 @@ public final class HttpAsync {
     private static <T> String add(final HttpMethod method,
                                   final String url,
                                   final NextParams params,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         final NextRequest request = new NextRequest(method, url).params(params);
         return getHttpQueue().add(request, callback, caller);
@@ -337,7 +335,7 @@ public final class HttpAsync {
     private static <T> String add(final HttpMethod method, final String url,
                                   final Map<String, String> queries,
                                   final Map<String, String> forms,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         return add(method, url, queries, forms, null, callback, caller);
     }
@@ -368,7 +366,7 @@ public final class HttpAsync {
                                   final Map<String, String> queries,
                                   final Map<String, String> forms,
                                   final Map<String, String> headers,
-                                  final JsonCallback<T> callback,
+                                  final GsonCallback<T> callback,
                                   Object caller) {
         final NextRequest request = new NextRequest(method, url).queries(queries).
                 forms(forms).headers(headers);

@@ -35,14 +35,14 @@ public class LoggingInterceptor implements Interceptor {
     public Response intercept(final Chain chain) throws IOException {
         long t1 = System.nanoTime();
         final Request request = chain.request();
-        Log.v(NextClient.TAG, String.format("[Request] %s %s on %s%n",
+        Log.v(NextClient.TAG, String.format("[OkHttp Request] %s %s on %s%n",
                 request.method(), request.url(), chain.connection()));
         if (mHeaders) {
             Log.v(NextClient.TAG, "[Request Headers] " + request.headers());
         }
         final Response response = chain.proceed(request);
         long t2 = System.nanoTime();
-        Log.v(NextClient.TAG, String.format("[Response] %s %s (%s:%s) in %.1fms%n "
+        Log.v(NextClient.TAG, String.format("[OkHttp Response] %s %s (%s:%s) in %.1fms%n "
                 , request.method(), request.url()
                 , response.code(), response.message()
                 , (t2 - t1) / 1e6d));
@@ -50,14 +50,14 @@ public class LoggingInterceptor implements Interceptor {
             Log.v(NextClient.TAG, "[Response Headers] " + response.headers());
         }
         if (mBody) {
-            Log.v(NextClient.TAG, "[Response] " + responseToText(response));
+            Log.v(NextClient.TAG, "[Response Body] " + responseToText(response));
         }
         return response;
     }
 
     private static String responseToText(final Response response)
             throws IOException {
-        return StringUtils.safeSubString(IOUtils.readString(response.body().charStream()), 8196);
+        return StringUtils.safeSubString(IOUtils.readString(response.body().charStream()), 2048);
     }
 
 }

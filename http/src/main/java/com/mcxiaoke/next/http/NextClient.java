@@ -342,36 +342,21 @@ public final class NextClient {
 
     public Response sendRequest(final NextRequest request)
             throws IOException {
-        long start = SystemClock.elapsedRealtime();
         final OkHttpClient client = mClient.clone();
         final OkClientInterceptor it = request.getInterceptor();
         if (it != null) {
             it.intercept(client);
         }
         if (mDebug || request.isDebug()) {
-            Log.v(NextClient.TAG, "[sendRequest] " + request);
             client.networkInterceptors().add(new LoggingInterceptor());
+            LogUtils.v(NextClient.TAG, "[sendRequest] " + request);
+            logHttpCurl(request);
         }
         final ProgressListener li = request.getListener();
         if (li != null) {
             client.interceptors().add(new ProgressInterceptor(li));
         }
-        try {
-            final Response response = client.newCall(createOkRequest(request)).execute();
-            if (mDebug || request.isDebug()) {
-                Log.d(NextClient.TAG, "[sendRequest][OK] " + request.originalUrl()
-                        + " in " + (SystemClock.elapsedRealtime() - start)
-                        + "ms Response:" + response);
-            }
-            return response;
-        } catch (IOException e) {
-            if (mDebug || request.isDebug()) {
-                Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.originalUrl()
-                        + " in " + (SystemClock.elapsedRealtime() - start)
-                        + "ms  Error:" + e);
-            }
-            throw e;
-        }
+        return sendOkRequest(createOkRequest(request), client, request.isDebug());
     }
 
     public Response sendRequest(final Request request)
@@ -381,7 +366,30 @@ public final class NextClient {
             Log.v(NextClient.TAG, "Sending " + request);
             client.networkInterceptors().add(new LoggingInterceptor());
         }
-        return client.newCall(request).execute();
+        return sendOkRequest(request, client, false);
+    }
+
+    private Response sendOkRequest(final Request request,
+                                   final OkHttpClient client,
+                                   final boolean debug)
+            throws IOException {
+        long start = SystemClock.elapsedRealtime();
+        try {
+            final Response response = client.newCall(request).execute();
+            if (mDebug || debug) {
+                Log.d(NextClient.TAG, "[sendRequest][OK] " + request.urlString()
+                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + "ms Response:" + response);
+            }
+            return response;
+        } catch (IOException e) {
+            if (mDebug || debug) {
+                Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.urlString()
+                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + "ms  Error:" + e);
+            }
+            throw e;
+        }
     }
 
     public NextRequest createRequest(final HttpMethod method, final String url,
@@ -411,6 +419,13 @@ public final class NextClient {
                 .forms(forms).headers(headers);
     }
 
+    public Request createOkRequest(final NextRequest request) throws IOException {
+        return new Request.Builder()
+                .url(request.url())
+                .headers(Headers.of(request.headers()))
+                .method(request.method().name(), request.getRequestBody()).build();
+    }
+
     public Request createOkRequest(final HttpMethod method, final String url,
                                    final Map<String, String> queries,
                                    final Map<String, String> forms,
@@ -419,20 +434,33 @@ public final class NextClient {
         return createOkRequest(createRequest(method, url, queries, forms, headers));
     }
 
-    public Request createOkRequest(final NextRequest request) throws IOException {
-        return new Request.Builder()
-                .url(request.url())
-                .headers(Headers.of(request.headers()))
-                .method(request.method().name(), request.getRequestBody()).build();
-    }
+    private void logHttpCurl(final NextRequest request) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("http");
+        builder.append(" -f");
+        builder.append(" ").append(request.method().name());
+        builder.append(" ").append(request.url());
+//
+//        for (Map.Entry<String, String> entry : request.queries().entrySet()) {
+//            builder.append(" ").append(entry.getKey()).append("==").append(entry.getValue());
+//        }
 
-    private void logHttpRequests(final NextRequest request, final Response response, final long timeMs) {
-        if (mDebug || timeMs > HttpConsts.SLOW_REQUEST_THRESHOLD_MS) {
-            LogUtils.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
-                            "[rc=%d], [retryCount=%s]", request, timeMs,
-                    response.header(HttpConsts.CONTENT_LENGTH),
-                    response.code() + ":" + response.message());
+        for (Map.Entry<String, String> entry : request.form().entrySet()) {
+            builder.append(" ").append(entry.getKey()).append("=\"")
+                    .append(entry.getValue()).append("\"");
         }
+
+        for (BodyPart part : request.parts()) {
+            builder.append(" ").append(part.getName()).append("@").append(part.getFileName());
+        }
+
+        for (Map.Entry<String, String> entry : request.headers().entrySet()) {
+            builder.append(" ").append(entry.getKey()).append(":\"")
+                    .append(entry.getValue()).append("\"");
+        }
+
+        LogUtils.i(TAG, "Http Command: [ " + builder.toString() + " ]");
+
     }
 
 }
