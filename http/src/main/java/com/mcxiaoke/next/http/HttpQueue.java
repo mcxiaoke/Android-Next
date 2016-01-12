@@ -138,7 +138,7 @@ public class HttpQueue {
     public <T> String add(final NextRequest request,
                           final HttpTransformer<T> transformer,
                           final HttpCallback<T> callback,
-                          Object caller,
+                          final Object caller,
                           final HttpProcessor<NextRequest> requestProcessor,
                           final HttpProcessor<NextResponse> preProcessor,
                           final HttpProcessor<T> postProcessor) {
@@ -152,14 +152,14 @@ public class HttpQueue {
     public <T> String add(final NextRequest request,
                           final HttpTransformer<T> transformer,
                           final HttpCallback<T> callback,
-                          Object caller) {
+                          final Object caller) {
         final HttpJob<T> job = new HttpJob<T>(request, transformer, callback, caller);
         return enqueue(job);
     }
 
     public String add(final NextRequest request,
                       final ResponseCallback callback,
-                      Object caller) {
+                      final Object caller) {
         return add(request, new ResponseTransformer(), callback, caller);
     }
 
@@ -171,19 +171,19 @@ public class HttpQueue {
 
     public String add(final NextRequest request,
                       final StringCallback callback,
-                      Object caller) {
+                      final Object caller) {
         return add(request, new StringTransformer(), callback, caller);
     }
 
     public String add(final NextRequest request,
                       final BitmapCallback callback,
-                      Object caller) {
+                      final Object caller) {
         return add(request, new BitmapTransformer(), callback, caller);
     }
 
     public String add(final NextRequest request, final File file,
                       final FileCallback callback,
-                      Object caller) {
+                      final Object caller) {
         return add(request, new FileTransformer(file), callback, caller);
     }
 
