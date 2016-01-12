@@ -8,5 +8,6 @@ package com.mcxiaoke.next.http.processor;
  * T to
  */
 public interface HttpProcessor<T> {
+
     void process(T response);
 }

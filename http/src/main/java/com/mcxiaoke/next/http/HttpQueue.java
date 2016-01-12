@@ -203,10 +203,16 @@ public class HttpQueue {
             @Override
             public T call() throws Exception {
                 // request interceptors
+//                NextRequest aReq = request;
                 final List<HttpProcessor<NextRequest>> requestProcessors = job.getRequestProcessors();
                 if (requestProcessors != null) {
                     for (HttpProcessor<NextRequest> pr : requestProcessors) {
                         pr.process(request);
+//                        pr.process(aReq);
+//                        aReq = pr.process(aReq);
+//                        if (pr.process(aReq)) {
+//                            break;
+//                        }
                     }
                 }
                 // response interceptors
@@ -215,6 +221,11 @@ public class HttpQueue {
                 if (preProcessors != null) {
                     for (HttpProcessor<NextResponse> pr : preProcessors) {
                         pr.process(nextResponse);
+//                        pr.process(aRes);
+//                        aRes = pr.process(aRes);
+//                        if (pr.process(aRes)) {
+//                            break;
+//                        }
                     }
                 }
                 //  model interceptors
@@ -223,6 +234,11 @@ public class HttpQueue {
                 if (postProcessors != null) {
                     for (HttpProcessor<T> pr : postProcessors) {
                         pr.process(response);
+//                        pr.process(model);
+//                        model = pr.process(model);
+//                        if (pr.process(model)) {
+//                            break;
+//                        }
                     }
                 }
                 return response;
