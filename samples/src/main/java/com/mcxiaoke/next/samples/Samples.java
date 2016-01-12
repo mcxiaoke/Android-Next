@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.samples;
 
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,18 +15,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.google.gson.reflect.TypeToken;
+import com.mcxiaoke.next.http.HttpAsync;
 import com.mcxiaoke.next.samples.bus.BasicBusSample;
 import com.mcxiaoke.next.samples.bus.BasicBusSample2;
 import com.mcxiaoke.next.samples.core.TaskQueueSamples;
 import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.samples.layout.LineLayoutSample;
 import com.mcxiaoke.next.samples.layout.ViewGroupSample;
+import com.mcxiaoke.next.samples.license.LicenseInfo;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
-import com.mcxiaoke.next.utils.AndroidUtils;
-import com.mcxiaoke.next.utils.LogUtils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +60,26 @@ public class Samples extends BaseActivity {
         ButterKnife.inject(this);
         initSamples();
         initListView();
-        LogUtils.i(TAG, AndroidUtils.getSignature(this));
+        someTest();
+    }
+
+    private void someTest() {
+        long start = System.nanoTime();
+        for (int i = 0; i < 10000; ++i) {
+            HttpAsync.class.getSimpleName();
+            TaskStackBuilder.class.getSimpleName();
+        }
+        long ms = (System.nanoTime() - start) / 1000000;
+        Log.e("someTest", "getSimpleName: " + ms + "ms");
+
+        start = System.nanoTime();
+        for (int i = 0; i < 100; ++i) {
+            Type typeToken = new TypeToken<LicenseInfo>() {
+            }.getType();
+        }
+        ms = (System.nanoTime() - start) / 1000000;
+        Log.e("someTest", "getTypeToken: " + ms + "ms");
+
     }
 
     private void initSamples() {

@@ -3,9 +3,11 @@ package com.mcxiaoke.next.samples.http;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.http.HttpMethod;
 import com.mcxiaoke.next.http.HttpQueue;
 import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.callback.GsonCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.BuildConfig;
@@ -13,6 +15,9 @@ import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.samples.SampleUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * User: mcxiaoke
@@ -33,13 +38,9 @@ public class NextClientSamples extends BaseActivity {
         mLogView = (TextView) findViewById(R.id.log_view);
         mHttpQueue = new HttpQueue();
         mHttpQueue.setDebug(true);
-        testGet();
         testPostForm();
-        try {
-            testPostJson();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        testGet();
+        testGetList();
     }
 
     @Override
@@ -54,10 +55,14 @@ public class NextClientSamples extends BaseActivity {
                 .debug(true)
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("douban", "yes")
+                .form("douban", "yes no")
+                .query("version", "6")
+                .form("form-key", "form-value")
+                .form("hello", "world")
                 .query("app_version", "1.5.2");
 
-        mHttpQueue.add(request, new StringCallback() {
+        mHttpQueue.add(request, new GsonCallback<User>(User.class) {
+
             @Override
             public boolean handleException(final Throwable error) {
                 mLogView.append(TAG + " testGet http response error: " + error);
@@ -65,12 +70,41 @@ public class NextClientSamples extends BaseActivity {
             }
 
             @Override
-            public void handleResponse(final String response) {
+            public void handleResponse(final User response) {
                 mLogView.append(TAG + " testGet http response content: "
-                        + SampleUtils.prettyPrintJson(response) + "\n");
+                        + response + "\n");
             }
         }, this);
 
+    }
+
+    private void testGetList() {
+        final String url = "https://api.douban.com/v2/lifestream/user_timeline/1000001";
+        final NextRequest request = new NextRequest(HttpMethod.GET, url)
+                .debug(true)
+                .query("platform", "Android")
+                .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
+                .form("douban", "yes no")
+                .query("version", "6")
+                .form("form-key", "form-value")
+                .form("hello", "world")
+                .query("app_version", "1.5.2");
+
+        final Type type = new TypeToken<List<StatusItem>>() {
+        }.getType();
+        mHttpQueue.add(request, new GsonCallback<List<StatusItem>>(type) {
+            @Override
+            public boolean handleException(final Throwable error) {
+                mLogView.append(TAG + " testGetList http response error: " + error);
+                return true;
+            }
+
+            @Override
+            public void handleResponse(final List<StatusItem> response) {
+                mLogView.append(TAG + " testGetList http response content: "
+                        + response + "\n");
+            }
+        }, this);
     }
 
     private void testPostForm() {
@@ -80,7 +114,9 @@ public class NextClientSamples extends BaseActivity {
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("version", "6")
+                .query("version", "6")
+                .form("form-key", "form value")
+                .form("hello", "world")
                 .query("app_version", "1.2.3");
         mHttpQueue.add(request, new StringCallback() {
             @Override
@@ -104,7 +140,9 @@ public class NextClientSamples extends BaseActivity {
                 .header("X-UDID", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
                 .query("platform", "Android")
                 .query("udid", "a0b609c99ca4bfdcef3d03a234d78d253d25e924")
-                .form("version", "6")
+                .query("version", "6")
+                .form("form-key", "form value")
+                .form("hello", "world")
                 .query("app_version", "1.2.3");
         request.userAgent("Samples test " + BuildConfig.APPLICATION_ID
                 + "/" + BuildConfig.VERSION_NAME);
