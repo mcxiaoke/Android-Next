@@ -37,16 +37,13 @@ final class TaskRunnable<Result> implements ITaskRunnable {
 
     @Override
     public void run() {
-        if (Config.DEBUG) {
-            Log.v(TAG, "run() start name:" + mName + " thread:" + Thread.currentThread().getName());
-        }
         onTaskStarted();
         Result result = null;
         Exception error = null;
         if (!isCancelled()) {
             try {
                 if (Config.DEBUG) {
-                    Log.v(TAG, "run() execute " + mName);
+                    Log.v(TAG, "run() task:" + mName + " thread:" + Thread.currentThread());
                 }
                 result = mTask.onExecute();
             } catch (Exception ex) {
@@ -61,9 +58,6 @@ final class TaskRunnable<Result> implements ITaskRunnable {
             } else {
                 onTaskSuccess(result);
             }
-        }
-        if (Config.DEBUG) {
-            Log.v(TAG, "run() end name:" + mName + " thread:" + Thread.currentThread().getName());
         }
     }
 

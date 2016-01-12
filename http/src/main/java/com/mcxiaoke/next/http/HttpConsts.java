@@ -12,6 +12,8 @@ import java.nio.charset.Charset;
  */
 public interface HttpConsts {
 
+    int SLOW_REQUEST_THRESHOLD_MS = 3000;
+
     String ENCODING_UTF8 = Charsets.ENCODING_UTF_8;
     Charset CHARSET_UTF8 = Charsets.UTF_8;
 

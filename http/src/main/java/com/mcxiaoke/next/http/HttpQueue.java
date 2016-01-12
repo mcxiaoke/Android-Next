@@ -1,6 +1,8 @@
 package com.mcxiaoke.next.http;
 
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Pair;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcxiaoke.next.http.callback.BitmapCallback;
@@ -27,11 +29,7 @@ import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collection;
 
 /**
  * User: mcxiaoke
@@ -51,8 +49,6 @@ public class HttpQueue {
     private static final String TAG = HttpQueue.class.getSimpleName();
     private static final int NUM_THREADS_DEFAULT = 0;
 
-    private final Map<Integer, String> mJobs;
-    private final List<String> mRequests;
     private TaskQueue mQueue;
     private NextClient mClient;
     private Gson mGson;
@@ -75,8 +71,6 @@ public class HttpQueue {
     }
 
     public HttpQueue(final TaskQueue queue, final NextClient client) {
-        mJobs = new ConcurrentHashMap<Integer, String>();
-        mRequests = new CopyOnWriteArrayList<String>();
         mGson = new GsonBuilder().setPrettyPrinting().create();
         mQueue = queue;
         mClient = client;
@@ -85,6 +79,7 @@ public class HttpQueue {
     public void setDebug(final boolean debug) {
         mDebug = debug;
         mClient.setDebug(debug);
+        TaskQueue.setDebug(true);
     }
 
     public void setQueue(final TaskQueue queue) {
@@ -123,14 +118,6 @@ public class HttpQueue {
 
     public void cancelAll() {
         mQueue.cancelAll();
-        synchronized (mJobs) {
-            mRequests.clear();
-            mJobs.clear();
-        }
-    }
-
-    public List<String> getRequests() {
-        return new ArrayList<>(mRequests);
     }
 
     public <T> String add(final HttpJob<T> job) {
@@ -189,109 +176,82 @@ public class HttpQueue {
         return add(request, new FileTransformer(file), callback, caller);
     }
 
-    private <T> T performRequest(final HttpJob<T> job) throws Exception {
-        final NextRequest request = job.request;
-        final HttpTransformer<T> transformer = job.transformer;
-        final List<HttpProcessor<NextRequest>> requestProcessors = job.getRequestProcessors();
-        if (requestProcessors != null) {
-            for (HttpProcessor<NextRequest> pr : requestProcessors) {
-                pr.process(request);
-            }
-        }
-        final NextResponse nextResponse;
-        try {
-            nextResponse = mClient.execute(request);
-        } catch (IOException e) {
-            throw new HttpException(HttpException.ERROR_IO, e);
-        } catch (Exception e) {
-            throw new HttpException(HttpException.ERROR_NETWORK, e);
-        }
-        if (!nextResponse.successful()) {
-            throw new HttpException(nextResponse);
-        }
-        final List<HttpProcessor<NextResponse>> preProcessors = job.getPreProcessors();
-        if (preProcessors != null) {
-            for (HttpProcessor<NextResponse> pr : preProcessors) {
-                pr.process(nextResponse);
-            }
-        }
-        final T response;
-        try {
-            response = transformer.transform(nextResponse);
-        } catch (IOException e) {
-            throw new HttpException(HttpException.ERROR_TRANSFORM, e);
-        }
-        final List<HttpProcessor<T>> postProcessors = job.getPostProcessors();
-        if (postProcessors != null) {
-            for (HttpProcessor<T> pr : postProcessors) {
-                pr.process(response);
-            }
-        }
-        return response;
-    }
 
     private <T> String enqueue(final HttpJob<T> job) {
-        final NextRequest request = job.request;
-        final HttpTransformer<T> transformer = job.transformer;
-        final HttpCallback<T> callback = job.callback;
-        final Object caller = job.caller;
-        final String url = String.valueOf(request.url());
         if (mDebug) {
-            logHttpJob(TAG, "[Enqueue] " + url + " from " + caller);
+            LogUtils.v(TAG, "[HttpJob][Enqueue]" + job.request.url() + " " + Thread.currentThread());
         }
         ensureClient();
         ensureQueue();
-        final int hashCode = System.identityHashCode(request);
-        final TaskCallable<T> callable = new TaskCallable<T>() {
-            @Override
-            public T call() throws Exception {
-                return performRequest(job);
+        final TaskCallable<Pair<NextResponse, T>> callable =
+                new TaskCallable<Pair<NextResponse, T>>() {
+                    @Override
+                    public Pair<NextResponse, T> call() throws Exception {
+                        return performRequest(job);
+                    }
+                };
+        return mQueue.add(callable, createCallback(job.callback), job.caller);
+    }
+
+    private <T> Pair<NextResponse, T> performRequest(final HttpJob<T> job)
+            throws IOException, HttpException {
+        long start = SystemClock.elapsedRealtime();
+        invokeProcessors(job.request, job.getRequestProcessors());
+        final NextResponse nextResponse = mClient.execute(job.request);
+        if (!nextResponse.successful()) {
+            // not successful, throw http exception
+            throw new HttpException(nextResponse);
+        }
+        invokeProcessors(nextResponse, job.getPreProcessors());
+        // final T response = mClient.execute(job.request,job.transformer);
+        final T response = job.transformer.transform(nextResponse);
+        invokeProcessors(response, job.getPostProcessors());
+        if (mDebug) {
+            LogUtils.v(TAG, "[HttpJob][Perform] in "
+                    + (SystemClock.elapsedRealtime() - start) + "ms " + nextResponse);
+        }
+        return new Pair<NextResponse, T>(nextResponse, response);
+    }
+
+    private <T> void invokeProcessors(final T data,
+                                      final Collection<HttpProcessor<T>> ps) {
+        if (ps != null) {
+            for (HttpProcessor<T> p : ps) {
+                p.process(data);
             }
-        };
-        final TaskCallback<T> taskCallback = new SimpleTaskCallback<T>() {
+        }
+    }
+
+    private <T> TaskCallback<Pair<NextResponse, T>> createCallback(
+            final HttpCallback<T> callback) {
+        return new SimpleTaskCallback<Pair<NextResponse, T>>() {
 
             @Override
-            public void onTaskCancelled(final String name, final Bundle extras) {
+            public void onTaskSuccess(final Pair<NextResponse, T> result,
+                                      final Bundle extras) {
                 if (mDebug) {
-                    logHttpJob(TAG, "[Cancelled] (" + name + ") " + url);
-                }
-            }
-
-            @Override
-            public void onTaskFinished(final String name, final Bundle extras) {
-                super.onTaskFinished(name, extras);
-                synchronized (mJobs) {
-                    mJobs.remove(hashCode);
-                    mRequests.remove(url);
-                }
-            }
-
-            @Override
-            public void onTaskSuccess(final T t, final Bundle extras) {
-                if (mDebug) {
-                    logHttpJob(TAG, "[Success] Type:" + t.getClass() + " " + url);
+                    LogUtils.d(TAG, "[HttpJob][Success] " + result.first);
                 }
                 if (callback != null) {
-                    callback.handleResponse(t);
+                    callback.handleResponse(result.second);
                 }
             }
 
             @Override
             public void onTaskFailure(final Throwable ex, final Bundle extras) {
                 if (mDebug) {
-                    logHttpJob(TAG, "[Failure] Error:" + ex + " " + url);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("[HttpJob][Failure] Error:").append(ex);
+                    if (ex.getCause() != null) {
+                        builder.append(" Reason:").append(ex.getCause());
+                    }
+                    LogUtils.w(TAG, builder.toString());
                 }
                 if (callback != null) {
                     callback.handleException(ex);
                 }
             }
         };
-        final String tag = mQueue.add(callable, taskCallback, caller);
-        synchronized (mJobs) {
-            mJobs.put(hashCode, tag);
-            mRequests.add(url);
-        }
-        return tag;
     }
 
     private synchronized void ensureClient() {
@@ -309,10 +269,6 @@ public class HttpQueue {
 
     private static TaskQueue createQueue() {
         return TaskQueue.concurrent(NUM_THREADS_DEFAULT);
-    }
-
-    private void logHttpJob(final String tag, final String message) {
-        LogUtils.v(tag, "[HttpJob]" + message + " thread:" + Thread.currentThread().getName());
     }
 
 }

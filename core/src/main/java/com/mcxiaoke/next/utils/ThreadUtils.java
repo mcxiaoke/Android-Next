@@ -58,7 +58,6 @@ public final class ThreadUtils {
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
             thread.setName(name + "-thread #" + count++);
-            LogUtils.v(TAG, "newThread() thread=" + thread.getName());
             return thread;
         }
     }

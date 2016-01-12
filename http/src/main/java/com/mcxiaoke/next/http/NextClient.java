@@ -1,8 +1,10 @@
 package com.mcxiaoke.next.http;
 
+import android.os.SystemClock;
 import android.util.Log;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.utils.AssertUtils;
+import com.mcxiaoke.next.utils.LogUtils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -333,26 +335,43 @@ public final class NextClient {
     protected <T> T executeInternal(final NextRequest request,
                                     final HttpTransformer<T> transformer)
             throws IOException {
-        return transformer.transform(new NextResponse(sendRequest(request)));
+        final Response response = sendRequest(request);
+        final NextResponse nextResponse = new NextResponse(response);
+        return transformer.transform(nextResponse);
     }
 
     public Response sendRequest(final NextRequest request)
             throws IOException {
+        long start = SystemClock.elapsedRealtime();
         final OkHttpClient client = mClient.clone();
         final OkClientInterceptor it = request.getInterceptor();
         if (it != null) {
             it.intercept(client);
         }
         if (mDebug || request.isDebug()) {
-            Log.v(NextClient.TAG, "Sending " + request);
+            Log.v(NextClient.TAG, "[sendRequest] " + request);
             client.networkInterceptors().add(new LoggingInterceptor());
         }
         final ProgressListener li = request.getListener();
         if (li != null) {
             client.interceptors().add(new ProgressInterceptor(li));
         }
-        return client.newCall(createOkRequest(request)).execute();
-
+        try {
+            final Response response = client.newCall(createOkRequest(request)).execute();
+            if (mDebug || request.isDebug()) {
+                Log.d(NextClient.TAG, "[sendRequest][OK] " + request.originalUrl()
+                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + "ms Response:" + response);
+            }
+            return response;
+        } catch (IOException e) {
+            if (mDebug || request.isDebug()) {
+                Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.originalUrl()
+                        + " in " + (SystemClock.elapsedRealtime() - start)
+                        + "ms  Error:" + e);
+            }
+            throw e;
+        }
     }
 
     public Response sendRequest(final Request request)
@@ -405,6 +424,15 @@ public final class NextClient {
                 .url(request.url())
                 .headers(Headers.of(request.headers()))
                 .method(request.method().name(), request.getRequestBody()).build();
+    }
+
+    private void logHttpRequests(final NextRequest request, final Response response, final long timeMs) {
+        if (mDebug || timeMs > HttpConsts.SLOW_REQUEST_THRESHOLD_MS) {
+            LogUtils.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
+                            "[rc=%d], [retryCount=%s]", request, timeMs,
+                    response.header(HttpConsts.CONTENT_LENGTH),
+                    response.code() + ":" + response.message());
+        }
     }
 
 }

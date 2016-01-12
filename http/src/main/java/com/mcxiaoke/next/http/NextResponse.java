@@ -128,7 +128,6 @@ public class NextResponse implements Closeable {
         try {
             char[] buffer = new char[512];
             reader().read(buffer);
-            String body = new String(buffer);
             return new String(buffer);
         } catch (IOException e) {
             return e.getMessage();
@@ -146,6 +145,6 @@ public class NextResponse implements Closeable {
 
     @Override
     public String toString() {
-        return "Response{" + "ts=" + mCreatedAt + " info=" + mResponse + '}';
+        return String.valueOf(mResponse);
     }
 }

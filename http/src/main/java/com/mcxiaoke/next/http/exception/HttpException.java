@@ -13,9 +13,9 @@ public class HttpException extends Exception {
     public static final int ERROR_TRANSFORM = -11;
     public static final int ERROR_UNKNOWN = -999;
 
-    public int httpCode;
-    public String httpMessage;
-    public NextResponse response;
+    public final int code;
+    public final String message;
+    public final NextResponse response;
 
     public HttpException(final NextResponse response) {
         this(response.description(), response);
@@ -24,13 +24,19 @@ public class HttpException extends Exception {
     public HttpException(final String message, final NextResponse response) {
         super(message);
         this.response = response;
-        this.httpCode = response.code();
-        this.httpMessage = response.message();
+        this.code = response.code();
+        this.message = response.message();
     }
 
     public HttpException(final int code, final Throwable ex) {
         super(ex.getMessage(), ex);
-        this.httpCode = code;
-        this.httpMessage = ex.getMessage();
+        this.code = code;
+        this.message = ex.getMessage();
+        this.response = null;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " {" + response + '}';
     }
 }
