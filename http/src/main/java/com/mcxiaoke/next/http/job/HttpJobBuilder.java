@@ -1,8 +1,9 @@
 package com.mcxiaoke.next.http.job;
 
 import com.mcxiaoke.next.http.NextRequest;
+import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.http.callback.HttpCallback;
-import com.mcxiaoke.next.http.processor.ResponseProcessor;
+import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 
 import java.util.ArrayList;
@@ -13,7 +14,9 @@ public class HttpJobBuilder<T> {
     private HttpTransformer<T> mTransformer;
     private HttpCallback<T> mCallback;
     private Object mCaller;
-    public List<ResponseProcessor<T>> mProcessors;
+    public List<HttpProcessor<NextRequest>> mRequestProcessors;
+    public List<HttpProcessor<NextResponse>> mPreProcessors;
+    public List<HttpProcessor<T>> mPostProcessors;
 
     public HttpJobBuilder<T> request(final NextRequest request) {
         mRequest = request;
@@ -35,17 +38,38 @@ public class HttpJobBuilder<T> {
         return this;
     }
 
-    public HttpJobBuilder<T> processor(ResponseProcessor<T> processor) {
+    public HttpJobBuilder<T> requestProcessor(HttpProcessor<NextRequest> processor) {
         if (processor != null) {
-            if (mProcessors == null) {
-                mProcessors = new ArrayList<ResponseProcessor<T>>(4);
+            if (mRequestProcessors == null) {
+                mRequestProcessors = new ArrayList<HttpProcessor<NextRequest>>(2);
             }
-            mProcessors.add(processor);
+            mRequestProcessors.add(processor);
+        }
+        return this;
+    }
+
+    public HttpJobBuilder<T> preProcessor(HttpProcessor<NextResponse> processor) {
+        if (processor != null) {
+            if (mPreProcessors == null) {
+                mPreProcessors = new ArrayList<HttpProcessor<NextResponse>>(2);
+            }
+            mPreProcessors.add(processor);
+        }
+        return this;
+    }
+
+    public HttpJobBuilder<T> postProcessor(HttpProcessor<T> processor) {
+        if (processor != null) {
+            if (mPostProcessors == null) {
+                mPostProcessors = new ArrayList<HttpProcessor<T>>(2);
+            }
+            mPostProcessors.add(processor);
         }
         return this;
     }
 
     public HttpJob<T> create() {
-        return new HttpJob<T>(mRequest, mTransformer, mCallback, mProcessors, mCaller);
+        return new HttpJob<T>(mRequest, mTransformer, mCallback, mCaller,
+                mRequestProcessors, mPreProcessors, mPostProcessors);
     }
 }

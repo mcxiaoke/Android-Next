@@ -10,7 +10,7 @@ import com.mcxiaoke.next.http.callback.JsonCallback;
 import com.mcxiaoke.next.http.callback.ResponseCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.http.job.HttpJob;
-import com.mcxiaoke.next.http.processor.ResponseProcessor;
+import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.BitmapTransformer;
 import com.mcxiaoke.next.http.transformer.FileTransformer;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
@@ -138,8 +138,23 @@ public class HttpQueue {
     public <T> String add(final NextRequest request,
                           final HttpTransformer<T> transformer,
                           final HttpCallback<T> callback,
+                          Object caller,
+                          final HttpProcessor<NextRequest> requestProcessor,
+                          final HttpProcessor<NextResponse> preProcessor,
+                          final HttpProcessor<T> postProcessor) {
+        final HttpJob<T> job = new HttpJob<T>(request, transformer, callback, caller);
+        job.addRequestProcessor(requestProcessor)
+                .addPreProcessor(preProcessor)
+                .addPostProcessor(postProcessor);
+        return enqueue(job);
+    }
+
+    public <T> String add(final NextRequest request,
+                          final HttpTransformer<T> transformer,
+                          final HttpCallback<T> callback,
                           Object caller) {
-        return enqueue(new HttpJob<T>(request, transformer, callback, caller));
+        final HttpJob<T> job = new HttpJob<T>(request, transformer, callback, caller);
+        return enqueue(job);
     }
 
     public String add(final NextRequest request,
@@ -176,7 +191,6 @@ public class HttpQueue {
         final NextRequest request = job.request;
         final HttpTransformer<T> transformer = job.transformer;
         final HttpCallback<T> callback = job.callback;
-        final List<ResponseProcessor<T>> processors = job.processors;
         final Object caller = job.caller;
         final String url = String.valueOf(request.url());
         if (mDebug) {
@@ -188,9 +202,26 @@ public class HttpQueue {
         final TaskCallable<T> callable = new TaskCallable<T>() {
             @Override
             public T call() throws Exception {
-                final T response = transformer.transform(mClient.execute(request));
-                if (processors != null) {
-                    for (ResponseProcessor<T> pr : processors) {
+                // request interceptors
+                final List<HttpProcessor<NextRequest>> requestProcessors = job.getRequestProcessors();
+                if (requestProcessors != null) {
+                    for (HttpProcessor<NextRequest> pr : requestProcessors) {
+                        pr.process(request);
+                    }
+                }
+                // response interceptors
+                final NextResponse nextResponse = mClient.execute(request);
+                final List<HttpProcessor<NextResponse>> preProcessors = job.getPreProcessors();
+                if (preProcessors != null) {
+                    for (HttpProcessor<NextResponse> pr : preProcessors) {
+                        pr.process(nextResponse);
+                    }
+                }
+                //  model interceptors
+                final T response = transformer.transform(nextResponse);
+                final List<HttpProcessor<T>> postProcessors = job.getPostProcessors();
+                if (postProcessors != null) {
+                    for (HttpProcessor<T> pr : postProcessors) {
                         pr.process(response);
                     }
                 }
