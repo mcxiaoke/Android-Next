@@ -20,4 +20,5 @@ android {
 
 }
 
-apply from: 'https://github.com/mcxiaoke/gradle-mvn-push/raw/master/gradle-mvn-push.gradle'
+//apply from: 'https://github.com/mcxiaoke/gradle-mvn-push/raw/master/gradle-mvn-push.gradle'
+apply from: '../bintray.gradle'

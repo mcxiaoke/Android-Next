@@ -1,0 +1,105 @@
+//buildscript {
+//    repositories {
+////        jcenter()
+//        jcenter {
+//            url "http://jcenter.bintray.com/"
+//        }
+//    }
+//    dependencies {
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+//    }
+//}
+
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+install {
+    repositories.mavenInstaller {
+        configuration = configurations.archives
+
+        pom.groupId = GROUP
+        pom.artifactId = POM_ARTIFACT_ID
+        pom.version = VERSION_NAME
+
+        pom.project {
+            name POM_NAME
+            packaging POM_PACKAGING
+            description POM_DESCRIPTION
+            url POM_URL
+
+            scm {
+                url POM_SCM_URL
+                connection POM_SCM_CONNECTION
+                developerConnection POM_SCM_DEV_CONNECTION
+            }
+
+            licenses {
+                license {
+                    name POM_LICENCE_NAME
+                    url POM_LICENCE_URL
+                    distribution POM_LICENCE_DIST
+                }
+            }
+
+            developers {
+                developer {
+                    id POM_DEVELOPER_ID
+                    name POM_DEVELOPER_NAME
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.source
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.source
+    classpath += configurations.compile
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+
+bintray {
+    user = BINTRAY_USER
+    key = BINTRAY_KEY
+    // user = System.getenv('BINTRAY_USER')
+    // key = System.getenv('BINTRAY_KEY')
+    // publications = ['BintrayPublication'] 
+    configurations = ['archives']
+
+    pkg {
+        repo = 'maven'
+        name = GROUP
+        // userOrg = 'bintray_user'
+        licenses = ['Apache-2.0']
+        websiteUrl = POM_URL
+        vcsUrl = POM_SCM_URL
+        publish = true
+        version {
+            gpg {
+                // sign = true //Determines whether to GPG sign the files. The default is false
+                // passphrase = properties.getProperty("bintray.gpg.password") //Optional. The passphrase for GPG signing'
+            }
+            // name = VERSION_NAME
+            // desc = POM_DESCRIPTION
+            // released  = new Date()
+            // vcsTag = VERSION_NAME
+        }
+    }
+}
