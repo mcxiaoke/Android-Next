@@ -20,64 +20,49 @@
 
     <section class="main-content">
       <h1>
-<a id="android-next-公共组件库" class="anchor" href="#android-next-%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E5%BA%93" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android-Next 公共组件库</h1>
+<a id="android-next-公共组件库" class="anchor" href="#android-next-%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E5%BA%93" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Android-Next 公共组件库</h1>
 
 <p>这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。</p>
 
-<p>最新版本: <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2015.08.04-com.mcxiaoke.next:1.2.0-brightgreen.svg" alt="Maven Central"></a></p>
+<p>最新版本: <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22"><img src="http://img.shields.io/badge/2016.01.12-com.mcxiaoke.next:core:1.3.0-brightgreen.svg" alt="Maven Central"></a></p>
 
 <h2>
-<a id="gradle集成" class="anchor" href="#gradle%E9%9B%86%E6%88%90" aria-hidden="true"><span class="octicon octicon-link"></span></a>Gradle集成</h2>
+<a id="gradle集成" class="anchor" href="#gradle%E9%9B%86%E6%88%90" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Gradle集成</h2>
 
-<div class="highlight highlight-groovy"><pre>    <span class="pl-c">// core 核心库, 格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:core:1.2.+<span class="pl-pds">'</span></span>
+<div class="highlight highlight-source-groovy"><pre>    <span class="pl-c">// core 核心库, 格式:jar和aar</span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:core:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// task 异步任务库，格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:task:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:task:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// http HTTP组件, 格式:jar和aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:http:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:http:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// 异步网络和文件IO组件，替代Volley</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ioasync:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ioasync:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// 函数操作组件</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:func:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:functions:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// ui UI组件, 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ui:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:ui:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// recycler EndlessRecyclerView, 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:recycler:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:recycler:1.3.+<span class="pl-pds">'</span></span>
     <span class="pl-c">// extra-abc 依赖support-v7 AppCompat 格式:aar</span>
-    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:extras-abc:1.2.+<span class="pl-pds">'</span></span>
+    compile <span class="pl-s"><span class="pl-pds">'</span>com.mcxiaoke.next:extras-abc:1.3.+<span class="pl-pds">'</span></span>
 </pre></div>
 
 <h2>
-<a id="使用指南20150824更新" class="anchor" href="#%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%9720150824%E6%9B%B4%E6%96%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>使用指南（2015.08.24更新）</h2>
+<a id="使用指南20160112更新" class="anchor" href="#%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%9720160112%E6%9B%B4%E6%96%B0" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>使用指南（2016.01.12更新）</h2>
 
 <p><strong>使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。</strong></p>
 
 <h3>
-<a id="core-基类和工具类" class="anchor" href="#core-%E5%9F%BA%E7%B1%BB%E5%92%8C%E5%B7%A5%E5%85%B7%E7%B1%BB" aria-hidden="true"><span class="octicon octicon-link"></span></a>Core <a href="docs/core.md"><code>基类和工具类</code></a>
-</h3>
+<a id="core" class="anchor" href="#core" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Core</h3>
+
+<p><a href="docs/core.md"><code>基类和工具类</code></a> </p>
 
 <p>MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils。包含基础Activity和Service，还有一些工具类，功能包括：文件路径处理，Toast显示，屏幕方向，组件启用禁用，获取App签名信息；常用的文件复制/字符串/数组/列表/数据流读写，常用的字符串合并/分割/比较/转换/判断等操作；网络类型和状态获取，代理设置；Package相关的工具类，App是否安装，是否运行，启用和禁用组件等；Bitmap缩放，旋转，圆角，阴影，裁剪等；加密算法相关的工具方法，支持MD5/SHA1/SHA256/AES/HEX等。</p>
 
 <h3>
-<a id="httprequest-网络请求管理" class="anchor" href="#httprequest-%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E7%AE%A1%E7%90%86" aria-hidden="true"><span class="octicon octicon-link"></span></a>HttpRequest <a href="docs/http.md"><code>网络请求管理</code></a>
-</h3>
+<a id="taskqueue" class="anchor" href="#taskqueue" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TaskQueue</h3>
 
-<p>NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作：</p>
-
-<ul>
-<li>
-<strong>NextClient</strong> 网络组件的核心类，封装全局的配置参数</li>
-<li>
-<strong>NextParams</strong> HTTP参数封装和处理</li>
-<li>
-<strong>NextRequest</strong> HTTP 请求封装</li>
-<li>
-<strong>NextResponse</strong> HTTP 响应数据结构</li>
-</ul>
-
-<h3>
-<a id="taskqueue-异步任务队列" class="anchor" href="#taskqueue-%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97" aria-hidden="true"><span class="octicon octicon-link"></span></a>TaskQueue <a href="docs/task.md"><code>异步任务队列</code></a>
-</h3>
+<p><a href="docs/task.md"><code>异步任务队列</code></a></p>
 
 <p>TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback</p>
 
@@ -91,28 +76,70 @@
 </ul>
 
 <h3>
-<a id="ioasync-异步io组件" class="anchor" href="#ioasync-%E5%BC%82%E6%AD%A5io%E7%BB%84%E4%BB%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>IOAsync <a href="docs/ioasync.md"><code>异步IO组件</code></a>
-</h3>
+<a id="httpqueue" class="anchor" href="#httpqueue" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>HttpQueue</h3>
 
-<p>IOAsync, AsyncCallback, ResponseCallback, StringCallback, GsonCallback, FileCallback</p>
+<p><a href="docs/http.md"><code>同步和异步HTTP请求</code></a></p>
+
+<h4>
+<a id="同步接口" class="anchor" href="#%E5%90%8C%E6%AD%A5%E6%8E%A5%E5%8F%A3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>同步接口</h4>
+
+<p>NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。包含一个经过简单封装的HTTP操作模块，用于简化常用的网络请求操作</p>
+
+<p>包含一个经过简单封装的HTTP操作模块，简化常用的网络请求操作</p>
+
+<ul>
+<li>
+<strong>NextClient</strong> 网络组件的核心类，封装全局的配置参数</li>
+<li>
+<strong>NextParams</strong> HTTP参数封装和处理</li>
+<li>
+<strong>NextRequest</strong> HTTP 请求封装</li>
+<li>
+<strong>NextResponse</strong> HTTP 响应数据结构</li>
+<li>
+<strong>ProgressListener</strong> HTTP请求数据传输进度回调接口</li>
+</ul>
+
+<h4>
+<a id="异步接口" class="anchor" href="#%E5%BC%82%E6%AD%A5%E6%8E%A5%E5%8F%A3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>异步接口</h4>
 
 <p>主要是结合 <code>http</code>模块和<code>task</code>模块，提供方便的异步网络操作，本模块主要的方法都是异步执行，通过回调接口反馈结果，内部使用 <code>TaskQeue</code> 执行异步任务管理，使用 <code>NextClient</code> 发送和解析HTTP网络请求，通过回调接口返回数据，网络请求在异步线程执行，回调方法在主线程调用，可用于替代Google的<code>Volley</code>库，能极大的减轻应用开发中异步请求数据然后主线程更新UI这一过程的工作量。</p>
 
+<ul>
+<li>
+<em>**HttpAsync</em>* 异步HTTP操作辅助类，支持直接的异步HEAD/GET/DELETE/POST/PUT请求</li>
+<li>
+<strong>HttpQueue</strong> 异步HTTP任务队列，支持添加和取消HTTP异步任务，支持多种形式的Callback和Transformer</li>
+<li>
+<strong>HttpJob</strong> HTTP任务对象，封装了Request/Callback/Transformer等</li>
+<li>
+<strong>HttpJobBuilder</strong> 生成HttpJob对象的Builder</li>
+<li>
+<strong>HttpCallback</strong> 异步HTTP请求回调接口，调用者可以获知HTTP请求的结果是成功还是失败，获取数据和异常对象</li>
+<li>
+<strong>HttpTransformer</strong> 异步HTTP请求数据类型转换接口，支持Response/String/Gson/File等类型，支持自定义数据类型</li>
+<li>
+<strong>ResponseProcessor</strong> 异步HTTP请求返回数据的处理器，支持多个Processor</li>
+</ul>
+
 <h3>
-<a id="function-函数式操作符" class="anchor" href="#function-%E5%87%BD%E6%95%B0%E5%BC%8F%E6%93%8D%E4%BD%9C%E7%AC%A6" aria-hidden="true"><span class="octicon octicon-link"></span></a>Function <a href="docs/func.md"><code>函数式操作符</code></a>
-</h3>
+<a id="function" class="anchor" href="#function" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Function</h3>
+
+<p><a href="docs/func.md"><code>函数式操作符</code></a> </p>
 
 <p>函数模块对外只有一个接口类： <code>com.mcxiaoke.next.func.Fn</code>，主要包含常见的函数式数据操作符：<code>map/flatMap/reduce/concat/filter/all/any</code> 等</p>
 
 <h3>
-<a id="cache-磁盘和内存缓存" class="anchor" href="#cache-%E7%A3%81%E7%9B%98%E5%92%8C%E5%86%85%E5%AD%98%E7%BC%93%E5%AD%98" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cache <a href="docs/cache.md"><code>磁盘和内存缓存</code></a>
-</h3>
+<a id="cache" class="anchor" href="#cache" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cache</h3>
+
+<p><a href="docs/cache.md"><code>磁盘和内存缓存</code></a> </p>
 
 <p>包含磁盘缓存 <code>DiscCache</code> 和内存缓存 <code>MemoryCache</code>，内部封装了HashMap和LruCache两种类型的缓存，可根据需要选用。</p>
 
 <h3>
-<a id="recyclerview-无限加载列表" class="anchor" href="#recyclerview-%E6%97%A0%E9%99%90%E5%8A%A0%E8%BD%BD%E5%88%97%E8%A1%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>RecyclerView <a href="docs/recycler.md"><code>无限加载列表</code></a>
-</h3>
+<a id="recyclerview" class="anchor" href="#recyclerview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>RecyclerView</h3>
+
+<p><a href="docs/recycler.md"><code>无限加载列表</code></a> </p>
 
 <p>封装 <code>RecyclerView</code> ，用于支持滚动到底部时自动加载数据和显示正在加载，主要有这几个类：</p>
 
@@ -128,21 +155,39 @@
 </ul>
 
 <h3>
-<a id="ui-widgets-常用ui控件" class="anchor" href="#ui-widgets-%E5%B8%B8%E7%94%A8ui%E6%8E%A7%E4%BB%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>UI Widgets <a href="docs/ui.md"><code>常用UI控件</code></a>
-</h3>
+<a id="ui-widgets" class="anchor" href="#ui-widgets" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>UI Widgets</h3>
+
+<p><a href="docs/ui.md"><code>常用UI控件</code></a></p>
 
 <p>一些常用的UI控件，可简化日常开发，包括 AlertDialogFragment, ProgressDialogFragment, AspectRatioImageView, ArrayAdapterCompat等。</p>
 
 <h3>
-<a id="shareprovider-高级分享组件" class="anchor" href="#shareprovider-%E9%AB%98%E7%BA%A7%E5%88%86%E4%BA%AB%E7%BB%84%E4%BB%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>ShareProvider <a href="docs/share.md"><code>高级分享组件</code></a>
-</h3>
+<a id="shareprovider" class="anchor" href="#shareprovider" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ShareProvider</h3>
+
+<p><a href="docs/share.md"><code>高级分享组件</code></a> </p>
 
 <p>封装的一个 <code>ActionProvider</code> ，比系统自带的 <code>SharedActionProvider</code> 提供大得多的灵活度，可自定义出现在列表里的项目，主要包括 <code>AdvancedShareActionProvider</code> 和 <code>ShareTarget</code> 两个类。</p>
 
 <h2>
-<a id="更新记录" class="anchor" href="#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95" aria-hidden="true"><span class="octicon octicon-link"></span></a>更新记录</h2>
+<a id="更新记录" class="anchor" href="#%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>更新记录</h2>
 
 <ul>
+<li>
+<strong>1.3.0</strong> 2016.01.12
+
+<ul>
+<li>http: 合并原来的ioasync模块，增加异步HTTP队列相关的类：HttpQueue/HttpAsync/HttpJob/HttpProcessor/HttpTransformer/HttpCallback等，调整日志记录，更新文档</li>
+<li>task: 调整创建TaskQueue的方式，支持设置最大并发线程数，调试信息中增加当前线程的名字</li>
+</ul>
+</li>
+<li>
+<strong>1.2.1</strong>  2015.12.28
+
+<ul>
+<li>http: 调整NextClient的参数处理方式，调整NextRequest的初始化，增加配置接口</li>
+<li>task: 调整TaskQueue的接口，增加创建队列的工厂方法，支持并发和顺序两种模式</li>
+</ul>
+</li>
 <li>
 <strong>1.2.0</strong>  2015.08.24
 
@@ -306,32 +351,34 @@
 </ul>
 
 <h3>
-<a id="其它问题" class="anchor" href="#%E5%85%B6%E5%AE%83%E9%97%AE%E9%A2%98" aria-hidden="true"><span class="octicon octicon-link"></span></a>其它问题</h3>
+<a id="其它问题" class="anchor" href="#%E5%85%B6%E5%AE%83%E9%97%AE%E9%A2%98" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>其它问题</h3>
 
 <p>发现任何问题可以提issue</p>
 
 <hr>
 
 <h2>
-<a id="关于作者" class="anchor" href="#%E5%85%B3%E4%BA%8E%E4%BD%9C%E8%80%85" aria-hidden="true"><span class="octicon octicon-link"></span></a>关于作者</h2>
+<a id="关于作者" class="anchor" href="#%E5%85%B3%E4%BA%8E%E4%BD%9C%E8%80%85" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>关于作者</h2>
 
 <h4>
-<a id="联系方式" class="anchor" href="#%E8%81%94%E7%B3%BB%E6%96%B9%E5%BC%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>联系方式</h4>
+<a id="联系方式" class="anchor" href="#%E8%81%94%E7%B3%BB%E6%96%B9%E5%BC%8F" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>联系方式</h4>
 
 <ul>
 <li>Blog: <a href="http://blog.mcxiaoke.com">http://blog.mcxiaoke.com</a>
 </li>
 <li>Github: <a href="https://github.com/mcxiaoke">https://github.com/mcxiaoke</a>
 </li>
-<li>Email: <a href="mailto:mail@mcxiaoke.com">mail@mcxiaoke.com</a>
+<li>Email: <a href="mailto:github@mcxiaoke.com">github@mcxiaoke.com</a>
 </li>
 </ul>
 
 <h4>
-<a id="开源项目" class="anchor" href="#%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE" aria-hidden="true"><span class="octicon octicon-link"></span></a>开源项目</h4>
+<a id="开源项目" class="anchor" href="#%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>开源项目</h4>
 
 <ul>
 <li>Next公共组件库: <a href="https://github.com/mcxiaoke/Android-Next">https://github.com/mcxiaoke/Android-Next</a>
+</li>
+<li>PackerNg极速打包: <a href="https://github.com/mcxiaoke/packer-ng-plugin">https://github.com/mcxiaoke/packer-ng-plugin</a>
 </li>
 <li>Gradle渠道打包: <a href="https://github.com/mcxiaoke/gradle-packer-plugin">https://github.com/mcxiaoke/gradle-packer-plugin</a>
 </li>
@@ -352,7 +399,7 @@
 <hr>
 
 <h2>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
 
 <pre><code>Copyright 2013 - 2015 Xiaoke Zhang
 
