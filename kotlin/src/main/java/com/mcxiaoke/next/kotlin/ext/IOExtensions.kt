@@ -1,6 +1,7 @@
 package com.mcxiaoke.next.kotlin.ext
 
 import com.mcxiaoke.next.kotlin.Const
+import com.mcxiaoke.next.kotlin.Encoding
 import java.io.*
 import java.net.HttpURLConnection
 import java.net.URLConnection
@@ -42,7 +43,7 @@ fun URLConnection.close() {
 }
 
 @Throws(IOException::class)
-fun InputStream.readString(encoding: String = Const.ENCODING_UTF_8): String {
+fun InputStream.readString(encoding: String = Encoding.UTF_8): String {
     var buffer = charArrayOf()
     this.reader(encoding).read(buffer)
     return String(buffer)

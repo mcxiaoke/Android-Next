@@ -11,12 +11,15 @@ import android.media.MediaScannerConnection
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.telephony.TelephonyManager
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
@@ -57,10 +60,36 @@ fun Context.toggleSoftInput(view: View) {
     }
 }
 
+inline fun <reified T : Context> Context.getIntent(): Intent =
+        Intent(this, T::class.java)
 
-fun <T> Context.getService(name: String): T {
-    return this.getSystemService(name) as T
+inline fun <reified T : Context> Context.getIntent(flags: Int): Intent {
+    val intent = getIntent<T>()
+    intent.setFlags(flags)
+    return intent
 }
+
+inline fun <reified T : Context> Context.getIntent(extras: Bundle): Intent =
+        getIntent<T>(0, extras)
+
+inline fun <reified T : Context> Context.getIntent(flags: Int, extras: Bundle): Intent {
+    val intent = getIntent<T>(flags)
+    intent.putExtras(extras)
+    return intent
+}
+
+fun Context.inflateLayout(layoutResId: Int): View =
+        inflateView(this, layoutResId, null, false)
+
+fun Context.inflateLayout(layoutResId: Int, parent: ViewGroup): View =
+        inflateLayout(layoutResId, parent, true)
+
+fun Context.inflateLayout(layoutResId: Int, parent: ViewGroup, attachToRoot: Boolean): View =
+        inflateView(this, layoutResId, parent, attachToRoot)
+
+private fun inflateView(context: Context, layoutResId: Int, parent: ViewGroup?,
+                        attachToRoot: Boolean): View =
+        LayoutInflater.from(context).inflate(layoutResId, parent, attachToRoot)
 
 fun Context.cacheDir(): File {
     if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
@@ -124,7 +153,7 @@ fun Context.getPath(uri: Uri): String? {
 
             val id = DocumentsContract.getDocumentId(uri)
             val contentUri = ContentUris.withAppendedId(
-                    Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(id)!!)
+                    Uri.parse("content://downloads/_downloads"), java.lang.Long.valueOf(id)!!)
 
             return getMediaDataColumn(contentUri, null, null)
         } else if (uri.isMediaDocument()) {
@@ -176,7 +205,6 @@ fun Context.longToast(resId: Int) {
 fun Context.longToast(text: CharSequence) {
     Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }
-
 
 fun Context.hasCamera(): Boolean {
     val pm = this.packageManager
@@ -262,7 +290,7 @@ fun Context.networkTypeName(): String {
     var result = "(No Network)"
 
     try {
-        val cm: ConnectivityManager = this.getService(Context.CONNECTIVITY_SERVICE)
+        val cm: ConnectivityManager = this.connectivityManager()
 
         val info = cm.activeNetworkInfo
         if (info == null || !info.isConnectedOrConnecting) {
@@ -281,12 +309,12 @@ fun Context.networkTypeName(): String {
 }
 
 fun Context.networkOperator(): String {
-    val tm: TelephonyManager = this.getService(Context.TELEPHONY_SERVICE)
+    val tm: TelephonyManager = this.telephonyManager()
     return tm.networkOperator
 }
 
 fun Context.networkType(): NetworkType {
-    val cm: ConnectivityManager = this.getService(Context.CONNECTIVITY_SERVICE)
+    val cm: ConnectivityManager = this.connectivityManager()
     val info = cm.activeNetworkInfo
     if (info == null || !info.isConnectedOrConnecting) {
         return NetworkType.NONE
@@ -310,7 +338,7 @@ fun Context.isMobile(): Boolean {
 }
 
 fun Context.isConnected(): Boolean {
-    val cm: ConnectivityManager = this.getService(Context.CONNECTIVITY_SERVICE)
+    val cm: ConnectivityManager = this.connectivityManager()
     val info = cm.activeNetworkInfo
     return info != null && info.isConnectedOrConnecting
 }
@@ -325,7 +353,7 @@ fun Context.isAppInstalled(packageName: String): Boolean {
 }
 
 fun Context.isMainProcess(): Boolean {
-    val am: ActivityManager = this.getService(Context.ACTIVITY_SERVICE)
+    val am: ActivityManager = this.activityManager()
     val processes = am.runningAppProcesses
     val mainProcessName = this.packageName
     val myPid = android.os.Process.myPid()

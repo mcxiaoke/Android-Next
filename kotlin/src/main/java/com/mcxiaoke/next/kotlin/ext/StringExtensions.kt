@@ -1,6 +1,8 @@
 package com.mcxiaoke.next.kotlin.ext
 
 import com.mcxiaoke.next.kotlin.Const
+import com.mcxiaoke.next.kotlin.Encoding
+import com.mcxiaoke.next.kotlin.SizeDef
 import java.io.File
 import java.io.UnsupportedEncodingException
 import java.math.BigInteger
@@ -75,9 +77,9 @@ fun String.toQueries(): Map<String, String> {
         val queries = HashMap<String, String>()
         for (param in this.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
             val pair = param.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val key = URLDecoder.decode(pair[0], Const.ENCODING_UTF_8)
+            val key = URLDecoder.decode(pair[0], Encoding.UTF_8)
             if (pair.size > 1) {
-                val value = URLDecoder.decode(pair[1], Const.ENCODING_UTF_8)
+                val value = URLDecoder.decode(pair[1], Encoding.UTF_8)
                 queries.put(key, value)
             }
         }
@@ -207,18 +209,18 @@ fun String.fileExtension(): String {
 fun BigInteger.readableSize(): String {
     val displaySize: String
     var size = this
-    if (size.divide(Const.Size.ONE_EB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_EB_BI).toString() + " EB"
-    } else if (size.divide(Const.Size.ONE_PB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_PB_BI).toString() + " PB"
-    } else if (size.divide(Const.Size.ONE_TB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_TB_BI).toString() + " TB"
-    } else if (size.divide(Const.Size.ONE_GB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_GB_BI).toString() + " GB"
-    } else if (size.divide(Const.Size.ONE_MB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_MB_BI).toString() + " MB"
-    } else if (size.divide(Const.Size.ONE_KB_BI).compareTo(BigInteger.ZERO) > 0) {
-        displaySize = size.divide(Const.Size.ONE_KB_BI).toString() + " KB"
+    if (size.divide(SizeDef.ONE_EB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_EB_BI).toString() + " EB"
+    } else if (size.divide(SizeDef.ONE_PB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_PB_BI).toString() + " PB"
+    } else if (size.divide(SizeDef.ONE_TB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_TB_BI).toString() + " TB"
+    } else if (size.divide(SizeDef.ONE_GB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_GB_BI).toString() + " GB"
+    } else if (size.divide(SizeDef.ONE_MB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_MB_BI).toString() + " MB"
+    } else if (size.divide(SizeDef.ONE_KB_BI).compareTo(BigInteger.ZERO) > 0) {
+        displaySize = size.divide(SizeDef.ONE_KB_BI).toString() + " KB"
     } else {
         displaySize = size.toString() + " bytes"
     }

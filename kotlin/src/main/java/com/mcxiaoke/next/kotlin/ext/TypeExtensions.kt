@@ -8,7 +8,7 @@ import com.mcxiaoke.next.kotlin.Const
  * Time: 13:42
  */
 
-fun Long.getHumanReadableByteCount(): String {
+fun Long.readableByteCount(): String {
     val unit = 1024
     if (this < unit) return "${this}B"
     val exp = (Math.log(this.toDouble()) / Math.log(unit.toDouble())).toInt()
@@ -16,7 +16,7 @@ fun Long.getHumanReadableByteCount(): String {
     return "%.1f %sB".format(this / Math.pow(unit.toDouble(), exp.toDouble()), pre)
 }
 
-fun ByteArray.toHexString(): String {
+fun ByteArray.hexString(): String {
     val hexChars = CharArray(this.size * 2)
     forEachIndexed { i, byte ->
         val v = byte.toInt() and 255
