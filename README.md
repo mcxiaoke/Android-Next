@@ -116,6 +116,8 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 
 
 ## 更新记录
+- **1.4.0** 2016.03.30
+    * http: **不兼容更新**，更新内部实现使用OkHttp3，不兼容OkHttp2的代码，所以不兼容1.3.0版本
 - **1.3.0** 2016.01.12
 	* http: 合并原来的ioasync模块，增加异步HTTP队列相关的类：HttpQueue/HttpAsync/HttpJob/HttpProcessor/HttpTransformer/HttpCallback等，调整日志记录，更新文档
 	* task: 调整创建TaskQueue的方式，支持设置最大并发线程数，调试信息中增加当前线程的名字
