@@ -1,7 +1,7 @@
 package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.Charsets;
-import com.squareup.okhttp.MediaType;
+import okhttp3.MediaType;
 
 import java.nio.charset.Charset;
 

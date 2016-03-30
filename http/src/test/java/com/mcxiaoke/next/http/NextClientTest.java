@@ -7,8 +7,8 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,24 +34,6 @@ public class NextClientTest extends BaseTest {
     @Test
     public void createClient() {
         new NextClient();
-    }
-
-    @Test
-    public void testClientConfig() throws IOException {
-        final NextClient client = new NextClient();
-        final OkHttpClient okClient=client.getClient();
-        okClient.setConnectTimeout(15, TimeUnit.SECONDS);
-        okClient.setReadTimeout(20, TimeUnit.SECONDS);
-        okClient.setWriteTimeout(25, TimeUnit.SECONDS);
-        client.setUserAgent("client-ua");
-        client.setAuthorization("client-auth");
-        client.setReferer("www.douban.com");
-        isEquals(15000, okClient.getConnectTimeout());
-        isEquals(20000, okClient.getReadTimeout());
-        isEquals(25000, okClient.getWriteTimeout());
-        isEquals("client-ua", client.getUserAgent());
-        isEquals("client-auth", client.getAuthorization());
-        isEquals("www.douban.com", client.getRefer());
     }
 
     @Test

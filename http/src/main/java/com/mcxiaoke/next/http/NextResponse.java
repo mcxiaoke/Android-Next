@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.mcxiaoke.next.utils.IOUtils;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Response;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 import java.io.Closeable;
 import java.io.File;

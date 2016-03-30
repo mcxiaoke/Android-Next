@@ -1,6 +1,6 @@
 package com.mcxiaoke.next.http;
 
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
 
 /**
  * User: mcxiaoke
@@ -9,5 +9,5 @@ import com.squareup.okhttp.OkHttpClient;
  */
 public interface OkClientInterceptor {
 
-    void intercept(OkHttpClient client);
+    void intercept(OkHttpClient.Builder builder);
 }

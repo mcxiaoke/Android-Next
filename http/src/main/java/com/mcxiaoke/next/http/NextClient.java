@@ -4,10 +4,10 @@ import android.util.Log;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.LogUtils;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.Map;
@@ -341,29 +341,29 @@ public final class NextClient {
 
     public Response sendRequest(final NextRequest request)
             throws IOException {
-        final OkHttpClient client = mClient.clone();
-        final OkClientInterceptor it = request.getInterceptor();
-        if (it != null) {
-            it.intercept(client);
-        }
+        final OkHttpClient.Builder builder = mClient.newBuilder();
         if (mDebug || request.isDebug()) {
-            client.networkInterceptors().add(new LoggingInterceptor());
             LogUtils.v(NextClient.TAG, "[sendRequest] " + request);
             logHttpCurl(request);
+            builder.addNetworkInterceptor(new LoggingInterceptor());
         }
         final ProgressListener li = request.getListener();
         if (li != null) {
-            client.interceptors().add(new ProgressInterceptor(li));
+            builder.addInterceptor(new ProgressInterceptor(li));
         }
+        final OkClientInterceptor it = request.getInterceptor();
+        if (it != null) {
+            it.intercept(builder);
+        }
+        final OkHttpClient client = builder.build();
         return sendOkRequest(createOkRequest(request), client, request.isDebug());
     }
 
     public Response sendRequest(final Request request)
             throws IOException {
-        final OkHttpClient client = mClient.clone();
+        final OkHttpClient client = mClient.newBuilder().build();
         if (mDebug) {
             Log.v(NextClient.TAG, "Sending " + request);
-            client.networkInterceptors().add(new LoggingInterceptor());
         }
         return sendOkRequest(request, client, false);
     }
@@ -376,14 +376,14 @@ public final class NextClient {
         try {
             final Response response = client.newCall(request).execute();
             if (mDebug || debug) {
-                Log.d(NextClient.TAG, "[sendRequest][OK] " + request.urlString()
+                Log.d(NextClient.TAG, "[sendRequest][OK] " + request.url()
                         + " in " + (System.nanoTime() - start) / 1000000
                         + "ms Response:" + response);
             }
             return response;
         } catch (IOException e) {
             if (mDebug || debug) {
-                Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.urlString()
+                Log.w(NextClient.TAG, "[sendRequest][FAIL] " + request.url()
                         + " in " + (System.nanoTime() - start) / 1000000
                         + "ms  Error:" + e);
             }

@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 dependencies {
     compile project(":core")
     compile project(":task")
-    compile 'com.squareup.okhttp:okhttp:2.7.2'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
     compile 'com.squareup.okhttp:logging-interceptor:2.7.0'
     compile 'com.google.code.gson:gson:2.5'
 

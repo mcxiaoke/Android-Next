@@ -3,9 +3,9 @@ package com.mcxiaoke.next.http;
 import android.util.Log;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.StringUtils;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 

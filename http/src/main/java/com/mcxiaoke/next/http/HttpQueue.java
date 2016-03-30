@@ -25,7 +25,7 @@ import com.mcxiaoke.next.task.TaskCallable;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
 import com.mcxiaoke.next.utils.LogUtils;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
 
 import java.io.File;
 import java.io.IOException;

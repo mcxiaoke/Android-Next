@@ -18,10 +18,10 @@ package com.mcxiaoke.next.http;
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.IOUtils;
 import com.mcxiaoke.next.utils.StringUtils;
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -418,7 +418,7 @@ public class NextRequest {
         }
         RequestBody requestBody;
         if (hasParts()) {
-            final MultipartBuilder multipart = new MultipartBuilder();
+            final MultipartBody.Builder multipart = new MultipartBody.Builder();
             for (final BodyPart part : parts()) {
                 if (part.getBody() != null) {
                     multipart.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
@@ -429,9 +429,9 @@ public class NextRequest {
                 final String value = entry.getValue();
                 multipart.addFormDataPart(key, value == null ? "" : value);
             }
-            requestBody = multipart.type(MultipartBuilder.FORM).build();
+            requestBody = multipart.setType(MultipartBody.FORM).build();
         } else if (hasForms()) {
-            final FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
+            final FormBody.Builder bodyBuilder = new FormBody.Builder();
             for (Map.Entry<String, String> entry : form().entrySet()) {
                 final String key = entry.getKey();
                 final String value = entry.getValue();
