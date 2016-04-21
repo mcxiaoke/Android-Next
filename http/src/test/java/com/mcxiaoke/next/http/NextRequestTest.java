@@ -1,6 +1,6 @@
 package com.mcxiaoke.next.http;
 
-import com.squareup.okhttp.HttpUrl;
+import okhttp3.HttpUrl;
 import org.junit.Test;
 
 import java.io.IOException;

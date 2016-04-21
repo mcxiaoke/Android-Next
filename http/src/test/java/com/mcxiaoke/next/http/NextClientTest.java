@@ -8,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import org.junit.Test;
 
 import java.io.IOException;
