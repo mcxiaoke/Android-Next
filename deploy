@@ -1,2 +1,2 @@
 #!/bin/bash
-gradle clean build uploadArchives
+./gradlew clean build uploadArchives
