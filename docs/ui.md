@@ -2,7 +2,7 @@
 
 ```groovy
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.3.+'
+    compile 'com.mcxiaoke.next:ui:1.4.+'
 ```
 
 ## UI组件

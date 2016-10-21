@@ -6,9 +6,9 @@
     // http HTTP组件, 格式:jar和aar
     // 依赖 :core :task
     // 1.3.0新增HttpQueue
-    compile 'com.mcxiaoke.next:http:1.3.+'
-    compile 'com.mcxiaoke.next:task:1.3.+'
-    compile 'com.mcxiaoke.next:core:1.3.+'
+    compile 'com.mcxiaoke.next:http:1.4.+'
+    compile 'com.mcxiaoke.next:task:1.4.+'
+    compile 'com.mcxiaoke.next:core:1.4.+'
 ```
 
 ## 同步接口

@@ -3,7 +3,7 @@
 ## 集成方法
 
 ```groovy
-compile 'com.mcxiaoke.next:functions:1.3.+'
+compile 'com.mcxiaoke.next:functions:1.4.+'
 ```
 
 ## 使用介绍
