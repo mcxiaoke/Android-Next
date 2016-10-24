@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'packer'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -17,13 +16,6 @@ dependencies {
     compile 'com.google.code.gson:gson:2.5'
     compile 'io.reactivex:rxjava:1.0.12'
     compile 'io.reactivex:rxandroid:0.25.0'
-}
-
-packer {
-    archiveOutput = file(new File(project.rootProject.buildDir.path, "dist"))
-    archiveNameFormat = 'myapp-${appPkg}-${flavorName}-${buildType}-v${versionName}'
-    manifestMatcher = ['Promotion_Market']
-
 }
 
 android {
