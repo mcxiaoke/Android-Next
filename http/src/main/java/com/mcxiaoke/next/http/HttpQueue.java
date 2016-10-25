@@ -7,8 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcxiaoke.next.http.callback.BitmapCallback;
 import com.mcxiaoke.next.http.callback.FileCallback;
-import com.mcxiaoke.next.http.callback.HttpCallback;
 import com.mcxiaoke.next.http.callback.GsonCallback;
+import com.mcxiaoke.next.http.callback.HttpCallback;
 import com.mcxiaoke.next.http.callback.ResponseCallback;
 import com.mcxiaoke.next.http.callback.StringCallback;
 import com.mcxiaoke.next.http.exception.HttpException;
@@ -16,8 +16,8 @@ import com.mcxiaoke.next.http.job.HttpJob;
 import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.BitmapTransformer;
 import com.mcxiaoke.next.http.transformer.FileTransformer;
-import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.http.transformer.GsonTransformer;
+import com.mcxiaoke.next.http.transformer.HttpTransformer;
 import com.mcxiaoke.next.http.transformer.ResponseTransformer;
 import com.mcxiaoke.next.http.transformer.StringTransformer;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -127,14 +127,10 @@ public class HttpQueue {
     public <T> String add(final NextRequest request,
                           final HttpTransformer<T> transformer,
                           final HttpCallback<T> callback,
-                          final Object caller,
-                          final HttpProcessor<NextRequest> requestProcessor,
-                          final HttpProcessor<NextResponse> preProcessor,
-                          final HttpProcessor<T> postProcessor) {
+                          final HttpProcessor<T> processor,
+                          final Object caller) {
         final HttpJob<T> job = new HttpJob<T>(request, transformer, callback, caller);
-        job.addRequestProcessor(requestProcessor)
-                .addPreProcessor(preProcessor)
-                .addPostProcessor(postProcessor);
+        job.addProcessor(processor);
         return enqueue(job);
     }
 
@@ -157,11 +153,6 @@ public class HttpQueue {
                           Object caller) {
         final Gson gson = callback.gson == null ? mGson : callback.gson;
         final GsonTransformer<T> transformer;
-//        if (callback.clazz != null) {
-//            transformer = new JsonTransformer<T>(gson, callback.clazz);
-//        } else {
-//            transformer = new JsonTransformer<T>(gson, callback.type);
-//        }
         transformer = new GsonTransformer<T>(gson, callback.type);
         return add(request, transformer, callback, caller);
     }
@@ -189,8 +180,6 @@ public class HttpQueue {
         if (mDebug) {
             LogUtils.v(TAG, "[HttpJob][Enqueue]" + job.request.url() + " " + Thread.currentThread());
         }
-        ensureClient();
-        ensureQueue();
         final TaskCallable<Pair<NextResponse, T>> callable =
                 new TaskCallable<Pair<NextResponse, T>>() {
                     @Override
@@ -204,16 +193,14 @@ public class HttpQueue {
     private <T> Pair<NextResponse, T> performRequest(final HttpJob<T> job)
             throws IOException, HttpException {
         long start = SystemClock.elapsedRealtime();
-        invokeProcessors(job.request, job.getRequestProcessors());
         final NextResponse nextResponse = mClient.execute(job.request);
         if (!nextResponse.successful()) {
             // not successful, throw http exception
             throw new HttpException(nextResponse);
         }
-        invokeProcessors(nextResponse, job.getPreProcessors());
         // final T response = mClient.execute(job.request,job.transformer);
         final T response = job.transformer.transform(nextResponse);
-        invokeProcessors(response, job.getPostProcessors());
+        invokeProcessors(response, job.getProcessors());
         if (mDebug) {
             LogUtils.v(TAG, "[HttpJob][Perform] in "
                     + (SystemClock.elapsedRealtime() - start) + "ms " + nextResponse);
@@ -261,19 +248,6 @@ public class HttpQueue {
             }
         };
     }
-
-    private synchronized void ensureClient() {
-        if (mClient == null) {
-            mClient = new NextClient();
-        }
-    }
-
-    private synchronized void ensureQueue() {
-        if (mQueue == null) {
-            mQueue = createQueue();
-        }
-    }
-
 
     private static TaskQueue createQueue() {
         return TaskQueue.concurrent(NUM_THREADS_DEFAULT);

@@ -2,7 +2,6 @@ package com.mcxiaoke.next.http.job;
 
 import com.mcxiaoke.next.http.HttpQueue;
 import com.mcxiaoke.next.http.NextRequest;
-import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.http.callback.HttpCallback;
 import com.mcxiaoke.next.http.processor.HttpProcessor;
 import com.mcxiaoke.next.http.transformer.HttpTransformer;
@@ -22,24 +21,20 @@ public class HttpJob<T> {
     public final HttpTransformer<T> transformer;
     public final HttpCallback<T> callback;
     public final Object caller;
-    private List<HttpProcessor<NextRequest>> requestProcessors;
-    private List<HttpProcessor<NextResponse>> preProcessors;
-    private List<HttpProcessor<T>> postProcessors;
+    private List<HttpProcessor<T>> processors;
 
     public HttpJob(final NextRequest request,
                    final HttpTransformer<T> transformer,
                    final HttpCallback<T> callback,
                    final Object caller) {
-        this(request, transformer, callback, caller, null, null, null);
+        this(request, transformer, callback, null, caller);
     }
 
     public HttpJob(final NextRequest request,
                    final HttpTransformer<T> transformer,
                    final HttpCallback<T> callback,
-                   final Object caller,
-                   List<HttpProcessor<NextRequest>> requestProcessors,
-                   final List<HttpProcessor<NextResponse>> preProcessors,
-                   final List<HttpProcessor<T>> postProcessors) {
+                   final List<HttpProcessor<T>> processors,
+                   final Object caller) {
         AssertUtils.notNull(request, "request must not be null.");
         AssertUtils.notNull(transformer, "transformer must not be null.");
         AssertUtils.notNull(caller, "caller must not be null.");
@@ -47,55 +42,22 @@ public class HttpJob<T> {
         this.transformer = transformer;
         this.callback = callback;
         this.caller = caller;
-        if (requestProcessors != null) {
-            this.requestProcessors = requestProcessors;
+        if (processors != null) {
+            this.processors = processors;
         } else {
-            this.requestProcessors = new ArrayList<HttpProcessor<NextRequest>>(2);
-        }
-        if (preProcessors != null) {
-            this.preProcessors = preProcessors;
-        } else {
-            this.preProcessors = new ArrayList<HttpProcessor<NextResponse>>(2);
-        }
-        if (postProcessors != null) {
-            this.postProcessors = postProcessors;
-        } else {
-            this.postProcessors = new ArrayList<HttpProcessor<T>>(2);
+            this.processors = new ArrayList<HttpProcessor<T>>(2);
         }
     }
 
-
-    public HttpJob<T> addRequestProcessor(HttpProcessor<NextRequest> processor) {
+    public HttpJob<T> addProcessor(HttpProcessor<T> processor) {
         if (processor != null) {
-            this.requestProcessors.add(processor);
+            this.processors.add(processor);
         }
         return this;
     }
 
-    public HttpJob<T> addPreProcessor(HttpProcessor<NextResponse> processor) {
-        if (processor != null) {
-            this.preProcessors.add(processor);
-        }
-        return this;
-    }
-
-    public HttpJob<T> addPostProcessor(HttpProcessor<T> processor) {
-        if (processor != null) {
-            this.postProcessors.add(processor);
-        }
-        return this;
-    }
-
-    public List<HttpProcessor<NextRequest>> getRequestProcessors() {
-        return requestProcessors;
-    }
-
-    public List<HttpProcessor<NextResponse>> getPreProcessors() {
-        return preProcessors;
-    }
-
-    public List<HttpProcessor<T>> getPostProcessors() {
-        return postProcessors;
+    public List<HttpProcessor<T>> getProcessors() {
+        return processors;
     }
 
     public String execute(final HttpQueue queue) {
@@ -112,9 +74,7 @@ public class HttpJob<T> {
                 "request=" + request +
                 ", transformer=" + transformer +
                 ", callback=" + callback +
-                ", requestProcessors=" + requestProcessors +
-                ", preProcessors=" + preProcessors +
-                ", postProcessors=" + postProcessors +
+                ", processors=" + processors +
                 ", caller=" + caller +
                 '}';
     }
