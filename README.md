@@ -2,7 +2,7 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2016.04.21-com.mcxiaoke.next:core:1.4.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2016.10.25-com.mcxiaoke.next:core:1.4.2-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
@@ -53,7 +53,7 @@ TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
 
 ### HttpQueue 
 
-**注意：1.4.0以前的版本的http模块以来okhttp2，1.4.0及之后的版本依赖okhttp3**
+**注意：1.4.0及之后的版本依赖okhttp3**
 
 [`同步和异步HTTP请求`](docs/http.md)
 
@@ -118,6 +118,8 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 
 
 ## 更新记录
+- **1.4.2** 2016.10.25
+	* http: 微调发送请求的逻辑，修复上传文件进度回调处理
 - **1.4.1** 2016.04.21
     * 去掉http模块对OkHttp2的依赖，更新其它一些依赖的版本
 - **1.4.0** 2016.03.30
