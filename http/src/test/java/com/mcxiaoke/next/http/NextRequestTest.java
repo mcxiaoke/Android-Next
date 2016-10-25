@@ -148,7 +148,7 @@ public class NextRequestTest extends BaseTest {
         r.query(null, "value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNullParam2() {
         final NextRequest r = new NextRequest(HttpMethod.DELETE, TEST_URL);
         r.form(null, "value");
@@ -166,7 +166,7 @@ public class NextRequestTest extends BaseTest {
         r.query("", "value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testEmptyParam2() {
         final NextRequest r = new NextRequest(HttpMethod.DELETE, TEST_URL);
         r.form("", "value");
@@ -213,11 +213,11 @@ public class NextRequestTest extends BaseTest {
         try {
             isNull(r0.getRequestBody());
             isNull(r1.getRequestBody());
-            notNull(r2.getRequestBody());
+            isNull(r2.getRequestBody());
             notNull(r3.getRequestBody());
             notNull(r4.getRequestBody());
-            isNull(r5.getRequestBody());
-            isNull(r6.getRequestBody());
+            notNull(r5.getRequestBody());
+            notNull(r6.getRequestBody());
             notNull(r7.getRequestBody());
             isEquals("hello".getBytes().length, r7.getRequestBody().contentLength());
             notNull(r8.getRequestBody());
