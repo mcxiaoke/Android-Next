@@ -16,6 +16,7 @@
 package com.mcxiaoke.next.http;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public enum HttpMethod {
 
     GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, TRACE;
 
-    public static final Set<String> METHODS = new LinkedHashSet<String>(Arrays.asList(
+    public static final Set<String> METHODS = new HashSet<String>(Arrays.asList(
             "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "PATCH"));
 
     public static boolean isValid(final String method) {
@@ -37,7 +38,6 @@ public enum HttpMethod {
     public static boolean supportBody(final HttpMethod method) {
         return HttpMethod.POST.equals(method)
                 || HttpMethod.PUT.equals(method)
-                || HttpMethod.PATCH.equals(method)
-                || HttpMethod.DELETE.equals(method);
+                || HttpMethod.PATCH.equals(method);
     }
 }

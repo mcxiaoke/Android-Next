@@ -7,7 +7,6 @@ import com.mcxiaoke.next.utils.IOUtils;
 import okhttp3.Headers;
 import okhttp3.Response;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +20,7 @@ import java.util.Date;
  * Date: 14-2-8
  * Time: 11:22
  */
-public class NextResponse implements Closeable {
+public class NextResponse {
     public static final String TAG = NextResponse.class.getSimpleName();
 
     private Response mResponse;
@@ -64,7 +63,7 @@ public class NextResponse implements Closeable {
         return mStatusCode + ":" + mMessage;
     }
 
-    public long contentLength() throws IOException {
+    public long contentLength() {
         return mResponse.body().contentLength();
     }
 
@@ -88,39 +87,31 @@ public class NextResponse implements Closeable {
         return header(HttpConsts.LOCATION);
     }
 
-    private InputStream getInputStream() throws IOException {
+    public InputStream stream() {
         return mResponse.body().byteStream();
     }
 
-    private byte[] getByteArray() throws IOException {
-        return IOUtils.readBytes(mResponse.body().byteStream());
-    }
-
-    public InputStream stream() throws IOException {
-        return getInputStream();
-    }
-
     public byte[] bytes() throws IOException {
-        return getByteArray();
+        return mResponse.body().bytes();
     }
 
-    public Reader reader() throws IOException {
+    public Reader reader() {
         return mResponse.body().charStream();
     }
 
     public String string() throws IOException {
-        return IOUtils.readString(reader());
+        return mResponse.body().string();
     }
 
     public int writeTo(OutputStream os) throws IOException {
-        return IOUtils.copy(getInputStream(), os);
+        return IOUtils.copy(stream(), os);
     }
 
     public boolean writeTo(File file) throws IOException {
-        return IOUtils.writeStream(file, getInputStream());
+        return IOUtils.writeStream(file, stream());
     }
 
-    public void close() throws IOException {
+    public void close() {
         mResponse.body().close();
     }
 

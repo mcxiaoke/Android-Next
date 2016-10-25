@@ -8,31 +8,12 @@ import com.mcxiaoke.next.http.NextResponse;
  * Time: 11:20
  */
 public class HttpException extends Exception {
-    public static final int ERROR_IO = -1;
-    public static final int ERROR_NETWORK = -2;
-    public static final int ERROR_TRANSFORM = -11;
-    public static final int ERROR_UNKNOWN = -999;
 
-    public final int code;
-    public final String message;
     public final NextResponse response;
 
     public HttpException(final NextResponse response) {
-        this(response.description(), response);
-    }
-
-    public HttpException(final String message, final NextResponse response) {
-        super(message);
+        super(response.message());
         this.response = response;
-        this.code = response.code();
-        this.message = response.message();
-    }
-
-    public HttpException(final int code, final Throwable ex) {
-        super(ex.getMessage(), ex);
-        this.code = code;
-        this.message = ex.getMessage();
-        this.response = null;
     }
 
     @Override

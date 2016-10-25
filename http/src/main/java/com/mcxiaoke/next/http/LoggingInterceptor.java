@@ -15,8 +15,8 @@ import java.io.IOException;
  * Time: 16:01
  */
 public class LoggingInterceptor implements Interceptor {
-    private final boolean mHeaders;
-    private final boolean mBody;
+    private final boolean dumpHeaders;
+    private final boolean dumpBody;
 
     public LoggingInterceptor() {
         this(false, false);
@@ -27,8 +27,8 @@ public class LoggingInterceptor implements Interceptor {
     }
 
     public LoggingInterceptor(final boolean headers, final boolean body) {
-        mHeaders = headers;
-        mBody = body;
+        dumpHeaders = headers;
+        dumpBody = body;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class LoggingInterceptor implements Interceptor {
         final Request request = chain.request();
         Log.v(NextClient.TAG, String.format("[OkHttp Request] %s %s on %s%n",
                 request.method(), request.url(), chain.connection()));
-        if (mHeaders) {
+        if (dumpHeaders) {
             Log.v(NextClient.TAG, "[Request Headers] " + request.headers());
         }
         final Response response = chain.proceed(request);
@@ -46,10 +46,10 @@ public class LoggingInterceptor implements Interceptor {
                 , request.method(), request.url()
                 , response.code(), response.message()
                 , (t2 - t1) / 1e6d));
-        if (mHeaders) {
+        if (dumpHeaders) {
             Log.v(NextClient.TAG, "[Response Headers] " + response.headers());
         }
-        if (mBody) {
+        if (dumpBody) {
             Log.v(NextClient.TAG, "[Response Body] " + responseToText(response));
         }
         return response;

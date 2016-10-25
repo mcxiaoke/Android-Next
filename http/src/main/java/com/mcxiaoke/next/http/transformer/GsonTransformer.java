@@ -13,21 +13,16 @@ import java.lang.reflect.Type;
  */
 public class GsonTransformer<T> implements HttpTransformer<T> {
     private Gson gson;
-    private Class<T> clazz;
     private Type type;
 
-    private GsonTransformer(final Gson gson, final Class<T> clazz, final Type type) {
-        this.gson = gson;
-        this.clazz = clazz;
-        this.type = type;
-    }
-
     public GsonTransformer(final Gson gson, final Class<T> clazz) {
-        this(gson, clazz, null);
+        this.gson = gson;
+        this.type = clazz;
     }
 
     public GsonTransformer(final Gson gson, final Type type) {
-        this(gson, null, type);
+        this.gson = gson;
+        this.type = type;
     }
 
     @SuppressWarnings("unchecked")

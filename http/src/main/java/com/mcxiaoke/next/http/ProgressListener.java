@@ -1,15 +1,11 @@
-package com.mcxiaoke.next.http;
-
 /**
  * User: mcxiaoke
- * Date: 14-5-30
- * Time: 14:21
+ * Date: 2016/10/25
+ * Time: 12:28
  */
 
-/**
- * http write data progress listener
- */
+package com.mcxiaoke.next.http;
+
 public interface ProgressListener {
-
-    void update(long bytesRead, long contentLength, boolean done);
+    void onProgress(long bytesWritten, long contentLength, boolean done);
 }

@@ -22,6 +22,7 @@ import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.ByteString;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,6 @@ public class NextRequest {
     protected NextParams params;
     protected byte[] body;
     protected ProgressListener listener;
-    protected OkClientInterceptor interceptor;
     protected boolean debug;
 
     public static NextRequest head(final String url) {
@@ -98,13 +98,8 @@ public class NextRequest {
         return this;
     }
 
-    public NextRequest listener(final ProgressListener listener) {
+    public NextRequest progressListener(final ProgressListener listener) {
         this.listener = listener;
-        return this;
-    }
-
-    public NextRequest interceptor(final OkClientInterceptor interceptor) {
-        this.interceptor = interceptor;
         return this;
     }
 
@@ -282,12 +277,8 @@ public class NextRequest {
         return httpUrl.toString();
     }
 
-    public ProgressListener getListener() {
+    public ProgressListener getProgressListener() {
         return listener;
-    }
-
-    public OkClientInterceptor getInterceptor() {
-        return interceptor;
     }
 
     protected boolean supportBody() {
@@ -405,7 +396,6 @@ public class NextRequest {
         this.params = source.params;
         this.body = source.body;
         this.listener = source.listener;
-        this.interceptor = source.interceptor;
         this.debug = source.debug;
     }
 
@@ -413,11 +403,10 @@ public class NextRequest {
         if (!supportBody()) {
             return null;
         }
-        if (body != null) {
-            return RequestBody.create(HttpConsts.MEDIA_TYPE_OCTET_STREAM, body);
-        }
         RequestBody requestBody;
-        if (hasParts()) {
+        if (body != null) {
+            requestBody = RequestBody.create(HttpConsts.MEDIA_TYPE_OCTET_STREAM, body);
+        } else if (hasParts()) {
             final MultipartBody.Builder multipart = new MultipartBody.Builder();
             for (final BodyPart part : parts()) {
                 if (part.getBody() != null) {
@@ -441,12 +430,26 @@ public class NextRequest {
         } else {
             requestBody = null;
         }
+        if (requestBody == null) {
+            return getEmptyBody();
+        }
+        if (listener != null) {
+            requestBody = new ProgressRequestBody(requestBody, listener);
+        }
         return requestBody;
     }
 
     @Override
     public String toString() {
-        return "Request{HTTP " + method + " " + httpUrl + ' ' + params + '}';
+        return "Request{HTTP " + method() + " " + url() + ' ' + params + '}';
+    }
+
+    public RequestBody getEmptyBody() {
+        if (supportBody()) {
+            return RequestBody.create(null, ByteString.EMPTY);
+        } else {
+            return null;
+        }
     }
 
 }

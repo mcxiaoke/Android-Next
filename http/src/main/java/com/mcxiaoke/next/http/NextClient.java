@@ -7,6 +7,7 @@ import com.mcxiaoke.next.utils.LogUtils;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -335,8 +336,7 @@ public final class NextClient {
                                     final HttpTransformer<T> transformer)
             throws IOException {
         final Response response = sendRequest(request);
-        final NextResponse nextResponse = new NextResponse(response);
-        return transformer.transform(nextResponse);
+        return transformer.transform(new NextResponse(response));
     }
 
     public Response sendRequest(final NextRequest request)
@@ -346,14 +346,6 @@ public final class NextClient {
             LogUtils.v(NextClient.TAG, "[sendRequest] " + request);
             logHttpCurl(request);
             builder.addNetworkInterceptor(new LoggingInterceptor());
-        }
-        final ProgressListener li = request.getListener();
-        if (li != null) {
-            builder.addInterceptor(new ProgressInterceptor(li));
-        }
-        final OkClientInterceptor it = request.getInterceptor();
-        if (it != null) {
-            it.intercept(builder);
         }
         final OkHttpClient client = builder.build();
         return sendOkRequest(createOkRequest(request), client, request.isDebug());

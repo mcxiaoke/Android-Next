@@ -14,7 +14,7 @@ import java.util.Map;
  * Date: 14-2-8
  * Time: 11:22
  */
-public final class NextParams {
+public class NextParams {
     final Map<String, String> headers;
     final Map<String, String> queries;
     final Map<String, String> forms;
