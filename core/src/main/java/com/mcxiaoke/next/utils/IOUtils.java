@@ -562,12 +562,17 @@ public final class IOUtils {
             lineSeparator = LINE_SEPARATOR;
         }
         Charset cs = Charsets.toCharset(encoding);
-        for (Object line : lines) {
-            if (line != null) {
-                output.write(line.toString().getBytes(cs));
+        try {
+            for (Object line : lines) {
+                if (line != null) {
+                    output.write(line.toString().getBytes(cs));
+                }
+                output.write(lineSeparator.getBytes(cs));
             }
-            output.write(lineSeparator.getBytes(cs));
+        } finally {
+            IOUtils.closeQuietly(output);
         }
+
     }
 
     public static void writeList(Collection<?> lines,
@@ -583,12 +588,17 @@ public final class IOUtils {
         if (lineSeparator == null) {
             lineSeparator = LINE_SEPARATOR;
         }
-        for (Object line : lines) {
-            if (line != null) {
-                writer.write(line.toString());
+        try {
+            for (Object line : lines) {
+                if (line != null) {
+                    writer.write(line.toString());
+                }
+                writer.write(lineSeparator);
             }
-            writer.write(lineSeparator);
+        } finally {
+            IOUtils.closeQuietly(writer);
         }
+
     }
 
     public static void copyLegacy(File source, File dest)
@@ -604,8 +614,8 @@ public final class IOUtils {
                 output.write(buf, 0, bytesRead);
             }
         } finally {
-            input.close();
-            output.close();
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
     }
 
@@ -650,9 +660,14 @@ public final class IOUtils {
             throws IOException {
         long count = 0;
         int n = 0;
-        while (EOF != (n = input.read(buffer))) {
-            output.write(buffer, 0, n);
-            count += n;
+        try {
+            while (EOF != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+                count += n;
+            }
+        } finally {
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
         return count;
     }
@@ -677,13 +692,18 @@ public final class IOUtils {
         }
         int read;
         long totalRead = 0;
-        while (bytesToRead > 0 && EOF != (read = input.read(buffer, 0, bytesToRead))) {
-            output.write(buffer, 0, read);
-            totalRead += read;
-            if (length > 0) { // only adjust length if not reading to the end
-                // Note the cast must work because buffer.length is an integer
-                bytesToRead = (int) Math.min(length - totalRead, bufferLength);
+        try {
+            while (bytesToRead > 0 && EOF != (read = input.read(buffer, 0, bytesToRead))) {
+                output.write(buffer, 0, read);
+                totalRead += read;
+                if (length > 0) { // only adjust length if not reading to the end
+                    // Note the cast must work because buffer.length is an integer
+                    bytesToRead = (int) Math.min(length - totalRead, bufferLength);
+                }
             }
+        } finally {
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
         return totalRead;
     }
@@ -743,13 +763,18 @@ public final class IOUtils {
         }
         int read;
         long totalRead = 0;
-        while (bytesToRead > 0 && EOF != (read = input.read(buffer, 0, bytesToRead))) {
-            output.write(buffer, 0, read);
-            totalRead += read;
-            if (length > 0) { // only adjust length if not reading to the end
-                // Note the cast must work because buffer.length is an integer
-                bytesToRead = (int) Math.min(length - totalRead, buffer.length);
+        try {
+            while (bytesToRead > 0 && EOF != (read = input.read(buffer, 0, bytesToRead))) {
+                output.write(buffer, 0, read);
+                totalRead += read;
+                if (length > 0) { // only adjust length if not reading to the end
+                    // Note the cast must work because buffer.length is an integer
+                    bytesToRead = (int) Math.min(length - totalRead, buffer.length);
+                }
             }
+        } finally {
+            IOUtils.closeQuietly(input);
+            IOUtils.closeQuietly(output);
         }
         return totalRead;
     }
@@ -835,9 +860,9 @@ public final class IOUtils {
      *
      * @param input  stream to skip
      * @param toSkip the number of characters to skip
-     * @throws IOException      if there is a problem reading the file
+     * @throws IOException              if there is a problem reading the file
      * @throws IllegalArgumentException if toSkip is negative
-     * @throws EOFException     if the number of characters skipped was incorrect
+     * @throws EOFException             if the number of characters skipped was incorrect
      * @see Reader#skip(long)
      * @since 2.0
      */
@@ -867,13 +892,17 @@ public final class IOUtils {
             throw new IllegalArgumentException("Length must not be negative: " + length);
         }
         int remaining = length;
-        while (remaining > 0) {
-            int location = length - remaining;
-            int count = input.read(buffer, offset + location, remaining);
-            if (EOF == count) { // EOF
-                break;
+        try {
+            while (remaining > 0) {
+                int location = length - remaining;
+                int count = input.read(buffer, offset + location, remaining);
+                if (EOF == count) { // EOF
+                    break;
+                }
+                remaining -= count;
             }
-            remaining -= count;
+        } finally {
+            IOUtils.closeQuietly(input);
         }
         return length - remaining;
     }
@@ -913,13 +942,17 @@ public final class IOUtils {
             throw new IllegalArgumentException("Length must not be negative: " + length);
         }
         int remaining = length;
-        while (remaining > 0) {
-            int location = length - remaining;
-            int count = input.read(buffer, offset + location, remaining);
-            if (EOF == count) { // EOF
-                break;
+        try {
+            while (remaining > 0) {
+                int location = length - remaining;
+                int count = input.read(buffer, offset + location, remaining);
+                if (EOF == count) { // EOF
+                    break;
+                }
+                remaining -= count;
             }
-            remaining -= count;
+        } finally {
+            IOUtils.closeQuietly(input);
         }
         return length - remaining;
     }
@@ -950,9 +983,9 @@ public final class IOUtils {
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
-     * @throws IOException      if there is a problem reading the file
+     * @throws IOException              if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws EOFException     if the number of characters read was incorrect
+     * @throws EOFException             if the number of characters read was incorrect
      * @since 2.2
      */
     public static void readFully(Reader input, char[] buffer, int offset, int length) throws IOException {
@@ -970,9 +1003,9 @@ public final class IOUtils {
      *
      * @param input  where to read input from
      * @param buffer destination
-     * @throws IOException      if there is a problem reading the file
+     * @throws IOException              if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws EOFException     if the number of characters read was incorrect
+     * @throws EOFException             if the number of characters read was incorrect
      * @since 2.2
      */
     public static void readFully(Reader input, char[] buffer) throws IOException {
@@ -989,9 +1022,9 @@ public final class IOUtils {
      * @param buffer destination
      * @param offset inital offset into buffer
      * @param length length to read, must be >= 0
-     * @throws IOException      if there is a problem reading the file
+     * @throws IOException              if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws EOFException     if the number of bytes read was incorrect
+     * @throws EOFException             if the number of bytes read was incorrect
      * @since 2.2
      */
     public static void readFully(InputStream input, byte[] buffer, int offset, int length) throws IOException {
@@ -1009,9 +1042,9 @@ public final class IOUtils {
      *
      * @param input  where to read input from
      * @param buffer destination
-     * @throws IOException      if there is a problem reading the file
+     * @throws IOException              if there is a problem reading the file
      * @throws IllegalArgumentException if length is negative
-     * @throws EOFException     if the number of bytes read was incorrect
+     * @throws EOFException             if the number of bytes read was incorrect
      * @since 2.2
      */
     public static void readFully(InputStream input, byte[] buffer) throws IOException {

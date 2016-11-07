@@ -35,15 +35,15 @@ public class ZipUtils {
         public void unzip(File file) throws ZipException, IOException {
 
             String fileName = file.getName();
-            int exindex = fileName.lastIndexOf(".");
-            String dirName = fileName.substring(0, exindex);
+            int extIndex = fileName.lastIndexOf(".");
+            String dirName = fileName.substring(0, extIndex);
 
             File toDir = new File(file.getParent(), dirName + "/");
 
             unzip(file, toDir);
         }
 
-        public void unzip(File file, File toDir) throws ZipException,
+        public void unzip(File file, File toDir) throws
                 IOException {
 
             toDir.mkdirs();
@@ -77,20 +77,16 @@ public class ZipUtils {
                         while ((len = bis.read(read)) != -1) {
                             bos.write(read, 0, len);
                         }
-                    } catch (FileNotFoundException e) {
-                        throw e;
-                    } catch (IOException e) {
-                        throw e;
                     } finally {
                         try {
                             if (bis != null)
                                 bis.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                         }
                         try {
                             if (bos != null)
                                 bos.close();
-                        } catch (IOException e) {
+                        } catch (IOException ignored) {
                         }
                     }
                 }

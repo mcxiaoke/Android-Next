@@ -21,8 +21,8 @@ public abstract class TrafficUtils {
 
     public static final String TAG_SESSION = "session_traffic_info";
 
-    private static Map<String, Long> sReceivedBytes = new HashMap<String, Long>();
-    private static Map<String, Long> sSendBytes = new HashMap<String, Long>();
+    private static Map<String, Long> sReceivedBytes = new HashMap<>();
+    private static Map<String, Long> sSendBytes = new HashMap<>();
 
     private TrafficUtils() {
     }
@@ -59,7 +59,7 @@ public abstract class TrafficUtils {
     public static long current(Context context, String tag) {
         Long appRxValue = sReceivedBytes.get(tag);
         Long appTxValue = sSendBytes.get(tag);
-        if (appRxValue == null || appRxValue == null) {
+        if (appRxValue == null || appTxValue == null) {
             if (DEBUG) {
                 LogUtils.w(TAG, "current() appRxValue or appTxValue is null.");
             }
@@ -87,7 +87,7 @@ public abstract class TrafficUtils {
     public static long stop(Context context, String tag) {
         Long appRxValue = sReceivedBytes.remove(tag);
         Long appTxValue = sSendBytes.remove(tag);
-        if (appRxValue == null || appRxValue == null) {
+        if (appRxValue == null || appTxValue == null) {
             if (DEBUG) {
                 LogUtils.w(TAG, "stop() appRxValue or appTxValue is null.");
             }
