@@ -1,6 +1,7 @@
 include ':core'
 include ':task'
 include ':func'
+include ':request'
 include ':http'
 include ':ui'
 include ':recycler'

@@ -1,0 +1,10 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    compile project(":core")
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile 'com.google.code.gson:gson:2.7'
+}
+
+apply from: '../base.gradle'
+
