@@ -15,7 +15,6 @@
  */
 package com.mcxiaoke.next.request;
 
-import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.LogUtils;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OkRequest {
+    private static final String TAG = "OkRequest";
     RequestBuilder builder;
 
     public OkRequest(final OkRequest source) {
@@ -36,8 +36,6 @@ public class OkRequest {
     }
 
     public OkRequest(final HttpMethod method, String url) {
-        AssertUtils.notNull(method, "http method can not be null");
-        AssertUtils.notEmpty(url, "http url can not be null or empty");
         this.builder = new RequestBuilder().method(method).url(url);
     }
 
@@ -66,7 +64,7 @@ public class OkRequest {
     }
 
     public List<FileBody> getParts() {
-        return builder.parts;
+        return builder.bodies;
     }
 
     public Request toOkRequest() {
@@ -86,7 +84,7 @@ public class OkRequest {
         }
 
         for (FileBody part : request.getParts()) {
-            builder.append(" ").append(part.getName()).append("@").append(part.getFileName());
+            builder.append(" ").append(part.name).append("@").append(part.fileName);
         }
         final Map<String, List<String>> headers = request.getHeaders().toMultimap();
         for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
@@ -94,7 +92,7 @@ public class OkRequest {
                     .append(entry.getValue().get(0)).append("\"");
         }
 
-        LogUtils.i(Constants.TAG, "Curl Command: [ " + builder.toString() + " ]");
+        LogUtils.i(TAG, "Curl Command: [ " + builder.toString() + " ]");
 
     }
 

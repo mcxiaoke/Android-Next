@@ -22,11 +22,15 @@ import java.util.Map;
  * Time: 11:22
  */
 class RequestBuilder {
+    public static final String HEADER_USER_AGENT = "User-Agent";
+    public static final String HEADER_AUTHORIZATION = "Authorization";
+    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+
     protected HttpMethod method;
     protected HttpUrl.Builder httpUrl;
     protected Headers.Builder headers;
     protected Map<String, String> forms;
-    protected List<FileBody> parts;
+    protected List<FileBody> bodies;
     protected RequestBody rawBody;
     protected ProgressListener listener;
     protected boolean debug;
@@ -36,7 +40,7 @@ class RequestBuilder {
         this.httpUrl = new HttpUrl.Builder();
         this.headers = new Headers.Builder();
         this.forms = new HashMap<>();
-        this.parts = new ArrayList<>();
+        this.bodies = new ArrayList<>();
     }
 
     RequestBuilder(final RequestBuilder builder) {
@@ -44,7 +48,7 @@ class RequestBuilder {
         this.httpUrl = builder.httpUrl.build().newBuilder();
         this.headers = builder.headers.build().newBuilder();
         this.forms = new HashMap<>(builder.forms);
-        this.parts = new ArrayList<>(builder.parts);
+        this.bodies = new ArrayList<>(builder.bodies);
     }
 
     public RequestBuilder method(final HttpMethod method) {
@@ -70,21 +74,17 @@ class RequestBuilder {
         return method(HttpMethod.POST).url(url);
     }
 
-    public RequestBuilder header(String key, String value) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        AssertUtils.notNull(value, "value must not be null.");
-        this.headers.set(key, value);
+    public RequestBuilder header(String name, String value) {
+        this.headers.set(name, value);
         return this;
     }
 
-    public RequestBuilder addHeader(String key, String value) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
-        AssertUtils.notNull(value, "value must not be null.");
-        this.headers.add(key, value);
+    public RequestBuilder addHeader(String name, String value) {
+        this.headers.add(name, value);
         return this;
     }
 
-    public RequestBuilder headers(Map<String, String> headers) {
+    public RequestBuilder headers(final Map<String, String> headers) {
         if (headers != null) {
             for (final Map.Entry<String, String> entry : headers.entrySet()) {
                 header(entry.getKey(), entry.getValue());
@@ -94,85 +94,76 @@ class RequestBuilder {
     }
 
     public RequestBuilder userAgent(final String userAgent) {
-        return header(HttpConsts.USER_AGENT, userAgent);
+        return header(HEADER_USER_AGENT, userAgent);
     }
 
     public RequestBuilder authorization(final String authorization) {
-        return header(HttpConsts.AUTHORIZATION, authorization);
+        return header(HEADER_AUTHORIZATION, authorization);
     }
 
-    public RequestBuilder query(String name, String value) {
-        AssertUtils.notEmpty(name, "name must not be null or empty.");
-        this.httpUrl.addQueryParameter(name, value == null ? "" : String.valueOf(value));
+    public RequestBuilder addQuery(String name, String value) {
+        this.httpUrl.addQueryParameter(name, value);
         return this;
     }
 
-    public RequestBuilder queries(Map<String, String> queries) {
+    public RequestBuilder addQueries(Map<String, String> queries) {
         if (queries != null) {
             for (final Map.Entry<String, String> entry : queries.entrySet()) {
-                query(entry.getKey(), entry.getValue());
+                addQuery(entry.getKey(), entry.getValue());
             }
         }
         return this;
     }
 
-    public RequestBuilder form(String key, String value) {
-        AssertUtils.notEmpty(key, "key must not be null or empty.");
+    public RequestBuilder addBody(String name, String value) {
+        AssertUtils.notEmpty(name, "name must not be null or empty.");
         AssertUtils.notNull(value, "value must not be null.");
-        this.forms.put(key, value);
+        this.forms.put(name, value);
         return this;
     }
 
-    public RequestBuilder forms(Map<String, String> forms) {
-        if (forms != null) {
-            for (final Map.Entry<String, String> entry : forms.entrySet()) {
-                form(entry.getKey(), entry.getValue());
-            }
-        }
+    public RequestBuilder addBody(String name, File file) {
+        return addBody(name, file, APPLICATION_OCTET_STREAM, file.getName());
+    }
+
+    public RequestBuilder addBody(String name, File file, String mediaType) {
+        return addBody(name, file, mediaType, file.getName());
+    }
+
+    public RequestBuilder addBody(String name, File file, String mediaType, String fileName) {
+        FileBody part = FileBody.create(name, file, mediaType, fileName);
+        this.bodies.add(part);
         return this;
     }
 
-    public RequestBuilder file(String name, File file) {
-        return file(name, file, HttpConsts.APPLICATION_OCTET_STREAM, file.getName());
+    public RequestBuilder addBody(String name, byte[] content) {
+        return addBody(name, content, APPLICATION_OCTET_STREAM);
     }
 
-    public RequestBuilder file(String name, File file, String contentType) {
-        return file(name, file, contentType, file.getName());
-    }
-
-    public RequestBuilder file(String name, File file, String contentType, String fileName) {
-        AssertUtils.notEmpty(name, "name must not be null or empty.");
-        AssertUtils.notNull(file, "file must not be null.");
-        FileBody part = FileBody.create(name, file, contentType, fileName);
-        this.parts.add(part);
+    public RequestBuilder addBody(String name, byte[] content, String mediaType) {
+        FileBody part = FileBody.create(name, content, mediaType);
+        this.bodies.add(part);
         return this;
     }
 
-    public RequestBuilder file(String name, byte[] bytes) {
-        return file(name, bytes, HttpConsts.APPLICATION_OCTET_STREAM);
-
-    }
-
-    public RequestBuilder file(String name, byte[] bytes, String contentType) {
-        return file(name, bytes, contentType, null);
-    }
-
-    public RequestBuilder file(String name, byte[] bytes, String contentType,
-                               String fileName) {
-        AssertUtils.notEmpty(name, "name must not be null or empty.");
-        AssertUtils.notNull(bytes, "bytes must not be null.");
-        FileBody part = FileBody.create(name, bytes, contentType, fileName);
-        this.parts.add(part);
+    public RequestBuilder addBody(final String name, final RequestBody body) {
+        AssertUtils.notNull(body, "body must not be null.");
+        FileBody part = FileBody.create(name, body);
+        this.bodies.add(part);
         return this;
     }
 
-    public RequestBuilder rawBody(final RequestBody body) {
+    public RequestBuilder addBody(final RequestBody body) {
+        return addBody(null, body);
+    }
+
+    public RequestBuilder setBody(final RequestBody body) {
         this.rawBody = body;
         return this;
     }
 
     protected boolean hasParts() {
-        return this.parts.size() > 0;
+        return this.bodies.size() > 0;
     }
 
     protected boolean hasForms() {
@@ -193,9 +184,9 @@ class RequestBuilder {
         RequestBody requestBody;
         if (hasParts()) {
             final MultipartBody.Builder builder = new MultipartBody.Builder();
-            for (final FileBody part : parts) {
-                if (part.getBody() != null) {
-                    builder.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
+            for (final FileBody part : bodies) {
+                if (part.body != null) {
+                    builder.addFormDataPart(part.name, part.fileName, part.body);
                 }
             }
             for (Map.Entry<String, String> entry : forms.entrySet()) {
