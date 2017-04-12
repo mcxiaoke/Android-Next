@@ -7,7 +7,6 @@ import com.mcxiaoke.next.utils.LogUtils;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -436,9 +435,9 @@ public final class NextClient {
 //            builder.append(" ").append(entry.getKey()).append("==").append(entry.getValue());
 //        }
 
-        for (Map.Entry<String, String> entry : request.form().entrySet()) {
-            builder.append(" ").append(entry.getKey()).append("=\"")
-                    .append(entry.getValue()).append("\"");
+        for (KeyValue entry : request.forms()) {
+            builder.append(" ").append(entry.first).append("=\"")
+                    .append(entry.second).append("\"");
         }
 
         for (BodyPart part : request.parts()) {

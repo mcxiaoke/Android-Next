@@ -5,9 +5,9 @@ import com.mcxiaoke.next.utils.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,14 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class NextParams {
     final Map<String, String> headers;
-    final Map<String, String> queries;
-    final Map<String, String> forms;
+    final List<KeyValue> queries;
+    final List<KeyValue> forms;
     final List<BodyPart> parts;
 
     public NextParams() {
         headers = new ConcurrentHashMap<>();
-        queries = new ConcurrentHashMap<>();
-        forms = new ConcurrentHashMap<>();
+        queries = new ArrayList<>();
+        forms = new ArrayList<>();
         parts = new ArrayList<>();
     }
 
@@ -34,59 +34,6 @@ public class NextParams {
         queries = source.queries;
         forms = source.forms;
         parts = source.parts;
-    }
-
-    String getQuery(final String key) {
-        return this.queries.get(key);
-    }
-
-    String getForm(final String key) {
-        return this.forms.get(key);
-    }
-
-    String getHeader(final String key) {
-        return this.headers.get(key);
-    }
-
-    BodyPart getPart(final String key) {
-        for (final BodyPart part : parts) {
-            if (part.getName().equals(key)) {
-                return part;
-            }
-        }
-        return null;
-    }
-
-    boolean hasQuery(final String key) {
-        return this.queries.containsKey(key);
-    }
-
-    boolean hasForm(final String key) {
-        return this.forms.containsKey(key);
-    }
-
-    boolean hasHeader(final String key) {
-        return this.headers.containsKey(key);
-    }
-
-    boolean hasPart(final String key) {
-        return getPart(key) != null;
-    }
-
-    int queriesSize() {
-        return queries.size();
-    }
-
-    int formsSize() {
-        return forms.size();
-    }
-
-    int headersSize() {
-        return headers.size();
-    }
-
-    int partsSize() {
-        return parts.size();
     }
 
     public NextParams header(String key, String value) {
@@ -109,14 +56,23 @@ public class NextParams {
     public NextParams query(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
         if (value != null) {
-            this.queries.put(key, value);
+            this.queries.add(KeyValue.of(key, value));
+        }
+        return this;
+    }
+
+    public NextParams queries(List<KeyValue> queries) {
+        if (queries != null) {
+            for (final KeyValue entry : queries) {
+                query(entry.first, entry.second);
+            }
         }
         return this;
     }
 
     public NextParams queries(Map<String, String> queries) {
         if (queries != null) {
-            for (final Map.Entry<String, String> entry : queries.entrySet()) {
+            for (final Entry<String, String> entry : queries.entrySet()) {
                 query(entry.getKey(), entry.getValue());
             }
         }
@@ -126,14 +82,23 @@ public class NextParams {
     public NextParams form(String key, String value) {
         AssertUtils.notEmpty(key, "key must not be null or empty.");
         if (value != null) {
-            this.forms.put(key, value);
+            this.forms.add(KeyValue.of(key, value));
+        }
+        return this;
+    }
+
+    public NextParams forms(List<KeyValue> forms) {
+        if (forms != null) {
+            for (final KeyValue entry : forms) {
+                form(entry.first, entry.second);
+            }
         }
         return this;
     }
 
     public NextParams forms(Map<String, String> forms) {
         if (forms != null) {
-            for (final Map.Entry<String, String> entry : forms.entrySet()) {
+            for (final Entry<String, String> entry : forms.entrySet()) {
                 form(entry.getKey(), entry.getValue());
             }
         }
@@ -177,7 +142,7 @@ public class NextParams {
         return this;
     }
 
-    public Map<String, String> forms() {
+    public List<KeyValue> forms() {
         return forms;
     }
 
@@ -189,7 +154,7 @@ public class NextParams {
         return parts;
     }
 
-    public Map<String, String> queries() {
+    public List<KeyValue> queries() {
         return queries;
     }
 

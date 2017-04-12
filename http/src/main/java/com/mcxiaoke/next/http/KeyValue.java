@@ -18,4 +18,8 @@ public class KeyValue extends Pair<String, String> {
         super(key, value);
     }
 
+    @Override
+    public String toString() {
+        return "{" + String.valueOf(first) + ":" + String.valueOf(second) + "}";
+    }
 }

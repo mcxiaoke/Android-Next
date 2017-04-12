@@ -17,7 +17,6 @@ package com.mcxiaoke.next.http;
 
 import com.mcxiaoke.next.utils.AssertUtils;
 import com.mcxiaoke.next.utils.IOUtils;
-import com.mcxiaoke.next.utils.StringUtils;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
@@ -29,11 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class NextRequest {
     protected final HttpMethod method;
@@ -126,6 +124,11 @@ public class NextRequest {
         return this;
     }
 
+    public NextRequest queries(List<KeyValue> queries) {
+        this.params.queries(queries);
+        return this;
+    }
+
     public NextRequest queries(Map<String, String> queries) {
         this.params.queries(queries);
         return this;
@@ -141,6 +144,14 @@ public class NextRequest {
 //        throwIfNotSupportBody();
         if (supportBody()) {
             this.params.form(key, value);
+        }
+        return this;
+    }
+
+    public NextRequest forms(List<KeyValue> forms) {
+//        throwIfNotSupportBody();
+        if (supportBody()) {
+            this.params.forms(forms);
         }
         return this;
     }
@@ -287,84 +298,15 @@ public class NextRequest {
         return this;
     }
 
-    protected NextRequest removeHeader(String key) {
-        this.params.headers.remove(key);
-        return this;
-    }
-
-    protected NextRequest removeQuery(String key) {
-        this.params.queries.remove(key);
-        return this;
-    }
-
-    protected NextRequest removeForm(String key) {
-        this.params.forms.remove(key);
-        return this;
-    }
-
-    protected NextRequest removePart(BodyPart part) {
-        this.params.parts.remove(part);
-        return this;
-    }
-
-    protected String getHeader(String key) {
-        return this.params.getHeader(key);
-    }
-
-    protected String getQuery(String key) {
-        return this.params.getQuery(key);
-    }
-
-    protected String getForm(String key) {
-        return this.params.getForm(key);
-    }
-
-    protected BodyPart getPart(String key) {
-        return this.params.getPart(key);
-    }
-
-    protected boolean hasHeader(String key) {
-        return getHeader(key) != null;
-    }
-
-    protected boolean hasQuery(String key) {
-        return getQuery(key) != null;
-    }
-
-    protected boolean hasForm(String key) {
-        return getForm(key) != null;
-    }
-
-    protected boolean hasPart(String key) {
-        return getPart(key) != null;
-    }
-
-
-    protected int queriesSize() {
-        return queries().size();
-    }
-
-    protected int formsSize() {
-        return form().size();
-    }
-
-    protected int headersSize() {
-        return headers().size();
-    }
-
-    protected int partsSize() {
-        return parts().size();
-    }
-
     protected Map<String, String> headers() {
         return this.params.headers;
     }
 
-    protected Map<String, String> queries() {
+    protected List<KeyValue> queries() {
         return this.params.queries;
     }
 
-    protected Map<String, String> form() {
+    protected List<KeyValue> forms() {
         return this.params.forms;
     }
 
@@ -380,12 +322,11 @@ public class NextRequest {
         return this.params.forms.size() > 0;
     }
 
-
     HttpUrl buildUrlWithQueries() {
         final HttpUrl.Builder builder = httpUrl.newBuilder();
-        final Set<Entry<String, String>> entrySet = params.queries().entrySet();
-        for (final Entry<String, String> entry : entrySet) {
-            builder.addQueryParameter(entry.getKey(), entry.getValue());
+        final List<KeyValue> entrySet = new ArrayList<>(params.queries());
+        for (final KeyValue entry : entrySet) {
+            builder.addQueryParameter(entry.first, entry.second);
         }
         return builder.build();
     }
@@ -411,17 +352,17 @@ public class NextRequest {
                     multipart.addFormDataPart(part.getName(), part.getFileName(), part.getBody());
                 }
             }
-            for (Map.Entry<String, String> entry : form().entrySet()) {
-                final String key = entry.getKey();
-                final String value = entry.getValue();
+            for (KeyValue entry : forms()) {
+                final String key = entry.first;
+                final String value = entry.second;
                 multipart.addFormDataPart(key, value == null ? "" : value);
             }
             requestBody = multipart.setType(MultipartBody.FORM).build();
         } else if (hasForms()) {
             final FormBody.Builder bodyBuilder = new FormBody.Builder();
-            for (Map.Entry<String, String> entry : form().entrySet()) {
-                final String key = entry.getKey();
-                final String value = entry.getValue();
+            for (KeyValue entry : forms()) {
+                final String key = entry.first;
+                final String value = entry.second;
                 bodyBuilder.add(key, value == null ? "" : value);
             }
             requestBody = bodyBuilder.build();
