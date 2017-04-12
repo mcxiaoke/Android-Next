@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * User: mcxiaoke
@@ -21,10 +22,10 @@ public class NextParams {
     final List<BodyPart> parts;
 
     public NextParams() {
-        headers = new HashMap<String, String>();
-        queries = new HashMap<String, String>();
-        forms = new HashMap<String, String>();
-        parts = new ArrayList<BodyPart>();
+        headers = new ConcurrentHashMap<>();
+        queries = new ConcurrentHashMap<>();
+        forms = new ConcurrentHashMap<>();
+        parts = new ArrayList<>();
     }
 
     // internal use

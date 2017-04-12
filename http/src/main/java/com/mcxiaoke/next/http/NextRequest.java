@@ -32,6 +32,8 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class NextRequest {
     protected final HttpMethod method;
@@ -80,17 +82,8 @@ public class NextRequest {
         AssertUtils.notNull(params, "http params can not be null");
         this.method = method;
         this.params = new NextParams(params);
-        this.httpUrl = parseUrlAndQueryString(url);
+        this.httpUrl = HttpUrl.parse(url);
         AssertUtils.notNull(this.httpUrl, "http url can not be null");
-    }
-
-    private HttpUrl parseUrlAndQueryString(final String fullUrl) {
-        final String[] urlParts = fullUrl.split("\\?");
-        String url = urlParts[0];
-        if (urlParts.length > 1) {
-            this.params.queries(StringUtils.parseQueryString(urlParts[1]));
-        }
-        return HttpUrl.parse(url);
     }
 
     public NextRequest debug(final boolean debug) {
@@ -281,6 +274,10 @@ public class NextRequest {
         return listener;
     }
 
+    public NextParams getParams() {
+        return params;
+    }
+
     protected boolean supportBody() {
         return HttpMethod.supportBody(method);
     }
@@ -386,7 +383,8 @@ public class NextRequest {
 
     HttpUrl buildUrlWithQueries() {
         final HttpUrl.Builder builder = httpUrl.newBuilder();
-        for (final Map.Entry<String, String> entry : params.queries().entrySet()) {
+        final Set<Entry<String, String>> entrySet = params.queries().entrySet();
+        for (final Entry<String, String> entry : entrySet) {
             builder.addQueryParameter(entry.getKey(), entry.getValue());
         }
         return builder.build();
