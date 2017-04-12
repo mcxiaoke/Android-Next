@@ -2,7 +2,7 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2016.10.25-com.mcxiaoke.next:core:1.4.2-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2017.04.12-com.mcxiaoke.next:core:1.4.3-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
