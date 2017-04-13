@@ -2,27 +2,25 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2017.04.12-com.mcxiaoke.next:core:1.4.3-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2017.04.13-com.mcxiaoke.next:core:1.5.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.4.+'
+    compile 'com.mcxiaoke.next:core:1.5.0'
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.4.+'
+    compile 'com.mcxiaoke.next:task:1.5.0'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.4.+'
-    // 异步网络和文件IO组件，替代Volley
-    compile 'com.mcxiaoke.next:ioasync:1.4.+'
+    compile 'com.mcxiaoke.next:http:1.5.0'
     // 函数操作组件
-    compile 'com.mcxiaoke.next:functions:1.4.+'
+    compile 'com.mcxiaoke.next:functions:1.5.0'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.4.+'
+    compile 'com.mcxiaoke.next:ui:1.5.0'
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.4.+'
+    compile 'com.mcxiaoke.next:recycler:1.5.0'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.4.+'
+    compile 'com.mcxiaoke.next:extras-abc:1.5.0'
     
 ```
 
