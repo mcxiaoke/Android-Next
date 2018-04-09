@@ -3,10 +3,10 @@ apply plugin: 'com.android.library'
 dependencies {
     compile project(":core")
     compile project(":task")
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
-    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.squareup.okhttp3:okhttp:3.10.0'
+    compile 'com.google.code.gson:gson:2.8.2'
 
-    testCompile 'com.google.code.gson:gson:2.7'
+    testCompile 'com.google.code.gson:gson:2.8.2'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
     androidTestCompile 'com.android.support.test:runner:0.5'

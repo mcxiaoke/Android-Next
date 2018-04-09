@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile "com.android.support:support-v4:22.2.1"
-    compile 'com.android.support:recyclerview-v7:22.1.1'
+    compile "com.android.support:support-v4:$support_version"
+    compile "com.android.support:recyclerview-v7:$support_version"
 
     compile project(":core")
     compile project(":ui")
