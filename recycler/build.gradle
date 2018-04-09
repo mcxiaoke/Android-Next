@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile "com.android.support:support-v4:$support_version"
-    compile "com.android.support:recyclerview-v7:$support_version"
+    implementation "com.android.support:support-v4:$support_version"
+    implementation "com.android.support:recyclerview-v7:$support_version"
 
-    compile project(":core")
-    compile project(":ui")
+    implementation project(":core")
+    implementation project(":ui")
 }
 
 apply from: '../base.gradle'
