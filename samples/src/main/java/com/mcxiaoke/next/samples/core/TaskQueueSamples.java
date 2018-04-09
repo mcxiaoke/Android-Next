@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import com.mcxiaoke.next.cache.IMemoryCache;
 import com.mcxiaoke.next.cache.MemoryCache;
@@ -36,13 +36,13 @@ import java.util.concurrent.Callable;
 public class TaskQueueSamples extends BaseActivity {
     public static final String TAG = TaskQueueSamples.class.getSimpleName();
 
-    @InjectView(R.id.input)
+    @BindView(R.id.input)
     EditText mEditText;
 
-    @InjectView(R.id.button1)
+    @BindView(R.id.button1)
     Button mButton;
 
-    @InjectView(R.id.text1)
+    @BindView(R.id.text1)
     TextView mTextView;
 
     @OnClick(R.id.button1)
@@ -58,7 +58,7 @@ public class TaskQueueSamples extends BaseActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_next_executor);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         mEditText.setText("https://api.github.com/users/mcxiaoke");
         final IMemoryCache<String, String> cache = MemoryCache.mapCache();
         cache.put("key", "value");

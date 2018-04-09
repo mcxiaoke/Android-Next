@@ -8,14 +8,16 @@ dependencies {
     compile project(":ui")
     compile project(":recycler")
     compile 'com.mcxiaoke.volley:library:1.0.18'
-    compile 'com.jakewharton:butterknife:5.1.1'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.google.code.gson:gson:2.5'
+    compile "com.jakewharton:butterknife:8.8.1"
+    compile "com.android.support:support-v4:$support_version"
+    compile "com.android.support:recyclerview-v7:$support_version"
+    compile "com.android.support:appcompat-v7:$support_version"
+    compile "com.android.support:design:$support_version"
+    compile 'com.google.code.gson:gson:2.8.2'
     compile 'io.reactivex:rxjava:1.0.12'
     compile 'io.reactivex:rxandroid:0.25.0'
+
+    annotationProcessor "com.jakewharton:butterknife-compiler:8.8.1"
 }
 
 android {

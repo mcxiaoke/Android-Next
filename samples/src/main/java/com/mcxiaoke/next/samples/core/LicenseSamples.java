@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.mcxiaoke.next.samples.BaseActivity;
 import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.samples.license.LicenseHelper;
@@ -26,14 +26,14 @@ import java.util.List;
 public class LicenseSamples extends BaseActivity {
     public static final String TAG = LicenseSamples.class.getSimpleName();
 
-    @InjectView(android.R.id.list)
+    @BindView(android.R.id.list)
     ListView mListView;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_list);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         setLicenses();
     }
 

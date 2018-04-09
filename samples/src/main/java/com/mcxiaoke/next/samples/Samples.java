@@ -13,8 +13,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.google.gson.reflect.TypeToken;
 import com.mcxiaoke.next.http.HttpAsync;
 import com.mcxiaoke.next.samples.bus.BasicBusSample;
@@ -24,6 +24,7 @@ import com.mcxiaoke.next.samples.http.NextClientSamples;
 import com.mcxiaoke.next.samples.layout.LineLayoutSample;
 import com.mcxiaoke.next.samples.layout.ViewGroupSample;
 import com.mcxiaoke.next.samples.license.LicenseInfo;
+import com.mcxiaoke.next.task.TaskBuilder;
 import com.mcxiaoke.next.ui.widget.AdvancedShareActionProvider;
 import com.mcxiaoke.next.ui.widget.ArrayAdapterCompat;
 import com.mcxiaoke.next.ui.widget.ShareTarget;
@@ -44,11 +45,10 @@ import java.util.List;
 public class Samples extends BaseActivity {
     public static final String TAG = Samples.class.getSimpleName();
 
-    @InjectView(android.R.id.list)
+    @BindView(R.id.list)
     ListView mListView;
 
     private List<SampleInfo> mSampleListData;
-    private SampleListAdapter mSampleListAdapter;
 
 
     private AdvancedShareActionProvider mShareActionProvider;
@@ -57,7 +57,7 @@ public class Samples extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         initSamples();
         initListView();
         someTest();
@@ -67,7 +67,7 @@ public class Samples extends BaseActivity {
         long start = System.nanoTime();
         for (int i = 0; i < 10000; ++i) {
             HttpAsync.class.getSimpleName();
-            TaskStackBuilder.class.getSimpleName();
+            TaskBuilder.class.getSimpleName();
         }
         long ms = (System.nanoTime() - start) / 1000000;
         Log.e("someTest", "getSimpleName: " + ms + "ms");
@@ -83,7 +83,7 @@ public class Samples extends BaseActivity {
     }
 
     private void initSamples() {
-        mSampleListData = new ArrayList<SampleInfo>();
+        mSampleListData = new ArrayList<>();
         mSampleListData.add(new SampleInfo(ViewGroupSample.TAG, ViewGroupSample.class));
         mSampleListData.add(new SampleInfo(LineLayoutSample.TAG, LineLayoutSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
@@ -109,8 +109,7 @@ public class Samples extends BaseActivity {
     }
 
     private void initListView() {
-        mSampleListAdapter = new SampleListAdapter(this, mSampleListData);
-        mListView.setAdapter(mSampleListAdapter);
+        mListView.setAdapter(new SampleListAdapter(this, mSampleListData));
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

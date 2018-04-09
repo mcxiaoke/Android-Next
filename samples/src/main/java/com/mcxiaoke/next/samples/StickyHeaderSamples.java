@@ -9,9 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
-import com.mcxiaoke.next.samples.R;
 import com.mcxiaoke.next.ui.endless.EndlessListView;
 
 /**
@@ -22,12 +21,12 @@ import com.mcxiaoke.next.ui.endless.EndlessListView;
 public class StickyHeaderSamples extends BaseActivity implements AbsListView.OnScrollListener, MotionTrackListView.ScrollCallback {
     public static final String TAG = StickyHeaderSamples.class.getSimpleName();
 
-    @InjectView(R.id.main)
+    @BindView(R.id.main)
     TouchFrameLayout mMainView;
-    @InjectView(android.R.id.list)
+    @BindView(android.R.id.list)
     MotionTrackListView mListView;
 
-    @InjectView(R.id.sticky_header)
+    @BindView(R.id.sticky_header)
     View mStickyHeader;
 
     View mDummyHeader;
@@ -38,7 +37,7 @@ public class StickyHeaderSamples extends BaseActivity implements AbsListView.OnS
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_sticky);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         mDummyHeader = LayoutInflater.from(this).inflate(R.layout.dummy_header, mListView, false);
         mListView.setOnScrollListener(this);
         mListView.setRefreshMode(EndlessListView.RefreshMode.NONE);

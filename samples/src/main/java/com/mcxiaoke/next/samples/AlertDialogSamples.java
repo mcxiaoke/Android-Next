@@ -9,8 +9,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.mcxiaoke.next.http.NextClient;
 import com.mcxiaoke.next.http.NextResponse;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -34,15 +34,15 @@ import java.util.concurrent.Callable;
 public class AlertDialogSamples extends BaseActivity {
     public static final String TAG = AlertDialogSamples.class.getSimpleName();
 
-    @InjectView(android.R.id.button1)
+    @BindView(android.R.id.button1)
     Button mButton1;
-    @InjectView(android.R.id.button2)
+    @BindView(android.R.id.button2)
     Button mButton2;
-    @InjectView(android.R.id.button3)
+    @BindView(android.R.id.button3)
     Button mButton3;
-    @InjectView(R.id.button4)
+    @BindView(R.id.button4)
     Button mButton4;
-    @InjectView(R.id.button5)
+    @BindView(R.id.button5)
     Button mButton5;
 
 
@@ -50,7 +50,7 @@ public class AlertDialogSamples extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_dialog);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         getActionBar().setTitle(TAG);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 

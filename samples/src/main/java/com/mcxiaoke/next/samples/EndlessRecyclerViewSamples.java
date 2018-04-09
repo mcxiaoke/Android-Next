@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 
+import butterknife.BindView;
 import com.mcxiaoke.next.recycler.EndlessRecyclerView;
 import com.mcxiaoke.next.recycler.EndlessRecyclerView.OnLoadMoreListener;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * EndlessListView使用示例
@@ -27,7 +27,7 @@ import butterknife.InjectView;
 public class EndlessRecyclerViewSamples extends BaseActivity {
     public static final String TAG = EndlessRecyclerViewSamples.class.getSimpleName();
 
-    @InjectView(android.R.id.list)
+    @BindView(android.R.id.list)
     EndlessRecyclerView mEndlessRecyclerView;
 
     private StringRecyclerAdapter mRecyclerAdapter;
@@ -39,7 +39,7 @@ public class EndlessRecyclerViewSamples extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_recycler);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         getActionBar().setTitle(TAG);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 

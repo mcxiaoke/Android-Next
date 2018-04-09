@@ -3,8 +3,8 @@ package com.mcxiaoke.next.samples;
 import android.annotation.TargetApi;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskCallback;
 import com.mcxiaoke.next.task.TaskQueue;
@@ -24,7 +24,7 @@ import java.util.concurrent.Callable;
 public class EndlessListViewSamples extends BaseActivity {
     public static final String TAG = EndlessListViewSamples.class.getSimpleName();
 
-    @InjectView(android.R.id.list)
+    @BindView(android.R.id.list)
     EndlessListView mEndlessListView;
 
     private StringListAdapter mArrayAdapter;
@@ -36,7 +36,7 @@ public class EndlessListViewSamples extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_endless);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         getActionBar().setTitle(TAG);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
