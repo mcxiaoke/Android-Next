@@ -64,7 +64,7 @@ public class NextMessage implements Parcelable {
         this.arg2 = in.readLong();
         this.flag = in.readByte() != 0;
         this.text = in.readString();
-        data = in.readBundle();
+        data = in.readBundle(getClass().getClassLoader());
     }
 
     public static NextMessage create(int type) {

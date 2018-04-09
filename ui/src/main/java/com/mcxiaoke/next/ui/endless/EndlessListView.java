@@ -21,7 +21,7 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
     public static final String TAG = EndlessListView.class.getSimpleName();
     public static final boolean DEBUG = BuildConfig.DEBUG;
 
-    public static enum RefreshMode {
+    public enum RefreshMode {
         AUTO, CLICK, NONE
     }
 
@@ -238,15 +238,5 @@ public class EndlessListView extends ListView implements AbsListView.OnScrollLis
         mFirstVisibleItem = firstVisibleItem;
         mVisibleItemCount = visibleItemCount;
         mTotalItemCount = totalItemCount;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return super.onTouchEvent(ev);
     }
 }

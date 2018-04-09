@@ -177,14 +177,4 @@ public class ListViewExtend extends ListView implements AbsListView.OnScrollList
         mVisibleItemCount = visibleItemCount;
         mTotalItemCount = totalItemCount;
     }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        return super.onTouchEvent(ev);
-    }
 }

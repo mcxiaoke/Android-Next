@@ -939,8 +939,7 @@ public abstract class StringUtils {
         if (isEmpty(array2)) {
             return array1;
         }
-        List<String> result = new ArrayList<String>();
-        result.addAll(Arrays.asList(array1));
+        List<String> result = new ArrayList<String>(Arrays.asList(array1));
         for (String str : array2) {
             if (!result.contains(str)) {
                 result.add(str);
@@ -1512,7 +1511,7 @@ public abstract class StringUtils {
         if (bytes < unit) return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = "KMGTPE".charAt(exp - 1) + "";
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public static boolean isEmpty(Object[] array) {
