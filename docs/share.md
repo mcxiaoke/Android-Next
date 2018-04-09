@@ -2,7 +2,7 @@
 
 ```groovy
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.4.+'
+    compile 'com.mcxiaoke.next:ui:1.5.1'
 ```
 
 ## AdvancedShareActionProvider

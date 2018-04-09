@@ -3,7 +3,7 @@
 ## 集成方法
 
 ```groovy
-compile 'com.mcxiaoke.next:functions:1.4.+'
+compile 'com.mcxiaoke.next:functions:1.5.1'
 ```
 
 ## 使用介绍
@@ -40,7 +40,7 @@ public static <T> List<T> distinct(List<? extends T> list)
 public static <T> Collection<T> filter(Predicate<? super T> p,
                                            Iterable<? extends T> iterable)
 public static <T> List<T> filter(Predicate<? super T> p,
-                                     List<? extends T> list)                                          
+                                     List<? extends T> list)
 ```
 
 ### 是否所有项都满足条件 (all)

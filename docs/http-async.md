@@ -9,10 +9,10 @@
 ### Gradle集成
 
 ```groovy
-compile 'com.mcxiaoke.next:http-async:1.2.+'
+compile 'com.mcxiaoke.next:http-async:1.5.1'
 // 依赖http和task：
-compile 'com.mcxiaoke.next:http:1.2.+'
-compile 'com.mcxiaoke.next:task:1.2.+'
+compile 'com.mcxiaoke.next:http:1.5.1'
+compile 'com.mcxiaoke.next:task:1.5.1'
 ```
 
 ### 文档参考
@@ -44,7 +44,7 @@ compile 'com.mcxiaoke.next:task:1.2.+'
     String addRequest(HttpMethod method, String url, Map<String, String> queries, Map<String, String> forms,
                       StringCallback callback, Object caller);
     String addRequest(HttpMethod method, String url, Map<String, String> queries, Map<String, String> forms,
-                      Map<String, String> headers, StringCallback callback, Object caller);   
+                      Map<String, String> headers, StringCallback callback, Object caller);
 
 // 使用ResponseCallback，返回类型为NextResponse
     String addRequest(NextRequest request, ResponseCallback callback, Object caller);
@@ -56,7 +56,7 @@ compile 'com.mcxiaoke.next:task:1.2.+'
 
 // 使用FileCallback，保存为文件
     String addRequest(NextRequest request, File file, FileCallback callback, Object caller);
-    
+
 // 使用GsonCallback<T>，返回解析后的Model对象
     <T> String addRequest(NextRequest request, GsonCallback<T> callback, Object caller);
     <T> String addRequest(HttpMethod method, String url, NextParams params, GsonCallback<T> callback, Object caller);
@@ -91,7 +91,7 @@ compile 'com.mcxiaoke.next:task:1.2.+'
     <T> String delete(String url, NextParams params, GsonCallback<T> callback, Object caller);
     <T> String post(String url, GsonCallback<T> callback, Object caller);
     <T> String post(String url, Map<String, String> forms, GsonCallback<T> callback, Object caller);
-    <T> String post(String url, NextParams params, GsonCallback<T> callback, Object caller);   
+    <T> String post(String url, NextParams params, GsonCallback<T> callback, Object caller);
 ```
 
 ### 下载文件的接口

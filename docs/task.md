@@ -3,7 +3,7 @@
 ```groovy
     // v1.1.0 新增
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.4.+'
+    compile 'com.mcxiaoke.next:task:1.5.1'
 ```
 
 ## 异步任务

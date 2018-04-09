@@ -3,7 +3,7 @@
 ```groovy
     // v1.0.9 新增
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.4.+'
+    compile 'com.mcxiaoke.next:recycler:1.5.1'
 ```
 
 ## EndlessRecyclerView

@@ -6,9 +6,9 @@
     // http HTTP组件, 格式:jar和aar
     // 依赖 :core :task
     // 1.3.0新增HttpQueue
-    compile 'com.mcxiaoke.next:http:1.4.+'
-    compile 'com.mcxiaoke.next:task:1.4.+'
-    compile 'com.mcxiaoke.next:core:1.4.+'
+    compile 'com.mcxiaoke.next:http:1.5.1'
+    compile 'com.mcxiaoke.next:task:1.5.1'
+    compile 'com.mcxiaoke.next:core:1.5.1'
 ```
 
 ## 同步接口
@@ -60,12 +60,12 @@
 ### 获取API数据
 
 ```java
-// 用法一 
+// 用法一
     String userJsonData=NextClient.getDefault().get("https://api.douban.com/v2/user/1000001").string();
     JSONObject json=new JSONObject(userJsonData);
     String userId=json.getString("id");
     String createdAt=json.getString("created");
-    
+
 // 用法二
     Map<String, String> queries = new HashMap<String, String>();
     queries.put("urlquery1", "qvalue2");
@@ -117,7 +117,7 @@
     forms.put("key1", "value1");
     forms.put("key2", "value2");
     NextResponse response = NextClient.getDefault().post("http://httpbin.org/post", forms);
-    
+
 // 用法二
     final NextRequest request = NextRequest.post("http://httpbin.org/post");
     request.query("param1", "value");
@@ -159,7 +159,7 @@
     HttpQueue q4 = new HttpQueue(TaskQueue.concurrent());
     HttpQueue q5 = new HttpQueue(TaskQueue.concurrent(10), new NextClient());
     HttpQueue httpQueue=HttpQueue.getDefault();
-    
+
     httpQueue.add(httpJob);
     httpQueue.add(request, responseCallback, caller);
     httpQueue.add(request, jsonCallback, caller);
@@ -169,11 +169,11 @@
 	httpQueue.add(request, transformer, callback, caller);
     httpQueue.add(request, transformer, callback, caller,
                requestProcessor, preProcessor, postProcessor);
-               
+
     httpQueue.cancel(name);
     httpQueue.cancelAll(caller);
     httpQueue.cancelAll();
-    
+
     httpQueue.setClient(nextClient);
     httpQueue.setGson(gson);
     httpQueue.setQueue(taskQueu);
@@ -217,7 +217,7 @@
             }
         };
         httpQueue.add(request, callback, this);
-        
+
         // httpQueue.add(request,new StringTransformer(),callback,this);
         // or using HttpJob
         final HttpJob<String> httpJob = new HttpJobBuilder<String>()
@@ -240,11 +240,11 @@
     void setQueue(TaskQueue queue);
     void setClient(NextClient client);
     void setGson(Gson gson);
-    
+
     void cancelAll(Object caller);
     void cancel(String name);
     void cancelAll();
-    
+
     <T> String add(HttpJob<T> job);
 
     <T> String add(NextRequest request,
@@ -292,7 +292,7 @@
     HttpJobBuilder<T> preProcessor(HttpProcessor<NextResponse> processor);
     HttpJobBuilder<T> postProcessor(HttpProcessor<T> processor);
     HttpJob<T> create();
-    
+
     public HttpJob(final NextRequest request,
                    final HttpTransformer<T> transformer,
                    final HttpCallback<T> callback,
@@ -373,7 +373,7 @@ public static NextRequest put(final String url)
 // 构造函数
 public NextRequest(final NextRequest source)
 public NextRequest(final HttpMethod method, String url)
-public NextRequest(final HttpMethod method, String url, final NextParams params) 
+public NextRequest(final HttpMethod method, String url, final NextParams params)
 
 // 实例方法
 // 启用调试，输出日志
@@ -472,7 +472,7 @@ NextResponse delete2(String url, Map<String, String> forms)
 NextResponse delete2(String url, Map<String, String> forms,
                      Map<String, String> headers)
         throws IOException;
-        
+
 NextResponse post(String url, Map<String, String> forms)
         throws IOException;
 NextResponse post(String url, Map<String, String> forms,

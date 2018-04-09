@@ -2,40 +2,40 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2017.04.13-com.mcxiaoke.next:core:1.5.0-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2018.04.10-com.mcxiaoke.next:core:1.5.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.5.0'
+    compile 'com.mcxiaoke.next:core:1.5.1'
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.5.0'
+    compile 'com.mcxiaoke.next:task:1.5.1'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.5.0'
+    compile 'com.mcxiaoke.next:http:1.5.1'
     // 函数操作组件
-    compile 'com.mcxiaoke.next:functions:1.5.0'
+    compile 'com.mcxiaoke.next:functions:1.5.1'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.5.0'
+    compile 'com.mcxiaoke.next:ui:1.5.1'
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.5.0'
+    compile 'com.mcxiaoke.next:recycler:1.5.1'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.5.0'
-    
+    compile 'com.mcxiaoke.next:extras-abc:1.5.1'
+
 ```
 
 ## 使用指南（2016.04.21更新）
 
 **使用前请阅读对应模块的文档和示例，如果有不清楚的地方，可以看源码，或者向我提问。**
 
-### Core 
+### Core
 
-[`基类和工具类`](docs/core.md) 
+[`基类和工具类`](docs/core.md)
 
 MultiIntentService, NextMessage, Charsets, StringUtils, AndroidUtils, IOUtils, LogUtils。包含基础Activity和Service，还有一些工具类，功能包括：文件路径处理，Toast显示，屏幕方向，组件启用禁用，获取App签名信息；常用的文件复制/字符串/数组/列表/数据流读写，常用的字符串合并/分割/比较/转换/判断等操作；网络类型和状态获取，代理设置；Package相关的工具类，App是否安装，是否运行，启用和禁用组件等；Bitmap缩放，旋转，圆角，阴影，裁剪等；加密算法相关的工具方法，支持MD5/SHA1/SHA256/AES/HEX等。
 
 
-### TaskQueue 
+### TaskQueue
 
 [`异步任务队列`](docs/task.md)
 
@@ -49,7 +49,7 @@ TaskQueue, Async, TaskBuilder, TaskFuture, TaskCallback
 * TaskCallback 任务回调接口
 
 
-### HttpQueue 
+### HttpQueue
 
 **注意：1.4.0及之后的版本依赖okhttp3**
 
@@ -79,21 +79,21 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 - **HttpTransformer** 异步HTTP请求数据类型转换接口，支持Response/String/Gson/File等类型，支持自定义数据类型
 - **ResponseProcessor** 异步HTTP请求返回数据的处理器，支持多个Processor
 
-### Function 
+### Function
 
-[`函数式操作符`](docs/func.md) 
+[`函数式操作符`](docs/func.md)
 
 函数模块对外只有一个接口类： `com.mcxiaoke.next.func.Fn`，主要包含常见的函数式数据操作符：`map/flatMap/reduce/concat/filter/all/any` 等
 
-### Cache 
+### Cache
 
-[`磁盘和内存缓存`](docs/cache.md) 
+[`磁盘和内存缓存`](docs/cache.md)
 
 包含磁盘缓存 `DiscCache` 和内存缓存 `MemoryCache`，内部封装了HashMap和LruCache两种类型的缓存，可根据需要选用。
 
-### RecyclerView 
+### RecyclerView
 
-[`无限加载列表`](docs/recycler.md) 
+[`无限加载列表`](docs/recycler.md)
 
 封装 `RecyclerView` ，用于支持滚动到底部时自动加载数据和显示正在加载，主要有这几个类：
 
@@ -102,15 +102,15 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 - **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
 - **HeaderFooterRecyclerArrayAdapter** 支持添加Header和Footer的ArrayAdapter
 
-### UI Widgets 
+### UI Widgets
 
 [`常用UI控件`](docs/ui.md)
 
 一些常用的UI控件，可简化日常开发，包括 AlertDialogFragment, ProgressDialogFragment, AspectRatioImageView, ArrayAdapterCompat等。
 
-### ShareProvider 
+### ShareProvider
 
-[`高级分享组件`](docs/share.md) 
+[`高级分享组件`](docs/share.md)
 
 封装的一个 `ActionProvider` ，比系统自带的 `SharedActionProvider` 提供大得多的灵活度，可自定义出现在列表里的项目，主要包括 `AdvancedShareActionProvider` 和 `ShareTarget` 两个类。
 

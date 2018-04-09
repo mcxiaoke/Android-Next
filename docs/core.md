@@ -4,7 +4,7 @@
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.4.+'
+    compile 'com.mcxiaoke.next:core:1.5.1'
 ```
 
 包含基础Activity和Service，还有一些工具类，按Java包介绍如下：
@@ -78,7 +78,7 @@ public static String readStringFromAssets(Context context, String fileName)
 public static String readStringFromRaw(Context context, int resId)
 
 // 关闭流
-public static void closeQuietly(Closeable closeable) 
+public static void closeQuietly(Closeable closeable)
 
 // 读取字节
 public static byte[] readBytes(File file) throws IOException
@@ -113,7 +113,7 @@ public static void writeList(Collection<?> lines,
 public static String getFileNameWithoutExtension(String filePath)
 public static String getFileExtension(String filePath)
 public static String getFileName(String filePath)
-public static boolean makeDirs(String filePath) 
+public static boolean makeDirs(String filePath)
 public static long sizeOf(File file)
 
 // 人类可读的文件大小
@@ -130,7 +130,7 @@ public static String byteCountToDisplaySize(long size)
 public static boolean hasLength(CharSequence str)
 public static boolean isEmpty(CharSequence text)
 public static boolean isBlank(final CharSequence cs)
-public static boolean containsWhitespace(CharSequence str) 
+public static boolean containsWhitespace(CharSequence str)
 public static String deleteWhitespace(final String str)
 public static String trimWhitespace(String str)
 public static String reduceLineBreaks(String text)
@@ -154,7 +154,7 @@ public static <K, V> String toString(Map<K, V> map)
 public static String toString(Collection<?> coll,
                                   String delim, String prefix, String suffix)
 public static String[] toStringArray(Collection<String> collection)
-public static String[] toStringArray(Enumeration<String> enumeration) 
+public static String[] toStringArray(Enumeration<String> enumeration)
 public static String[] split(String toSplit, String delimiter)
 public static Set<String> commaDelimitedListToSet(String str)
 
@@ -163,7 +163,7 @@ public static boolean nullSafeEquals(String text1, String text2)
 public static String getHumanReadableByteCount(long bytes)
 public static String toSafeFileName(String name)
 public static String getUrlWithoutQuery(String url)
-public static Map<String, String> parseQueryString(String queryString)                              
+public static Map<String, String> parseQueryString(String queryString)
 ```
 
 #### 其它的工具类
@@ -222,7 +222,7 @@ protected abstract void onHandleIntent(final Intent intent, final String tag);
 ```
 
 #### NextBaseFragment
- 
+
 基础Fragment，添加了ActionBar和Activity相关的一些封装方法：
 
 ```java
