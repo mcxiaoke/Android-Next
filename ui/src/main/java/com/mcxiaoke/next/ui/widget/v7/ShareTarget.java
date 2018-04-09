@@ -1,6 +1,7 @@
-package com.mcxiaoke.next.support.v7;
+package com.mcxiaoke.next.ui.widget.v7;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
 /**
@@ -35,7 +36,7 @@ public class ShareTarget implements Comparable<ShareTarget> {
     }
 
     @Override
-    public int compareTo(ShareTarget another) {
+    public int compareTo(@NonNull ShareTarget another) {
         return another.weight - weight;
     }
 

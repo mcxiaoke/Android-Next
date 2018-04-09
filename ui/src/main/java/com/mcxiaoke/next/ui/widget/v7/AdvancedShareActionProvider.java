@@ -1,4 +1,4 @@
-package com.mcxiaoke.next.support.v7;
+package com.mcxiaoke.next.ui.widget.v7;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,8 +16,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
-import com.mcxiaoke.next.extras.BuildConfig;
-import com.mcxiaoke.next.extras.R;
+import com.mcxiaoke.next.ui.BuildConfig;
+import com.mcxiaoke.next.ui.R;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +78,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
     /**
      * 设置MenuItem的点击事件
      *
-     * @param listener
+     * @param listener  listener
      */
     public void setOnMenuItemClickListener(MenuItem.OnMenuItemClickListener listener) {
         mOnMenuItemClickListener = listener;
@@ -119,7 +119,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
      * 从分享列表移除指定的app
      * 注意：必须在setShareIntent之前调用
      *
-     * @param pkg
+     * @param pkg pkg
      */
     public void removePackage(String pkg) {
 
@@ -130,7 +130,7 @@ public class AdvancedShareActionProvider extends ActionProvider implements MenuI
      * 添加自定义的分享目标t
      * 注意：必须在setShareIntent之前调用
      *
-     * @param target
+     * @param target target
      */
     public void addShareTarget(ShareTarget target) {
         target.weight = --mWeightCounter;
