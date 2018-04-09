@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.samples;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import com.mcxiaoke.next.app.NextBaseActivity;
  * Date: 13-10-25
  * Time: 下午3:50
  */
+@SuppressLint("Registered")
 public class BaseActivity extends NextBaseActivity {
 
     @Override

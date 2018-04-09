@@ -1,5 +1,6 @@
 package com.mcxiaoke.next.samples;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
@@ -80,6 +81,7 @@ public class MotionTrackListView extends EndlessListView {
     private float mLastTouchY;
     private float mLastY;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         int index = ev.getActionIndex();

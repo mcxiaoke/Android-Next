@@ -62,7 +62,7 @@ public class LicenseSamples extends BaseActivity {
                             final ViewGroup parent) {
             final ViewHolder holder;
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.list_item_license, null);
+                convertView = mInflater.inflate(R.layout.list_item_license, parent, false);
                 holder = new ViewHolder(convertView);
                 convertView.setTag(holder);
             } else {

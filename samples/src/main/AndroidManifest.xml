@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.mcxiaoke.next.samples"
     android:versionCode="1"
     android:versionName="1.0.0">
@@ -20,11 +21,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
         android:name="com.mcxiaoke.next.samples.SamplesApp"
-        android:theme="@style/UITheme">
+        android:theme="@style/UITheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <activity
             android:name="com.mcxiaoke.next.samples.Samples"

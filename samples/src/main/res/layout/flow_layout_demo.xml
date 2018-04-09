@@ -75,13 +75,14 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Some Text" />
+            android:text="@string/app_name" />
 
         <ImageView
             android:layout_margin="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="@string/app_name" />
 
         <TextView
             android:singleLine="true"
@@ -90,7 +91,7 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Some dSod gd" />
+            android:text="@string/app_name" />
 
 
         <ImageView
@@ -98,7 +99,8 @@
             android:layout_margin="16dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="@string/app_name" />
 
         <TextView
             android:singleLine="true"
@@ -106,7 +108,7 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SmallSize" />
+            android:text="@string/app_name" />
 
         <TextView
             android:textSize="24sp"
@@ -115,7 +117,7 @@
             android:background="#009900"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="BigSize" />
+            android:text="@string/app_name" />
     </com.mcxiaoke.next.samples.layout.FlowLayout>
 
 </LinearLayout>
