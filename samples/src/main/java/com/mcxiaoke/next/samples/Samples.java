@@ -1,6 +1,5 @@
 package com.mcxiaoke.next.samples;
 
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -84,12 +83,11 @@ public class Samples extends BaseActivity {
 
     private void initSamples() {
         mSampleListData = new ArrayList<>();
+        mSampleListData.add(new SampleInfo(RecyclerViewSample.TAG, RecyclerViewSample.class));
         mSampleListData.add(new SampleInfo(ViewGroupSample.TAG, ViewGroupSample.class));
         mSampleListData.add(new SampleInfo(LineLayoutSample.TAG, LineLayoutSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample2.TAG, BasicBusSample2.class));
-        mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
-        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
         mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
@@ -98,8 +96,6 @@ public class Samples extends BaseActivity {
 
         mSampleListData.add(new SampleInfo(BasicBusSample.TAG, BasicBusSample.class));
         mSampleListData.add(new SampleInfo(BasicBusSample2.TAG, BasicBusSample2.class));
-        mSampleListData.add(new SampleInfo(EndlessRecyclerViewSamples.TAG, EndlessRecyclerViewSamples.class));
-        mSampleListData.add(new SampleInfo(EndlessListViewSamples.TAG, EndlessListViewSamples.class));
         mSampleListData.add(new SampleInfo(ListViewExtendSamples.TAG, ListViewExtendSamples.class));
         mSampleListData.add(new SampleInfo(StickyHeaderSamples.TAG, StickyHeaderSamples.class));
         mSampleListData.add(new SampleInfo(AlertDialogSamples.TAG, AlertDialogSamples.class));
