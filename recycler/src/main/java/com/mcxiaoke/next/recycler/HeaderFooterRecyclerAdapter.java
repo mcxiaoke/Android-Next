@@ -1,15 +1,17 @@
 package com.mcxiaoke.next.recycler;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.ViewGroup;
 
-public abstract class HeaderFooterRecyclerAdapter
+@SuppressWarnings("WeakerAccess")
+abstract class HeaderFooterRecyclerAdapter
         extends RecyclerView.Adapter {
     private static final String TAG = HeaderFooterRecyclerAdapter.class.getSimpleName();
 
-    protected static final int VIEW_TYPE_MAX_COUNT = 1000;
+    protected static final int VIEW_TYPE_MAX_COUNT = Integer.MAX_VALUE / 10;
     protected static final int HEADER_VIEW_TYPE_OFFSET = 0;
     protected static final int FOOTER_VIEW_TYPE_OFFSET = HEADER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
     protected static final int CONTENT_VIEW_TYPE_OFFSET = FOOTER_VIEW_TYPE_OFFSET + VIEW_TYPE_MAX_COUNT;
@@ -21,8 +23,9 @@ public abstract class HeaderFooterRecyclerAdapter
     /**
      * {@inheritDoc}
      */
+    @NonNull
     @Override
-    public final ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public final ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.v(TAG, "onCreateViewHolder() viewType=" + viewType
                 + " headerItemCount=" + headerItemCount
                 + " contentItemCount=" + contentItemCount
@@ -44,7 +47,7 @@ public abstract class HeaderFooterRecyclerAdapter
      * {@inheritDoc}
      */
     @Override
-    public final void onBindViewHolder(ViewHolder holder, int position) {
+    public final void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Log.v(TAG, "onBindViewHolder() position=" + position
                 + " headerItemCount=" + headerItemCount
                 + " contentItemCount=" + contentItemCount
@@ -114,9 +117,9 @@ public abstract class HeaderFooterRecyclerAdapter
      */
     public final void notifyHeaderItemInserted(int position) {
         int newHeaderItemCount = getHeaderItemCount();
-        if (position < 0 || position >= newHeaderItemCount) {
-            throw new IndexOutOfBoundsException("The given position " + position + " is not within the position bounds for header items [0 - " + (newHeaderItemCount - 1) + "].");
-        }
+//        if (position < 0 || position >= newHeaderItemCount) {
+//            throw new IndexOutOfBoundsException("The given position " + position + " is not within the position bounds for header items [0 - " + (newHeaderItemCount - 1) + "].");
+//        }
         notifyItemInserted(position);
     }
 
@@ -179,9 +182,9 @@ public abstract class HeaderFooterRecyclerAdapter
      * @param position the position.
      */
     public void notifyHeaderItemRemoved(int position) {
-        if (position < 0 || position >= headerItemCount) {
-            throw new IndexOutOfBoundsException("The given position " + position + " is not within the position bounds for header items [0 - " + (headerItemCount - 1) + "].");
-        }
+//        if (position < 0 || position >= headerItemCount) {
+//            throw new IndexOutOfBoundsException("The given position " + position + " is not within the position bounds for header items [0 - " + (headerItemCount - 1) + "].");
+//        }
         notifyItemRemoved(position);
     }
 
@@ -309,11 +312,11 @@ public abstract class HeaderFooterRecyclerAdapter
         int newHeaderItemCount = getHeaderItemCount();
         int newContentItemCount = getContentItemCount();
         int newFooterItemCount = getFooterItemCount();
-        if (position < 0 || position >= newFooterItemCount) {
-            throw new IndexOutOfBoundsException("The given position " + position
-                    + " is not within the position bounds for footer items [0 - "
-                    + (newFooterItemCount - 1) + "].");
-        }
+//        if (position < 0 || position >= newFooterItemCount) {
+//            throw new IndexOutOfBoundsException("The given position " + position
+//                    + " is not within the position bounds for footer items [0 - "
+//                    + (newFooterItemCount - 1) + "].");
+//        }
         notifyItemInserted(position + newHeaderItemCount + newContentItemCount);
     }
 
@@ -385,10 +388,10 @@ public abstract class HeaderFooterRecyclerAdapter
      * @param position the position.
      */
     public final void notifyFooterItemRemoved(int position) {
-        if (position < 0 || position >= footerItemCount) {
-            throw new IndexOutOfBoundsException("The given position " + position
-                    + " is not within the position bounds for footer items [0 - " + (footerItemCount - 1) + "].");
-        }
+//        if (position < 0 || position >= footerItemCount) {
+//            throw new IndexOutOfBoundsException("The given position " + position
+//                    + " is not within the position bounds for footer items [0 - " + (footerItemCount - 1) + "].");
+//        }
         notifyItemRemoved(position + headerItemCount + contentItemCount);
     }
 
