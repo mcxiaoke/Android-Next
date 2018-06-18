@@ -3,15 +3,14 @@
 ```groovy
     // v1.0.9 新增
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.5.1'
+    compile 'com.mcxiaoke.next:recycler:1.5.2'
 ```
 
 ## EndlessRecyclerView
 
-- **EndlessRecyclerView** 支持滚动到列表底部自动加载更多的RecyclerView
-- **RecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
+- **AdvancedRecyclerView** 支持列表顶部和底部加载更多的RecyclerView
+- **AdvancedRecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
 - **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
-- **HeaderFooterRecyclerArrayAdapter** 支持添加Header和Footer的ArrayAdapter
 
 ```java
 

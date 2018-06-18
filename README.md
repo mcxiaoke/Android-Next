@@ -2,25 +2,25 @@
 
 这个库是我在日常开发过程中积累下来的一些可复用组件，大部分都在我的工作项目和个人项目中有使用。
 
-最新版本: [![Maven Central](http://img.shields.io/badge/2018.04.10-com.mcxiaoke.next:core:1.5.1-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
+最新版本: [![Maven Central](http://img.shields.io/badge/2018.06.18-com.mcxiaoke.next:core:1.5.2-brightgreen.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mcxiaoke.next%22)
 
 ## Gradle集成
 
 ```groovy
     // core 核心库, 格式:jar和aar
-    compile 'com.mcxiaoke.next:core:1.5.1'
+    compile 'com.mcxiaoke.next:core:1.5.2'
     // task 异步任务库，格式:jar和aar
-    compile 'com.mcxiaoke.next:task:1.5.1'
+    compile 'com.mcxiaoke.next:task:1.5.2'
     // http HTTP组件, 格式:jar和aar
-    compile 'com.mcxiaoke.next:http:1.5.1'
+    compile 'com.mcxiaoke.next:http:1.5.2'
     // 函数操作组件
-    compile 'com.mcxiaoke.next:functions:1.5.1'
+    compile 'com.mcxiaoke.next:functions:1.5.2'
     // ui UI组件, 格式:aar
-    compile 'com.mcxiaoke.next:ui:1.5.1'
+    compile 'com.mcxiaoke.next:ui:1.5.2'
     // recycler EndlessRecyclerView, 格式:aar
-    compile 'com.mcxiaoke.next:recycler:1.5.1'
+    compile 'com.mcxiaoke.next:recycler:1.5.2'
     // extra-abc 依赖support-v7 AppCompat 格式:aar
-    compile 'com.mcxiaoke.next:extras-abc:1.5.1'
+    compile 'com.mcxiaoke.next:extras-abc:1.5.2'
 
 ```
 
@@ -97,10 +97,9 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 
 封装 `RecyclerView` ，用于支持滚动到底部时自动加载数据和显示正在加载，主要有这几个类：
 
-- **EndlessRecyclerView** 支持滚动到列表底部自动加载更多的RecyclerView
-- **RecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
+- **AdvancedRecyclerView** 支持列表顶部和底部加载更多的RecyclerView
+- **AdvancedRecyclerArrayAdapter** 适用于RecyclerView的ArrayAdapter，接口同ArrayAdapter
 - **HeaderFooterRecyclerAdapter** 支持添加Header和Footer的RecyclerView.Adapter
-- **HeaderFooterRecyclerArrayAdapter** 支持添加Header和Footer的ArrayAdapter
 
 ### UI Widgets
 

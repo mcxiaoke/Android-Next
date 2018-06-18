@@ -77,6 +77,7 @@ public class RecyclerViewSample extends BaseActivity {
         });
         recyclerView.addHeader(R.layout.layout_simple_header);
         arrayAdapter.addAll(Data.TITLES);
+        arrayAdapter.addAll(Data.TITLES);
     }
 
 
