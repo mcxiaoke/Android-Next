@@ -37,6 +37,14 @@ public class ProgressRequestBody extends RequestBody {
         return body.contentLength();
     }
 
+    public RequestBody getBody() {
+        return body;
+    }
+
+    public ProgressListener getListener() {
+        return listener;
+    }
+
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         if (buffer == null) {
