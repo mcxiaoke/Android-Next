@@ -2,8 +2,8 @@ apply plugin: 'com.android.library'
 
 dependencies {
 //    compile project(":core")
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.18.3'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.18.3'
 }
 
 apply from: '../base.gradle'

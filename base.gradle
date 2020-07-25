@@ -18,4 +18,4 @@ android {
 
 }
 
-apply from: 'https://github.com/mcxiaoke/gradle-mvn-push/raw/master/gradle-mvn-push.gradle'
+apply from: '../gradle-mvn-push.gradle'
