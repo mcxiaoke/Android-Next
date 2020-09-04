@@ -1,14 +1,15 @@
 package com.mcxiaoke.next.recycler;
 
 import android.os.Handler;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.AdapterDataObserver;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.ViewGroup;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
+
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView.ItemViewHolder;
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView.ViewHolderCreator;
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView.SimpleViewHolderCreator;
@@ -158,7 +159,7 @@ class AdvancedRecyclerAdapter extends HeaderFooterRecyclerAdapter {
         return index;
     }
 
-    public Adapter getWrapped() {
+    public RecyclerView.Adapter getWrapped() {
         return mWrapped;
     }
 

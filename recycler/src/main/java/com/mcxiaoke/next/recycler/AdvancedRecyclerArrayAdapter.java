@@ -15,10 +15,10 @@
 
 package com.mcxiaoke.next.recycler;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * Simple {@link RecyclerView.Adapter} implementation analog to {@link android.widget.ArrayAdapter}
- * for {@link android.support.v7.widget.RecyclerView}. Holds to a list of objects of type {@link T}
+ * for {@link androidx.recyclerview.widget.RecyclerView}. Holds to a list of objects of type {@link T}
  *
  * @param <T>  item type (a immutable pojo works best)
  * @param <VH> {@link RecyclerView.ViewHolder} for item {@link T}
@@ -217,7 +217,7 @@ public abstract class AdvancedRecyclerArrayAdapter<T, VH extends RecyclerView.Vi
      * DiffUtil uses this method to check equality instead of {@link Object#equals(Object)}
      * so that you can change its behavior depending on your UI.
      * For example, if you are using DiffUtil with a
-     * {@link android.support.v7.widget.RecyclerView.Adapter RecyclerView.Adapter}, you should
+     * {@link androidx.recyclerview.widget.RecyclerView.Adapter RecyclerView.Adapter}, you should
      * return whether the items' visual representations are the same.
      * <p>
      * This method is called only if {@link #isItemTheSame(Object, Object)} returns

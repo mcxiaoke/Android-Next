@@ -1,10 +1,10 @@
 package com.mcxiaoke.next.recycler;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 @SuppressWarnings("WeakerAccess")
 abstract class HeaderFooterRecyclerAdapter
@@ -25,7 +25,7 @@ abstract class HeaderFooterRecyclerAdapter
      */
     @NonNull
     @Override
-    public final ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Log.v(TAG, "onCreateViewHolder() viewType=" + viewType
                 + " headerItemCount=" + headerItemCount
                 + " contentItemCount=" + contentItemCount
@@ -47,7 +47,7 @@ abstract class HeaderFooterRecyclerAdapter
      * {@inheritDoc}
      */
     @Override
-    public final void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public final void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Log.v(TAG, "onBindViewHolder() position=" + position
                 + " headerItemCount=" + headerItemCount
                 + " contentItemCount=" + contentItemCount
@@ -468,7 +468,7 @@ abstract class HeaderFooterRecyclerAdapter
      * @param viewType the view type for the header.
      * @return the view holder.
      */
-    protected abstract ViewHolder onCreateHeaderItemViewHolder(ViewGroup parent, int viewType);
+    protected abstract RecyclerView.ViewHolder onCreateHeaderItemViewHolder(ViewGroup parent, int viewType);
 
     /**
      * This method works exactly the same as {@link #onCreateViewHolder(ViewGroup, int)}, but for footer items.
@@ -477,7 +477,7 @@ abstract class HeaderFooterRecyclerAdapter
      * @param viewType the view type for the footer.
      * @return the view holder.
      */
-    protected abstract ViewHolder onCreateFooterItemViewHolder(ViewGroup parent, int viewType);
+    protected abstract RecyclerView.ViewHolder onCreateFooterItemViewHolder(ViewGroup parent, int viewType);
 
     /**
      * This method works exactly the same as {@link #onCreateViewHolder(ViewGroup, int)}, but for content items.
@@ -486,30 +486,30 @@ abstract class HeaderFooterRecyclerAdapter
      * @param viewType the view type for the content.
      * @return the view holder.
      */
-    protected abstract ViewHolder onCreateContentItemViewHolder(ViewGroup parent, int viewType);
+    protected abstract RecyclerView.ViewHolder onCreateContentItemViewHolder(ViewGroup parent, int viewType);
 
     /**
-     * This method works exactly the same as {@link #onBindViewHolder(ViewHolder, int)}, but for header items.
+     * This method works exactly the same as {@link #onBindViewHolder(RecyclerView.ViewHolder, int)}, but for header items.
      *
      * @param holder   the view holder for the header item.
      * @param position the position.
      */
-    protected abstract void onBindHeaderItemViewHolder(ViewHolder holder, int position);
+    protected abstract void onBindHeaderItemViewHolder(RecyclerView.ViewHolder holder, int position);
 
     /**
-     * This method works exactly the same as {@link #onBindViewHolder(ViewHolder, int)}, but for footer items.
+     * This method works exactly the same as {@link #onBindViewHolder(RecyclerView.ViewHolder, int)}, but for footer items.
      *
      * @param holder   the view holder for the footer item.
      * @param position the position.
      */
-    protected abstract void onBindFooterItemViewHolder(ViewHolder holder, int position);
+    protected abstract void onBindFooterItemViewHolder(RecyclerView.ViewHolder holder, int position);
 
     /**
-     * This method works exactly the same as {@link #onBindViewHolder(ViewHolder, int)}, but for content items.
+     * This method works exactly the same as {@link #onBindViewHolder(RecyclerView.ViewHolder, int)}, but for content items.
      *
      * @param holder   the view holder for the content item.
      * @param position the position.
      */
-    protected abstract void onBindContentItemViewHolder(ViewHolder holder, int position);
+    protected abstract void onBindContentItemViewHolder(RecyclerView.ViewHolder holder, int position);
 
 }
