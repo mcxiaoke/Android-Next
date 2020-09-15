@@ -55,7 +55,7 @@ public class ThreadUtils {
 
     private static boolean isAddedCompat(final Object caller) {
         try {
-            final String className = "android.support.v4.app.Fragment";
+            final String className = "androidx.Fragment";
             final Class<?> clazz = caller.getClass();
             final String callerClassName = clazz.getName();
             if (className.equals(callerClassName)) {

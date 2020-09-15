@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    compile "com.android.support:support-v4:$support_version"
-    compile "com.android.support:appcompat-v7:$support_version"
+    implementation "androidx.appcompat:appcompat:$androidx_version"
 }
 
 apply from: '../base.gradle'

@@ -1,8 +1,9 @@
 package com.mcxiaoke.next.ui.widget.v7;
 
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
 import android.view.MenuItem;
+
+import androidx.annotation.NonNull;
 
 /**
  * User: mcxiaoke

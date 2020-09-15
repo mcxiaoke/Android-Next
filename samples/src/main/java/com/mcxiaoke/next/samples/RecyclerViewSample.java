@@ -3,18 +3,19 @@ package com.mcxiaoke.next.samples;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.mcxiaoke.next.recycler.AdvancedRecyclerArrayAdapter;
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView;
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView.ItemViewHolder;
 import com.mcxiaoke.next.recycler.AdvancedRecyclerView.OnLoadDataListener;
-import com.mcxiaoke.next.recycler.AdvancedRecyclerView.ViewHolderCreator;
 import com.mcxiaoke.next.task.SimpleTaskCallback;
 import com.mcxiaoke.next.task.TaskBuilder;
 import com.mcxiaoke.next.utils.LogUtils;
@@ -97,16 +98,16 @@ public class RecyclerViewSample extends BaseActivity {
                 arrayAdapter.addAll(0, strings);
                 recyclerView.setHeaderLoading(false);
                 recyclerView.setEnableHeaderLoading(false);
-                recyclerView.addHeader(new ViewHolderCreator<ViewHolder>() {
+                recyclerView.addHeader(new AdvancedRecyclerView.ViewHolderCreator<RecyclerView.ViewHolder>() {
                     @Override
-                    public ViewHolder create(final ViewGroup parent) {
+                    public RecyclerView.ViewHolder create(final ViewGroup parent) {
                         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
                         View view = inflater.inflate(R.layout.layout_simple_header, parent, false);
                         return new SimpleViewHolder(view);
                     }
 
                     @Override
-                    public void bind(final ViewHolder holder, final int position) {
+                    public void bind(final RecyclerView.ViewHolder holder, final int position) {
 
                     }
                 });

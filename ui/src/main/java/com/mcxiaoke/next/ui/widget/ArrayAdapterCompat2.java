@@ -1,4 +1,4 @@
-package com.douban.frodo.baseproject.adapter;
+package com.mcxiaoke.next.ui.widget;
 /*
  * Copyright (C) 2006 The Android Open Source Project
  *
@@ -16,14 +16,6 @@ package com.douban.frodo.baseproject.adapter;
  */
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.support.annotation.ArrayRes;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +25,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +64,7 @@ import java.util.List;
  * </p>
  * <p class="note"><strong>Note:</strong>
  * If you are considering using array adapter with a ListView, consider using
- * {@link android.support.v7.widget.RecyclerView} instead.
+ * {@link androidx.recyclerview.widget.RecyclerView} instead.
  * RecyclerView offers similar features with better performance and more flexibility than
  * ListView provides.
  * See the
