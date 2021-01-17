@@ -207,14 +207,13 @@ NextClient, NextRequest, NextResponse, ProgressListener, RequestInterceptor。�
 * Rx文档中文翻译: <https://github.com/mcxiaoke/RxDocs>
 * MQTT协议中文版: <https://github.com/mcxiaoke/mqtt>
 * 蘑菇饭App: <https://github.com/mcxiaoke/minicat>
-* 饭否客户端: <https://github.com/mcxiaoke/fanfouapp-opensource>
 * Volley镜像: <https://github.com/mcxiaoke/android-volley>
 
 ------
 
 ## License
 
-    Copyright 2013 - 2015 Xiaoke Zhang
+    Copyright 2013 - 2021 Zhang Xiaoke
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
